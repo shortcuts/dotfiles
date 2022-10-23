@@ -2,7 +2,7 @@
 -- Mapping
 --------------------------
 
-local M = require('shortcuts.bind')
+local M = require("shortcuts.bind")
 
 -- Global
 M.nmap("<Leader>jj", "<C-z>") -- vim foreground
@@ -30,15 +30,15 @@ M.nnoremap("<Leader>fh", ":Telescope help_tags<CR>") -- open help
 M.nnoremap("<C-b>", ":NvimTreeToggle<CR>") -- toggle tree
 
 -- Barbar
-M.nnoremap('<C-j>', '<Cmd>BufferPrevious<CR>') -- navigate previous
-M.nnoremap('<C-k>', '<Cmd>BufferNext<CR>') -- navigate next
-M.nnoremap('<C-q>', '<Cmd>BufferClose<CR>') -- close
+M.nnoremap("<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
+M.nnoremap("<C-k>", "<Cmd>BufferNext<CR>") -- navigate next
+M.nnoremap("<C-q>", "<Cmd>BufferClose<CR>") -- close
 
 -- Folding
-M.nnoremap('<C-f>', 'za') -- toggle under cursor
-M.nnoremap('<Leader>fa', 'zM') -- fold all
-M.nnoremap('<Leader>ufa', 'zR') -- unfold all
+M.nnoremap("<C-f>", "za") -- toggle under cursor
+M.nnoremap("<Leader>fa", "zM") -- fold all
+M.nnoremap("<Leader>ufa", "zR") -- unfold all
 
 -- Copy to clipboard
-M.nnoremap('<Leader>yy', '"*y') -- in normal mode
-M.vnoremap('<Leader>yy', '"*y') -- in visual mode
+M.nnoremap("<Leader>yy", '"*y') -- in normal mode
+M.vnoremap("<Leader>yy", '"*y') -- in visual mode

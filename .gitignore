@@ -6,8 +6,10 @@ iterm2/AppSupport
 !iterm2
 
 # nvim config
-nvim/plugged
 !nvim
 
 # fish config
 !fish
+
+# github workflows
+!.github

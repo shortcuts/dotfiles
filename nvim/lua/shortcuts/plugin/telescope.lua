@@ -1,7 +1,7 @@
 local PREVIEWERS = require("telescope.previewers")
 local ACTIONS = require("telescope.actions")
 
-require('telescope').setup{
+require("telescope").setup({
     defaults = {
         file_sorter = require("telescope.sorters").get_fzy_sorter,
         color_devicons = true,
@@ -48,7 +48,7 @@ require('telescope').setup{
     },
     pickers = {
         find_files = {
-            hidden = true
+            hidden = true,
         },
     },
-}
+})

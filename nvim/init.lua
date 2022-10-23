@@ -1,1 +1,1 @@
-require('shortcuts')
+require("shortcuts")
