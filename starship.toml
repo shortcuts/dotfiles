@@ -1,0 +1,34 @@
+# setup commands
+command_timeout = 2000
+
+# dispaly
+format = """$git_branch$git_status$git_metrics$git_state [>](dimmed white) """
+right_format = """$cmd_duration"""
+
+# configs
+## ____ LEFT
+[git_branch]
+format = " [on](bright-black) [$branch]($style)"
+style = "bright-blue"
+
+[git_status]
+format = '([\[$all_status$ahead_behind\]]($style))'
+style = "dimmed white"
+
+[git_metrics]
+disabled = false
+format = '([ +$added]($added_style))([ -$deleted]($deleted_style))'
+added_style = "bold dimmed green"
+deleted_style = "bold dimmed red"
+
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\)'
+style = "bold bright-blue"
+
+## ____ RIGHT
+[cmd_duration]
+min_time = 0
+show_milliseconds = true
+format = '[in](dimmed white) [$duration]($style)'
+style = 'bold dimmed yellow'

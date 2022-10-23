@@ -1,0 +1,13 @@
+# ignore everything but the lines below
+/*
+
+# keep iterm2 profile and theme
+iterm2/AppSupport
+!iterm2
+
+# nvim config
+nvim/plugged
+!nvim
+
+# fish config
+!fish
