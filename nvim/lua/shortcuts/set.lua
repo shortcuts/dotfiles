@@ -5,9 +5,9 @@
 -- Plugin global opts
 vim.g.catppuccin_flavour = "frappe" -- available latte, frappe, macchiato, mocha
 vim.g.go_gopls_gofumpt = 1
-vim.g.go_fmt_cmd = 'gopls'
-vim.g.go_def_mode = 'gopls'
-vim.g.go_info_mode = 'gopls'
+vim.g.go_fmt_cmd = "gopls"
+vim.g.go_def_mode = "gopls"
+vim.g.go_info_mode = "gopls"
 
 -- disable netrw at start
 vim.g.loaded = 1
