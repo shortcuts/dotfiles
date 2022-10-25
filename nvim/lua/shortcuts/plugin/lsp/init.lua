@@ -10,6 +10,8 @@ local LSP_SERVERS = {
 	"yamlls",
 	"terraformls",
 	"dockerls",
+	"jsonls",
+	"pylsp",
 }
 
 require("mason-lspconfig").setup({

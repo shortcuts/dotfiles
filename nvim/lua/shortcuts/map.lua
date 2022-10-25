@@ -8,7 +8,7 @@ local M = require("shortcuts.bind")
 M.nmap("<Leader>jj", "<C-z>") -- vim foreground
 M.nmap("<Leader>qq", ":quitall<CR>") -- quit all vim instances
 
--- start zen mode
+-- start NNP
 M.nnoremap("<Leader>kz", ":NoNeckPain<CR>")
 
 -- split size
@@ -18,6 +18,10 @@ M.nnoremap("<Leader>==", "<C-w>=")
 -- Jumping centers screen
 M.nnoremap("<C-d>", "<C-d>zz")
 M.nnoremap("<C-u>", "<C-u>zz")
+M.nnoremap("<C-i>", "<C-i>zz")
+M.nnoremap("<C-o>", "<C-o>zz")
+M.nnoremap("<S-[>", "<S-[>zz")
+M.nnoremap("<S-]>", "<S-]>zz")
 M.nnoremap("n", "nzz")
 M.nnoremap("N", "Nzz")
 
