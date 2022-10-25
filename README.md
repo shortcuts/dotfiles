@@ -1,11 +1,10 @@
 # configs
 
-my `~/.config` files
-
-- starship prompt theme and setup
+This repository holds my `~/.config` folder:
+- starship prompt theme
 - iterm2 profile and theme
 - fish shell functions and aliases
-- nvim mapping and pluggins
+- nvim mapping and plugins
 
 ## installing
 
