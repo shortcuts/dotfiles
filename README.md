@@ -1,4 +1,4 @@
-# configs
+# dotfiles
 
 This repository holds my `~/.config` folder:
 - starship prompt theme
@@ -9,5 +9,5 @@ This repository holds my `~/.config` folder:
 ## installing
 
 ```bash
-git clone git@github.com:shortcuts/configs.git ~/.config && bash ~/.config/install.sh
+git clone git@github.com:shortcuts/dotfiles.git ~/.config && bash ~/.config/install.sh
 ```
