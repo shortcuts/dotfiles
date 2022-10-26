@@ -10,6 +10,4 @@ require("shortcuts.plugin.treesitter")
 require("shortcuts.plugin.telescope")
 
 -- personal
-require("no-neck-pain").setup({
-	enableOnWinEnter = true,
-})
+require("no-neck-pain").setup()
