@@ -1,7 +1,16 @@
 # ignore everything but the lines below
 /*
 
-# keep iterm2 profile and theme
+# scripts
+!*.sh
+
+# docs
+!*.md
+
+# rectangle config
+!RectangleConfig.json
+
+# iterm2 profile and theme
 iterm2/AppSupport
 !iterm2
 
@@ -11,5 +20,8 @@ iterm2/AppSupport
 # fish config
 !fish
 
+# starship config
+!starship.toml
+
 # github workflows
-!.github
+!.git*
