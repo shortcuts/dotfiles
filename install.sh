@@ -33,4 +33,4 @@ fisher install jorgebucaran/nvm.fish
 # install window manager
 brew install --cask rectangle
 mkdir -p ~/Library/Application\ Support/Rectangle/
-mv RectangleConfig.json ~/Library/Application\ Support/Rectangle/
+cp RectangleConfig.json ~/Library/Application\ Support/Rectangle/
