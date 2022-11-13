@@ -42,9 +42,6 @@ return require("packer").startup(function(use)
 	-- Go plugin
 	use({ "fatih/vim-go", run = ":GoUpdateBinaries" })
 
-	-- Sidebar tree
-	use("kyazdani42/nvim-web-devicons")
-	use("kyazdani42/nvim-tree.lua")
 
 	-- Completion plugins
 	use("williamboman/mason.nvim")
@@ -62,6 +59,7 @@ return require("packer").startup(function(use)
 	use("windwp/nvim-autopairs")
 
 	-- Theme
+	use("kyazdani42/nvim-web-devicons")
 	use({ "catppuccin/nvim", as = "catppuccin" })
 	use("lewis6991/gitsigns.nvim")
 	use("numToStr/Comment.nvim")

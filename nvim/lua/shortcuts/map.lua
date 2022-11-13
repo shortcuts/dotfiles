@@ -30,8 +30,8 @@ M.nnoremap("<C-p>", ":Telescope find_files<CR>") -- open find file
 M.nnoremap("<Leader>fg", ":Telescope live_grep<CR>") -- open find in file
 M.nnoremap("<Leader>fh", ":Telescope help_tags<CR>") -- open help
 
--- NvimTree
-M.nnoremap("<C-b>", ":NvimTreeToggle<CR>") -- toggle tree
+-- Netrw
+M.nnoremap("<C-b>", ":Rex<CR>") -- toggle netrw
 
 -- Barbar
 M.nnoremap("<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
