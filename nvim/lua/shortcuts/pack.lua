@@ -42,7 +42,6 @@ return require("packer").startup(function(use)
 	-- Go plugin
 	use({ "fatih/vim-go", run = ":GoUpdateBinaries" })
 
-
 	-- Completion plugins
 	use("williamboman/mason.nvim")
 	use("williamboman/mason-lspconfig.nvim")
