@@ -15,6 +15,7 @@ iterm2/AppSupport
 !iterm2
 
 # nvim config
+nvim/plugin/packer_compiled.lua
 !nvim
 
 # fish config

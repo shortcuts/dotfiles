@@ -29,9 +29,8 @@ M.nnoremap("N", "Nzz")
 M.nnoremap("<C-p>", ":Telescope find_files<CR>") -- open find file
 M.nnoremap("<Leader>fg", ":Telescope live_grep<CR>") -- open find in file
 M.nnoremap("<Leader>fh", ":Telescope help_tags<CR>") -- open help
-
--- Netrw
-M.nnoremap("<C-b>", ":Rex<CR>") -- toggle netrw
+-- Telescope file browser
+M.nnoremap("<C-b>", ":Telescope file_browser<CR>") -- toggle file_browser
 
 -- Barbar
 M.nnoremap("<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
