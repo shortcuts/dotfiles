@@ -57,7 +57,6 @@ require("telescope").setup({
 			hijack_netrw = true,
 			initial_mode = "normal",
 			path = "%:p:h",
-			depth = 2,
 		},
 	},
 })
