@@ -8,7 +8,7 @@ local M = require("shortcuts.bind")
 M.nmap("<Leader>jj", "<C-z>") -- vim foreground
 M.nmap("<Leader>qq", ":quitall<CR>") -- quit all vim instances
 
--- start NNP
+-- toggle NNP
 M.nnoremap("<Leader>kz", ":NoNeckPain<CR>")
 
 -- split size
