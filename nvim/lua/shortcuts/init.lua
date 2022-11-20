@@ -9,15 +9,27 @@ require("shortcuts.plugin")
 
 vim.cmd("colorscheme catppuccin")
 
-vim.api.nvim_create_augroup("OnFileOpen", { clear = true })
-vim.api.nvim_create_autocmd({ "BufReadPost" }, {
-	group = "OnFileOpen",
-	pattern = "*",
-	callback = function()
-		-- unfold all
-		vim.cmd("normal zR")
-	end,
-})
+-- function to create a list of commands and convert them to autocommands
+-------- This function is taken from https://github.com/norcalli/nvim_utils
+local function nvim_create_augroups(definitions)
+	for group_name, definition in pairs(definitions) do
+		vim.api.nvim_command("augroup " .. group_name)
+		vim.api.nvim_command("autocmd!")
+		for _, def in ipairs(definition) do
+			local command = table.concat(vim.tbl_flatten({ "autocmd", def }), " ")
+			vim.api.nvim_command(command)
+		end
+		vim.api.nvim_command("augroup END")
+	end
+end
+
+local autoCommands = {
+	open_all_folds = {
+		{ "BufReadPost,FileReadPost", "*", "normal zR" },
+	},
+}
+
+nvim_create_augroups(autoCommands)
 
 vim.api.nvim_create_augroup("OnVimEnter", { clear = true })
 vim.api.nvim_create_autocmd({ "VimEnter" }, {
