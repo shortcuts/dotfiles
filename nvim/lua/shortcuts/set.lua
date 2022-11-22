@@ -32,10 +32,6 @@ vim.opt.expandtab = true
 vim.opt.smartindent = true
 vim.opt.wrap = false
 
--- Folding
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-
 -- Features
 vim.opt.termguicolors = true
 vim.opt.errorbells = false
