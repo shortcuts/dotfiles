@@ -1,4 +1,5 @@
 local PREVIEWERS = require("telescope.previewers")
+local BUILTIN = require("telescope.builtin")
 local ACTIONS = require("telescope.actions")
 
 require("telescope").setup({
@@ -60,3 +61,20 @@ require("telescope").setup({
 })
 
 require("telescope").load_extension("file_browser")
+
+local T = {}
+
+local delta = PREVIEWERS.new_termopen_previewer({
+	get_command = function(entry)
+		return { "git", "-c", "core.pager=delta", "-c", "delta.side-by-side=false", "diff", entry.value }
+	end,
+})
+
+T.my_git_status = function(opts)
+	opts = opts or {}
+	opts.previewer = delta
+
+	BUILTIN.git_status(opts)
+end
+
+return T

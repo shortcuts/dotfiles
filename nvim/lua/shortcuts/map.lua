@@ -3,6 +3,7 @@
 --------------------------
 
 local M = require("shortcuts.bind")
+local T = require("shortcuts.plugin.telescope")
 
 -- Global
 M.nmap("<Leader>jj", "<C-z>") -- vim foreground
@@ -31,6 +32,10 @@ M.nnoremap("<Leader>fg", ":Telescope live_grep<CR>") -- open find in file
 M.nnoremap("<Leader>fh", ":Telescope help_tags<CR>") -- open help
 -- Telescope file browser
 M.nnoremap("<C-b>", ":Telescope file_browser<CR>") -- toggle file_browser
+-- Telescope x Delta git status previewer
+M.nnoremap("<Leader>gs", function()
+	T.my_git_status()
+end) -- toggle file_browser
 
 -- Barbar
 M.nnoremap("<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous

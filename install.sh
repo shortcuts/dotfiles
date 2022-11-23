@@ -11,6 +11,7 @@ brew install neovim
 brew install bat
 brew install ripgrep
 brew install fd
+brew install git-delta
 
 # setup fish as default shell
 echo /usr/local/bin/fish | sudo tee -a /etc/shells && chsh -s /usr/local/bin/fish
