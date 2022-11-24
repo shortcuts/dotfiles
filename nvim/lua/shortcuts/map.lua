@@ -12,6 +12,9 @@ M.nmap("<Leader>qq", ":quitall<CR>") -- quit all vim instances
 -- toggle NNP
 M.nnoremap("<Leader>kz", ":NoNeckPain<CR>")
 
+-- toggle Gitsigns
+M.nnoremap("<Leader>lb", ":Gitsigns toggle_current_line_blame<CR>")
+
 -- split size
 M.nnoremap("<Leader>++", "<C-w>|")
 M.nnoremap("<Leader>==", "<C-w>=")

@@ -26,9 +26,9 @@ require("telescope").setup({
 			vertical = {
 				mirror = false,
 			},
-			width = 0.87,
-			height = 0.85,
-			preview_cutoff = 150,
+			width = 0.90,
+			height = 0.90,
+			preview_cutoff = 120,
 			preview_width = 150,
 		},
 
@@ -66,13 +66,15 @@ local T = {}
 
 local delta = PREVIEWERS.new_termopen_previewer({
 	get_command = function(entry)
-		return { "git", "-c", "core.pager=delta", "-c", "delta.side-by-side=false", "diff", entry.value }
+		return { "git", "-c", "core.pager=delta", "-c", "delta.side-by-side=false", "diff", entry.path }
 	end,
 })
 
 T.my_git_status = function(opts)
-	opts = opts or {}
-	opts.previewer = delta
+    opts = {
+        previewer = delta,
+        initial_mode = "normal",
+    }
 
 	BUILTIN.git_status(opts)
 end
