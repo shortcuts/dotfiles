@@ -46,9 +46,9 @@ M.nnoremap("<C-k>", "<Cmd>BufferNext<CR>") -- navigate next
 M.nnoremap("<C-q>", "<Cmd>BufferClose<CR>") -- close
 
 -- -- Folding
--- M.nnoremap("<C-f>", "za") -- toggle under cursor
--- M.nnoremap("<Leader>fa", "zM") -- fold all
--- M.nnoremap("<Leader>ufa", "zR") -- unfold all
+M.nnoremap("<C-f>", "za") -- toggle under cursor
+M.nnoremap("<Leader>fa", "zM") -- fold all
+M.nnoremap("<Leader>ufa", "zR") -- unfold all
 
 -- Copy to clipboard
 M.nnoremap("<Leader>yy", '"*y') -- in normal mode

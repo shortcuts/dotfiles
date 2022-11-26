@@ -9,6 +9,11 @@ vim.g.go_fmt_cmd = "gopls"
 vim.g.go_def_mode = "gopls"
 vim.g.go_info_mode = "gopls"
 
+-- Folding
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldenable = false
+
 -- disable netrw
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1

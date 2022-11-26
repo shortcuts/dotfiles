@@ -1,6 +1,6 @@
 -- treesitter default config
 require("nvim-treesitter.configs").setup({
-	ensure_installed = { "go", "javascript", "java", "php", "dot", "typescript", "lua" },
+	ensure_installed = "all",
 	-- Install parsers synchronously (only applied to `ensure_installed`)
 	sync_install = false,
 	-- Automatically install missing parsers when entering buffer
@@ -32,5 +32,5 @@ require("treesitter-context").setup({
 	--     you can safely ignore them.
 	zindex = 20, -- The Z-index of the context window
 	mode = "cursor", -- Line used to calculate context. Choices: 'cursor', 'topline'
-	separator = nil, -- Separator between context and content. Should be a single character string, like '-'.
+	separator = "-", -- Separator between context and content. Should be a single character string, like '-'.
 })

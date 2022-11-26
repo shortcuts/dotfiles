@@ -25,7 +25,12 @@ local packer_bootstrap = ensure_packer()
 return require("packer").startup(function(use)
 	use("wbthomason/packer.nvim")
 
+	-- personal
 	use("shortcuts/no-neck-pain.nvim")
+
+	-- why not
+	use("lewis6991/impatient.nvim")
+	use("ThePrimeagen/vim-be-good")
 
 	-- Telescope dependencies
 	use({
@@ -64,9 +69,8 @@ return require("packer").startup(function(use)
 	use("lewis6991/gitsigns.nvim")
 	use("numToStr/Comment.nvim")
 	use("nvim-lualine/lualine.nvim")
-
-	-- Tab bars
 	use("romgrk/barbar.nvim")
+
 	if packer_bootstrap then
 		require("packer").sync()
 	end
