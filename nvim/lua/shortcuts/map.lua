@@ -9,6 +9,11 @@ local T = require("shortcuts.plugin.telescope")
 M.nmap("<Leader>jj", "<C-z>") -- vim foreground
 M.nmap("<Leader>qq", ":quitall<CR>") -- quit all vim instances
 
+-- toggle term
+M.nnoremap("<Leader>tn", ":ToggleTerm<CR>")
+M.tnoremap("<Leader>tq", "<C-\\><C-N>:ToggleTerm<CR>")
+M.tnoremap("<Leader>qq", "<C-\\><C-N>:quitall<CR>") -- quit all vim instances
+
 -- toggle NNP
 M.nnoremap("<Leader>kz", ":NoNeckPain<CR>")
 

@@ -24,9 +24,15 @@ local packer_bootstrap = ensure_packer()
 
 return require("packer").startup(function(use)
 	use("wbthomason/packer.nvim")
+	use("nvim-lua/plenary.nvim")
 
-	-- personal
+	-- personal use
+	use("echasnovski/mini.test")
+	use("echasnovski/mini.doc")
 	use("shortcuts/no-neck-pain.nvim")
+
+	-- terminal
+	use({ "akinsho/toggleterm.nvim", tag = "*" })
 
 	-- why not
 	use("lewis6991/impatient.nvim")
@@ -37,7 +43,6 @@ return require("packer").startup(function(use)
 		"nvim-telescope/telescope-fzf-native.nvim",
 		cmd = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
 	})
-	use("nvim-lua/plenary.nvim")
 	use("nvim-telescope/telescope.nvim")
 	use("nvim-telescope/telescope-file-browser.nvim")
 
