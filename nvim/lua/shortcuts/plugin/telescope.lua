@@ -30,7 +30,7 @@ require("telescope").setup({
 		},
 
 		-- common files to ignore
-		file_ignore_patterns = { "^.git/", "^node_modules/" },
+		file_ignore_patterns = { "^.git/", "^node_modules/", "^deps/" },
 
 		-- default arguments with `--hidden` added to search in hidden files
 		vimgrep_arguments = {
