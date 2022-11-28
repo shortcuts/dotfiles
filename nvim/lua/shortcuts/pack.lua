@@ -22,61 +22,66 @@ end
 
 local packer_bootstrap = ensure_packer()
 
-return require("packer").startup(function(use)
-	use("wbthomason/packer.nvim")
-	use("nvim-lua/plenary.nvim")
+return require("packer").startup({
+	function(use)
+		use("wbthomason/packer.nvim")
+		use("nvim-lua/plenary.nvim")
 
-	-- personal use
-	use("echasnovski/mini.test")
-	use("echasnovski/mini.doc")
-	use("shortcuts/no-neck-pain.nvim")
+		-- personal use
+		use("echasnovski/mini.test")
+		use("echasnovski/mini.doc")
+		use("shortcuts/no-neck-pain.nvim")
 
-	-- terminal
-	use({ "akinsho/toggleterm.nvim", tag = "*" })
+		-- terminal
+		use({ "akinsho/toggleterm.nvim", tag = "*" })
 
-	-- why not
-	use("lewis6991/impatient.nvim")
-	use("ThePrimeagen/vim-be-good")
+		-- why not
+		use("lewis6991/impatient.nvim")
+		use("ThePrimeagen/vim-be-good")
 
-	-- Telescope dependencies
-	use({
-		"nvim-telescope/telescope-fzf-native.nvim",
-		cmd = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
-	})
-	use("nvim-telescope/telescope.nvim")
-	use("nvim-telescope/telescope-file-browser.nvim")
+		-- Telescope dependencies
+		use({
+			"nvim-telescope/telescope-fzf-native.nvim",
+			cmd = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
+		})
+		use("nvim-telescope/telescope.nvim")
+		use("nvim-telescope/telescope-file-browser.nvim")
 
-	-- Tree management
-	use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
-	use("nvim-treesitter/nvim-treesitter-context")
+		-- Tree management
+		use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
+		use("nvim-treesitter/nvim-treesitter-context")
 
-	-- Go plugin
-	use({ "fatih/vim-go", run = ":GoUpdateBinaries" })
+		-- Go plugin
+		use({ "fatih/vim-go", run = ":GoUpdateBinaries" })
 
-	-- Completion plugins
-	use("williamboman/mason.nvim")
-	use("williamboman/mason-lspconfig.nvim")
-	use("neovim/nvim-lspconfig")
-	use("hrsh7th/cmp-nvim-lsp")
-	use("hrsh7th/cmp-buffer")
-	use("hrsh7th/cmp-path")
-	use("hrsh7th/cmp-cmdline")
-	use("hrsh7th/nvim-cmp")
-	use("hrsh7th/cmp-vsnip")
-	use("hrsh7th/vim-vsnip")
+		-- Completion plugins
+		use("williamboman/mason.nvim")
+		use("williamboman/mason-lspconfig.nvim")
+		use("neovim/nvim-lspconfig")
+		use("hrsh7th/cmp-nvim-lsp")
+		use("hrsh7th/cmp-buffer")
+		use("hrsh7th/cmp-path")
+		use("hrsh7th/cmp-cmdline")
+		use("hrsh7th/nvim-cmp")
+		use("hrsh7th/cmp-vsnip")
+		use("hrsh7th/vim-vsnip")
 
-	-- Auto closing pairs
-	use("windwp/nvim-autopairs")
+		-- Auto closing pairs
+		use("windwp/nvim-autopairs")
 
-	-- Theme
-	use("kyazdani42/nvim-web-devicons")
-	use({ "catppuccin/nvim", as = "catppuccin" })
-	use("lewis6991/gitsigns.nvim")
-	use("numToStr/Comment.nvim")
-	use("nvim-lualine/lualine.nvim")
-	use("romgrk/barbar.nvim")
+		-- Theme
+		use("kyazdani42/nvim-web-devicons")
+		use({ "catppuccin/nvim", as = "catppuccin" })
+		use("lewis6991/gitsigns.nvim")
+		use("numToStr/Comment.nvim")
+		use("nvim-lualine/lualine.nvim")
+		use("romgrk/barbar.nvim")
 
-	if packer_bootstrap then
-		require("packer").sync()
-	end
-end)
+		if packer_bootstrap then
+			require("packer").sync()
+		end
+	end,
+	config = {
+		max_jobs = 10,
+	},
+})
