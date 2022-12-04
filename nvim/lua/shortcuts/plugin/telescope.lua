@@ -13,8 +13,9 @@ require("telescope").setup({
 		qflist_previewer = PREVIEWERS.vim_buffer_qflist.new,
 		mappings = {
 			i = {
-				["<C-x>"] = false,
-				["<C-v>"] = false,
+				["<S-CR>"] = ACTIONS.select_vertical,
+			},
+			n = {
 				["<S-CR>"] = ACTIONS.select_vertical,
 			},
 		},
@@ -48,14 +49,12 @@ require("telescope").setup({
 		find_files = {
 			hidden = true,
 		},
-		file_browser = {
-			hidden = true,
-		},
 	},
 	extensions = {
 		file_browser = {
 			initial_mode = "normal",
 			path = "%:p:h",
+			hidden = true,
 		},
 	},
 })

@@ -10,11 +10,6 @@ M.nmap("<Leader>jj", "<C-z>") -- vim foreground
 M.nmap("<Leader>qq", ":quitall<CR>") -- quit all vim instances
 M.tnoremap("<Leader>qq", "<C-\\><C-N>:quitall<CR>") -- same as above but form term
 
--- toggle term
-M.nnoremap("<C-.>", ":ToggleTerm<CR>") -- toggle open
-M.tnoremap("<esc>", "<C-\\><C-N>") -- unfocus term
-M.tnoremap("<C-.>", "<C-\\><C-N>:ToggleTerm<CR>") -- toggle hide
-
 -- toggle NNP
 M.nnoremap("<Leader>kz", ":NoNeckPain<CR>")
 
@@ -44,7 +39,7 @@ M.nnoremap("<C-b>", ":Telescope file_browser<CR>") -- toggle file_browser
 -- Telescope x Delta git status previewer
 M.nnoremap("<Leader>gs", function()
 	T.my_git_status()
-end) -- toggle file_browser
+end)
 
 -- Barbar
 M.nnoremap("<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous

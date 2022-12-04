@@ -22,3 +22,6 @@ fisher install jorgebucaran/nvm.fish
 # setup rectangle window manager
 mkdir -p ~/Library/Application\ Support/Rectangle/
 cp RectangleConfig.json ~/Library/Application\ Support/Rectangle/
+
+# dev
+brew install go golangci-lint

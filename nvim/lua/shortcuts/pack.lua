@@ -30,10 +30,7 @@ return require("packer").startup({
 		-- personal use
 		use("echasnovski/mini.test")
 		use("echasnovski/mini.doc")
-		use("shortcuts/no-neck-pain.nvim")
-
-		-- terminal
-		use({ "akinsho/toggleterm.nvim", tag = "*" })
+		-- use("shortcuts/no-neck-pain.nvim")
 
 		-- why not
 		use("lewis6991/impatient.nvim")
@@ -63,8 +60,8 @@ return require("packer").startup({
 		use("hrsh7th/cmp-path")
 		use("hrsh7th/cmp-cmdline")
 		use("hrsh7th/nvim-cmp")
-		use("hrsh7th/cmp-vsnip")
-		use("hrsh7th/vim-vsnip")
+		use("L3MON4D3/LuaSnip")
+		use("saadparwaiz1/cmp_luasnip")
 
 		-- Auto closing pairs
 		use("windwp/nvim-autopairs")
