@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# courtesy of @ThePrimeagen
+
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
