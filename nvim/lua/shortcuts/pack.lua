@@ -30,7 +30,7 @@ return require("packer").startup({
 		-- personal use
 		use("echasnovski/mini.test")
 		use("echasnovski/mini.doc")
-		-- use("shortcuts/no-neck-pain.nvim")
+		use("shortcuts/no-neck-pain.nvim")
 
 		-- why not
 		use("lewis6991/impatient.nvim")
