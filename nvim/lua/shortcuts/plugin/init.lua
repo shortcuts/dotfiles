@@ -8,7 +8,6 @@ require("shortcuts.plugin.theme")
 require("shortcuts.plugin.treesitter")
 require("shortcuts.plugin.telescope")
 
-
 -- dev
 -- require("mini.test").setup()
 -- require("mini.doc").setup()
