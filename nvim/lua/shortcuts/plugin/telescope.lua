@@ -1,6 +1,5 @@
 local PREVIEWERS = require("telescope.previewers")
 local BUILTIN = require("telescope.builtin")
-local ACTIONS = require("telescope.actions")
 
 require("telescope").setup({
 	defaults = {
@@ -11,14 +10,6 @@ require("telescope").setup({
 		file_previewer = PREVIEWERS.vim_buffer_cat.new,
 		grep_previewer = PREVIEWERS.vim_buffer_vimgrep.new,
 		qflist_previewer = PREVIEWERS.vim_buffer_qflist.new,
-		mappings = {
-			i = {
-				["<S-CR>"] = ACTIONS.select_vertical,
-			},
-			n = {
-				["<S-CR>"] = ACTIONS.select_vertical,
-			},
-		},
 		layout_strategy = "vertical",
 		layout_config = {
 			vertical = {
