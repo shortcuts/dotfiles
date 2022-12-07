@@ -28,8 +28,8 @@ return require("packer").startup({
 		use("nvim-lua/plenary.nvim")
 
 		-- personal use
-		use("echasnovski/mini.test")
-		use("echasnovski/mini.doc")
+		-- use("echasnovski/mini.test")
+		-- use("echasnovski/mini.doc")
 		use("shortcuts/no-neck-pain.nvim")
 
 		-- why not
