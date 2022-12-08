@@ -62,6 +62,7 @@ return require("packer").startup({
 		use("hrsh7th/nvim-cmp")
 		use("L3MON4D3/LuaSnip")
 		use("saadparwaiz1/cmp_luasnip")
+		use("ray-x/lsp_signature.nvim")
 
 		-- Auto closing pairs
 		use("windwp/nvim-autopairs")

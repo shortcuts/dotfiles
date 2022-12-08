@@ -131,3 +131,8 @@ for _, lsp in ipairs(LSP_SERVERS) do
 
 	require("lspconfig")[lsp].setup(config(serverConfig))
 end
+
+-- signature
+require("lsp_signature").setup({
+	hint_enable = false,
+})
