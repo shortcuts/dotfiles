@@ -28,7 +28,7 @@ vim.opt.cmdheight = 1
 
 vim.opt.nu = true
 vim.opt.relativenumber = true
-vim.opt.scrolloff = 8
+vim.opt.scrolloff = 4
 
 -- Indent
 vim.opt.tabstop = 4

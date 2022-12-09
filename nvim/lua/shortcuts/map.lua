@@ -21,8 +21,8 @@ M.nnoremap("<Leader>++", "<C-w>|")
 M.nnoremap("<Leader>==", "<C-w>=")
 
 -- Jumping centers screen
-M.nnoremap("<C-d>", "<C-d>zz")
-M.nnoremap("<C-u>", "<C-u>zz")
+M.nnoremap("<C-d>", "4<C-d>zz")
+M.nnoremap("<C-u>", "4<C-u>zz")
 M.nnoremap("<C-i>", "<C-i>zz")
 M.nnoremap("<C-o>", "<C-o>zz")
 M.nnoremap("<S-[>", "<S-[>zz")
