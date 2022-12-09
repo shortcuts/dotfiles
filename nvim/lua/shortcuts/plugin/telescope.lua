@@ -22,11 +22,20 @@ require("telescope").setup({
 		},
 
 		-- common files to ignore
-		file_ignore_patterns = { "^.git/", "^node_modules/", "^deps/" },
+		file_ignore_patterns = {
+			"^.git/",
+			"^node_modules/",
+			"^deps/",
+			"^plugin/packer_compiled.lua",
+			"^.next/",
+			"^.yarn/",
+			"yarn.lock",
+		},
 
 		-- default arguments with `--hidden` added to search in hidden files
 		vimgrep_arguments = {
 			"rg",
+			"--no-ignore",
 			"--color=never",
 			"--no-heading",
 			"--with-filename",
