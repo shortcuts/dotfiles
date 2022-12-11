@@ -12,9 +12,15 @@ require("shortcuts.plugin.telescope")
 -- require("mini.test").setup()
 -- require("mini.doc").setup()
 -- vim.opt.rtp:append(os.getenv("HOME") .. "/Documents/no-neck-pain.nvim")
--- require("no-neck-pain").setup({ debug = true, width = 80, leftBufferOnly = true })
+-- require("no-neck-pain").setup({
+--     debug = true,
+--     width = 80,
+--     buffers = {
+--         right = false,
+--     }
+-- })
 
 -- main
 require("no-neck-pain").setup({
-	width = 90,
+	width = 80,
 })
