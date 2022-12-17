@@ -111,7 +111,7 @@ local luaServerConfig = {
 	settings = {
 		Lua = {
 			diagnostics = {
-				globals = { "vim" },
+				globals = { "vim", "MiniTest" },
 			},
 		},
 	},
