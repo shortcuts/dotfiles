@@ -7,8 +7,6 @@ require("shortcuts.pack")
 require("shortcuts.map")
 require("shortcuts.plugin")
 
-vim.cmd("colorscheme catppuccin")
-
 vim.api.nvim_create_augroup("OnVimEnter", { clear = true })
 vim.api.nvim_create_autocmd({ "VimEnter" }, {
 	group = "OnVimEnter",

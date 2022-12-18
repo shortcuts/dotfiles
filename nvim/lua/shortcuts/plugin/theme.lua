@@ -1,5 +1,7 @@
 -- theme
-require("catppuccin").setup()
+require("rose-pine").setup({
+	dark_variant = "moon",
+})
 
 -- fancy status line
 require("lualine").setup({

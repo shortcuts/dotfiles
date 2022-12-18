@@ -13,14 +13,21 @@ require("shortcuts.plugin.telescope")
 -- require("mini.doc").setup()
 -- vim.opt.rtp:append(os.getenv("HOME") .. "/Documents/no-neck-pain.nvim")
 -- require("no-neck-pain").setup({
---     debug = true,
---     width = 80,
---     buffers = {
---         right = false,
---     }
+-- 	debug = true,
+-- 	width = 80,
+-- 	buffers = {
+-- 		right = false,
+-- 		background = {
+-- 			colorCode = "#2a273f",
+-- 		},
+-- 	},
 -- })
 
 -- main
 require("no-neck-pain").setup({
 	width = 80,
+	right = false,
+	background = {
+		colorCode = "#2a273f",
+	},
 })

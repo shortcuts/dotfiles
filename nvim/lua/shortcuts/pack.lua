@@ -69,7 +69,13 @@ return require("packer").startup({
 
 		-- Theme
 		use("kyazdani42/nvim-web-devicons")
-		use({ "catppuccin/nvim", as = "catppuccin" })
+		use({
+			"rose-pine/neovim",
+			as = "rose-pine",
+			config = function()
+				vim.cmd("colorscheme rose-pine")
+			end,
+		})
 		use("lewis6991/gitsigns.nvim")
 		use("numToStr/Comment.nvim")
 		use("nvim-lualine/lualine.nvim")
