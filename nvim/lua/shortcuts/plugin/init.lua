@@ -25,7 +25,7 @@ require("shortcuts.plugin.telescope")
 
 -- main
 require("no-neck-pain").setup({
-	width= 80,
+	width = 80,
 	buffers = {
 		backgroundColor = "#2a273f",
 		right = {
