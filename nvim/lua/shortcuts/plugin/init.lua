@@ -16,22 +16,18 @@ require("shortcuts.plugin.telescope")
 -- 	debug = true,
 -- 	width = 80,
 -- 	buffers = {
--- 		common = {
--- 			backgroundColor = "#2a273f",
--- 		},
+-- 		backgroundColor = "#2a273f",
 -- 		right = {
 -- 			enabled = false,
 -- 		},
 -- 	},
 -- })
---
+
 -- main
 require("no-neck-pain").setup({
-	width = 80,
+	width= 80,
 	buffers = {
-		common = {
-			backgroundColor = "#2a273f",
-		},
+		backgroundColor = "#2a273f",
 		right = {
 			enabled = false,
 		},

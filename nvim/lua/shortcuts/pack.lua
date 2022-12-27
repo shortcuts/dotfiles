@@ -34,7 +34,6 @@ return require("packer").startup({
 
 		-- why not
 		use("lewis6991/impatient.nvim")
-		use("ThePrimeagen/vim-be-good")
 
 		-- Telescope dependencies
 		use({

@@ -1,4 +1,5 @@
 {
+  "Badge Text" : "",
   "Working Directory" : "\/Users\/clement.vannicate\/Documents",
   "Prompt Before Closing 2" : false,
   "Selected Text Color" : {
@@ -38,7 +39,7 @@
   "Sync Title" : false,
   "Disable Window Resizing" : true,
   "Description" : "Default",
-  "Close Sessions On End" : true,
+  "Close Sessions On End" : 0,
   "Jobs to Ignore" : [
     "rlogin",
     "ssh",
@@ -50,13 +51,11 @@
   "Status Bar Layout" : {
     "components" : [
       {
-        "class" : "iTermStatusBarWorkingDirectoryComponent",
+        "class" : "iTermStatusBarJobComponent",
         "configuration" : {
           "knobs" : {
-            "path" : "path",
-            "base: compression resistance" : 1,
-            "base: priority" : 5,
             "minwidth" : 0,
+            "base: priority" : 5,
             "shared text color" : {
               "Red Component" : 0.90000000000000002,
               "Color Space" : "sRGB",
@@ -64,6 +63,7 @@
               "Alpha Component" : 1,
               "Green Component" : 0.63
             },
+            "base: compression resistance" : 1,
             "maxwidth" : 1.7976931348623157e+308
           },
           "layout advanced configuration dictionary value" : {
@@ -79,14 +79,14 @@
         "configuration" : {
           "knobs" : {
             "base: priority" : 5,
+            "base: compression resistance" : 1,
             "shared text color" : {
               "Red Component" : 0.67859999999999998,
               "Color Space" : "sRGB",
               "Blue Component" : 0.63,
               "Alpha Component" : 1,
               "Green Component" : 0.90000000000000002
-            },
-            "base: compression resistance" : 1
+            }
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
@@ -101,14 +101,14 @@
         "configuration" : {
           "knobs" : {
             "base: priority" : 5,
+            "base: compression resistance" : 1,
             "shared text color" : {
               "Red Component" : 0.63,
               "Color Space" : "sRGB",
               "Blue Component" : 0.90000000000000002,
               "Alpha Component" : 1,
               "Green Component" : 0.72719999999999996
-            },
-            "base: compression resistance" : 1
+            }
           },
           "layout advanced configuration dictionary value" : {
             "remove empty components" : false,
@@ -123,6 +123,7 @@
         "configuration" : {
           "knobs" : {
             "base: priority" : 5,
+            "base: compression resistance" : 1,
             "shared text color" : {
               "Red Component" : 0.90000000000000002,
               "Color Space" : "sRGB",
@@ -130,7 +131,6 @@
               "Alpha Component" : 1,
               "Green Component" : 0.63
             },
-            "base: compression resistance" : 1,
             "format" : "M\/dd h:mm"
           },
           "layout advanced configuration dictionary value" : {
@@ -167,8 +167,6 @@
   },
   "Open Password Manager Automatically" : false,
   "Icon" : 1,
-  "Use Non-ASCII Font" : false,
-  "Shortcut" : "",
   "Link Color" : {
     "Red Component" : 0,
     "Color Space" : "sRGB",
@@ -176,6 +174,9 @@
     "Alpha Component" : 1,
     "Green Component" : 0.35916060209274292
   },
+  "Shortcut" : "",
+  "Use Non-ASCII Font" : false,
+  "Use Custom Tab Title" : false,
   "Background Image Location" : "",
   "Bold Color" : {
     "Green Component" : 0.90237069129943848,
@@ -185,7 +186,7 @@
   "Use Cursor Guide" : false,
   "Unlimited Scrollback" : true,
   "Custom Command" : "No",
-  "Title Components" : 2,
+  "Title Components" : 32,
   "Keyboard Map" : {
     "0xf728-0x80000" : {
       "Text" : "d",
@@ -477,7 +478,7 @@
     "Red Component" : 1,
     "Blue Component" : 0.3333333432674408
   },
-  "Name" : "dev",
+  "Name" : "shortcuts",
   "Blinking Cursor" : false,
   "Guid" : "9680DCB3-A8F5-4A2D-BD04-B59B359A55F7",
   "Idle Code" : 0,
@@ -509,8 +510,8 @@
     "Blue Component" : 0
   },
   "Blur" : true,
-  "Vertical Spacing" : 1,
   "Normal Font" : "FiraCodeNerdFontCompleteM-Regular 16",
+  "Vertical Spacing" : 1,
   "Ansi 7 Color" : {
     "Green Component" : 0.73333334922790527,
     "Red Component" : 0.73333334922790527,
@@ -542,6 +543,7 @@
     "Blue Component" : 0.15977837145328522
   },
   "Screen" : -1,
+  "Custom Tab Title" : "",
   "Initial Use Transparency" : false,
   "Non Ascii Font" : "Monaco 12",
   "Ansi 13 Color" : {
