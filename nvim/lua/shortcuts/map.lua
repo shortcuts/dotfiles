@@ -8,10 +8,9 @@ local T = require("shortcuts.plugin.telescope")
 -- Global
 M.nmap("<Leader>jj", "<C-z>") -- vim foreground
 M.nmap("<Leader>qq", ":quitall<CR>") -- quit all vim instances
-M.tnoremap("<Leader>qq", "<C-\\><C-N>:quitall<CR>") -- same as above but form term
 
--- toggle NNP
-M.nnoremap("<Leader>kz", ":NoNeckPain<CR>")
+-- toggle undotree
+M.nmap("<Leader>u", ":UndotreeToggle<CR>") -- quit all vim instances
 
 -- toggle Gitsigns
 M.nnoremap("<Leader>lb", ":Gitsigns toggle_current_line_blame<CR>")
@@ -38,7 +37,7 @@ M.nnoremap("<Leader>fh", ":Telescope help_tags<CR>") -- open help
 M.nnoremap("<C-b>", ":Telescope file_browser<CR>") -- toggle file_browser
 -- Telescope x Delta git status previewer
 M.nnoremap("<Leader>gs", function()
-	T.my_git_status()
+    T.my_git_status()
 end)
 
 -- Barbar

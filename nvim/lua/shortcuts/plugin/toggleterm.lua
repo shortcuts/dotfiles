@@ -1,4 +1,4 @@
 require("toggleterm").setup({
-	size = 50,
-	direction = "vertical",
+    size = 50,
+    direction = "vertical",
 })
