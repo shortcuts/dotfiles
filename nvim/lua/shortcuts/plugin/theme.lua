@@ -38,6 +38,4 @@ require("gitsigns").setup()
 require("Comment").setup()
 
 -- theme
-require("github-theme").setup({
-    theme_style = "dimmed",
-})
+vim.cmd("colorscheme onedark")

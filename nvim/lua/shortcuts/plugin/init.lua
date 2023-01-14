@@ -20,10 +20,13 @@ require("no-neck-pain").setup({
     enableOnVimEnter = true,
     toggleMapping = "<Leader>kz",
     buffers = {
-        backgroundColor = "github-nvim-theme-dimmed",
+        backgroundColor = "onedark",
         blend = -0.1,
         scratchPad = {
             enabled = true,
+        },
+        bo = {
+            filetype = "md",
         },
         right = {
             enabled = false,

@@ -25,3 +25,6 @@ cp RectangleConfig.json ~/Library/Application\ Support/Rectangle/
 
 # dev
 brew install go golangci-lint
+
+# gitconfig
+cp .gitconfig ~/.gitconfig
