@@ -24,6 +24,8 @@ require("no-neck-pain").setup({
         blend = -0.1,
         scratchPad = {
             enabled = true,
+            fileName = "notes",
+            location = "~/",
         },
         bo = {
             filetype = "md",
