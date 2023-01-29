@@ -3,7 +3,6 @@
 --------------------------
 
 local M = require("shortcuts.bind")
-local T = require("shortcuts.plugin.telescope.delta")
 
 -- Global
 M.nmap("<Leader>jj", "<C-z>") -- vim foreground
@@ -35,9 +34,9 @@ M.nnoremap("<Leader>fg", ":Telescope live_grep<CR>") -- open find in file
 M.nnoremap("<Leader>fh", ":Telescope help_tags<CR>") -- open help
 -- Telescope file browser
 M.nnoremap("<C-b>", ":Telescope file_browser<CR>") -- toggle file_browser
-M.nnoremap("<Leader>gd", function()
-    T.gd()
-end)
+M.nnoremap("<Leader>gd", ":DiffviewOpen<CR>")
+M.nnoremap("<Leader>gq", ":DiffviewClose<CR>")
+M.nnoremap("<Leader>gl", ":DiffviewFileHistory<CR>")
 
 -- Barbar
 M.nnoremap("<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
