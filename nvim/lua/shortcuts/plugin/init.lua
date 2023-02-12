@@ -15,12 +15,12 @@ vim.opt.rtp:append(os.getenv("HOME") .. "/Documents/no-neck-pain.nvim")
 
 -- NNP
 require("no-neck-pain").setup({
-    debug = true,
+    -- debug = true,
     width = 80,
     enableOnVimEnter = true,
+    enableOnTabEnter = true,
     toggleMapping = "<Leader>kz",
     buffers = {
-        backgroundColor = "onedark",
         blend = -0.1,
         scratchPad = {
             enabled = true,

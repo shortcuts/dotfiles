@@ -3,7 +3,7 @@ require("mason").setup()
 
 local LSP_SERVERS = {
     "tsserver",
-    "sumneko_lua",
+    "lua_ls",
     "gopls",
     "dotls",
     "vimls",
@@ -126,7 +126,7 @@ for _, lsp in ipairs(LSP_SERVERS) do
         serverConfig = goplsConfig
     end
 
-    if lsp == "sumneko_lua" then
+    if lsp == "lua_ls" then
         serverConfig = luaServerConfig
     end
 

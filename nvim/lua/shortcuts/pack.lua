@@ -76,8 +76,9 @@ return require("packer").startup({
             "nvim-lualine/lualine.nvim",
             requires = { "kyazdani42/nvim-web-devicons", opt = true },
         })
-        use("olimorris/onedarkpro.nvim")
+        use("rebelot/kanagawa.nvim")
         use("romgrk/barbar.nvim")
+        use("folke/twilight.nvim")
 
         if packer_bootstrap then
             require("packer").sync()
