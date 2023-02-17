@@ -36,18 +36,3 @@ require("gitsigns").setup()
 
 -- enable `gc` shortcuts for comments
 require("Comment").setup()
-
--- dim inactive portion of code
-require("twilight").setup({
-    dimming = {
-        alpha = 0.50,
-    },
-    context = 10, -- amount of lines we will try to show around the current line
-    treesitter = true, -- use treesitter when available for the filetype
-    -- treesitter is used to automatically expand the visible text,
-    -- but you can further control the types of nodes that should always be fully expanded
-    exclude = {}, -- exclude these filetypes
-})
-
--- theme
-vim.cmd("colorscheme kanagawa")

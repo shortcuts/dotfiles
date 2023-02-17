@@ -3,7 +3,7 @@
 --------------------------
 
 require("shortcuts.set")
-require("shortcuts.pack")
+require("shortcuts.lazy")
 require("shortcuts.map")
 require("shortcuts.plugin")
 

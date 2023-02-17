@@ -9,6 +9,9 @@ vim.g.go_def_mode = "gopls"
 vim.g.go_info_mode = "gopls"
 vim.g.go_doc_popup_window = 1
 
+-- Leader key
+vim.g.mapleader = ";"
+
 -- Folding
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
@@ -56,9 +59,6 @@ vim.opt.updatetime = 50
 
 -- Don't pass messages to |ins-completion-menu|.
 vim.opt.shortmess:append("c")
-
--- Leader key
-vim.g.mapleader = ";"
 
 -- Completion
 vim.opt.completeopt = "menu,menuone,noselect"

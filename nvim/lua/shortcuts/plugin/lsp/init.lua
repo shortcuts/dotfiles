@@ -4,13 +4,16 @@ require("mason").setup()
 local LSP_SERVERS = {
     "tsserver",
     "lua_ls",
+    "bashls",
+    "cssls",
+    "dockerls",
     "gopls",
     "dotls",
     "vimls",
     "yamlls",
     "terraformls",
-    "dockerls",
     "jsonls",
+    "docker_compose_language_service",
     "pylsp",
 }
 
