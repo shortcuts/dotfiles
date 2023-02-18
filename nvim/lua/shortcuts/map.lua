@@ -51,3 +51,8 @@ M.nnoremap("<Leader>ufa", "zR") -- unfold all
 -- Copy to clipboard
 M.nnoremap("<Leader>yy", '"*y') -- in normal mode
 M.vnoremap("<Leader>yy", '"*y') -- in visual mode
+
+-- Add mapping for each window
+for i = 1, 6 do
+    M.nnoremap("<leader>" .. i, i .. "<c-w>w")
+end
