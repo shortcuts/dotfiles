@@ -71,6 +71,15 @@ cmp.setup.cmdline(":", {
 local capabilities =
     require("cmp_nvim_lsp").default_capabilities(vim.lsp.protocol.make_client_capabilities())
 
+local diagnosticOpts = {
+    focusable = false,
+    close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+    border = "rounded",
+    source = "always",
+    prefix = " ",
+    scope = "cursor",
+}
+
 local function on_attach()
     M.nnoremap("gd", function()
         vim.lsp.buf.definition()
@@ -79,13 +88,13 @@ local function on_attach()
         vim.lsp.buf.hover()
     end)
     M.nnoremap("<leader>vd", function()
-        vim.diagnostic.open_float()
+        vim.diagnostic.open_float(diagnosticOpts)
     end)
     M.nnoremap("[d", function()
-        vim.diagnostic.goto_next()
+        vim.diagnostic.goto_next(diagnosticOpts)
     end)
     M.nnoremap("]d", function()
-        vim.diagnostic.goto_prev()
+        vim.diagnostic.goto_prev(diagnosticOpts)
     end)
     M.nnoremap("<leader>vca", function()
         vim.lsp.buf.code_action()
