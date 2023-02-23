@@ -22,13 +22,23 @@ require("telescope").setup({
 
         -- common files to ignore
         file_ignore_patterns = {
-            "^.git/",
-            "^node_modules/",
-            "^deps/",
-            "^plugin/packer_compiled.lua",
-            "^.next/",
-            "^.yarn/",
-            "yarn.lock",
+            -- folders, wherever they are
+            "**node_modules/",
+            "**lib/",
+            "**deps/",
+            "**build/",
+            "**dist/",
+            "**.git/",
+            "**.next/",
+            "**.yarn/",
+            "**.tox/",
+            "**.mypy_cache/",
+            -- files
+            "**plugin/packer_compiled.lua",
+            "**yarn.lock",
+            "**yarn-error.log",
+            "**install_module.log",
+            "**algoliasearch.egg-info/",
         },
 
         -- default arguments with `--hidden` added to search in hidden files

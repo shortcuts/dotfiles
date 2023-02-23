@@ -15,6 +15,7 @@ local LSP_SERVERS = {
     "jsonls",
     "docker_compose_language_service",
     "pylsp",
+    "sqlls",
 }
 
 require("mason-lspconfig").setup({
