@@ -16,13 +16,10 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
-    -- for plugin dev
-    { "nvim-lua/plenary.nvim", lazy = true },
-    -- { "echasnovski/mini.test", lazy = true },
-    -- { "echasnovski/mini.doc", lazy = true },
-
     -- my plugins
-    "shortcuts/no-neck-pain.nvim",
+    { "shortcuts/no-neck-pain.nvim", dev = true },
+
+    { "nvim-lua/plenary.nvim", lazy = true },
 
     -- Telescope
     {
@@ -78,4 +75,6 @@ require("lazy").setup({
         dependencies = { "nvim-tree/nvim-web-devicons", event = "VeryLazy" },
     },
     { "romgrk/barbar.nvim", dependencies = "nvim-tree/nvim-web-devicons" },
+}, {
+    dev = { path = "~/Documents", fallback = true },
 })
