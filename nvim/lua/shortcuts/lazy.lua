@@ -18,8 +18,8 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
     -- for plugin dev
     { "nvim-lua/plenary.nvim", lazy = true },
-    { "echasnovski/mini.test", lazy = true },
-    { "echasnovski/mini.doc", lazy = true },
+    -- { "echasnovski/mini.test", lazy = true },
+    -- { "echasnovski/mini.doc", lazy = true },
 
     -- my plugins
     "shortcuts/no-neck-pain.nvim",

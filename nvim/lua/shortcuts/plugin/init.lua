@@ -9,9 +9,9 @@ require("shortcuts.plugin.treesitter")
 require("shortcuts.plugin.telescope")
 
 -- dev
-require("mini.test").setup()
-require("mini.doc").setup()
-vim.opt.rtp:append(os.getenv("HOME") .. "/Documents/no-neck-pain.nvim")
+-- require("mini.test").setup()
+-- require("mini.doc").setup()
+-- vim.opt.rtp:append(os.getenv("HOME") .. "/Documents/no-neck-pain.nvim")
 
 -- NNP
 require("no-neck-pain").setup({
