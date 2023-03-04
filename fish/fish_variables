@@ -1,5 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
+SETUVAR NVM_DIR:/usr/local/opt/nvm
 SETUVAR --export VAULT_ADDR:https\x3a//vault\x2delb\x2ealgolia\x2enet\x3a8200/
 SETUVAR __fish_initialized:3400
 SETUVAR _fish_abbr_ga:git\x20add\x20\x2e
@@ -50,7 +51,6 @@ SETUVAR fish_pager_color_description:B3A06D\x1eyellow\x1e\x2di
 SETUVAR fish_pager_color_prefix:cyan\x1e\x2d\x2dbold\x1e\x2d\x2dunderline
 SETUVAR fish_pager_color_progress:brwhite\x1e\x2d\x2dbackground\x3dcyan
 SETUVAR fish_pager_color_selected_background:\x2dr
-SETUVAR fish_user_paths:/usr/local/opt/fzf/bin
+SETUVAR fish_user_paths:/Users/klm/\x2ecargo/bin\x1e/usr/local/opt/fzf/bin
 SETUVAR nvm_data:/usr/local/share/nvm
-SETUVAR nvm_mirror:https://nodejs.org/dist
-SETUVAR NVM_DIR:/usr/local/opt/nvm
+SETUVAR nvm_mirror:https\x3a//nodejs\x2eorg/dist

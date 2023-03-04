@@ -2,6 +2,7 @@
 require("mason").setup()
 
 local LSP_SERVERS = {
+    "rust_analyzer",
     "tsserver",
     "lua_ls",
     "bashls",
