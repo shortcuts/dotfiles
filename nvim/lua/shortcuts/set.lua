@@ -23,7 +23,6 @@ vim.g.loaded_netrwPlugin = 1
 
 -- Global display settings
 vim.opt.guicursor = ""
-vim.opt.colorcolumn = "90"
 
 -- Give more space for displaying messages.
 vim.opt.cmdheight = 1
