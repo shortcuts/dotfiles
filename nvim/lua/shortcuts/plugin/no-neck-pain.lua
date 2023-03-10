@@ -1,9 +1,10 @@
 require("no-neck-pain").setup({
     debug = true,
-    width = 50,
+    width = 60,
     autocmds = {
         enableOnVimEnter = true,
         enableOnTabEnter = true,
+        enableScratchPadOnBufEnter = true,
     },
     mappings = {
         enabled = true,

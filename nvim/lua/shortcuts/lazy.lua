@@ -63,7 +63,11 @@ require("lazy").setup({
         priority = 1000,
         lazy = false,
         config = function()
-            vim.cmd("colorscheme kanagawa")
+            require("kanagawa").setup({
+            compile = true,
+            colors = { theme = { wave = { ui = { bg_gutter = 'none' }  }} }
+            })
+            vim.cmd("colorscheme kanagawa-wave")
         end,
     },
 
