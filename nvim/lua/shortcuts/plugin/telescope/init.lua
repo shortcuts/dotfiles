@@ -2,13 +2,10 @@ local PREVIEWERS = require("telescope.previewers")
 
 require("telescope").setup({
     defaults = {
-        file_sorter = require("telescope.sorters").get_fzy_sorter,
+        -- theme
         color_devicons = true,
+        sorting_strategy = "descending",
         path_display = { "truncate" },
-
-        file_previewer = PREVIEWERS.vim_buffer_cat.new,
-        grep_previewer = PREVIEWERS.vim_buffer_vimgrep.new,
-        qflist_previewer = PREVIEWERS.vim_buffer_qflist.new,
         layout_strategy = "vertical",
         layout_config = {
             vertical = {
@@ -19,6 +16,12 @@ require("telescope").setup({
                 width = 0.7,
             },
         },
+
+        -- previewers
+        file_sorter = require("telescope.sorters").get,
+        file_previewer = PREVIEWERS.vim_buffer_cat.new,
+        grep_previewer = PREVIEWERS.vim_buffer_vimgrep.new,
+        qflist_previewer = PREVIEWERS.vim_buffer_qflist.new,
 
         -- common files to ignore
         file_ignore_patterns = {
@@ -60,6 +63,12 @@ require("telescope").setup({
         },
     },
     extensions = {
+        fzf = {
+            fuzzy = true,
+            override_generic_sorter = true,
+            override_file_sorter = true,
+            case_mode = "smart_case",
+        },
         file_browser = {
             initial_mode = "normal",
             path = "%:p:h",
@@ -69,3 +78,4 @@ require("telescope").setup({
 })
 
 require("telescope").load_extension("file_browser")
+require("telescope").load_extension("fzf")

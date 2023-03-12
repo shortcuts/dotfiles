@@ -20,15 +20,19 @@ require("lazy").setup({
     { "shortcuts/no-neck-pain.nvim", dev = true },
 
     { "nvim-lua/plenary.nvim", lazy = true },
+    "nvim-tree/nvim-web-devicons",
 
     -- Telescope
-    {
-        "nvim-telescope/telescope-fzf-native.nvim",
-        build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
-    },
     "nvim-telescope/telescope.nvim",
+    { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     "nvim-telescope/telescope-file-browser.nvim",
-    { "sindrets/diffview.nvim", dependencies = "nvim-lua/plenary.nvim", lazy = true },
+    {
+        "sindrets/diffview.nvim",
+        dependencies = "nvim-lua/plenary.nvim",
+        opts = {
+            show_help_hints = false,
+        },
+    },
 
     -- Tree management
     {
@@ -64,21 +68,20 @@ require("lazy").setup({
         lazy = false,
         config = function()
             require("kanagawa").setup({
-            compile = true,
-            colors = { theme = { wave = { ui = { bg_gutter = 'none' }  }} }
+                compile = true,
+                transparent = true,
+                colors = { theme = { wave = { ui = { bg_gutter = "none" } } } },
             })
             vim.cmd("colorscheme kanagawa-wave")
         end,
     },
-
-    "nvim-tree/nvim-web-devicons",
     { "lewis6991/gitsigns.nvim", lazy = true },
     { "numToStr/Comment.nvim", lazy = true },
     {
         "nvim-lualine/lualine.nvim",
         dependencies = { "nvim-tree/nvim-web-devicons", event = "VeryLazy" },
     },
-    { "romgrk/barbar.nvim", dependencies = "nvim-tree/nvim-web-devicons" },
+    { "romgrk/barbar.nvim", dependencies = "nvim-tree/nvim-web-devicons", lazy = true },
 }, {
     dev = { path = "~/Documents", fallback = true },
 })

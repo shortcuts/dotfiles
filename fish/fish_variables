@@ -3,21 +3,6 @@
 SETUVAR NVM_DIR:/usr/local/opt/nvm
 SETUVAR --export VAULT_ADDR:https\x3a//vault\x2delb\x2ealgolia\x2enet\x3a8200/
 SETUVAR __fish_initialized:3400
-SETUVAR _fish_abbr_ga:git\x20add\x20\x2e
-SETUVAR _fish_abbr_gc:git\x20commit\x20\x2dm
-SETUVAR _fish_abbr_gca:git\x20commit\x20\x2d\x2damend
-SETUVAR _fish_abbr_gcl:git\x20clone
-SETUVAR _fish_abbr_gcm:git\x20commit\x20\x2dm
-SETUVAR _fish_abbr_gd:git\x20diff
-SETUVAR _fish_abbr_gds:git\x20diff\x20\x2d\x2dstaged
-SETUVAR _fish_abbr_gf:git\x20fetch\x20origin
-SETUVAR _fish_abbr_gfc:git\x20findcommit
-SETUVAR _fish_abbr_gfm:git\x20findmessage
-SETUVAR _fish_abbr_gl:git\x20l
-SETUVAR _fish_abbr_gp:git\x20push
-SETUVAR _fish_abbr_gpf:git\x20push\x20\x2df\x20origin
-SETUVAR _fish_abbr_gr:git\x20rebase\x20\x2di\x20HEAD\x7e15
-SETUVAR _fish_abbr_gs:git\x20status\x20\x2dsb
 SETUVAR _fisher_edc_2F_bass_files:\x7e/\x2econfig/fish/functions/__bass\x2epy\x1e\x7e/\x2econfig/fish/functions/bass\x2efish
 SETUVAR _fisher_jorgebucaran_2F_fisher_files:\x7e/\x2econfig/fish/functions/fisher\x2efish\x1e\x7e/\x2econfig/fish/completions/fisher\x2efish
 SETUVAR _fisher_jorgebucaran_2F_nvm_2E_fish_files:\x7e/\x2econfig/fish/functions/_nvm_index_update\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_list\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_version_activate\x2efish\x1e\x7e/\x2econfig/fish/functions/_nvm_version_deactivate\x2efish\x1e\x7e/\x2econfig/fish/functions/nvm\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/nvm\x2efish\x1e\x7e/\x2econfig/fish/completions/nvm\x2efish

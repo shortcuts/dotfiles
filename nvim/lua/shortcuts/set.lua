@@ -24,9 +24,6 @@ vim.g.loaded_netrwPlugin = 1
 -- Global display settings
 vim.opt.guicursor = ""
 
--- Give more space for displaying messages.
-vim.opt.cmdheight = 1
-
 vim.opt.nu = true
 vim.opt.relativenumber = true
 vim.opt.scrolloff = 4

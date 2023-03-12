@@ -1,6 +1,7 @@
 require("no-neck-pain").setup({
     debug = true,
     width = 60,
+    minSideBufferWidth = 10,
     autocmds = {
         enableOnVimEnter = true,
         enableOnTabEnter = true,
