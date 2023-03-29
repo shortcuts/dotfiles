@@ -1,7 +1,6 @@
 require("no-neck-pain").setup({
-    -- debug = true,
-    width = 60,
-    minSideBufferWidth = 10,
+    debug = true,
+    width = 70,
     autocmds = {
         enableOnVimEnter = true,
         enableOnTabEnter = true,
@@ -11,16 +10,15 @@ require("no-neck-pain").setup({
         toggle = "<Leader>kz",
     },
     buffers = {
-        colors = {
-            blend = -0.1,
-        },
-        scratchPad = {
-            enabled = false,
-            fileName = "notes",
-            location = "~/",
-        },
-        bo = {
-            filetype = "md",
+        left = {
+            bo = {
+                filetype = "md",
+            },
+            scratchPad = {
+                enabled = false,
+                fileName = "notes",
+                location = "~/",
+            },
         },
         right = {
             enabled = false,
