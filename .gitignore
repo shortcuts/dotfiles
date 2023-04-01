@@ -14,6 +14,9 @@
 iterm2/AppSupport
 !iterm2
 
+# term
+!kitty
+
 # nvim config
 nvim/plugin/packer_compiled.lua
 !nvim

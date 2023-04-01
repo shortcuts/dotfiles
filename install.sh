@@ -1,6 +1,9 @@
 # setup
 brew update && brew upgrade
 
+# install kitty
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+
 # install life basically
 brew install fish neovim tmux rectangle starship
 
