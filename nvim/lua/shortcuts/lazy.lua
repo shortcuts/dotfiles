@@ -63,16 +63,16 @@ require("lazy").setup({
 
     -- Theme
     {
-        "rebelot/kanagawa.nvim",
+        "EdenEast/nightfox.nvim",
         priority = 1000,
         lazy = false,
         config = function()
-            require("kanagawa").setup({
-                compile = true,
+            require("nightfox").setup({
+                -- compile = true,
                 transparent = true,
-                colors = { theme = { wave = { ui = { bg_gutter = "none" } } } },
+                -- colors = { theme = { wave = { ui = { bg_gutter = "none" } } } },
             })
-            vim.cmd("colorscheme kanagawa-wave")
+            vim.cmd("colorscheme carbonfox")
         end,
     },
     { "lewis6991/gitsigns.nvim", lazy = true },
