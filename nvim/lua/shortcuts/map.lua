@@ -18,13 +18,14 @@ M.nnoremap("<Leader>lb", ":Gitsigns toggle_current_line_blame<CR>")
 M.nnoremap("<Leader>++", "<C-w>|")
 M.nnoremap("<Leader>==", "<C-w>=")
 
+-- navigation
+M.nnoremap("gb", "<C-^>")
+
 -- Jumping centers screen
 M.nnoremap("<C-d>", "4<C-d>zz")
 M.nnoremap("<C-u>", "4<C-u>zz")
 M.nnoremap("<C-i>", "<C-i>zz")
 M.nnoremap("<C-o>", "<C-o>zz")
-M.nnoremap("<S-[>", "<S-[>zz")
-M.nnoremap("<S-]>", "<S-]>zz")
 M.nnoremap("n", "nzz")
 M.nnoremap("N", "Nzz")
 

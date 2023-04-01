@@ -40,7 +40,6 @@ require("lazy").setup({
         build = ":TSUpdate",
         event = { "BufReadPost", "BufNewFile" },
     },
-    "nvim-treesitter/nvim-treesitter-context",
 
     -- Go
     { "fatih/vim-go", build = ":GoUpdateBinaries" },

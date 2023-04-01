@@ -4,8 +4,8 @@
 
 require("shortcuts.set")
 require("shortcuts.lazy")
-require("shortcuts.map")
 require("shortcuts.plugin")
+require("shortcuts.map")
 
 vim.api.nvim_create_augroup("OnVimEnter", { clear = true })
 vim.api.nvim_create_autocmd({ "VimEnter" }, {
