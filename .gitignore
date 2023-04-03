@@ -10,12 +10,12 @@
 # rectangle config
 !RectangleConfig.json
 
-# iterm2 profile and theme
+# term
 iterm2/AppSupport
+!kitty
+!alacritty
 !iterm2
 
-# term
-!kitty
 
 # nvim config
 nvim/plugin/packer_compiled.lua

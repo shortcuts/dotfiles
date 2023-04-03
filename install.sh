@@ -1,11 +1,12 @@
 # setup
 brew update && brew upgrade
 
-# install kitty
-curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+brew tap homebrew/cask-fonts
+brew install --cask font-fira-code
 
 # install life basically
 brew install fish neovim tmux rectangle starship
+brew install --cask alacritty --no-quarantine
 
 # setup fish as default shell
 echo /usr/local/bin/fish | sudo tee -a /etc/shells && chsh -s /usr/local/bin/fish
