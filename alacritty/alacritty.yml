@@ -41,7 +41,6 @@ font:
     family: Fira Code
     style: Retina
 
-  # Point size of the font
   size: 17.0
 
 mouse:
@@ -50,4 +49,7 @@ mouse:
 window:
   decorations: none
   dynamic_title: false
-  opacity: 0.95
+  opacity: 0.92
+  padding:
+    x: 5
+    y: 5
