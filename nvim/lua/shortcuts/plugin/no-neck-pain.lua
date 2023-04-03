@@ -1,5 +1,5 @@
 require("no-neck-pain").setup({
-    debug = true,
+    -- debug = true,
     width = 70,
     autocmds = {
         enableOnVimEnter = true,

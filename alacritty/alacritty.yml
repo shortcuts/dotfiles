@@ -34,11 +34,15 @@ cursor:
 
 font:
   bold:
-    family: Fira Code
+    family: FuraCode Nerd Font
     style: Medium
 
+  italic:
+    family: FuraCode Nerd Font
+    style: Italic
+
   normal:
-    family: Fira Code
+    family: FuraCode Nerd Font
     style: Retina
 
   size: 17.0
