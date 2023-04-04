@@ -18,10 +18,9 @@ require("telescope").setup({
         },
 
         -- previewers
-        file_sorter = require("telescope.sorters").get,
-        file_previewer = PREVIEWERS.vim_buffer_cat.new,
-        grep_previewer = PREVIEWERS.vim_buffer_vimgrep.new,
-        qflist_previewer = PREVIEWERS.vim_buffer_qflist.new,
+        file_previewer = PREVIEWERS.cat.new,
+        grep_previewer = PREVIEWERS.vimgrep.new,
+        qflist_previewer = PREVIEWERS.qflist.new,
 
         -- common files to ignore
         file_ignore_patterns = {
