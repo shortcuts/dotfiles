@@ -7,9 +7,8 @@ local M = require("shortcuts.bind")
 -- Global
 M.nmap("<Leader>jj", "<C-z>") -- vim foreground
 M.nmap("<Leader>qq", ":quitall<CR>") -- quit all vim instances
-
--- toggle undotree
-M.nmap("<Leader>u", ":UndotreeToggle<CR>") -- quit all vim instances
+M.nnoremap("<Leader>cf", ":let @+=expand('%:p')<CR>") -- copy current file path to cb
+M.nnoremap("<Leader>cd", ":let @+=getcwd()<CR>") -- copy current directory path to cb
 
 -- toggle Gitsigns
 M.nnoremap("<Leader>lb", ":Gitsigns toggle_current_line_blame<CR>")

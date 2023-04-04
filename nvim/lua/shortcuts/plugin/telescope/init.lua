@@ -31,6 +31,8 @@ require("telescope").setup({
             "**deps/",
             "**build/",
             "**dist/",
+            "**__snapshots__/",
+            "**public/",
             "**.git/",
             "**.next/",
             "**.yarn/",
