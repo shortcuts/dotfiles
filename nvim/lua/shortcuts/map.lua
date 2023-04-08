@@ -2,52 +2,50 @@
 -- Mapping
 --------------------------
 
-local M = require("shortcuts.bind")
-
 -- Global
-M.nmap("<Leader>jj", "<C-z>") -- vim foreground
-M.nmap("<Leader>qq", ":quitall<CR>") -- quit all vim instances
-M.nnoremap("<Leader>cf", ":let @+=expand('%:p')<CR>") -- copy current file path to cb
-M.nnoremap("<Leader>cd", ":let @+=getcwd()<CR>") -- copy current directory path to cb
+vim.keymap.set("n", "<Leader>jj", "<C-z>") -- vim foreground
+vim.keymap.set("n", "<Leader>qq", "<cmd>quitall<CR>") -- quit all vim instances
+vim.keymap.set("n", "<Leader>cf", "<cmd>let @+=expand('%:p')<CR>") -- copy current file path to cb
+vim.keymap.set("n", "<Leader>cd", "<cmd>let @+=getcwd()<CR>") -- copy current directory path to cb
 
 -- toggle Gitsigns
-M.nnoremap("<Leader>lb", ":Gitsigns toggle_current_line_blame<CR>")
+vim.keymap.set("n", "<Leader>lb", "<cmd>Gitsigns toggle_current_line_blame<CR>")
 
 -- split size
-M.nnoremap("<Leader>++", "<C-w>|")
-M.nnoremap("<Leader>==", "<C-w>=")
+vim.keymap.set("n", "<Leader>++", "<C-w>|")
+vim.keymap.set("n", "<Leader>==", "<C-w>=")
 
 -- navigation
-M.nnoremap("gb", "<C-^>")
+vim.keymap.set("n", "gb", "<C-^>")
 
 -- Jumping centers screen
-M.nnoremap("<C-d>", "4<C-d>zz")
-M.nnoremap("<C-u>", "4<C-u>zz")
-M.nnoremap("<C-i>", "<C-i>zz")
-M.nnoremap("<C-o>", "<C-o>zz")
-M.nnoremap("n", "nzz")
-M.nnoremap("N", "Nzz")
+vim.keymap.set("n", "<C-d>", "4<C-d>zz")
+vim.keymap.set("n", "<C-u>", "4<C-u>zz")
+vim.keymap.set("n", "<C-i>", "<C-i>zz")
+vim.keymap.set("n", "<C-o>", "<C-o>zz")
+vim.keymap.set("n", "n", "nzz")
+vim.keymap.set("n", "N", "Nzz")
 
 -- Telescope mappings
-M.nnoremap("<C-p>", ":Telescope find_files<CR>") -- open find file
-M.nnoremap("<Leader>fg", ":Telescope live_grep<CR>") -- open find in file
-M.nnoremap("<Leader>fh", ":Telescope help_tags<CR>") -- open help
+vim.keymap.set("n", "<C-p>", "<cmd>Telescope find_files<CR>") -- open find file
+vim.keymap.set("n", "<Leader>fg", "<cmd>Telescope live_grep<CR>") -- open find in file
+vim.keymap.set("n", "<Leader>fh", "<cmd>Telescope help_tags<CR>") -- open help
 -- Telescope file browser
-M.nnoremap("<C-b>", ":Telescope file_browser<CR>") -- toggle file_browser
-M.nnoremap("<Leader>gd", ":DiffviewOpen<CR>")
-M.nnoremap("<Leader>gq", ":DiffviewClose<CR>")
-M.nnoremap("<Leader>gf", ":DiffviewFileHistory<CR>")
+vim.keymap.set("n", "<C-b>", "<cmd>Telescope file_browser<CR>") -- toggle file_browser
+vim.keymap.set("n", "<Leader>gd", "<cmd>DiffviewOpen<CR>")
+vim.keymap.set("n", "<Leader>gq", "<cmd>DiffviewClose<CR>")
+vim.keymap.set("n", "<Leader>gf", "<cmd>DiffviewFileHistory<CR>")
 
 -- Barbar
-M.nnoremap("<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
-M.nnoremap("<C-k>", "<Cmd>BufferNext<CR>") -- navigate next
-M.nnoremap("<C-q>", "<Cmd>BufferClose<CR>") -- close
+vim.keymap.set("n", "<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
+vim.keymap.set("n", "<C-k>", "<Cmd>BufferNext<CR>") -- navigate next
+vim.keymap.set("n", "<C-q>", "<Cmd>BufferClose<CR>") -- close
 
 -- -- Folding
-M.nnoremap("<C-f>", "za") -- toggle under cursor
-M.nnoremap("<Leader>fa", "zM") -- fold all
-M.nnoremap("<Leader>ufa", "zR") -- unfold all
+vim.keymap.set("n", "<C-f>", "za") -- toggle under cursor
+vim.keymap.set("n", "<Leader>fa", "zM") -- fold all
+vim.keymap.set("n", "<Leader>ufa", "zR") -- unfold all
 
 -- Copy to clipboard
-M.nnoremap("<Leader>yy", '"*y') -- in normal mode
-M.vnoremap("<Leader>yy", '"*y') -- in visual mode
+vim.keymap.set("n", "<Leader>yy", '"*y') -- in normal mode
+vim.keymap.set("v", "<Leader>yy", '"*y') -- in visual mode

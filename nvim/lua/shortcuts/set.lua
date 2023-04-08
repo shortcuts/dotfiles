@@ -62,3 +62,13 @@ vim.opt.completeopt = "menu,menuone,noselect"
 -- Split display
 vim.opt.splitbelow = true
 vim.opt.splitright = true
+
+-- Transparent support
+vim.cmd([[
+    hi TelescopeBorder guibg=none
+    hi FloatBorder guibg=none
+    hi NormalFloat guibg=none
+    hi BufferTabpageFill guibg=none
+    hi TreesitterContext guibg=none
+    hi TreesitterContextLineNumber guifg=orange
+]])
