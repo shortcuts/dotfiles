@@ -36,7 +36,7 @@ M.nnoremap("<Leader>fh", ":Telescope help_tags<CR>") -- open help
 M.nnoremap("<C-b>", ":Telescope file_browser<CR>") -- toggle file_browser
 M.nnoremap("<Leader>gd", ":DiffviewOpen<CR>")
 M.nnoremap("<Leader>gq", ":DiffviewClose<CR>")
-M.nnoremap("<Leader>gl", ":DiffviewFileHistory<CR>")
+M.nnoremap("<Leader>gf", ":DiffviewFileHistory<CR>")
 
 -- Barbar
 M.nnoremap("<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
@@ -51,8 +51,3 @@ M.nnoremap("<Leader>ufa", "zR") -- unfold all
 -- Copy to clipboard
 M.nnoremap("<Leader>yy", '"*y') -- in normal mode
 M.vnoremap("<Leader>yy", '"*y') -- in visual mode
-
--- Add mapping for each window
-for i = 1, 6 do
-    M.nnoremap("<leader>" .. i, i .. "<c-w>w")
-end

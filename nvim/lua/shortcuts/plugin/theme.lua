@@ -1,5 +1,3 @@
-require("nvim-autopairs").setup()
-
 -- fancy status line
 require("lualine").setup({
     options = {
@@ -76,8 +74,6 @@ vim.cmd([[
     hi TreesitterContextLineNumber guifg=orange
 ]])
 
--- gitsigns in files
+require("nvim-autopairs").setup()
 require("gitsigns").setup()
-
--- enable `gc` shortcuts for comments
 require("Comment").setup()

@@ -19,46 +19,48 @@ require("lazy").setup({
     -- my plugins
     { "shortcuts/no-neck-pain.nvim", dev = true },
 
-    { "nvim-lua/plenary.nvim", lazy = true },
+    -- deps
+    "nvim-lua/plenary.nvim",
     "nvim-tree/nvim-web-devicons",
 
     -- Telescope
-    "nvim-telescope/telescope.nvim",
+    { "nvim-telescope/telescope.nvim" },
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
-    "nvim-telescope/telescope-file-browser.nvim",
-    {
-        "sindrets/diffview.nvim",
-        dependencies = "nvim-lua/plenary.nvim",
-        opts = {
-            show_help_hints = false,
-        },
-    },
+    { "nvim-telescope/telescope-file-browser.nvim" },
 
-    -- Tree management
+    -- Trees and LSPs
     {
         "nvim-treesitter/nvim-treesitter",
         build = ":TSUpdate",
         event = { "BufReadPost", "BufNewFile" },
     },
+    { "williamboman/mason.nvim", cmd = { "Mason" } },
+    { "williamboman/mason-lspconfig.nvim" },
+    { "neovim/nvim-lspconfig" },
+    { "hrsh7th/cmp-nvim-lsp", lazy = false },
+    { "hrsh7th/cmp-buffer", lazy = false },
+    { "hrsh7th/cmp-path", lazy = false },
+    { "hrsh7th/cmp-cmdline", lazy = false },
+    { "hrsh7th/nvim-cmp", lazy = false },
+    { "L3MON4D3/LuaSnip", lazy = false },
+    { "saadparwaiz1/cmp_luasnip", lazy = false },
+    { "ray-x/lsp_signature.nvim" },
 
-    -- Go
-    { "fatih/vim-go", build = ":GoUpdateBinaries" },
+    -- Language specific
+    { "fatih/vim-go", build = ":GoUpdateBinaries", ft = "go" },
 
-    -- lsps plugins
-    "williamboman/mason.nvim",
-    "williamboman/mason-lspconfig.nvim",
-    "neovim/nvim-lspconfig",
-    "hrsh7th/cmp-nvim-lsp",
-    "hrsh7th/cmp-buffer",
-    "hrsh7th/cmp-path",
-    "hrsh7th/cmp-cmdline",
-    "hrsh7th/nvim-cmp",
-    "L3MON4D3/LuaSnip",
-    "saadparwaiz1/cmp_luasnip",
-    "ray-x/lsp_signature.nvim",
-
-    -- Auto closing pairs
-    { "windwp/nvim-autopairs", lazy = true },
+    -- Nice to have
+    {
+        "sindrets/diffview.nvim",
+        cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewFileHistory" },
+        dependencies = "nvim-lua/plenary.nvim",
+        opts = {
+            show_help_hints = false,
+        },
+    },
+    { "windwp/nvim-autopairs", event = "VeryLazy" },
+    { "lewis6991/gitsigns.nvim", event = "VeryLazy"  },
+    { "numToStr/Comment.nvim", event = "VeryLazy", keys = { "gc" }  },
 
     -- Theme
     {
@@ -67,20 +69,24 @@ require("lazy").setup({
         lazy = false,
         config = function()
             require("nightfox").setup({
-                -- compile = true,
                 transparent = true,
-                -- colors = { theme = { wave = { ui = { bg_gutter = "none" } } } },
             })
             vim.cmd("colorscheme carbonfox")
         end,
     },
-    { "lewis6991/gitsigns.nvim", lazy = true },
-    { "numToStr/Comment.nvim", lazy = true },
     {
         "nvim-lualine/lualine.nvim",
         dependencies = { "nvim-tree/nvim-web-devicons", event = "VeryLazy" },
     },
-    { "romgrk/barbar.nvim", dependencies = "nvim-tree/nvim-web-devicons", lazy = true },
+    { "romgrk/barbar.nvim", dependencies = "nvim-tree/nvim-web-devicons" },
 }, {
     dev = { path = "~/Documents", fallback = true },
+    performance = {
+        cache = {
+            enabled = true,
+        },
+    },
+    defaults = {
+        lazy = true,
+    },
 })
