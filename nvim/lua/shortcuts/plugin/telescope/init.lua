@@ -37,6 +37,7 @@ require("telescope").setup({
             "**.yarn/",
             "**.tox/",
             "**.mypy_cache/",
+            "**.terraform/",
             -- files
             "**plugin/packer_compiled.lua",
             "**yarn.lock",
