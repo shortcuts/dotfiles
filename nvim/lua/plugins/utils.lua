@@ -2,14 +2,17 @@ return {
     {
         "windwp/nvim-autopairs",
         event = { "BufReadPost", "BufNewFile" },
+        config = true,
     },
     {
         "lewis6991/gitsigns.nvim",
         event = { "BufReadPost", "BufNewFile" },
+        config = true,
     },
     {
         "numToStr/Comment.nvim",
         event = { "BufReadPost", "BufNewFile" },
+        config = true,
     },
     {
         "sindrets/diffview.nvim",
