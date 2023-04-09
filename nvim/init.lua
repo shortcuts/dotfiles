@@ -25,7 +25,12 @@ vim.opt.rtp:prepend(lazypath)
 local opts = {
     install = {
         missing = true,
+        notify = false,
         colorscheme = { "carbonfox" },
+    },
+    change_detection = {
+        enabled = true,
+        notify = false,
     },
     ui = {
         border = "rounded",

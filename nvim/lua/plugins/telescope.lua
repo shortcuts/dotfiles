@@ -12,7 +12,7 @@ return {
             {
                 "nvim-telescope/telescope-file-browser.nvim",
                 cmd = { "Telescope" },
-            }
+            },
         },
         config = function()
             local PREVIEWERS = require("telescope.previewers")

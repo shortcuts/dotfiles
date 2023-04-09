@@ -32,8 +32,25 @@ return {
         "VonHeikemen/lsp-zero.nvim",
         lazy = false,
         dependencies = {
-            { "hrsh7th/nvim-cmp" },
-            { "neovim/nvim-lspconfig" },
+            {
+                "hrsh7th/nvim-cmp",
+                dependencies = {
+                    { "neovim/nvim-lspconfig" },
+                    { "hrsh7th/cmp-nvim-lsp" },
+                    { "hrsh7th/cmp-buffer" },
+                    { "hrsh7th/cmp-path" },
+                    { "hrsh7th/cmp-cmdline" },
+                    { "L3MON4D3/LuaSnip" },
+                    { "saadparwaiz1/cmp_luasnip" },
+                    {
+                        "ray-x/lsp_signature.nvim",
+                        opts = {
+                            bind = true,
+                            hint_enable = false,
+                        },
+                    },
+                },
+            },
             {
                 "williamboman/mason.nvim",
                 build = function()
@@ -41,15 +58,12 @@ return {
                 end,
             },
             { "williamboman/mason-lspconfig.nvim" },
-            { "hrsh7th/cmp-nvim-lsp" },
-            { "L3MON4D3/LuaSnip" },
         },
         config = function()
+            ---------------------- lsp-zero
             local lsp = require("lsp-zero")
-            local cmp = require("cmp")
 
             lsp.preset("recommended")
-
             lsp.ensure_installed({
                 "rust_analyzer",
                 "tsserver",
@@ -77,7 +91,6 @@ return {
                     },
                 },
             })
-
             lsp.configure("gopls", {
                 cmd = { "gopls", "serve" },
                 settings = {
@@ -90,20 +103,14 @@ return {
                 },
             })
 
-            local cmp_select = { behavior = cmp.SelectBehavior.Select }
-            local cmp_mappings = lsp.defaults.cmp_mappings({
-                ["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
-                ["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
-                ["<C-y>"] = cmp.mapping.confirm({ select = true }),
-                ["<C-Space>"] = cmp.mapping.complete(),
-            })
-
-            cmp_mappings["<Tab>"] = nil
-            cmp_mappings["<S-Tab>"] = nil
-
-            lsp.setup_nvim_cmp({
-                mapping = cmp_mappings,
-            })
+            local diagnosticOpts = {
+                focusable = false,
+                close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+                border = "rounded",
+                source = "always",
+                prefix = " ",
+                scope = "cursor",
+            }
 
             lsp.on_attach(function(_, bufnr)
                 local opts = { buffer = bufnr, remap = false }
@@ -115,13 +122,13 @@ return {
                     vim.lsp.buf.hover()
                 end, opts)
                 vim.keymap.set("n", "<leader>vd", function()
-                    vim.diagnostic.open_float()
+                    vim.diagnostic.open_float(diagnosticOpts)
                 end, opts)
                 vim.keymap.set("n", "[d", function()
-                    vim.diagnostic.goto_next()
+                    vim.diagnostic.goto_next(diagnosticOpts)
                 end, opts)
                 vim.keymap.set("n", "]d", function()
-                    vim.diagnostic.goto_prev()
+                    vim.diagnostic.goto_prev(diagnosticOpts)
                 end, opts)
                 vim.keymap.set("n", "<leader>vca", function()
                     vim.lsp.buf.code_action()
@@ -132,27 +139,8 @@ return {
             end)
 
             lsp.setup()
-        end,
-    },
-    {
-        "hrsh7th/nvim-cmp",
-        dependencies = {
-            { "neovim/nvim-lspconfig" },
-            { "hrsh7th/cmp-nvim-lsp" },
-            { "hrsh7th/cmp-buffer" },
-            { "hrsh7th/cmp-path" },
-            { "hrsh7th/cmp-cmdline" },
-            { "L3MON4D3/LuaSnip" },
-            { "saadparwaiz1/cmp_luasnip" },
-            {
-                "ray-x/lsp_signature.nvim",
-                opts = {
-                    bind = true,
-                    hint_enable = false,
-                },
-            },
-        },
-        config = function()
+
+            ---------------------- cmp
             local cmp = require("cmp")
 
             -- Use buffer source for `/`.
@@ -173,18 +161,30 @@ return {
                         require("luasnip").lsp_expand(args.body)
                     end,
                 },
-                formatting = {},
+                mapping = {
+                    ["<C-p>"] = cmp.mapping.select_prev_item({
+                        behavior = cmp.SelectBehavior.Select,
+                    }),
+                    ["<C-n>"] = cmp.mapping.select_next_item({
+                        behavior = cmp.SelectBehavior.Select,
+                    }),
+                    ["<C-Space>"] = cmp.mapping.complete(),
+                    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
+                    ["<C-d>"] = cmp.mapping.scroll_docs(4),
+                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                    ["<Tab>"] = nil,
+                    ["<S-Tab>"] = nil,
+                },
                 window = {
                     completion = cmp.config.window.bordered(),
                     documentation = cmp.config.window.bordered(),
                 },
-                mapping = cmp.mapping.preset.insert({
-                    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-                    ["<C-d>"] = cmp.mapping.scroll_docs(4),
-                    ["<C-Space>"] = cmp.mapping.complete(),
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-                }),
-                sources = cmp.config.sources({ { name = "luasnip" } }, { { name = "buffer" } }),
+                sources = {
+                    { name = "path" },
+                    { name = "nvim_lsp" },
+                    { name = "buffer", keyword_length = 3 },
+                    { name = "luasnip", keyword_length = 2 },
+                },
             })
         end,
     },
