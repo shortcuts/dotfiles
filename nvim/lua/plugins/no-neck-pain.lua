@@ -3,7 +3,8 @@ return {
         "shortcuts/no-neck-pain.nvim",
         lazy = false,
         dev = true,
-        config = {
+        opts = {
+            debug = true,
             width = 70,
             autocmds = {
                 enableOnVimEnter = true,

@@ -1,17 +1,20 @@
 return {
     {
         "windwp/nvim-autopairs",
-        event = { "BufReadPost", "BufNewFile" },
-        config = true,
+        event = "InsertEnter",
+        opts = {
+            disable_filetype = { "TelescopePrompt" },
+        },
     },
     {
         "lewis6991/gitsigns.nvim",
-        event = { "BufReadPost", "BufNewFile" },
+        event = "BufReadPre",
         config = true,
     },
     {
         "numToStr/Comment.nvim",
-        event = { "BufReadPost", "BufNewFile" },
+        event = "BufReadPre",
+        dependencies = "nvim-treesitter/nvim-treesitter",
         config = true,
     },
     {
