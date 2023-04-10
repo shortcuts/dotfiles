@@ -48,8 +48,11 @@ return {
     },
     {
         "romgrk/barbar.nvim",
-        lazy = false,
+        event = "VeryLazy",
         dependencies = "nvim-tree/nvim-web-devicons",
+        init = function()
+            vim.g.barbar_auto_setup = false
+        end,
         opts = {
             animation = false,
             auto_hide = false,

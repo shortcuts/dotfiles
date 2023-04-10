@@ -2,15 +2,14 @@
 -- Options
 --------------------------
 
+vim.g.mapleader = ";"
+
 -- Plugin global opts
 vim.g.go_gopls_gofumpt = 1
 vim.g.go_fmt_cmd = "gopls"
 vim.g.go_def_mode = "gopls"
 vim.g.go_info_mode = "gopls"
 vim.g.go_doc_popup_window = 1
-
--- Leader key
-vim.g.mapleader = ";"
 
 -- Folding
 vim.opt.foldmethod = "expr"

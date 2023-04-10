@@ -8,12 +8,12 @@ return {
     },
     {
         "lewis6991/gitsigns.nvim",
-        event = "BufReadPre",
+        event = { "BufReadPre", "BufNewFile" },
         config = true,
     },
     {
         "numToStr/Comment.nvim",
-        event = "BufReadPre",
+        event = "BufReadPost",
         dependencies = "nvim-treesitter/nvim-treesitter",
         config = true,
     },

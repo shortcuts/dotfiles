@@ -1,5 +1,12 @@
 return {
     {
+        "nvim-treesitter/nvim-treesitter-context",
+        event = "BufReadPre",
+        opts = {
+            max_lines = 2,
+        },
+    },
+    {
         "nvim-treesitter/nvim-treesitter",
         module = true,
         event = { "BufReadPost", "BufNewFile" },
