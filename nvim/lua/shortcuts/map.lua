@@ -32,6 +32,8 @@ vim.keymap.set("n", "<Leader>fg", "<cmd>Telescope live_grep<CR>") -- open find i
 vim.keymap.set("n", "<Leader>fh", "<cmd>Telescope help_tags<CR>") -- open help
 -- Telescope file browser
 vim.keymap.set("n", "<C-b>", "<cmd>Telescope file_browser<CR>") -- toggle file_browser
+
+-- Diffview
 vim.keymap.set("n", "<Leader>gd", "<cmd>DiffviewOpen<CR>")
 vim.keymap.set("n", "<Leader>gq", "<cmd>DiffviewClose<CR>")
 vim.keymap.set("n", "<Leader>gf", "<cmd>DiffviewFileHistory<CR>")
@@ -41,7 +43,7 @@ vim.keymap.set("n", "<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
 vim.keymap.set("n", "<C-k>", "<Cmd>BufferNext<CR>") -- navigate next
 vim.keymap.set("n", "<C-q>", "<Cmd>BufferClose<CR>") -- close
 
--- -- Folding
+-- Folding
 vim.keymap.set("n", "<C-f>", "za") -- toggle under cursor
 vim.keymap.set("n", "<Leader>fa", "zM") -- fold all
 vim.keymap.set("n", "<Leader>ufa", "zR") -- unfold all

@@ -27,11 +27,11 @@ return {
                     layout_strategy = "vertical",
                     layout_config = {
                         vertical = {
-                            height = 0.9,
                             preview_cutoff = 0,
-                            preview_height = 0.6,
-                            results_height = 0.3,
-                            width = 0.7,
+                            preview_height = 0.69,
+                            results_height = 0.2,
+                            width = 0.8,
+                            height = 0.99,
                         },
                     },
 
@@ -55,8 +55,9 @@ return {
                         "**.yarn/",
                         "**.tox/",
                         "**.mypy_cache/",
-                        "**.terraform/",
+                        "build/.terraform/",
                         -- files
+                        "**plugin/packer_compiled.lua",
                         "**plugin/packer_compiled.lua",
                         "**yarn.lock",
                         "**yarn-error.log",
