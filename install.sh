@@ -2,7 +2,6 @@
 brew update && brew upgrade
 
 brew tap homebrew/cask-fonts
-brew install --cask font-fira-code
 brew install --cask font-fira-mono-nerd-font
 
 # install life basically

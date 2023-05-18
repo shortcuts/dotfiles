@@ -34,16 +34,15 @@ cursor:
 
 font:
   bold:
-    family: FuraCode Nerd Font
+    family: FiraMono Nerd Font
     style: Medium
 
   italic:
-    family: FuraCode Nerd Font
+    family: FiraMono Nerd Font
     style: Italic
 
   normal:
-    family: FuraCode Nerd Font
-    style: Retina
+    family: FiraMono Nerd Font
 
   size: 17.0
 
