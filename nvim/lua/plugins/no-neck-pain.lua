@@ -4,7 +4,6 @@ return {
         lazy = false,
         dev = true,
         opts = {
-            debug = true,
             width = 70,
             autocmds = {
                 enableOnVimEnter = true,

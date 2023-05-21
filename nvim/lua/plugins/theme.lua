@@ -17,9 +17,46 @@ return {
         opts = {
             options = {
                 icons_enabled = true,
-                theme = "auto",
-                component_separators = { left = "", right = "" },
-                section_separators = { left = "", right = "" },
+                theme = {
+                    normal = {
+                        a = { bg = "NONE" },
+                        b = { bg = "NONE" },
+                        c = { bg = "NONE" },
+                        z = { bg = "NONE" },
+                    },
+                    insert = {
+                        a = { bg = "NONE" },
+                        b = { bg = "NONE" },
+                        c = { bg = "NONE" },
+                        z = { bg = "NONE" },
+                    },
+                    visual = {
+                        a = { bg = "NONE" },
+                        b = { bg = "NONE" },
+                        c = { bg = "NONE" },
+                        z = { bg = "NONE" },
+                    },
+                    replace = {
+                        a = { bg = "NONE" },
+                        b = { bg = "NONE" },
+                        c = { bg = "NONE" },
+                        z = { bg = "NONE" },
+                    },
+                    command = {
+                        a = { bg = "NONE" },
+                        b = { bg = "NONE" },
+                        c = { bg = "NONE" },
+                        z = { bg = "NONE" },
+                    },
+                    inactive = {
+                        a = { bg = "NONE" },
+                        b = { bg = "NONE" },
+                        c = { bg = "NONE" },
+                        z = { bg = "NONE" },
+                    },
+                },
+                component_separators = { left = "", right = "" },
+                section_separators = { left = "", right = "" },
                 always_divide_middle = true,
                 globalstatus = true,
                 refresh = {
@@ -29,21 +66,14 @@ return {
                 },
             },
             sections = {
-                lualine_a = { "mode" },
-                lualine_b = { "branch", "diff", "diagnostics" },
-                lualine_c = {
-                    {
-                        "filename",
-                        path = 1,
-                    },
-                },
-                lualine_x = { "fileformat", "filetype" },
+                lualine_a = { "branch" },
+                lualine_b = { { "filename", path = 1 }, "diff" },
+                lualine_c = { "diagnostics" },
+                lualine_x = {},
                 lualine_y = {},
-                lualine_z = { "location" },
+                lualine_z = { { "datetime", style = "%d/%m/%y %H:%M" } },
             },
-            inactive_sections = {
-                lualine_x = { "location" },
-            },
+            inactive_sections = {},
         },
     },
     {
@@ -77,9 +107,7 @@ return {
                 },
             },
             icon_custom_colors = false,
-            -- Sets the maximum padding width with which to surround each tab
             maximum_padding = 1,
-            -- Sets the maximum buffer name length.
             maximum_length = 30,
             semantic_letters = true,
             letters = "asdfjkl;ghnmxcvbziowerutyqpASDFJKLGHNMXCVBZIOWERUTYQP",
