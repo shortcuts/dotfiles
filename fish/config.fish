@@ -4,7 +4,7 @@ source ~/.config/fish/alias.fish
 status --is-interactive; and source (jump shell fish | psub)
 
 # Load all saved ssh keys
-/usr/bin/ssh-add --apple-use-keychain --apple-load-keychain ^/dev/null
+/usr/bin/ssh-add -A ^/dev/null
 
 # Nightfox Color Palette
 # Style: carbonfox
@@ -47,3 +47,8 @@ starship init fish | source
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/clement.vannicate/Downloads/google-cloud-sdk/path.fish.inc' ]; . '/Users/clement.vannicate/Downloads/google-cloud-sdk/path.fish.inc'; end
+
+set -x PATH /usr/local/bin:$PATH
+set -x PATH $HOME/.cargo/bin:$PATH
+
+status --is-interactive; and rbenv init - fish | source

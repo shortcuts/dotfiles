@@ -44,9 +44,7 @@ return {
                     file_ignore_patterns = {
                         -- folders, wherever they are
                         "**node_modules/",
-                        "**lib/",
                         "**deps/",
-                        "**build/",
                         "**dist/",
                         "**__snapshots__/",
                         "**public/",

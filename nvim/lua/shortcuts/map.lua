@@ -29,6 +29,7 @@ vim.keymap.set("n", "N", "Nzz")
 -- Telescope mappings
 vim.keymap.set("n", "<C-p>", "<cmd>Telescope find_files<CR>") -- open find file
 vim.keymap.set("n", "<Leader>fg", "<cmd>Telescope live_grep<CR>") -- open find in file
+vim.keymap.set("n", "<Leader>fr", "<cmd>Telescope lsp_references<CR>") -- open find for references
 vim.keymap.set("n", "<Leader>fh", "<cmd>Telescope help_tags<CR>") -- open help
 -- Telescope file browser
 vim.keymap.set("n", "<C-b>", "<cmd>Telescope file_browser<CR>") -- toggle file_browser
