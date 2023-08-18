@@ -56,3 +56,10 @@ window:
   padding:
     x: 5
     y: 5
+
+shell:
+  program: /usr/local/bin/fish
+  args:
+    - --login
+    - --init-command
+    - "~/.config/scripts/tmux-sessionizer ~/.config"
