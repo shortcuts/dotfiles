@@ -4,7 +4,7 @@ source ~/.config/fish/alias.fish
 status --is-interactive; and source (jump shell fish | psub)
 
 # Load all saved ssh keys
-/usr/bin/ssh-add -A ^/dev/null
+/usr/bin/ssh-add --apple-use-keychain --apple-load-keychain ^/dev/null
 
 # Nightfox Color Palette
 # Style: carbonfox
@@ -50,5 +50,6 @@ if [ -f '/Users/clement.vannicate/Downloads/google-cloud-sdk/path.fish.inc' ]; .
 
 set -x PATH /usr/local/bin:$PATH
 set -x PATH $HOME/.cargo/bin:$PATH
+set -x PATH $HOME/Library/Python/3.9/bin:$PATH
 
 status --is-interactive; and rbenv init - fish | source
