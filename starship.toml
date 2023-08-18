@@ -1,8 +1,10 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
 # setup commands
 command_timeout = 2000
 
 # dispaly
-format = """$git_branch$git_status$git_metrics$git_state [>](dimmed white) """
+format = """$git_branch$git_status$git_metrics$git_state [❯](dimmed white) """
 right_format = """$cmd_duration"""
 
 # configs
