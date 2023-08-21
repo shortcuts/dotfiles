@@ -79,6 +79,7 @@ return {
                 "rust_analyzer",
                 "tsserver",
                 "lua_ls",
+                "ruby_ls",
                 "bashls",
                 "cssls",
                 "dockerls",

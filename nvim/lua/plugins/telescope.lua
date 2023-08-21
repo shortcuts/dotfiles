@@ -53,7 +53,7 @@ return {
                         "**.yarn/",
                         "**.tox/",
                         "**.mypy_cache/",
-                        "build/.terraform/",
+                        "**build/terraform/\\.terraform/",
                         -- files
                         "**plugin/packer_compiled.lua",
                         "**plugin/packer_compiled.lua",
