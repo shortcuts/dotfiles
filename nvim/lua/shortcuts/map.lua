@@ -52,3 +52,6 @@ vim.keymap.set("n", "<Leader>ufa", "zR") -- unfold all
 -- Copy to clipboard
 vim.keymap.set("n", "<Leader>yy", '"*y') -- in normal mode
 vim.keymap.set("v", "<Leader>yy", '"*y') -- in visual mode
+
+-- search and replace
+vim.keymap.set("n", "<Leader>sr", function() require("ssr").open() end)

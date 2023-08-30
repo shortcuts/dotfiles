@@ -5,7 +5,7 @@ brew tap homebrew/cask-fonts
 brew install --cask font-fira-mono-nerd-font
 
 # install life basically
-brew install fish neovim tmux rectangle starship
+brew install jq yq fish neovim tmux rectangle starship
 brew install --cask alacritty --no-quarantine
 
 # setup fish as default shell
