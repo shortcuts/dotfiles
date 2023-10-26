@@ -4,7 +4,7 @@ source ~/.config/fish/alias.fish
 status --is-interactive; and source (jump shell fish | psub)
 
 # Load all saved ssh keys
-/usr/bin/ssh-add -A ^/dev/null
+/usr/bin/ssh-add --apple-load-keychain ^/dev/null
 
 # Nightfox Color Palette
 # Style: carbonfox
