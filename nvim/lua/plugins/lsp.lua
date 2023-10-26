@@ -25,6 +25,7 @@ return {
             local configs = require("nvim-treesitter.configs")
 
             configs.setup({
+                playground = {enable = true},
                 ensure_installed = "all",
                 sync_install = false,
                 auto_install = true,
@@ -79,7 +80,6 @@ return {
                 "rust_analyzer",
                 "tsserver",
                 "lua_ls",
-                "ruby_ls",
                 "bashls",
                 "cssls",
                 "dockerls",
@@ -90,7 +90,7 @@ return {
                 "terraformls",
                 "jsonls",
                 "docker_compose_language_service",
-                "pylsp",
+                -- "pylsp",
                 "sqlls",
             })
 
