@@ -4,15 +4,13 @@ return {
         cmd = { "Telescope" },
         version = false,
         dependencies = {
+            "nvim-lua/plenary.nvim",
             {
                 "nvim-telescope/telescope-fzf-native.nvim",
-                cmd = { "Telescope" },
-                dependencies = { "nvim-lua/plenary.nvim", "nvim-telescope/telescope.nvim" },
                 build = "make",
             },
             {
                 "nvim-telescope/telescope-file-browser.nvim",
-                cmd = { "Telescope" },
             },
         },
         config = function()
