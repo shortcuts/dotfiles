@@ -1,8 +1,5 @@
 source ~/.config/fish/alias.fish
 
-# Configure jump
-status --is-interactive; and source (jump shell fish | psub)
-
 # Load all saved ssh keys
 /usr/bin/ssh-add --apple-load-keychain ^/dev/null
 
@@ -42,13 +39,9 @@ set -g fish_pager_color_prefix $cyan
 set -g fish_pager_color_completion $foreground
 set -g fish_pager_color_description $comment
 
-# start starship
-starship init fish | source
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/clement.vannicate/Downloads/google-cloud-sdk/path.fish.inc' ]; . '/Users/clement.vannicate/Downloads/google-cloud-sdk/path.fish.inc'; end
-
 set -x PATH /usr/local/bin:$PATH
 set -x PATH $HOME/.cargo/bin:$PATH
 
-status --is-interactive; and rbenv init - fish | source
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+starship init fish | source

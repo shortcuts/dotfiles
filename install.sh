@@ -5,30 +5,38 @@ brew tap homebrew/cask-fonts
 brew install --cask font-fira-mono-nerd-font
 
 # install life basically
-brew install jq yq fish neovim tmux rectangle starship
+brew install jq yq fish neovim tmux rectangle starship kind gh wget
 brew install --cask alacritty --no-quarantine
 
 # setup fish as default shell
-echo /usr/local/bin/fish | sudo tee -a /etc/shells && chsh -s /usr/local/bin/fish
+fish && chsh -s (command -s fish)
 
-# neovim deps etc.
-brew install jump bat ripgrep fd git-delta
+# neovim and code utils
+brew install bat ripgrep fd git-delta
 
-# install fzf
-brew install fzf && /usr/local/opt/fzf/install
+# fzf for tmux
+brew install fzf && /opt/homebrew/opt/fzf/install
 
-# install fish plugin manager
+# fish plugin manager
 curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
 
-# install nvm to manage node versions
-fisher install jorgebucaran/nvm.fish
+fisher install jorgebucaran/nvm.fish # node version manager
+fisher install edc/bass # bash with fish
 
 # setup rectangle window manager
 mkdir -p ~/Library/Application\ Support/Rectangle/
 cp RectangleConfig.json ~/Library/Application\ Support/Rectangle/
 
-# dev
+# dev (go)
 brew install go golangci-lint
+bash (curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | psub)
+gvm install go1.20.4
+
+# dev (rust)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# dev (js)
+nvm install latest
 
 # gitconfig
 cp .gitconfig ~/.gitconfig

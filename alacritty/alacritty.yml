@@ -57,9 +57,10 @@ window:
     x: 5
     y: 5
 
+
 shell:
-  program: /usr/local/bin/fish
+  program: /opt/homebrew/bin/fish
   args:
     - --login
     - --init-command
-    - "~/.config/scripts/tmux-sessionizer ~/.config"
+    - ~/.config/scripts/tmux-sessionizer

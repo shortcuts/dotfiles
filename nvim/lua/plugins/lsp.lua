@@ -61,38 +61,17 @@ return {
                             hint_enable = false,
                         },
                     },
+                    { "williamboman/mason.nvim" },
+                    { "williamboman/mason-lspconfig.nvim" },
+                    { "saadparwaiz1/cmp_luasnip" },
                 },
             },
-            {
-                "williamboman/mason.nvim",
-                build = function()
-                    pcall(vim.cmd, "MasonUpdate")
-                end,
-            },
-            { "williamboman/mason-lspconfig.nvim" },
         },
         config = function()
             ---------------------- lsp-zero
             local lsp = require("lsp-zero")
 
             lsp.preset("recommended")
-            lsp.ensure_installed({
-                "rust_analyzer",
-                "tsserver",
-                "lua_ls",
-                "bashls",
-                "cssls",
-                "dockerls",
-                "gopls",
-                "dotls",
-                "vimls",
-                "yamlls",
-                "terraformls",
-                "jsonls",
-                "docker_compose_language_service",
-                -- "pylsp",
-                "sqlls",
-            })
 
             lsp.configure("lua_ls", {
                 settings = {
@@ -197,6 +176,29 @@ return {
                     { name = "nvim_lsp" },
                     { name = "buffer" },
                     { name = "luasnip" },
+                },
+            })
+
+            require("mason").setup()
+            require("mason-lspconfig").setup({
+                handlers = {
+                    lsp.default_setup,
+                },
+                ensure_installed = {
+                    "rust_analyzer",
+                    "tsserver",
+                    "lua_ls",
+                    "bashls",
+                    "cssls",
+                    "dockerls",
+                    "gopls",
+                    "dotls",
+                    "vimls",
+                    "yamlls",
+                    "terraformls",
+                    "jsonls",
+                    "docker_compose_language_service",
+                    "sqlls",
                 },
             })
         end,
