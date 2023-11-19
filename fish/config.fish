@@ -45,3 +45,6 @@ set -x PATH $HOME/.cargo/bin:$PATH
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 starship init fish | source
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/clement.vannicatte/google-cloud-sdk/path.fish.inc' ]; . '/Users/clement.vannicatte/google-cloud-sdk/path.fish.inc'; end
