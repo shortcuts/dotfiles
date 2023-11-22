@@ -199,6 +199,8 @@ return {
                     "jsonls",
                     "docker_compose_language_service",
                     "sqlls",
+                    "java_language_server",
+                    "pylsp"
                 },
             })
         end,

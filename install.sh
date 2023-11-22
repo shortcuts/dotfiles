@@ -19,11 +19,15 @@ brew install bat ripgrep fd git-delta
 # fzf for tmux
 brew install fzf && /opt/homebrew/opt/fzf/install
 
+# dev (java)
+curl -s https://get.sdkman.io | bash
+
 # fish plugin manager
 curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
 
 fisher install jorgebucaran/nvm.fish # node version manager
 fisher install edc/bass # bash with fish
+fisher install reitzig/sdkman-for-fish # sdkman for fish
 
 # setup rectangle window manager
 mkdir -p ~/Library/Application\ Support/Rectangle/
@@ -40,6 +44,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # dev (js)
 nvm install latest
 npm install -g yarn
+
+# dev (java)
+sdk install java
 
 # gitconfig
 cp .gitconfig ~/.gitconfig

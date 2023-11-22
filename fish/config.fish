@@ -48,3 +48,7 @@ starship init fish | source
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/clement.vannicatte/google-cloud-sdk/path.fish.inc' ]; . '/Users/clement.vannicatte/google-cloud-sdk/path.fish.inc'; end
+
+# source "/opt/homebrew/opt/sdkman-cli/libexec/bin/sdkman-init.sh"
+# set -x SDKMAN_DIR /opt/homebrew/opt/sdkman-cli/libexec
+# if [ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]; source "$SDKMAN_DIR/bin/sdkman-init.sh"; end
