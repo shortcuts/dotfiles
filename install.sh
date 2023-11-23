@@ -41,6 +41,9 @@ gvm install go1.21.4
 # dev (rust)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
+# dev (lua)
+cargo install stylua
+
 # dev (js)
 nvm install latest
 npm install -g yarn
