@@ -40,6 +40,7 @@ set -g fish_pager_color_completion $foreground
 set -g fish_pager_color_description $comment
 
 set -x PATH /usr/local/bin:$PATH
+set -x PATH /Users/clement.vannicatte/.local/bin:$PATH
 set -x PATH $HOME/.cargo/bin:$PATH
 
 eval "$(/opt/homebrew/bin/brew shellenv)"

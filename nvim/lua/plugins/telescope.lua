@@ -44,6 +44,7 @@ return {
                         "**node_modules/",
                         "**deps/",
                         "**dist/",
+                        "**vendor/",
                         "**__snapshots__/",
                         "**public/",
                         "**.git/",

@@ -39,3 +39,4 @@ SETUVAR fish_pager_color_prefix:cyan\x1e\x2d\x2dbold\x1e\x2d\x2dunderline
 SETUVAR fish_pager_color_progress:brwhite\x1e\x2d\x2dbackground\x3dcyan
 SETUVAR fish_pager_color_selected_background:\x2dr
 SETUVAR fish_user_paths:/Users/clement\x2evannicate/\x2egobrew/current/bin\x3a/Users/clement\x2evannicate/\x2egobrew/bin\x3a/Users/klm/\x2ecargo/bin\x3a/usr/local/opt/fzf/bin\x3a/usr/local/bin\x3a/usr/bin\x3a/bin\x3a/usr/sbin\x3a/sbin\x3a/Library/Apple/usr/bin\x3a/Users/clement\x2evannicate/Downloads/google\x2dcloud\x2dsdk/bin\x1e/Users/klm/\x2ecargo/bin\x1e/usr/local/opt/fzf/bin\x1e/opt/homebrew/opt/fzf/bin
+SETUVAR nvm_default_version:v21\x2e2\x2e0
