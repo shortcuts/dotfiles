@@ -45,6 +45,7 @@ return {
                         "**deps/",
                         "**dist/",
                         "**vendor/",
+                        "**nightly/",
                         "**__snapshots__/",
                         "**public/",
                         "**.git/",
