@@ -47,6 +47,8 @@ return {
                         "**vendor/",
                         "**nightly/",
                         "**__snapshots__/",
+                        "**.pytest_cache/",
+                        "**__pycache__/",
                         "**public/",
                         "**.git/",
                         "**.next/",

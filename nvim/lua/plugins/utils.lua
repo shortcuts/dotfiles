@@ -23,6 +23,7 @@ return {
         dependencies = "nvim-lua/plenary.nvim",
         opts = {
             show_help_hints = false,
+            enhanced_diff_hl = true,
         },
     },
     {
@@ -40,4 +41,10 @@ return {
             },
         },
     },
+    {
+        "iamcco/markdown-preview.nvim",
+        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+        ft = { "markdown" },
+        build = function() vim.fn["mkdp#util#install"]() end,
+    }
 }

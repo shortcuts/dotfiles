@@ -13,5 +13,3 @@ alias reload='exec fish'
 alias cat='bat'
 alias vim='nvim'
 alias v='nvim .'
-
-alias apic='docker exec -it api-clients-automation bash -lc "cd scripts && NODE_NO_WARNINGS=1 node dist/scripts/cli/index.js $argv"'

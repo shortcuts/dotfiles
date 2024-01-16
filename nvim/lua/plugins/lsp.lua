@@ -199,7 +199,8 @@ return {
                     "jsonls",
                     "docker_compose_language_service",
                     "sqlls",
-                    "pylsp"
+                    "pylsp",
+                    "mdx_analyzer"
                 },
             })
         end,
