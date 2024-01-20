@@ -1,0 +1,3 @@
+[submodule "rpi"]
+	path = rpi
+	url = git@github.com:shortcuts/rpi.git
