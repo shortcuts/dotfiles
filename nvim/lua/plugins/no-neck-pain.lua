@@ -31,11 +31,6 @@ return {
                 right = {
                     enabled = false,
                 },
-            },
-            integrations = {
-                NvimTree = {
-                    reopen = true
-                }
             }
         },
     },
