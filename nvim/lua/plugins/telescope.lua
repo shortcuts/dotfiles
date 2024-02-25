@@ -3,6 +3,7 @@ return {
         "nvim-telescope/telescope.nvim",
         cmd = { "Telescope" },
         version = false,
+        lazy = false,
         dependencies = {
             "nvim-lua/plenary.nvim",
             {
@@ -56,7 +57,6 @@ return {
                         "**.tox/",
                         "**.mypy_cache/",
                         "**build/terraform/\\.terraform/",
-                        -- files
                         "**plugin/packer_compiled.lua",
                         "**plugin/packer_compiled.lua",
                         "**yarn.lock",
@@ -100,6 +100,12 @@ return {
 
             require("telescope").load_extension("file_browser")
             require("telescope").load_extension("fzf")
+
+            vim.keymap.set("n", "<Leader>fg", "<cmd>Telescope live_grep<CR>") -- open find in file
+            vim.keymap.set("n", "<Leader>fr", "<cmd>Telescope lsp_references<CR>") -- open find for references
+            vim.keymap.set("n", "<Leader>fh", "<cmd>Telescope help_tags<CR>") -- open help
+            vim.keymap.set("n", "<C-p>", "<cmd>Telescope find_files<CR>") -- open find file
+            vim.keymap.set("n", "<C-b>", "<cmd>Telescope file_browser<CR>") -- toggle file_browser
         end,
     },
 }

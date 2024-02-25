@@ -26,14 +26,6 @@ vim.keymap.set("n", "<C-o>", "<C-o>zz")
 vim.keymap.set("n", "n", "nzz")
 vim.keymap.set("n", "N", "Nzz")
 
--- Telescope mappings
-vim.keymap.set("n", "<C-p>", "<cmd>Telescope find_files<CR>") -- open find file
-vim.keymap.set("n", "<Leader>fg", "<cmd>Telescope live_grep<CR>") -- open find in file
-vim.keymap.set("n", "<Leader>fr", "<cmd>Telescope lsp_references<CR>") -- open find for references
-vim.keymap.set("n", "<Leader>fh", "<cmd>Telescope help_tags<CR>") -- open help
--- Telescope file browser
-vim.keymap.set("n", "<C-b>", "<cmd>Telescope file_browser<CR>") -- toggle file_browser
-
 -- Diffview
 vim.keymap.set("n", "<Leader>gd", "<cmd>DiffviewOpen<CR>")
 vim.keymap.set("n", "<Leader>gq", "<cmd>DiffviewClose<CR>")
@@ -52,6 +44,3 @@ vim.keymap.set("n", "<Leader>ufa", "zR") -- unfold all
 -- Copy to clipboard
 vim.keymap.set("n", "<Leader>yy", '"*y') -- in normal mode
 vim.keymap.set("v", "<Leader>yy", '"*y') -- in visual mode
-
--- search and replace
-vim.keymap.set("n", "<Leader>sr", function() require("ssr").open() end)

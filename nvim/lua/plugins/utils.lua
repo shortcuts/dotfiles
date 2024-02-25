@@ -32,19 +32,11 @@ return {
         ft = "go",
     },
     {
-        "cshuaimin/ssr.nvim",
-        event = "BufReadPost",
-        config = true,
-        opts = {
-            keymaps = {
-                replace_all = "<Leader>sq"
-            },
-        },
-    },
-    {
         "iamcco/markdown-preview.nvim",
         cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
         ft = { "markdown" },
-        build = function() vim.fn["mkdp#util#install"]() end,
-    }
+        build = function()
+            vim.fn["mkdp#util#install"]()
+        end,
+    },
 }

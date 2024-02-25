@@ -25,7 +25,7 @@ return {
             local configs = require("nvim-treesitter.configs")
 
             configs.setup({
-                playground = {enable = true},
+                playground = { enable = true },
                 ensure_installed = "all",
                 sync_install = false,
                 auto_install = true,
@@ -200,7 +200,7 @@ return {
                     "docker_compose_language_service",
                     "sqlls",
                     "pylsp",
-                    "mdx_analyzer"
+                    "mdx_analyzer",
                 },
             })
         end,

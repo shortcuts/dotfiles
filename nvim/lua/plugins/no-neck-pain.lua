@@ -31,7 +31,7 @@ return {
                 right = {
                     enabled = false,
                 },
-            }
+            },
         },
     },
 }

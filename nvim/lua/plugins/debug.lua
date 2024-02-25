@@ -6,42 +6,42 @@ return {
     --     opts = {},
     -- }
     -- {
-        --     "rcarriga/nvim-dap-ui",
-        --     lazy = false,
-        --     dependencies = "mfussenegger/nvim-dap",
-        --     config = true,
-        -- },
-        -- {
-            --       "nvim-neotest/neotest",
-            --       lazy = false,
-            --       dependencies = {
-                --           "nvim-lua/plenary.nvim",
-                --           "antoinemadec/FixCursorHold.nvim"
-                --       },
-                --     config = true,
-                --     opts = {
-                    -- floating = { max_width = 0.1 },
-                    -- strategies = { integrated = { width = 1 } },
-                    --     }
-                    -- },
-                    -- {
-                        --     "nvim-tree/nvim-tree.lua",
-                        --     lazy = false,
-                        --     dependencies = "mfussenegger/nvim-dap",
-                        --     config = true,
-                        -- },
-                        -- {
-                            --     "nvim-treesitter/playground",
-                            --     lazy = false,
-                            --     config = function ()
-                                --        require("nvim-treesitter.configs").setup({playground={enable=true}})
-                                --     end
-                                -- },
-                                -- {
-                                    --     "mbbill/undotree",
-                                    --     lazy = false,
-                                    -- config = function ()
-                                        --        require("mbbill/undotree").setup()
-                                        -- end,
-                                        -- },
-                                    }
+    --     "rcarriga/nvim-dap-ui",
+    --     lazy = false,
+    --     dependencies = "mfussenegger/nvim-dap",
+    --     config = true,
+    -- },
+    -- {
+    --       "nvim-neotest/neotest",
+    --       lazy = false,
+    --       dependencies = {
+    --           "nvim-lua/plenary.nvim",
+    --           "antoinemadec/FixCursorHold.nvim"
+    --       },
+    --     config = true,
+    --     opts = {
+    -- floating = { max_width = 0.1 },
+    -- strategies = { integrated = { width = 1 } },
+    --     }
+    -- },
+    -- {
+    --     "nvim-tree/nvim-tree.lua",
+    --     lazy = false,
+    --     dependencies = "mfussenegger/nvim-dap",
+    --     config = true,
+    -- },
+    -- {
+    --     "nvim-treesitter/playground",
+    --     lazy = false,
+    --     config = function ()
+    --        require("nvim-treesitter.configs").setup({playground={enable=true}})
+    --     end
+    -- },
+    -- {
+    --     "mbbill/undotree",
+    --     lazy = false,
+    -- config = function ()
+    --        require("mbbill/undotree").setup()
+    -- end,
+    -- },
+}
