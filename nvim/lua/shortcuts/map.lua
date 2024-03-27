@@ -32,9 +32,9 @@ vim.keymap.set("n", "<Leader>gq", "<cmd>DiffviewClose<CR>")
 vim.keymap.set("n", "<Leader>gf", "<cmd>DiffviewFileHistory<CR>")
 
 -- Barbar
-vim.keymap.set("n", "<C-j>", "<Cmd>BufferPrevious<CR>") -- navigate previous
-vim.keymap.set("n", "<C-k>", "<Cmd>BufferNext<CR>") -- navigate next
-vim.keymap.set("n", "<C-q>", "<Cmd>BufferClose<CR>") -- close
+vim.keymap.set("n", "<C-j>", "<cmd>BufferPrevious<CR>") -- navigate previous
+vim.keymap.set("n", "<C-k>", "<cmd>BufferNext<CR>") -- navigate next
+vim.keymap.set("n", "<C-q>", "<cmd>BufferClose<CR>") -- close
 
 -- Folding
 vim.keymap.set("n", "<C-f>", "za") -- toggle under cursor
@@ -44,3 +44,6 @@ vim.keymap.set("n", "<Leader>ufa", "zR") -- unfold all
 -- Copy to clipboard
 vim.keymap.set("n", "<Leader>yy", '"*y') -- in normal mode
 vim.keymap.set("v", "<Leader>yy", '"*y') -- in visual mode
+
+-- Debug
+-- vim.keymap.set("n", "bb", "<cmd>NvimTreeToggle<CR>")

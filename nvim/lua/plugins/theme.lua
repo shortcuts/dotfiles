@@ -4,10 +4,20 @@ return {
         priority = 1000,
         lazy = false,
         config = function()
+            local carbonfox = require("nightfox.palette.carbonfox")
             require("nightfox").setup({
                 transparent = true,
+                palettes = {
+                    duskfox = {
+                        bg0 = carbonfox.palette.bg0,
+                        bg1 = carbonfox.palette.bg1,
+                        bg2 = carbonfox.palette.bg2,
+                        bg3 = carbonfox.palette.bg3,
+                        bg4 = carbonfox.palette.bg4,
+                    },
+                },
             })
-            vim.cmd("colorscheme carbonfox")
+            vim.cmd("colorscheme duskfox")
         end,
     },
     {

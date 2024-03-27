@@ -12,6 +12,7 @@ return {
                 enableOnVimEnter = true,
                 enableOnTabEnter = true,
                 reloadOnColorSchemeChange = true,
+                skipEnteringNoNeckPainBuffer = true,
             },
             mappings = {
                 enabled = true,
@@ -19,13 +20,9 @@ return {
             },
             buffers = {
                 left = {
-                    bo = {
-                        filetype = "md",
-                    },
                     scratchPad = {
                         enabled = false,
-                        fileName = "notes",
-                        location = "~/",
+                        pathToFile = "~/notes.custom",
                     },
                 },
                 right = {
