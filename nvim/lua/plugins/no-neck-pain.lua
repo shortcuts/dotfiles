@@ -22,7 +22,7 @@ return {
                 left = {
                     scratchPad = {
                         enabled = false,
-                        pathToFile = "~/notes.custom",
+                        pathToFile = "~/notes.md",
                     },
                 },
                 right = {

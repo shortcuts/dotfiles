@@ -36,7 +36,7 @@ cp RectangleConfig.json ~/Library/Application\ Support/Rectangle/
 # dev (go)
 brew install go golangci-lint
 bash (curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | psub)
-gvm install go1.21.4
+gvm install go1.22.2
 
 # dev (rust)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh

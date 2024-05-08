@@ -8,6 +8,9 @@ vim.keymap.set("n", "<Leader>qq", "<cmd>quitall<CR>") -- quit all vim instances
 vim.keymap.set("n", "<Leader>cf", "<cmd>let @+=expand('%:p')<CR>") -- copy current file path to cb
 vim.keymap.set("n", "<Leader>cd", "<cmd>let @+=getcwd()<CR>") -- copy current directory path to cb
 
+-- LSP
+vim.keymap.set("n", "<Leader>vr", "<cmd>lua vim.lsp.buf.references()<CR>")
+
 -- toggle Gitsigns
 vim.keymap.set("n", "<Leader>lb", "<cmd>Gitsigns toggle_current_line_blame<CR>")
 
@@ -46,4 +49,5 @@ vim.keymap.set("n", "<Leader>yy", '"*y') -- in normal mode
 vim.keymap.set("v", "<Leader>yy", '"*y') -- in visual mode
 
 -- Debug
--- vim.keymap.set("n", "bb", "<cmd>NvimTreeToggle<CR>")
+vim.keymap.set("n", "<Leader>mc", "<cmd>mess clear<CR>")
+-- vim.keymap.set("n", "bb", "<cmd>Neotree toggle<CR>")
