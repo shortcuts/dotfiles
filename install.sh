@@ -5,7 +5,10 @@ brew tap homebrew/cask-fonts
 brew install --cask font-fira-mono-nerd-font
 
 # install life basically
-brew install jq yq fish neovim tmux rectangle starship kind gh wget kubectl openvpn-connect fswatch luarocks
+brew install \
+    jq yq fish neovim tmux rectangle starship kind \
+    gh wget kubectl openvpn-connect fswatch luarocks \
+    lazydocker coreutils
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform hashicorp/tap/vault
 brew install --cask alacritty --no-quarantine
