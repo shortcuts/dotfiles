@@ -5,6 +5,15 @@
 [core]
     pager = delta
 
+[rerere]
+    enabled = true
+
+[column]
+    ui = auto
+
+[branch]
+    sort = committerdate
+
 [interactive]
     diffFilter = delta --color-only
 
@@ -18,3 +27,6 @@
 
 [diff]
     colorMoved = default
+
+[url "git@github.com:"]
+	insteadOf = https://github.com/
