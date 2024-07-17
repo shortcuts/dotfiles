@@ -10,7 +10,7 @@ return {
                 palettes = {
                     duskfox = {
                         bg0 = carbonfox.palette.bg0,
-                        bg1 = carbonfox.palette.bg1,
+                        bg1 = "#080402",
                         bg2 = carbonfox.palette.bg2,
                         bg3 = carbonfox.palette.bg3,
                         bg4 = carbonfox.palette.bg4,

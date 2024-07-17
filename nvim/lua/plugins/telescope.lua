@@ -10,9 +10,6 @@ return {
                 "nvim-telescope/telescope-fzf-native.nvim",
                 build = "make",
             },
-            {
-                "nvim-telescope/telescope-file-browser.nvim",
-            },
         },
         config = function()
             local PREVIEWERS = require("telescope.previewers")
@@ -53,7 +50,7 @@ return {
                         "**public/",
                         "**.git/",
                         "**.docusaurus/",
-                        "**.ci/",
+                        "**\\.ci/",
                         "**.nx/",
                         "**.build/",
                         "**website/build/",
@@ -96,22 +93,15 @@ return {
                         override_file_sorter = true,
                         case_mode = "smart_case",
                     },
-                    file_browser = {
-                        initial_mode = "insert",
-                        path = "%:p:h",
-                        hidden = true,
-                    },
                 },
             })
 
-            require("telescope").load_extension("file_browser")
             require("telescope").load_extension("fzf")
 
             vim.keymap.set("n", "<Leader>fg", "<cmd>Telescope live_grep<CR>") -- open find in file
             vim.keymap.set("n", "<Leader>fr", "<cmd>Telescope lsp_references<CR>") -- open find for references
             vim.keymap.set("n", "<Leader>fh", "<cmd>Telescope help_tags<CR>") -- open help
             vim.keymap.set("n", "<Leader>ff", "<cmd>Telescope find_files<CR>") -- open find file
-            vim.keymap.set("n", "<Leader>fb", "<cmd>Telescope file_browser<CR>") -- open file browser
         end,
     },
 }

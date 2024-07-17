@@ -8,7 +8,7 @@ brew install --cask font-fira-mono-nerd-font
 brew install \
     jq yq fish neovim tmux rectangle starship kind \
     gh wget kubectl openvpn-connect fswatch luarocks \
-    lazydocker coreutils
+    lazydocker coreutils ko
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform hashicorp/tap/vault
 brew install --cask alacritty --no-quarantine

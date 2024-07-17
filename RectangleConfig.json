@@ -74,7 +74,7 @@
 
     },
     "gapSize" : {
-      "float" : 5
+      "float" : 0
     },
     "hideMenubarIcon" : {
       "bool" : false

@@ -8,12 +8,6 @@ vim.keymap.set("n", "<Leader>qq", "<cmd>quitall<CR>") -- quit all vim instances
 vim.keymap.set("n", "<Leader>cf", "<cmd>let @+=expand('%:p')<CR>") -- copy current file path to cb
 vim.keymap.set("n", "<Leader>cd", "<cmd>let @+=getcwd()<CR>") -- copy current directory path to cb
 
--- LSP
-vim.keymap.set("n", "<Leader>vr", "<cmd>lua vim.lsp.buf.references()<CR>")
-
--- toggle Gitsigns
-vim.keymap.set("n", "<Leader>lb", "<cmd>Gitsigns toggle_current_line_blame<CR>")
-
 -- split size
 vim.keymap.set("n", "<Leader>++", "<C-w>|")
 vim.keymap.set("n", "<Leader>==", "<C-w>=")

@@ -47,6 +47,8 @@ set -U fish_user_paths $HOME/.local/share/bob/nvim-bin $fish_user_paths
 set -U fish_user_paths $HOME/Documents/no-neck-pain.nvim/.ci/lua-ls $fish_user_paths
 set -U fish_user_paths /Library/Frameworks/Python.framework/Versions/3.11/bin $fish_user_paths
 
+set -x KO_DOCKER_REPO ko.local
+
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
 starship init fish | source

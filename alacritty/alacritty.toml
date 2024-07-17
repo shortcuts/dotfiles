@@ -5,7 +5,7 @@
 transparent_background_colors = true
 
 [colors.primary]
-background = "0x161616"
+background = "0x000000"
 foreground = "0xf2f4f8"
 dim_foreground = "#cdcbe0"
 bright_foreground = "#eae8ff"
@@ -110,7 +110,3 @@ program = "/opt/homebrew/bin/fish"
 decorations = "none"
 dynamic_title = false
 opacity = 0.92
-
-[window.padding]
-x = 5
-y = 5
