@@ -7,7 +7,6 @@ return {
             debug = true,
             width = 90,
             minSideBufferWidth = 0,
-            fallbackOnBufferDelete = true,
             autocmds = {
                 enableOnTabEnter = true,
                 enableOnVimEnter = true,

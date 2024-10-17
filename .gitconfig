@@ -1,6 +1,6 @@
 [user]
-	email = vannicattec@gmail.com
-	name = shortcuts
+    email = vannicattec@gmail.com
+    name = shortcuts
 
 [core]
     pager = delta
@@ -29,4 +29,28 @@
     colorMoved = default
 
 [url "git@github.com:"]
-	insteadOf = https://github.com/
+    insteadOf = https://github.com/
+
+[color]
+    diff = auto
+    status = auto
+    branch = auto
+    ui = true
+
+[commit]
+    verbose = true
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[protocol "file"]
+    allow = always
+
+[maintenance]
+	repo = /Users/clement.vannicatte/.config
+	repo = /Users/clement.vannicatte/Documents/no-neck-pain.nvim
+	repo = /Users/clement.vannicatte/Documents/data-ingestion
+	repo = /Users/clement.vannicatte/Documents/api-clients-automation
