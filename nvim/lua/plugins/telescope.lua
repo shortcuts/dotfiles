@@ -98,7 +98,8 @@ return {
 
             require("telescope").load_extension("fzf")
 
-            vim.keymap.set("n", "<Leader>fg", "<cmd>Telescope live_grep<CR>") -- open find in file
+            vim.keymap.set("n", "<Leader>fg", "<cmd>lua require'telescope.builtin'.live_grep{ search_dirs={\"%:p:h\"} }<CR>") -- open find in file
+            vim.keymap.set("n", "<Leader>gfg", "<cmd>Telescope live_grep<CR>") -- open find in file
             vim.keymap.set("n", "<Leader>fr", "<cmd>Telescope lsp_references<CR>") -- open find for references
             vim.keymap.set("n", "<Leader>fh", "<cmd>Telescope help_tags<CR>") -- open help
             vim.keymap.set("n", "<Leader>ff", "<cmd>Telescope find_files<CR>") -- open find file

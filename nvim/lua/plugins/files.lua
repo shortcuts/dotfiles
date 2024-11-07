@@ -4,6 +4,7 @@ return {
         opts = {
             keymaps = {
                 ["<BS>"] = "actions.parent",
+                ["<C-h>"] = false,
             },
             view_options = {
                 show_hidden = true,
