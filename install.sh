@@ -1,17 +1,36 @@
 # setup
 brew update && brew upgrade
 
+brew install fish
+
+# gitconfig
+cp ~/.config/.gitconfig ~/.gitconfig
+
+# setup fish as default shell
+fish_add_path /usr/local/Homebrew/bin
+echo /usr/local/Homebrew/bin | sudo tee -a /etc/shells
+chsh -s /usr/local/Homebrew/bin || true
+fish || true
+
+# fish plugin manager
+curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
+
+fisher install jorgebucaran/nvm.fish # node version manager
+fisher install edc/bass # bash with fish
+fisher install reitzig/sdkman-for-fish # sdkman for fish
+fisher install JGAntunes/fish-gvm # gvm for fish
+
 # install life basically
 brew install \
     jq yq fish neovim tmux rectangle starship kind \
     gh wget kubectl openvpn-connect fswatch luarocks \
     lazydocker coreutils ko bat ripgrep fd git-delta \
-    brew-cask-completion
+    brew-cask-completion stats
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform hashicorp/tap/vault
 brew install --cask alacritty --no-quarantine
 brew install --cask font-fira-mono-nerd-font
-brew install fzf && eval "$(fzf --bash)" || fzf --fish | source
+brew install fzf && fzf --fish | source
 
 # dev (java)
 curl -s https://get.sdkman.io | bash
@@ -45,24 +64,6 @@ sdk install java
 brew install pipx
 pipx ensurepath
 pipx install poetry
-
-# gitconfig
-cp ~/.config/.gitconfig ~/.gitconfig
-
-# setup fish as default shell
-fish_add_path /usr/local/Homebrew/bin
-echo /usr/local/Homebrew/bin | sudo tee -a /etc/shells
-chsh -s /usr/local/Homebrew/bin || true
-fish || true
-
-# fish plugin manager
-curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
-
-fisher install jorgebucaran/nvm.fish # node version manager
-fisher install edc/bass # bash with fish
-fisher install reitzig/sdkman-for-fish # sdkman for fish
-fisher install JGAntunes/fish-gvm # gvm for fish
-
 poetry completions fish > ~/.config/fish/completions/poetry.fish
 
 # last cleanup

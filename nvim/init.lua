@@ -4,6 +4,7 @@
 
 require("shortcuts.set")
 require("shortcuts.map")
+require("shortcuts.autocmd")
 
 --------------------------
 -- Plugin management
