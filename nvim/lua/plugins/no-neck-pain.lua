@@ -11,7 +11,7 @@ return {
                 enableOnTabEnter = true,
                 enableOnVimEnter = true,
                 reloadOnColorSchemeChange = true,
-                -- skipEnteringNoNeckPainBuffer = true,
+                skipEnteringNoNeckPainBuffer = true,
             },
             mappings = {
                 enabled = true,

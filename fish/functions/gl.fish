@@ -1,5 +1,3 @@
 function gl
-    git log --graph --pretty="tformat:$FORMAT" $* |
-    column -t -s '{' |
-    less -XRS --quit-if-one-screen
+    git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
 end

@@ -58,7 +58,6 @@ return {
                         "**bin/",
                         "**.next/",
                         "**.yarn/",
-                        "list/",
                         "**.tox/",
                         "**.mypy_cache/",
                         "**build/terraform/\\.terraform/",

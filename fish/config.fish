@@ -55,7 +55,9 @@ pyenv init - | source
 
 set -x KO_DOCKER_REPO ko.local
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+eval "$(/usr/local/Homebrew/bin/brew shellenv)"
+
+fzf --fish | source
 
 starship init fish | source
 
