@@ -1,29 +1,16 @@
 # setup
 brew update && brew upgrade
 
-brew tap homebrew/cask-fonts
-brew install --cask font-fira-mono-nerd-font
+brew install fish
 
-# install life basically
-brew install \
-    jq yq fish neovim tmux rectangle starship kind \
-    gh wget kubectl openvpn-connect fswatch luarocks \
-    lazydocker coreutils ko
-brew tap hashicorp/tap
-brew install hashicorp/tap/terraform hashicorp/tap/vault
-brew install --cask alacritty --no-quarantine
+# gitconfig
+cp ~/.config/.gitconfig ~/.gitconfig
 
 # setup fish as default shell
-fish && chsh -s (command -s fish)
-
-# neovim and code utils
-brew install bat ripgrep fd git-delta
-
-# fzf for tmux
-brew install fzf && /opt/homebrew/opt/fzf/install
-
-# dev (java)
-curl -s https://get.sdkman.io | bash
+fish_add_path /usr/local/Homebrew/bin
+echo /usr/local/Homebrew/bin | sudo tee -a /etc/shells
+chsh -s /usr/local/Homebrew/bin || true
+fish || true
 
 # fish plugin manager
 curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
@@ -31,15 +18,34 @@ curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
 fisher install jorgebucaran/nvm.fish # node version manager
 fisher install edc/bass # bash with fish
 fisher install reitzig/sdkman-for-fish # sdkman for fish
+fisher install JGAntunes/fish-gvm # gvm for fish
+
+# install life basically
+brew install \
+    jq yq fish neovim tmux rectangle starship kind \
+    gh wget kubectl openvpn-connect fswatch luarocks \
+    lazydocker coreutils ko bat ripgrep fd git-delta \
+    brew-cask-completion stats slides
+brew tap hashicorp/tap
+brew install hashicorp/tap/terraform hashicorp/tap/vault
+brew install --cask alacritty --no-quarantine
+brew install --cask font-fira-mono-nerd-font
+brew install fzf && fzf --fish | source
+
+# dev (java)
+curl -s https://get.sdkman.io | bash
 
 # setup rectangle window manager
 mkdir -p ~/Library/Application\ Support/Rectangle/
-cp RectangleConfig.json ~/Library/Application\ Support/Rectangle/
+cp ~/.config/RectangleConfig.json ~/Library/Application\ Support/Rectangle/
 
 # dev (go)
 brew install go golangci-lint
-bash (curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | psub)
-gvm install go1.22.2
+if ! command -v gvm 2>&1 >/dev/null
+then
+ bash (curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | psub)
+fi
+gvm install go1.23.3
 
 # dev (rust)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -60,5 +66,5 @@ pipx ensurepath
 pipx install poetry
 poetry completions fish > ~/.config/fish/completions/poetry.fish
 
-# gitconfig
-cp .gitconfig ~/.gitconfig
+# last cleanup
+brew update && brew upgrade

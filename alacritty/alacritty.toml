@@ -102,7 +102,7 @@ family = "FiraMono Nerd Font"
 [mouse]
 hide_when_typing = true
 
-[shell]
+[terminal.shell]
 args = ["--login", "--init-command", "~/.config/scripts/tmux-sessionizer"]
 program = "/opt/homebrew/bin/fish"
 
@@ -110,3 +110,5 @@ program = "/opt/homebrew/bin/fish"
 decorations = "none"
 dynamic_title = false
 opacity = 0.92
+
+[terminal]

@@ -8,8 +8,8 @@ return {
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        module = true,
         event = { "BufReadPost", "BufNewFile" },
+        build = ":TSUpdate",
         cmd = {
             "TSInstall",
             "TSInstallInfo",
@@ -20,16 +20,24 @@ return {
             "TSDisable",
             "TSModuleInfo",
         },
-        build = ":TSUpdate",
         config = function()
-            local configs = require("nvim-treesitter.configs")
-
-            configs.setup({
-                playground = { enable = true },
+            require("nvim-treesitter.configs").setup({
+                -- A list of parser names, or "all"
                 ensure_installed = "all",
+
+                -- Install parsers synchronously (only applied to `ensure_installed`)
                 sync_install = false,
+
+                -- Automatically install missing parsers when entering buffer
+                -- Recommendation: set to false if you don"t have `tree-sitter` CLI installed locally
                 auto_install = true,
+
+                indent = {
+                    enable = true,
+                },
+
                 highlight = {
+                    -- `false` will disable the whole extension
                     enable = true,
                     additional_vim_regex_highlighting = false,
                 },
@@ -37,23 +45,19 @@ return {
         end,
     },
     {
-        "VonHeikemen/lsp-zero.nvim",
-        lazy = false,
+        "neovim/nvim-lspconfig",
+        event = { "BufReadPost", "BufNewFile" },
         dependencies = {
+            "williamboman/mason.nvim",
+            "williamboman/mason-lspconfig.nvim",
+            "hrsh7th/cmp-nvim-lsp",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+            "hrsh7th/cmp-cmdline",
             {
                 "hrsh7th/nvim-cmp",
                 event = "InsertEnter",
                 dependencies = {
-                    { "neovim/nvim-lspconfig" },
-                    { "hrsh7th/cmp-nvim-lsp" },
-                    { "hrsh7th/cmp-buffer" },
-                    { "hrsh7th/cmp-path" },
-                    { "hrsh7th/cmp-cmdline" },
-                    {
-                        "L3MON4D3/LuaSnip",
-                        build = "make install_jsregexp",
-                    },
-                    { "saadparwaiz1/cmp_luasnip" },
                     {
                         "ray-x/lsp_signature.nvim",
                         opts = {
@@ -61,129 +65,27 @@ return {
                             hint_enable = false,
                         },
                     },
-                    { "williamboman/mason.nvim" },
-                    { "williamboman/mason-lspconfig.nvim" },
-                    { "saadparwaiz1/cmp_luasnip" },
                 },
             },
+            "hrsh7th/nvim-cmp",
+            "L3MON4D3/LuaSnip",
+            "saadparwaiz1/cmp_luasnip",
+            "j-hui/fidget.nvim",
         },
+
         config = function()
-            ---------------------- lsp-zero
-            local lsp = require("lsp-zero")
-
-            lsp.preset("recommended")
-
-            lsp.configure("lua_ls", {
-                settings = {
-                    Lua = {
-                        diagnostics = {
-                            globals = { "vim" },
-                        },
-                    },
-                },
-            })
-            lsp.configure("gopls", {
-                cmd = { "gopls", "serve" },
-                settings = {
-                    gopls = {
-                        analyses = {
-                            unusedparams = true,
-                        },
-                        staticcheck = true,
-                    },
-                },
-            })
-
-            local diagnosticOpts = {
-                focusable = false,
-                close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
-                border = "rounded",
-                source = "always",
-                prefix = " ",
-                scope = "cursor",
-            }
-
-            lsp.on_attach(function(_, bufnr)
-                local opts = { buffer = bufnr, remap = false }
-
-                vim.keymap.set("n", "gd", function()
-                    vim.lsp.buf.definition()
-                end, opts)
-                vim.keymap.set("n", "K", function()
-                    vim.lsp.buf.hover()
-                end, opts)
-                vim.keymap.set("n", "<leader>vd", function()
-                    vim.diagnostic.open_float(diagnosticOpts)
-                end, opts)
-                vim.keymap.set("n", "[d", function()
-                    vim.diagnostic.goto_next(diagnosticOpts)
-                end, opts)
-                vim.keymap.set("n", "]d", function()
-                    vim.diagnostic.goto_prev(diagnosticOpts)
-                end, opts)
-                vim.keymap.set("n", "<leader>vca", function()
-                    vim.lsp.buf.code_action()
-                end, opts)
-                vim.keymap.set("n", "<leader>vr", function()
-                    vim.lsp.buf.references()
-                end, opts)
-            end)
-
-            lsp.setup()
-
-            ---------------------- cmp
             local cmp = require("cmp")
+            local cmp_lsp = require("cmp_nvim_lsp")
+            local capabilities = vim.tbl_deep_extend(
+                "force",
+                {},
+                vim.lsp.protocol.make_client_capabilities(),
+                cmp_lsp.default_capabilities()
+            )
 
-            -- Use buffer source for `/`.
-            cmp.setup.cmdline({ "/", "?" }, {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = { { name = "buffer" } },
-            })
-
-            -- Use cmdline & path source for ':'.
-            cmp.setup.cmdline(":", {
-                mapping = cmp.mapping.preset.cmdline(),
-                sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
-            })
-
-            cmp.setup({
-                keyword_length = 2,
-                snippet = {
-                    expand = function(args)
-                        require("luasnip").lsp_expand(args.body)
-                    end,
-                },
-                mapping = {
-                    ["<C-p>"] = cmp.mapping.select_prev_item({
-                        behavior = cmp.SelectBehavior.Select,
-                    }),
-                    ["<C-n>"] = cmp.mapping.select_next_item({
-                        behavior = cmp.SelectBehavior.Select,
-                    }),
-                    ["<C-Space>"] = cmp.mapping.complete(),
-                    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-                    ["<C-d>"] = cmp.mapping.scroll_docs(4),
-                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-                    ["<Tab>"] = nil,
-                    ["<S-Tab>"] = nil,
-                },
-                window = {
-                    completion = cmp.config.window.bordered(),
-                    documentation = cmp.config.window.bordered(),
-                },
-                sources = {
-                    { name = "path" },
-                    { name = "nvim_lsp" },
-                    { name = "buffer" },
-                    { name = "luasnip" },
-                },
-            })
-
+            require("fidget").setup({})
             require("mason").setup()
             require("mason-lspconfig").setup({
-                handlers = {
-                    lsp.default_setup,
-                },
                 ensure_installed = {
                     "bashls",
                     "cssls",
@@ -198,13 +100,126 @@ return {
                     "pylsp",
                     "pyright",
                     "ruff",
-                    "ruff_lsp",
                     "rust_analyzer",
                     "sqlls",
                     "terraformls",
                     "ts_ls",
                     "vimls",
                     "yamlls",
+                },
+                handlers = {
+                    function(server_name) -- default handler (optional)
+                        require("lspconfig")[server_name].setup({
+                            capabilities = capabilities,
+                        })
+                    end,
+
+                    zls = function()
+                        local lspconfig = require("lspconfig")
+                        lspconfig.zls.setup({
+                            root_dir = lspconfig.util.root_pattern(".git", "build.zig", "zls.json"),
+                            settings = {
+                                zls = {
+                                    enable_inlay_hints = true,
+                                    enable_snippets = true,
+                                    warn_style = true,
+                                },
+                            },
+                        })
+                        vim.g.zig_fmt_parse_errors = 0
+                        vim.g.zig_fmt_autosave = 0
+                    end,
+                    ["lua_ls"] = function()
+                        local lspconfig = require("lspconfig")
+                        lspconfig.lua_ls.setup({
+                            capabilities = capabilities,
+                            settings = {
+                                Lua = {
+                                    runtime = { version = "Lua 5.1" },
+                                    diagnostics = {
+                                        globals = {
+                                            "bit",
+                                            "vim",
+                                            "it",
+                                            "describe",
+                                            "before_each",
+                                            "after_each",
+                                        },
+                                    },
+                                },
+                            },
+                        })
+                    end,
+                    ["gopls"] = function()
+                        local lspconfig = require("lspconfig")
+                        lspconfig.gopls.setup({
+                            cmd = { "gopls", "serve" },
+                            settings = {
+                                gopls = {
+                                    analyses = {
+                                        unusedparams = true,
+                                    },
+                                    staticcheck = true,
+                                },
+                            },
+                        })
+                    end,
+                },
+            })
+
+            local cmp_select = { behavior = cmp.SelectBehavior.Select }
+
+            cmp.setup({
+                keyword_length = 2,
+                snippet = {
+                    expand = function(args)
+                        require("luasnip").lsp_expand(args.body) -- For `luasnip` users.
+                    end,
+                },
+                mapping = cmp.mapping.preset.insert({
+                    ["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
+                    ["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
+                    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                    ["<C-u>"] = cmp.mapping.scroll_docs(-4),
+                    ["<C-d>"] = cmp.mapping.scroll_docs(4),
+                    ["<C-Space>"] = cmp.mapping.complete(),
+                    ["<Tab>"] = nil,
+                    ["<S-Tab>"] = nil,
+                }),
+                window = {
+                    completion = cmp.config.window.bordered(),
+                    documentation = cmp.config.window.bordered(),
+                },
+                sources = cmp.config.sources({
+                    { name = "path" },
+                    { name = "nvim_lsp" },
+                    { name = "luasnip" }, -- For luasnip users.
+                }, {
+                    { name = "buffer" },
+                }),
+            })
+
+            -- Use buffer source for `/`.
+            cmp.setup.cmdline({ "/", "?" }, {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = { { name = "buffer" } },
+            })
+
+            -- Use cmdline & path source for ':'.
+            cmp.setup.cmdline(":", {
+                mapping = cmp.mapping.preset.cmdline(),
+                sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
+            })
+
+            vim.diagnostic.config({
+                float = {
+                    scope = "cursor",
+                    focusable = false,
+                    style = "minimal",
+                    border = "rounded",
+                    source = "always",
+                    header = "",
+                    prefix = "",
                 },
             })
         end,
