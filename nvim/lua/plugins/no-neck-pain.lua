@@ -4,7 +4,7 @@ return {
         lazy = false,
         dev = true,
         opts = {
-            debug = true,
+            -- debug = true,
             width = 90,
             minSideBufferWidth = 0,
             autocmds = {

@@ -25,10 +25,9 @@ brew install \
     jq yq fish neovim tmux rectangle starship kind \
     gh wget kubectl openvpn-connect fswatch luarocks \
     lazydocker coreutils ko bat ripgrep fd git-delta \
-    brew-cask-completion stats
+    brew-cask-completion stats zig ghostty
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform hashicorp/tap/vault
-brew install --cask alacritty --no-quarantine
 brew install --cask font-fira-mono-nerd-font
 brew install fzf && fzf --fish | source
 
