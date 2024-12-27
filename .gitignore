@@ -18,6 +18,7 @@
 # term
 iterm2/AppSupport
 !alacritty
+!ghostty
 
 # nvim config
 !nvim

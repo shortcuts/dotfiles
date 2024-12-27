@@ -10,7 +10,7 @@ return {
                 palettes = {
                     duskfox = {
                         bg0 = carbonfox.palette.bg0,
-                        bg1 = "#080402",
+                        bg1 = carbonfox.palette.bg0,
                         bg2 = carbonfox.palette.bg2,
                         bg3 = carbonfox.palette.bg3,
                         bg4 = carbonfox.palette.bg4,
@@ -76,12 +76,12 @@ return {
                 },
             },
             sections = {
-                lualine_a = { "branch" },
-                lualine_b = { { "filename", path = 1 }, "diff" },
-                lualine_c = { "diagnostics" },
-                lualine_x = {},
-                lualine_y = {},
-                lualine_z = { { "datetime", style = "%d/%m/%y %H:%M" } },
+                lualine_a = {},
+                lualine_b = {},
+                lualine_c = {},
+                lualine_x = {"branch"},
+                lualine_y = { { "filename", path = 1 }, "diff" },
+                lualine_z = { "diagnostics" },
             },
             inactive_sections = {},
         },
