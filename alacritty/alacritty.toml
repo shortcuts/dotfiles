@@ -104,7 +104,7 @@ hide_when_typing = true
 
 [terminal.shell]
 args = ["--login", "--init-command", "~/.config/scripts/tmux-sessionizer"]
-program = "/usr/local/bin/fish"
+program = "/opt/homebrew/bin/fish"
 
 [window]
 decorations = "none"
