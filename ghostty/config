@@ -8,8 +8,8 @@ font-size = 18
 mouse-hide-while-typing = true
 
 window-save-state = always
-window-padding-x = 0
-window-padding-y = 0
+window-padding-x = 10
+window-padding-y = 10
 window-padding-color = background
 
 macos-titlebar-style = hidden
@@ -20,7 +20,7 @@ macos-window-shadow = false
 ## upstream: https://github.com/edeneast/nightfox.nvim/raw/main/extra/duskfox/duskfox.ghostty
 
 background = #080402
-background-opacity = 0.8
+background-opacity = 0.92
 
 foreground = #e0def4
 selection-background = #433c59

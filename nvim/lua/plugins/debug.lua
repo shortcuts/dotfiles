@@ -184,4 +184,12 @@ return {
     --         vim.keymap.set("n", "<leader>ae", "<cmd>AerialToggle!<CR>")
     --     end,
     -- },
+    {
+        "folke/snacks.nvim",
+        priority = 1000,
+        lazy = false,
+        opts = {
+            dashboard = { enabled = true },
+        },
+    }
 }

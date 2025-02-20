@@ -61,5 +61,7 @@ fzf --fish | source
 
 starship init fish | source
 
+export MANPAGER="nvim +Man!"
+
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/clement.vannicatte/google-cloud-sdk/path.fish.inc' ]; . '/Users/clement.vannicatte/google-cloud-sdk/path.fish.inc'; end
