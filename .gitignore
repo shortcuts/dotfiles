@@ -12,8 +12,8 @@
 # docs
 !*.md
 
-# rectangle config
-!RectangleConfig.json
+# window manager config
+!aerospace
 
 # term
 iterm2/AppSupport
