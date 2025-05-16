@@ -49,6 +49,7 @@ return {
                         "**.pytest_cache/",
                         "**__pycache__/",
                         "**public/",
+                        "**bundled/",
                         "**.git/",
                         "**.docusaurus/",
                         "**foo/",

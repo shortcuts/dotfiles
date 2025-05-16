@@ -25,4 +25,9 @@ return {
             vim.fn["mkdp#util#install"]()
         end,
     },
+    {
+        'vuciv/golf',
+        priority = 1000,
+        lazy = false,
+    },
 }

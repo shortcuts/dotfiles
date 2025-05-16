@@ -22,10 +22,11 @@ fisher install JGAntunes/fish-gvm # gvm for fish
 
 # install life basically
 brew install \
-    jq yq fish neovim tmux rectangle starship kind \
+    jq yq fish neovim tmux starship kind \
     gh wget kubectl openvpn-connect fswatch luarocks \
     lazydocker coreutils ko bat ripgrep fd git-delta \
     brew-cask-completion stats zig ghostty
+brew install --cask nikitabobko/tap/aerospace
 brew tap hashicorp/tap
 brew install hashicorp/tap/terraform hashicorp/tap/vault
 brew install --cask font-fira-mono-nerd-font
@@ -40,11 +41,10 @@ cp ~/.config/RectangleConfig.json ~/Library/Application\ Support/Rectangle/
 
 # dev (go)
 brew install go golangci-lint
-if ! command -v gvm 2>&1 >/dev/null
-then
+if ! command -v gvm 2>&1 >/dev/null; then
  bash (curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | psub)
 fi
-gvm install go1.23.3
+gvm install go1.24.2
 
 # dev (rust)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
