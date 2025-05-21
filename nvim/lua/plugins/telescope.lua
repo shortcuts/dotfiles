@@ -69,7 +69,7 @@ return {
                         "**yarn-error.log",
                         "**install_module.log",
                         "**algoliasearch.egg-info/",
-                        "errored.tfstate"
+                        "errored.tfstate",
                     },
 
                     -- default arguments with `--hidden` added to search in hidden files

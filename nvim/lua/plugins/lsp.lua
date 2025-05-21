@@ -160,7 +160,7 @@ return {
                                         unusedparams = true,
                                     },
                                     staticcheck = true,
-                                    buildFlags = {"-tags=integration"},
+                                    buildFlags = { "-tags=integration" },
                                 },
                             },
                         })

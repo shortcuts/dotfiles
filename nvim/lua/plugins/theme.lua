@@ -6,7 +6,9 @@ return {
         config = function()
             local carbonfox = require("nightfox.palette.carbonfox")
             require("nightfox").setup({
-                transparent = true,
+                options = {
+                    transparent = true,
+                },
                 palettes = {
                     duskfox = {
                         bg0 = carbonfox.palette.bg0,
@@ -18,6 +20,58 @@ return {
                 },
             })
             vim.cmd("colorscheme duskfox")
+
+            -- Transparent support
+            for _, hl_group in pairs({
+                "StatusLine",
+                "StatusLineNC",
+                "Tabline",
+                "TabLineFill",
+                "TabLineSel",
+                "Winbar",
+                "WinbarNC",
+                "BufferTabpageFill",
+                "TelescopeBorder",
+                "TreesitterContext",
+                "BufferCurrentADDED",
+                "BufferCurrentCHANGED",
+                "BufferCurrentDELETED",
+                "BufferCurrentERROR",
+                "BufferCurrentHINT",
+                "BufferCurrentIcon",
+                "BufferCurrentIndex",
+                "BufferCurrentINFO",
+                "BufferCurrentMod",
+                "BufferCurrentNumber",
+                "BufferCurrentSign",
+                "BufferCurrentSignRight",
+                "BufferCurrentTarget",
+                "BufferCurrentWARN",
+                "BufferInactive",
+                "BufferInactiveADDED",
+                "BufferInactiveCHANGED",
+                "BufferInactiveDELETED",
+                "BufferInactiveERROR",
+                "BufferInactiveHINT",
+                "BufferInactiveIcon",
+                "BufferInactiveIndex",
+                "BufferInactiveINFO",
+                "BufferInactiveMod",
+                "BufferInactiveNumber",
+                "BufferInactiveSign",
+                "BufferInactiveSignRight",
+                "BufferInactiveTarget",
+                "BufferInactiveWARN",
+            }) do
+                vim.api.nvim_set_hl(0, hl_group, { bg = "none" })
+            end
+
+            -- Accent support
+            local accent = "#e08543"
+            vim.api.nvim_set_hl(0, "FloatBorder", { fg=accent })
+            vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = accent })
+            vim.api.nvim_set_hl(0, "TreesitterContextLineNumber", { fg = accent })
+            vim.api.nvim_set_hl(0, "BufferCurrent", { bg = "none", fg = accent })
         end,
     },
     {
@@ -80,7 +134,7 @@ return {
                 lualine_b = {},
                 lualine_c = {},
                 lualine_x = {},
-                lualine_y = {"branch"},
+                lualine_y = { "branch" },
                 lualine_z = { "diagnostics" },
             },
             inactive_sections = {},
@@ -98,9 +152,6 @@ return {
             auto_hide = false,
             tabpages = true,
             clickable = false,
-            -- Excludes buffers from the tabline
-            exclude_ft = {},
-            exclude_name = {},
             icons = {
                 filetype = { enabled = true },
                 button = "",

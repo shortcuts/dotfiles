@@ -26,7 +26,7 @@ return {
         end,
     },
     {
-        'vuciv/golf',
+        "vuciv/golf",
         priority = 1000,
         lazy = false,
     },
