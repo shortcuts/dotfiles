@@ -4,7 +4,7 @@ return {
         lazy = false,
         dev = true,
         opts = {
-            debug = true,
+            debug = false,
             width = 90,
             minSideBufferWidth = 0,
             autocmds = {
@@ -16,6 +16,7 @@ return {
             mappings = {
                 enabled = true,
                 toggle = "<Leader>kz",
+                debug = "<Leader>kd",
             },
             buffers = {
                 left = {

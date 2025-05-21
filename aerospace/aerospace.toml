@@ -10,7 +10,7 @@ after-login-command = []
 # 'after-startup-command' is run after 'after-login-command'
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 after-startup-command = [
-    'exec-and-forget borders active_color=0xff994C00 inactive_color=0xff494d64 width=5.0',
+    'exec-and-forget borders',
     'exec-and-forget open -n /Applications/Spotify.app && sleep 1 && layout floating && move-node-to-workspace 1',
     'exec-and-forget open -n /Applications/Google\ Chrome.app && sleep 1 && move-node-to-workspace 2',
     'exec-and-forget open -n /Applications/Ghostty.app && sleep 1 && move-node-to-workspace 3',
@@ -20,9 +20,6 @@ after-startup-command = [
 
 # Start AeroSpace at login
 start-at-login = true
-
-# Animations
-defaults write -g NSAutomaticWindowAnimationsEnabled -bool false
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true
@@ -185,7 +182,7 @@ automatically-unhide-macos-hidden-apps = false
     run = ["move-node-to-workspace 2"]
 
 [[on-window-detected]]
-    if.app-id = "com.mitchellh.Ghostty"
+    if.app-id = "com.mitchellh.ghostty"
     run = ["move-node-to-workspace 3"]
 
 [[on-window-detected]]
