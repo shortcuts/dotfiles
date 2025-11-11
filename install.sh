@@ -1,70 +1,79 @@
+MODE=$1
+
+if [[ $MODE != "setup" ]]; then
+    MODE="update"
+fi
+
+echo "mode: $MODE"
+
+# gitconfig
+if [[ $MODE == "setup" ]]; then
+    cp ~/.config/.gitconfig ~/.gitconfig
+fi
+
 # setup
 brew update && brew upgrade
 
-brew install fish
+brew install fish mise
 
-# gitconfig
-cp ~/.config/.gitconfig ~/.gitconfig
-
-# setup fish as default shell
-fish_add_path /opt/homebrew/bin
-echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
-chsh -s /opt/homebrew/bin/fish || true
-fish || true
-
-# fish plugin manager
-curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
-
-fisher install jorgebucaran/nvm.fish # node version manager
-fisher install edc/bass # bash with fish
-fisher install reitzig/sdkman-for-fish # sdkman for fish
-fisher install JGAntunes/fish-gvm # gvm for fish
-
-# install life basically
+# brew taps
 brew tap hashicorp/tap
 brew tap FelixKratz/formulae
-brew install \
-    jq yq fish neovim tmux starship kind \
-    gh wget kubectl openvpn-connect fswatch luarocks \
-    lazydocker coreutils ko bat ripgrep fd git-delta \
-    brew-cask-completion stats zig ghostty \
-    hashicorp/tap/terraform hashicorp/tap/vault borders
-brew install --cask nikitabobko/tap/aerospace
-brew install --cask font-fira-mono-nerd-font
-brew install fzf && fzf --fish | source
+brew tap nikitabobko/tap
 
-# dev (java)
-curl -s https://get.sdkman.io | bash
+# fish as default shell
+if [[ $MODE == "setup" ]]; then
+    fish_add_path /opt/homebrew/bin
+    echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
+    chsh -s /opt/homebrew/bin/fish || true
+    fish || true
 
-# setup rectangle window manager
-mkdir -p ~/Library/Application\ Support/Rectangle/
-cp ~/.config/RectangleConfig.json ~/Library/Application\ Support/Rectangle/
+    # fish plugin manager
+    curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
 
-# dev (go)
-brew install go golangci-lint
-if ! command -v gvm 2>&1 >/dev/null; then
- bash (curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer | psub)
+    fisher install jorgebucaran/nvm.fish # node version manager
+    fisher install edc/bass # bash with fish
+else
+    fisher update
 fi
-gvm install go1.24.2
 
-# dev (rust)
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# languages
 
-# dev (lua)
+mise use -g zig
+
+mise use -g java
+
+mise use -g go
+go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+
+mise use -g rust
+
+brew install lua
 cargo install stylua
 
-# dev (js)
 nvm install latest
 npm install -g yarn
 
-# dev (java)
-sdk install java
-
-# dev (python)
-brew install pipx
-pipx ensurepath
-pipx install poetry
+mise use -g python
+pip install --upgrade pip
+pip install --user pipx
+mise plugins install poetry --force
 poetry completions fish > ~/.config/fish/completions/poetry.fish
 
+# install life basically
+brew install coreutils \
+    ghostty starship tmux neovim \ # shell
+    jq yq wget fswatch bat ripgrep fd fzf \ # file utils
+    kind k9s kubectl kubectx lazydocker ko \ # k8s
+    gh lazygit git-delta \ # git
+    openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \ # work
+    stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \ # cool kid
+    luarocks
+
+# setup fzf
+if [[ $MODE == "setup" ]]; then
+    fzf --fish | source
+fi
+
 # last cleanup
-brew update && brew upgrade
+brew update && brew upgrade && brew doctor && brew cleanup

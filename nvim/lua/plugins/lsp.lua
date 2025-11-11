@@ -32,6 +32,8 @@ return {
                 -- Recommendation: set to false if you don"t have `tree-sitter` CLI installed locally
                 auto_install = true,
 
+                ignore_install = { "ipkg" },
+
                 indent = {
                     enable = true,
                 },
@@ -60,6 +62,7 @@ return {
                 dependencies = {
                     {
                         "ray-x/lsp_signature.nvim",
+                        event = "InsertEnter",
                         opts = {
                             bind = true,
                             hint_enable = false,
@@ -88,6 +91,7 @@ return {
             require("mason-lspconfig").setup({
                 ensure_installed = {
                     "bashls",
+                    "clangd",
                     "cssls",
                     "docker_compose_language_service",
                     "dockerls",
@@ -135,6 +139,9 @@ return {
                             capabilities = capabilities,
                             settings = {
                                 Lua = {
+                                    workspace = {
+                                        library = vim.api.nvim_get_runtime_file("lua", true),
+                                    },
                                     runtime = { version = "Lua 5.1" },
                                     diagnostics = {
                                         globals = {

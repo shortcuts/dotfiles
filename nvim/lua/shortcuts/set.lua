@@ -39,6 +39,7 @@ vim.opt.wrap = false
 
 -- Features
 vim.opt.termguicolors = true
+vim.opt.background = "dark"
 vim.opt.errorbells = false
 vim.opt.swapfile = false
 vim.opt.backup = false

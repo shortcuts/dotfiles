@@ -2,9 +2,7 @@ return {
     {
         "windwp/nvim-autopairs",
         event = "InsertEnter",
-        opts = {
-            disable_filetype = { "TelescopePrompt" },
-        },
+        config = true,
     },
     {
         "numToStr/Comment.nvim",
@@ -16,18 +14,5 @@ return {
         "fatih/vim-go",
         build = ":GoUpdateBinaries",
         ft = "go",
-    },
-    {
-        "iamcco/markdown-preview.nvim",
-        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-        ft = { "markdown" },
-        build = function()
-            vim.fn["mkdp#util#install"]()
-        end,
-    },
-    {
-        "vuciv/golf",
-        priority = 1000,
-        lazy = false,
     },
 }

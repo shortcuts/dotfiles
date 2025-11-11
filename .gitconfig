@@ -54,3 +54,5 @@
 	repo = /Users/clement.vannicatte/Documents/no-neck-pain.nvim
 	repo = /Users/clement.vannicatte/Documents/data-ingestion
 	repo = /Users/clement.vannicatte/Documents/api-clients-automation
+[credential]
+	helper = store

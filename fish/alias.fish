@@ -12,3 +12,5 @@ abbr -a gs   git status -sb
 alias reload='exec fish'
 alias cat='bat'
 alias v='nvim .'
+alias k=kubectl
+alias kctx=kubectx

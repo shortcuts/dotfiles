@@ -23,6 +23,7 @@ return {
 
             -- Transparent support
             for _, hl_group in pairs({
+                "NormalFloat",
                 "StatusLine",
                 "StatusLineNC",
                 "Tabline",
@@ -31,7 +32,7 @@ return {
                 "Winbar",
                 "WinbarNC",
                 "BufferTabpageFill",
-                "TelescopeBorder",
+                "FzfLuaBorder",
                 "TreesitterContext",
                 "BufferCurrentADDED",
                 "BufferCurrentCHANGED",
@@ -62,14 +63,15 @@ return {
                 "BufferInactiveSignRight",
                 "BufferInactiveTarget",
                 "BufferInactiveWARN",
+                "TreesitterContext",
             }) do
                 vim.api.nvim_set_hl(0, hl_group, { bg = "none" })
             end
 
             -- Accent support
             local accent = "#e08543"
-            vim.api.nvim_set_hl(0, "FloatBorder", { fg=accent })
-            vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = accent })
+            vim.api.nvim_set_hl(0, "FloatBorder", { fg = accent })
+            vim.api.nvim_set_hl(0, "FzfLuaBorder", { fg = accent })
             vim.api.nvim_set_hl(0, "TreesitterContextLineNumber", { fg = accent })
             vim.api.nvim_set_hl(0, "BufferCurrent", { bg = "none", fg = accent })
         end,

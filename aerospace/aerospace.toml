@@ -171,15 +171,15 @@ automatically-unhide-macos-hidden-apps = false
 
 [[on-window-detected]]
     if.app-id = "com.spotify.client"
-    run = ["layout floating", "move-node-to-workspace 1"]
-
-[[on-window-detected]]
-    if.app-id = " com.bambulab.bambu-studio"
-    run = ["layout floating", "move-node-to-workspace 1"]
+    run = ["move-node-to-workspace 1"]
 
 [[on-window-detected]]
     if.app-id = "com.google.Chrome"
     run = ["move-node-to-workspace 2"]
+
+[[on-window-detected]]
+    if.app-id = "com.apple.Passwords"
+    run = ["layout floating", "move-node-to-workspace 2"]
 
 [[on-window-detected]]
     if.app-id = "com.mitchellh.ghostty"
