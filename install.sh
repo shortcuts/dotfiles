@@ -62,16 +62,19 @@ poetry completions fish > ~/.config/fish/completions/poetry.fish
 
 # install life basically
 brew install coreutils \
-    ghostty starship tmux neovim \ # shell
-    jq yq wget fswatch bat ripgrep fd fzf \ # file utils
-    kind k9s kubectl kubectx lazydocker ko \ # k8s
-    gh lazygit git-delta \ # git
-    openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \ # work
-    stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \ # cool kid
+    ghostty starship tmux \
+    jq yq wget fswatch bat ripgrep fd fzf \
+    kind derailed/k9s/k9s kubectl kubectx jesseduffield/lazydocker/lazydocker ko \
+    gh lazygit git-delta \
+    openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
+    stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
     luarocks
 
 luarocks install luacheck
 luarocks install argparse
+
+cargo install bob
+bob use latest
 
 # setup fzf
 if [[ $MODE == "setup" ]]; then
