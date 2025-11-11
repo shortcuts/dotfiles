@@ -70,6 +70,9 @@ brew install coreutils \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \ # cool kid
     luarocks
 
+luarocks install luacheck
+luarocks install argparse
+
 # setup fzf
 if [[ $MODE == "setup" ]]; then
     fzf --fish | source
