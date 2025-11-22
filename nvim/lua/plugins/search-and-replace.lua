@@ -7,7 +7,7 @@ return {
             debug = true,
             default_replace_prompt_to_normal_mode = true,
             default_replace_prompt_to_selection = true,
-            mappings = { enabled = true }
+            mappings = { enabled = true },
         },
     },
 }

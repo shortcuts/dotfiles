@@ -23,9 +23,7 @@ return {
 
             fzflua.setup({
                 winopts = {
-                header_prefix="mdr",
                     preview = {
-                header_prefix="mdr",
                         layout = "vertical",
                         vertical = "down:70%",
                     },

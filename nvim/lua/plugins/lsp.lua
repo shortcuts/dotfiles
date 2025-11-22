@@ -50,8 +50,8 @@ return {
         "neovim/nvim-lspconfig",
         event = { "BufReadPost", "BufNewFile" },
         dependencies = {
-            "williamboman/mason.nvim",
-            "williamboman/mason-lspconfig.nvim",
+            "mason.nvim",
+            { "mason-org/mason-lspconfig.nvim", config = function() end },
             "hrsh7th/cmp-nvim-lsp",
             "hrsh7th/cmp-buffer",
             "hrsh7th/cmp-path",
@@ -75,9 +75,7 @@ return {
             "saadparwaiz1/cmp_luasnip",
             "j-hui/fidget.nvim",
         },
-
-        config = function()
-            local cmp = require("cmp")
+        opts = function()
             local cmp_lsp = require("cmp_nvim_lsp")
             local capabilities = vim.tbl_deep_extend(
                 "force",
@@ -86,8 +84,86 @@ return {
                 cmp_lsp.default_capabilities()
             )
 
+            ---@class PluginLspOpts
+            local ret = {
+                -- options for vim.diagnostic.config()
+                ---@type vim.diagnostic.Opts
+                diagnostics = {
+                    underline = true,
+                    update_in_insert = false,
+                    virtual_text = {
+                        spacing = 4,
+                        source = "if_many",
+                        prefix = "●",
+                    },
+                    severity_sort = true,
+                },
+                inlay_hints = {
+                    enabled = true,
+                    exclude = { "vue" }, -- filetypes for which you don't want to enable inlay hints
+                },
+                codelens = {
+                    enabled = true,
+                },
+                folds = {
+                    enabled = false,
+                },
+                format = {
+                    formatting_options = nil,
+                    timeout_ms = nil,
+                },
+                servers = {
+                    -- copilot.lua only works with its own copilot lsp server
+                    copilot = { enabled = false },
+                    -- configuration for all lsp servers
+                    ["*"] = {
+                        capabilities = capabilities,
+                    },
+                    stylua = { enabled = false },
+                    lua_ls = {
+                        settings = {
+                            Lua = {
+                                workspace = {
+                                    checkThirdParty = false,
+                                    library = vim.api.nvim_get_runtime_file("lua", true),
+                                },
+                                runtime = { version = "Lua 5.4" },
+                                completion = {
+                                    callSnippet = "Replace",
+                                },
+                                doc = {
+                                    privateName = { "^_" },
+                                },
+                                diagnostics = {
+                                    globals = {
+                                        "bit",
+                                        "vim",
+                                        "it",
+                                        "describe",
+                                        "before_each",
+                                        "after_each",
+                                    },
+                                },
+                                hint = {
+                                    enable = true,
+                                    setType = false,
+                                    paramType = true,
+                                    paramName = "Disable",
+                                    semicolon = "Disable",
+                                    arrayIndex = "Disable",
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+            return ret
+        end,
+
+        config = function()
+            local cmp = require("cmp")
+
             require("fidget").setup({})
-            require("mason").setup()
             require("mason-lspconfig").setup({
                 ensure_installed = {
                     "bashls",
@@ -96,6 +172,7 @@ return {
                     "docker_compose_language_service",
                     "dockerls",
                     "dotls",
+                    "fish_lsp",
                     "gopls",
                     "html",
                     "htmx",
@@ -110,68 +187,6 @@ return {
                     "ts_ls",
                     "vimls",
                     "yamlls",
-                },
-                handlers = {
-                    function(server_name) -- default handler (optional)
-                        require("lspconfig")[server_name].setup({
-                            capabilities = capabilities,
-                        })
-                    end,
-
-                    zls = function()
-                        local lspconfig = require("lspconfig")
-                        lspconfig.zls.setup({
-                            root_dir = lspconfig.util.root_pattern(".git", "build.zig", "zls.json"),
-                            settings = {
-                                zls = {
-                                    enable_inlay_hints = true,
-                                    enable_snippets = true,
-                                    warn_style = true,
-                                },
-                            },
-                        })
-                        vim.g.zig_fmt_parse_errors = 0
-                        vim.g.zig_fmt_autosave = 0
-                    end,
-                    ["lua_ls"] = function()
-                        local lspconfig = require("lspconfig")
-                        lspconfig.lua_ls.setup({
-                            capabilities = capabilities,
-                            settings = {
-                                Lua = {
-                                    workspace = {
-                                        library = vim.api.nvim_get_runtime_file("lua", true),
-                                    },
-                                    runtime = { version = "Lua 5.1" },
-                                    diagnostics = {
-                                        globals = {
-                                            "bit",
-                                            "vim",
-                                            "it",
-                                            "describe",
-                                            "before_each",
-                                            "after_each",
-                                        },
-                                    },
-                                },
-                            },
-                        })
-                    end,
-                    ["gopls"] = function()
-                        local lspconfig = require("lspconfig")
-                        lspconfig.gopls.setup({
-                            cmd = { "gopls", "serve" },
-                            settings = {
-                                gopls = {
-                                    analyses = {
-                                        unusedparams = true,
-                                    },
-                                    staticcheck = true,
-                                    buildFlags = { "-tags=integration" },
-                                },
-                            },
-                        })
-                    end,
                 },
             })
 
@@ -230,6 +245,33 @@ return {
                     prefix = "",
                 },
             })
+        end,
+    },
+    {
+
+        "mason-org/mason.nvim",
+        cmd = "Mason",
+        keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
+        build = ":MasonUpdate",
+        opts_extend = { "ensure_installed" },
+        opts = {
+            ensure_installed = {
+                "stylua",
+                "shfmt",
+            },
+        },
+        ---@param opts MasonSettings | {ensure_installed: string[]}
+        config = function(_, opts)
+            require("mason").setup(opts)
+            local mr = require("mason-registry")
+            mr.refresh(function()
+                for _, tool in ipairs(opts.ensure_installed) do
+                    local p = mr.get_package(tool)
+                    if not p:is_installed() then
+                        p:install()
+                    end
+                end
+            end)
         end,
     },
 }

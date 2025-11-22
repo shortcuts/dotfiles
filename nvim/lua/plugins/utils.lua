@@ -9,10 +9,10 @@ return {
         event = "BufReadPost",
         dependencies = "nvim-treesitter/nvim-treesitter",
         config = true,
-    },
-    {
-        "fatih/vim-go",
-        build = ":GoUpdateBinaries",
-        ft = "go",
+        opts = {
+            toggler = {
+                line = "cl",
+            },
+        },
     },
 }

@@ -8,7 +8,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
             vim.lsp.buf.definition()
         end, opts)
         vim.keymap.set("n", "K", function()
-            vim.lsp.buf.hover()
+            vim.lsp.buf.hover({
+                focusable = false,
+                style = "minimal",
+                border = "rounded",
+                max_width = 100,
+            })
         end, opts)
         vim.keymap.set("n", "<leader>vws", function()
             vim.lsp.buf.workspace_symbol()
