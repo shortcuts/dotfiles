@@ -41,3 +41,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
         end, opts)
     end,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = { "md", "mdx", "markdown" },
+    callback = function()
+        vim.opt.conceallevel = 2
+    end,
+})
