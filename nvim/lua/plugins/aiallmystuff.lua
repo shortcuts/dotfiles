@@ -10,7 +10,7 @@ return {
                 auto_trigger = true,
                 hide_during_completion = true,
                 keymap = {
-                    accept = "<TAB>",
+                    accept = "<S-TAB>",
                     next = "<C-n>",
                     prev = "<C-p>",
                 },

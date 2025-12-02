@@ -29,6 +29,10 @@ return {
                     name = "notes",
                     path = "~/Documents/notes",
                 },
+                {
+                    name = "codes",
+                    path = "~/Documents/codes/cmd/views",
+                },
             },
         },
     },
