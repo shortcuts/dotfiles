@@ -182,6 +182,14 @@ automatically-unhide-macos-hidden-apps = false
     run = ["layout floating", "move-node-to-workspace 2"]
 
 [[on-window-detected]]
+    if.app-id = "com.apple.PasswordManagerBrowserExtensionHelper"
+    run = ["layout floating", "move-node-to-workspace 2"]
+
+[[on-window-detected]]
+    if.app-id = "com.apple.LocalAuthentication.UIAgent"
+    run = ["layout floating", "move-node-to-workspace 2"]
+
+[[on-window-detected]]
     if.app-id = "com.mitchellh.ghostty"
     run = ["move-node-to-workspace 3"]
 
