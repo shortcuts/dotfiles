@@ -16,8 +16,8 @@ return {
         event = { "BufReadPre", "BufNewFile" },
         config = true,
         keys = {
-            { "<leader>bl", "<cmd>Gitsigns toggle_current_line_blame<CR>" },
-            { "<leader>bg", "<cmd>Gitsigns blame<CR>" },
+            { "<Leader>glb", "<cmd>Gitsigns toggle_current_line_blame<CR>" },
+            { "<Leader>gb", "<cmd>Gitsigns blame<CR>" },
         },
     },
     {
@@ -26,8 +26,8 @@ return {
         config = true,
         event = { "BufReadPre", "BufNewFile" },
         keys = {
-            { "<leader>lg", "<cmd>GitLink<cr>", mode = { "n", "v" }, desc = "Yank git link" },
-            { "<leader>lgo", "<cmd>GitLink!<cr>", mode = { "n", "v" }, desc = "Open git link" },
+            { "<Leader>gc", "<cmd>GitLink<cr>", mode = { "n", "v" }, desc = "Yank git link" },
+            { "<Leader>go", "<cmd>GitLink!<cr>", mode = { "n", "v" }, desc = "Open git link" },
         },
     },
 }

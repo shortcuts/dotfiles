@@ -68,7 +68,7 @@ brew install coreutils \
     gh lazygit git-delta \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
-    luarocks obsidian
+    luarocks obsidian opencode
 
 luarocks install luacheck
 luarocks install argparse

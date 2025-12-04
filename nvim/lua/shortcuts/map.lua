@@ -36,18 +36,6 @@ vim.keymap.set("n", "<Leader>ufa", "zR") -- unfold all
 vim.keymap.set("n", "<Leader>yy", '"*y') -- in normal mode
 vim.keymap.set("v", "<Leader>yy", '"*y') -- in visual mode
 
--- Search in cwd
-vim.keymap.set("v", "<Leader>vg", function()
-    -- yank selection
-    vim.cmd("normal! y")
-
-    -- get contents of " register
-    local text = vim.fn.getreg('"')
-
-    -- run vimgrep with it
-    vim.cmd("vimgrep /" .. text .. "/ **")
-end)
-
 -- Debug
 vim.keymap.set("n", "<Leader>mc", "<cmd>mess clear<CR>")
 -- vim.keymap.set("n", "bb", "<cmd>Neotree toggle<CR>")
