@@ -1,0 +1,7 @@
+[tools]
+go = "latest"
+java = "latest"
+node = "latest"
+python = "latest"
+rust = "latest"
+zig = "latest"

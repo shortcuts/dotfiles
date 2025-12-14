@@ -1,10 +1,6 @@
 # ignore everything but the lines below
 /*
 
-# scripts
-!*.sh
-!scripts
-!Makefile
 
 # rpi
 !rpi
@@ -14,17 +10,22 @@
 
 # window manager config
 !aerospace
+!borders
 
 # term
-iterm2/AppSupport
-!alacritty
 !ghostty
+!btop
 
 # nvim config
 !nvim
+!stylua.toml
 
 # fish config
 !fish
+!fisher
+
+# pkg manager
+!mise
 
 # starship config
 !starship.toml
@@ -34,5 +35,4 @@ iterm2/AppSupport
 
 # tmux
 !tmux
-
-!.sdkmanrc
+!scripts
