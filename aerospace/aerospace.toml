@@ -202,5 +202,8 @@ automatically-unhide-macos-hidden-apps = false
     run = ["move-node-to-workspace 0"]
 
 [[on-window-detected]]
-    run = ["layout floating", "move-node-to-workspace 4"]
+    if.app-id = 'com.wulkano.kap'
+    run = 'layout floating'
 
+[[on-window-detected]]
+    run = ["layout floating", "move-node-to-workspace 4"]

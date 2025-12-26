@@ -56,7 +56,8 @@ vim.opt.isfname:append("@-@")
 vim.opt.updatetime = 250
 
 -- Don't pass messages to |ins-completion-menu|.
-vim.opt.shortmess:append("c")
+vim.opt.shortmess:append("cF")
+vim.opt.cmdheight = 1
 
 -- Completion
 vim.opt.completeopt = "menu,menuone,noselect"

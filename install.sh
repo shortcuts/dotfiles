@@ -61,7 +61,7 @@ mise plugins install poetry --force
 poetry completions fish > ~/.config/fish/completions/poetry.fish
 
 # install life basically
-brew install coreutils \
+brew install coreutils hostctl \
     ghostty starship tmux \
     btop jq yq wget fswatch bat ripgrep fd fzf \
     kind derailed/k9s/k9s kubectl kubectx jesseduffield/lazydocker/lazydocker ko \
@@ -69,6 +69,18 @@ brew install coreutils \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
     luarocks obsidian opencode
+
+# rpi
+
+sudo hostctl add domains rpi \
+  dashboard.shortcuts.codes \
+  wgeasy.shortcuts.codes \
+  qbittorrent.shortcuts.codes \
+  jellyfin.shortcuts.codes \
+  kuma.shortcuts.codes \
+  bazarr.shortcuts.codes --ip 192.168.1.19
+
+# lang
 
 luarocks install luacheck
 luarocks install argparse

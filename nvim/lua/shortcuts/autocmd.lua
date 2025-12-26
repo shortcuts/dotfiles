@@ -48,3 +48,54 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.opt.conceallevel = 2
     end,
 })
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+    callback = function()
+        for _, hl_group in pairs({
+            "BufferCurrent",
+            "BufferCurrentADDED",
+            "BufferCurrentCHANGED",
+            "BufferCurrentDELETED",
+            "BufferCurrentERROR",
+            "BufferCurrentHINT",
+            "BufferCurrentINFO",
+            "BufferCurrentIcon",
+            "BufferCurrentIndex",
+            "BufferCurrentMod",
+            "BufferCurrentNumber",
+            "BufferCurrentSign",
+            "BufferCurrentSignRight",
+            "BufferCurrentTarget",
+            "BufferCurrentWARN",
+            "BufferInactive",
+            "BufferInactiveADDED",
+            "BufferInactiveCHANGED",
+            "BufferInactiveDELETED",
+            "BufferInactiveERROR",
+            "BufferInactiveHINT",
+            "BufferInactiveINFO",
+            "BufferInactiveIcon",
+            "BufferInactiveIndex",
+            "BufferInactiveMod",
+            "BufferInactiveNumber",
+            "BufferInactiveSign",
+            "BufferInactiveSignRight",
+            "BufferInactiveTarget",
+            "BufferInactiveWARN",
+            "BufferTabpageFill",
+            "FzfLuaBorder",
+            "NormalFloat",
+            "StatusLine",
+            "StatusLineNC",
+            "TabLineFill",
+            "TabLineSel",
+            "Tabline",
+            "TreesitterContext",
+            "Winbar",
+            "WinbarNC",
+        }) do
+            vim.api.nvim_set_hl(0, hl_group, { bg = "none" })
+        end
+    end,
+    group = vim.api.nvim_create_augroup("foo", {}),
+})

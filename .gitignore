@@ -4,6 +4,7 @@
 
 # rpi
 !rpi
+!dnsmasq.conf
 
 # docs
 !*.md
