@@ -52,7 +52,6 @@ vim.api.nvim_create_autocmd("FileType", {
 vim.api.nvim_create_autocmd("ColorScheme", {
     callback = function()
         for _, hl_group in pairs({
-            "BufferCurrent",
             "BufferCurrentADDED",
             "BufferCurrentCHANGED",
             "BufferCurrentDELETED",
@@ -96,6 +95,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
         }) do
             vim.api.nvim_set_hl(0, hl_group, { bg = "none" })
         end
+
+        vim.api.nvim_set_hl(0, "BufferCurrent", { bg = "none", fg = "orange" })
     end,
     group = vim.api.nvim_create_augroup("foo", {}),
 })
