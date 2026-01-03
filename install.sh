@@ -8,6 +8,7 @@ echo "mode: $MODE"
 
 # gitconfig
 if [[ $MODE == "setup" ]]; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     cp ~/.config/.gitconfig ~/.gitconfig
 fi
 
@@ -23,10 +24,10 @@ brew tap nikitabobko/tap
 
 # fish as default shell
 if [[ $MODE == "setup" ]]; then
-    fish_add_path $(which brew)
     echo $(which fish) | sudo tee -a /etc/shells
     chsh -s $(which fish) || true
     fish || true
+    fish_add_path $(which brew)
 
     # fish plugin manager
     curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher

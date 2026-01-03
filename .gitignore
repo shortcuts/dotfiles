@@ -22,7 +22,11 @@
 !stylua.toml
 
 # fish config
-!fish
+!fish/config.fish
+!fish/alias.fish
+!fish/themes
+!fish/functions/g*
+!fish/functions/usego
 fish/fish_variable
 !fisher
 
