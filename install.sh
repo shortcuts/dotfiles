@@ -88,7 +88,7 @@ sudo hostctl add domains rpi \
 luarocks install luacheck
 luarocks install argparse
 
-cargo install bob
+cargo install bob-nvim
 bob use latest
 
 # setup fzf
