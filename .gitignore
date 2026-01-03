@@ -23,6 +23,7 @@
 
 # fish config
 !fish
+fish/fish_variable
 !fisher
 
 # pkg manager

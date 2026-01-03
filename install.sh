@@ -23,9 +23,9 @@ brew tap nikitabobko/tap
 
 # fish as default shell
 if [[ $MODE == "setup" ]]; then
-    fish_add_path /opt/homebrew/bin
-    echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
-    chsh -s /opt/homebrew/bin/fish || true
+    fish_add_path $(which brew)
+    echo $(which fish) | sudo tee -a /etc/shells
+    chsh -s $(which fish) || true
     fish || true
 
     # fish plugin manager
