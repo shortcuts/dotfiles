@@ -4,7 +4,7 @@ return {
         lazy = false,
         dev = true,
         opts = {
-            -- debug = true,
+            debug = true,
             width = 80,
             minSideBufferWidth = 0,
             autocmds = {
@@ -22,7 +22,7 @@ return {
                 left = {
                     scratchPad = {
                         enabled = false,
-                        pathToFile = "~/Documents/notes/nnp-notes.md",
+                        pathToFile = "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/notes/nnp.md",
                     },
                 },
                 right = {

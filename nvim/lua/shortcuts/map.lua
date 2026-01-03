@@ -38,4 +38,4 @@ vim.keymap.set("v", "<Leader>yy", '"*y') -- in visual mode
 
 -- Debug
 vim.keymap.set("n", "<Leader>mc", "<cmd>mess clear<CR>")
--- vim.keymap.set("n", "bb", "<cmd>Neotree toggle<CR>")
+vim.keymap.set("n", "<Leader>bb", "<cmd>NvimTreeToggle<CR>")

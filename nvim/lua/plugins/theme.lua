@@ -79,7 +79,6 @@ return {
     },
     {
         "romgrk/barbar.nvim",
-        priority = 1000,
         lazy = false,
         dependencies = "nvim-tree/nvim-web-devicons",
         init = function()

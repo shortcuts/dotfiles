@@ -17,22 +17,18 @@ return {
             },
         },
     },
-    -- {
-    --     "obsidian-nvim/obsidian.nvim",
-    --     version = "*",
-    --     ft = "markdown",
-    --     opts = {
-    --         legacy_commands = false,
-    --         workspaces = {
-    --             {
-    --                 name = "notes",
-    --                 path = "~/Documents/notes",
-    --             },
-    --             {
-    --                 name = "codes",
-    --                 path = "~/Documents/codes/cmd/views",
-    --             },
-    --         },
-    --     },
-    -- },
+    {
+        "obsidian-nvim/obsidian.nvim",
+        version = "*",
+        ft = "markdown",
+        opts = {
+            legacy_commands = false,
+            workspaces = {
+                {
+                    name = "notes",
+                    path = "~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Notes",
+                },
+            },
+        },
+    },
 }
