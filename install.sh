@@ -21,6 +21,17 @@ brew install fish mise
 brew tap hashicorp/tap
 brew tap FelixKratz/formulae
 brew tap nikitabobko/tap
+brew tap guumaster/tap
+
+# install life basically
+brew install coreutils hostctl \
+    ghostty starship tmux \
+    btop jq yq wget fswatch bat ripgrep fd fzf \
+    kind derailed/k9s/k9s kubectl kubectx jesseduffield/lazydocker/lazydocker ko \
+    gh lazygit git-delta \
+    openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
+    stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
+    luarocks obsidian opencode
 
 # fish as default shell
 if [[ $MODE == "setup" ]]; then
@@ -61,16 +72,6 @@ pip install --upgrade pip
 pip install --user pipx
 mise plugins install poetry --force
 poetry completions fish > ~/.config/fish/completions/poetry.fish
-
-# install life basically
-brew install coreutils hostctl \
-    ghostty starship tmux \
-    btop jq yq wget fswatch bat ripgrep fd fzf \
-    kind derailed/k9s/k9s kubectl kubectx jesseduffield/lazydocker/lazydocker ko \
-    gh lazygit git-delta \
-    openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
-    stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
-    luarocks obsidian opencode
 
 # rpi
 
