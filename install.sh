@@ -34,9 +34,10 @@ if [[ $MODE == "setup" ]]; then
 
     fisher install jorgebucaran/nvm.fish # node version manager
     fisher install edc/bass # bash with fish
-else
-    fisher update
 fi
+
+fisher update
+fish_update_completions
 
 # languages
 
