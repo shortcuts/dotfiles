@@ -50,9 +50,9 @@
     allow = always
 
 [maintenance]
-	repo = /Users/clement.vannicatte/.config
-	repo = /Users/clement.vannicatte/Documents/no-neck-pain.nvim
-	repo = /Users/clement.vannicatte/Documents/data-ingestion
-	repo = /Users/clement.vannicatte/Documents/api-clients-automation
+	repo = ~/.config
+	repo = ~/Documents/no-neck-pain.nvim
+	repo = ~/Documents/data-ingestion
+	repo = ~/Documents/api-clients-automation
 [credential]
 	helper = store

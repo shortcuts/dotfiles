@@ -20,7 +20,9 @@ pyenv init - | source
 
 set -x KO_DOCKER_REPO ko.local
 
-eval "$(/opt/homebrew/bin/brew shellenv)"
+set brewbin (which brew)
+
+eval "$($brewbin shellenv)"
 
 fzf --fish | source
 
@@ -29,4 +31,4 @@ starship init fish | source
 export MANPAGER="nvim +Man!"
 
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/clement.vannicatte/google-cloud-sdk/path.fish.inc' ]; . '/Users/clement.vannicatte/google-cloud-sdk/path.fish.inc'; end
+if [ -f '~/google-cloud-sdk/path.fish.inc' ]; . '~/google-cloud-sdk/path.fish.inc'; end
