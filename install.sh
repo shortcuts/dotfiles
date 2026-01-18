@@ -9,6 +9,7 @@ echo "mode: $MODE"
 # gitconfig
 if [[ $MODE == "setup" ]]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    curl -fsSL https://bun.com/install | bash
     cp ~/.config/.gitconfig ~/.gitconfig
 fi
 

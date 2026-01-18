@@ -1,16 +1,12 @@
 return {
-    {
-        "Shatur/neovim-ayu",
-        priority = 1000,
-        lazy = false,
-        config = function()
-            require("ayu").setup({
-                dark = true,
-                terminal = true,
-            })
-            vim.cmd("colorscheme ayu")
-        end,
-    },
+{
+  "vague-theme/vague.nvim",
+  lazy = false, -- make sure we load this during startup if it is your main colorscheme
+  priority = 1000, -- make sure to load this before all the other plugins
+  config = function()
+    vim.cmd("colorscheme vague")
+  end
+},
     {
         "nvim-lualine/lualine.nvim",
         lazy = false,
@@ -72,7 +68,7 @@ return {
                 lualine_c = {},
                 lualine_x = { "branch" },
                 lualine_y = { "diagnostics" },
-                lualine_z = { require("opencode").statusline },
+                lualine_z = { },
             },
             inactive_sections = {},
         },
