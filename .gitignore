@@ -42,3 +42,6 @@ fish/fish_variable
 # tmux
 !tmux
 !scripts
+
+# keyboard
+!qmk-layout.json
