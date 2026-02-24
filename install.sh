@@ -34,6 +34,8 @@ brew install coreutils hostctl \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
     luarocks obsidian opencode
 
+brew install --cask font-lilex-nerd-font
+
 # fish as default shell
 if [[ $MODE == "setup" ]]; then
     echo $(which fish) | sudo tee -a /etc/shells
