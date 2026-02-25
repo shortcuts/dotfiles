@@ -1,7 +1,8 @@
 # font
 
-font-family = Lilex Nerd Font
+font-family = JetBrains Mono
 font-size = 18
+font-feature = -calt
 
 # opts
 
