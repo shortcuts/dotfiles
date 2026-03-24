@@ -32,7 +32,8 @@ brew install coreutils hostctl \
     gh lazygit git-delta \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
-    luarocks obsidian opencode
+    luarocks obsidian opencode \
+    mac-cleanup-py
 
 brew install --cask font-lilex-nerd-font
 
