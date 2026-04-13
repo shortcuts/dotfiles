@@ -24,6 +24,7 @@
 !fish/config.fish
 !fish/alias.fish
 !fish/themes
+!fish/conf.d/tmux_autorename.fish
 !fish/functions/g*
 !fish/functions/usego
 fish/fish_variable
