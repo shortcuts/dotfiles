@@ -26,8 +26,7 @@ function __tmux_on_pwd_change --on-variable PWD
 end
 
 function __tmux_on_postexec --on-event fish_postexec
-    string match -rq '^git\b' $argv[1]; or return
-    __tmux_session_update
+    string match -rq '^git\b' $argv[1]; and __tmux_session_update
 end
 
 __tmux_session_update
