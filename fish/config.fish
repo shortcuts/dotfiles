@@ -5,6 +5,7 @@ source ~/.config/fish/alias.fish
 
 # Paths
 set -U fish_user_paths /usr/local/bin $fish_user_paths
+set -U fish_user_paths /opt/homebrew/bin $fish_user_paths
 set -U fish_user_paths $HOME/.local/bin $fish_user_paths
 set -U fish_user_paths $HOME/.cargo/bin $fish_user_paths
 set -U fish_user_paths $HOME/go/bin $fish_user_paths

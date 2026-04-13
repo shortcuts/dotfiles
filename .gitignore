@@ -1,6 +1,5 @@
 # ignore everything but the lines below
-/*
-
+*
 
 # rpi
 !rpi
@@ -45,3 +44,6 @@ fish/fish_variable
 
 # keyboard
 !qmk-layout.json
+
+# ai takeover
+!opencode/oh-my-openagent.json

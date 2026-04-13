@@ -10,6 +10,7 @@ else
         find ~/Documents -mindepth 1 -maxdepth 1 -type d
         printf '%s\n' \
           "$HOME/.config" \
+          "$HOME/Downloads" \
           "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
       } | fzf
     )

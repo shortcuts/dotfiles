@@ -4,9 +4,9 @@ return {
         lazy = false,
         dev = true,
         opts = {
-            debug = true,
-            width = 80,
-            minSideBufferWidth = 0,
+            -- debug = true,
+            width = 85,
+            minSideBufferWidth = 10,
             autocmds = {
                 enableOnTabEnter = true,
                 enableOnVimEnter = true,
@@ -29,29 +29,6 @@ return {
                     enabled = false,
                 },
             },
-            integrations = {
-                snacks = { position = "left" },
-            }
         },
     },
--- {
---   "folke/snacks.nvim",
---         lazy = false,
---   opts = {
---     explorer = {
---             replace_netrw = true,
---       -- your explorer configuration comes here
---       -- or leave it empty to use the default settings
---       -- refer to the configuration section below
---     },
---     picker = {
---       sources = {
---         explorer = {
---           -- your explorer picker configuration comes here
---           -- or leave it empty to use the default settings
---         }
---       }
---     }
---   }
--- }
 }
