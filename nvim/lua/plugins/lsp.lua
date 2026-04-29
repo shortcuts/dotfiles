@@ -1,53 +1,5 @@
 return {
     {
-        "nvim-treesitter/nvim-treesitter-context",
-        event = "BufReadPre",
-        opts = {
-            max_lines = 2,
-        },
-    },
-    {
-        "nvim-treesitter/nvim-treesitter",
-        event = { "BufReadPost", "BufNewFile" },
-        build = ":TSUpdate",
-        branch = "master",
-        cmd = {
-            "TSInstall",
-            "TSInstallInfo",
-            "TSUpdate",
-            "TSBufEnable",
-            "TSBufDisable",
-            "TSEnable",
-            "TSDisable",
-            "TSModuleInfo",
-        },
-        config = function()
-            require("nvim-treesitter.configs").setup({
-                -- A list of parser names, or "all"
-                ensure_installed = "all",
-
-                -- Install parsers synchronously (only applied to `ensure_installed`)
-                sync_install = false,
-
-                -- Automatically install missing parsers when entering buffer
-                -- Recommendation: set to false if you don"t have `tree-sitter` CLI installed locally
-                auto_install = true,
-
-                ignore_install = { "ipkg" },
-
-                indent = {
-                    enable = true,
-                },
-
-                highlight = {
-                    -- `false` will disable the whole extension
-                    enable = true,
-                    additional_vim_regex_highlighting = false,
-                },
-            })
-        end,
-    },
-    {
         "neovim/nvim-lspconfig",
         event = { "BufReadPost", "BufNewFile" },
         dependencies = {

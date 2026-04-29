@@ -48,3 +48,4 @@ fish/fish_variable
 
 # ai takeover
 !opencode/oh-my-openagent.json
+!.claude/skills

@@ -33,7 +33,8 @@ brew install coreutils hostctl \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
     luarocks obsidian opencode \
-    mac-cleanup-py
+    mac-cleanup-py cargo-binstall
+
 
 brew install --cask font-lilex-nerd-font
 
@@ -67,6 +68,7 @@ mise use -g rust
 
 brew install lua
 cargo install stylua
+cargo binstall tree-sitter-cli
 
 nvm install latest
 npm install -g yarn
