@@ -2,36 +2,42 @@
 *
 
 # rpi
-!rpi
+!rpi/
 !dnsmasq.conf
 
 # docs
 !*.md
 
 # window manager config
-!aerospace
-!borders
+!aerospace/
+!borders/
 
 # term
-!ghostty
-!btop
+!ghostty/
+!btop/
 
 # nvim config
-!nvim
+!nvim/
 !stylua.toml
 
 # fish config
+!fish/
+fish/*
 !fish/config.fish
 !fish/alias.fish
-!fish/themes
+!fish/themes/
+!fish/conf.d/
+fish/conf.d/*
 !fish/conf.d/tmux_autorename.fish
+!fish/functions/
+fish/functions/*
 !fish/functions/g*
-!fish/functions/usego
-fish/fish_variable
-!fisher
+!fish/functions/usego.fish
+fish/fish_variables*
+!fisher/
 
 # pkg manager
-!mise
+!mise/
 
 # starship config
 !starship.toml
@@ -40,12 +46,16 @@ fish/fish_variable
 !.git*
 
 # tmux
-!tmux
-!scripts
+!tmux/
+!scripts/
 
 # keyboard
 !qmk-layout.json
 
 # ai takeover
+!opencode/
+opencode/*
 !opencode/oh-my-openagent.json
-!.claude/skills
+!.claude/
+.claude/*
+!.claude/skills/
