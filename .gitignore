@@ -1,8 +1,12 @@
 # ignore everything but the lines below
+# NOTE: for whitelisted directories we need both `!dir/` (un-ignore the dir
+# so git descends into it) AND `!dir/**` (un-ignore its contents). Without
+# the `**` rule, new files inside the dir get re-ignored by `*`.
 *
 
 # rpi
 !rpi/
+!rpi/**
 !dnsmasq.conf
 
 # docs
@@ -10,14 +14,19 @@
 
 # window manager config
 !aerospace/
+!aerospace/**
 !borders/
+!borders/**
 
 # term
 !ghostty/
+!ghostty/**
 !btop/
+!btop/**
 
 # nvim config
 !nvim/
+!nvim/**
 !stylua.toml
 
 # fish config
@@ -26,6 +35,7 @@ fish/*
 !fish/config.fish
 !fish/alias.fish
 !fish/themes/
+!fish/themes/**
 !fish/conf.d/
 fish/conf.d/*
 !fish/conf.d/tmux_autorename.fish
@@ -35,19 +45,25 @@ fish/functions/*
 !fish/functions/usego.fish
 fish/fish_variables*
 !fisher/
+!fisher/**
 
 # pkg manager
 !mise/
+!mise/**
 
 # starship config
 !starship.toml
 
 # github workflows
 !.git*
+!.github/
+!.github/**
 
 # tmux
 !tmux/
+!tmux/**
 !scripts/
+!scripts/**
 
 # keyboard
 !qmk-layout.json
@@ -56,6 +72,8 @@ fish/fish_variables*
 !opencode/
 opencode/*
 !opencode/oh-my-openagent.json
+!opencode/.gitignore
+!.claude
 !.claude/
-.claude/*
 !.claude/skills/
+!.claude/skills/**
