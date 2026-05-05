@@ -33,8 +33,7 @@ brew install coreutils hostctl \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
     luarocks obsidian opencode \
-    mac-cleanup-py cargo-binstall
-
+    mac-cleanup-py cargo-binstall glow
 
 brew install --cask font-lilex-nerd-font
 
