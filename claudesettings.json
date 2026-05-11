@@ -1,0 +1,74 @@
+{
+  "env": {
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4.6",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4.6",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4.5"
+  },
+  "includeCoAuthoredBy": false,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Bash(git push)",
+      "Bash(git push *)",
+      "Bash(make build)",
+      "Bash(make deploy)",
+      "Bash(terraform apply)",
+      "Bash(terraform apply *)",
+      "Bash(terraform destroy)",
+      "Bash(terraform destroy *)"
+    ],
+    "ask": [
+      "Bash(go build)",
+      "Bash(go build *)",
+      "Bash(chmod *)",
+      "Bash(chmod 777:*)",
+      "Bash(chown *)",
+      "Bash(docker *)",
+      "Bash(eval:*)",
+      "Bash(curl *)",
+      "Bash(fdisk *)",
+      "Bash(gcloud *)",
+      "Bash(git clean -fd:*)",
+      "Bash(git reset *)",
+      "Bash(git rebase *)",
+      "Bash(kill *)",
+      "Bash(killall *)",
+      "Bash(kubectl *)",
+      "Bash(mkfs *)",
+      "Bash(npm publish*)",
+      "Bash(pkill *)",
+      "Bash(pnpm publish*)",
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(shred *)",
+      "Bash(sudo:*)",
+      "Bash(unlink *)",
+      "Bash(wget *)",
+      "Bash(yarn publish*)",
+      "Read(**/*.key)",
+      "Read(**/*.pem)",
+      "Read(**/*credential*)",
+      "Read(**/*secret*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(~/.aws/**)",
+      "Read(~/.azure/**)",
+      "Read(~/.ssh/**)",
+      "Bash(cat *.key)",
+      "Bash(cat *.pem)",
+      "Bash(cat *credential*)",
+      "Bash(cat *secret*)",
+      "Bash(cat .env)",
+      "Bash(cat .env.*)",
+      "Bash(cat ~/.aws/*)",
+      "Bash(cat ~/.azure/*)",
+      "Bash(cat ~/.ssh/*)"
+    ]
+  },
+  "$schema": "https://json.schemastore.org/claude-code-settings.json"
+}
+

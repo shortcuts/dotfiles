@@ -77,3 +77,4 @@ opencode/*
 !.claude/
 !.claude/skills/
 !.claude/skills/**
+!claudesettings.json
