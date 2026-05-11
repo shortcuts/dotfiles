@@ -15,6 +15,7 @@ return {
 				"html",
 				"javascript",
 				"json",
+				"kotlin",
 				"lua",
 				"make",
 				"python",

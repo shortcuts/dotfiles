@@ -35,8 +35,8 @@ brew install coreutils hostctl \
     gh lazygit git-delta \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
-    luarocks obsidian opencode \
-    mac-cleanup-py cargo-binstall glow ghui
+    luarocks obsidian anomalyco/tap/opencode \
+    mac-cleanup-py cargo-binstall glow ghui mole
 
 brew install --cask font-lilex-nerd-font
 

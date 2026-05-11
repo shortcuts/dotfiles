@@ -2,43 +2,49 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "sisyphus": {
-      "model": "anthropic/claude-haiku-4-5"
+      "model": "github-copilot/claude-haiku-4.5"
     },
     "prometheus": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "atlas": {
+<<<<<<< HEAD
       "model": "anthropic/claude-opus-4-6"
+||||||| parent of 7a5e4e2 (chore: some more)
+      "model": "anthropic/claude-haiku-4-5"
+=======
+      "model": "github-copilot/claude-haiku-4.5"
+>>>>>>> 7a5e4e2 (chore: some more)
     },
     "build": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "metis": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "momus": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "oracle": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "explore": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "librarian": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "sisyphus-junior": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "OpenCode-Builder": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "multimodal-looker": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     },
     "plan": {
-      "model": "anthropic/claude-opus-4-6"
+      "model": "github-copilot/claude-sonnet-4.6"
     }
   }
 }
