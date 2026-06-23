@@ -13,6 +13,11 @@ set -U fish_user_paths $HOME/.local/share/bob/nvim-bin $fish_user_paths
 set -U fish_user_paths $HOME/Documents/no-neck-pain.nvim/.ci/lua-ls $fish_user_paths
 set -U fish_user_paths /Library/Frameworks/Python.framework/Versions/3.11/bin $fish_user_paths
 
+set -Ux ANDROID_HOME $HOME/Android/Sdk
+set -Ux ANDROID_SDK_ROOT $HOME/Android/Sdk
+fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin
+fish_add_path $ANDROID_HOME/platform-tools
+
 set -x KO_DOCKER_REPO ko.local
 
 set brewbin (which brew)

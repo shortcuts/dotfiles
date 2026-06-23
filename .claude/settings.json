@@ -1,19 +1,12 @@
 {
-  "env": {
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4.6",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4.6",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4.5"
-  },
-  "includeCoAuthoredBy": false,
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "attribution": {
     "commit": "",
     "pr": ""
   },
+  "includeCoAuthoredBy": false,
   "permissions": {
-    "disableBypassPermissionsMode": "disable",
     "deny": [
-      "Bash(git push)",
-      "Bash(git push *)",
       "Bash(make build)",
       "Bash(make deploy)",
       "Bash(terraform apply)",
@@ -22,6 +15,8 @@
       "Bash(terraform destroy *)"
     ],
     "ask": [
+      "Bash(git push)",
+      "Bash(git push *)",
       "Bash(go build)",
       "Bash(go build *)",
       "Bash(chmod *)",
@@ -67,8 +62,20 @@
       "Bash(cat ~/.aws/*)",
       "Bash(cat ~/.azure/*)",
       "Bash(cat ~/.ssh/*)"
-    ]
+    ],
+    "disableBypassPermissionsMode": "disable"
   },
-  "$schema": "https://json.schemastore.org/claude-code-settings.json"
+  "theme": "dark",
+  "statusLine": {
+    "type": "command",
+    "command": "node ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs"
+  },
+  "extraKnownMarketplaces": {
+    "omc": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
+      }
+    }
+  }
 }
-

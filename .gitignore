@@ -73,8 +73,8 @@ fish/fish_variables*
 opencode/*
 !opencode/oh-my-openagent.json
 !opencode/.gitignore
-!.claude
 !.claude/
+!.claude/settings.json
+!.claude/CLAUDE.md
 !.claude/skills/
 !.claude/skills/**
-!claudesettings.json

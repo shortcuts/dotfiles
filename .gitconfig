@@ -4,6 +4,7 @@
 
 [core]
     pager = delta
+    excludesFile = ~/.config/.gitignore.local
 
 [rerere]
     enabled = true

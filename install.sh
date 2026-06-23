@@ -6,11 +6,14 @@ fi
 
 echo "mode: $MODE"
 
-# gitconfig
+# gitconfig + claude symlink
 if [[ $MODE == "setup" ]]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     curl -fsSL https://bun.com/install | bash
     cp ~/.config/.gitconfig ~/.gitconfig
+    # symlink ~/.claude -> ~/.config/.claude so skills/settings are tracked in git
+    rm -rf ~/.claude
+    ln -sf ~/.config/.claude ~/.claude
 fi
 
 # setup
