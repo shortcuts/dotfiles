@@ -67,3 +67,7 @@ The `.gitignore` uses a whitelist approach: it ignores everything (`*`) then sel
 ## Language toolchains
 
 Managed via `mise`. Node via `nvm.fish` fisher plugin. Run `mise use -g <lang>` to add/update.
+
+## 3D printing / STL work
+
+All OpenSCAD models, STL exports, and preview renders must be scoped under `STL/` (one subdirectory per model/project, e.g. `STL/skadis-pi5-mount/`). Don't create `.scad`/`.stl` files or preview output elsewhere in the repo.
