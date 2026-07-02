@@ -65,10 +65,14 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
-  "theme": "dark",
   "statusLine": {
     "type": "command",
     "command": "node ${CLAUDE_CONFIG_DIR:-$HOME/.claude}/hud/omc-hud.mjs"
+  },
+  "enabledPlugins": {
+    "oh-my-claudecode@omc": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "caveman@caveman": true
   },
   "extraKnownMarketplaces": {
     "omc": {
@@ -76,6 +80,13 @@
         "source": "git",
         "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
       }
+    },
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
     }
-  }
+  },
+  "theme": "dark"
 }
