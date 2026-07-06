@@ -84,12 +84,15 @@ poetry completions fish > ~/.config/fish/completions/poetry.fish
 # rpi
 
 sudo hostctl add domains rpi \
-  dashboard.shortcuts.codes \
-  wgeasy.shortcuts.codes \
-  qbittorrent.shortcuts.codes \
-  jellyfin.shortcuts.codes \
-  kuma.shortcuts.codes \
-  bazarr.shortcuts.codes --ip 192.168.1.19
+  dashboard.shrtcts.fr \
+  wgeasy.shrtcts.fr \
+  proxy.shrtcts.fr \
+  qbittorrent.shrtcts.fr \
+  jellyfin.shrtcts.fr \
+  kuma.shrtcts.fr \
+  openbao.shrtcts.fr \
+  renovaite.shrtcts.fr \
+  renovaite-api.shrtcts.fr --ip 192.168.1.19
 
 # lang
 
