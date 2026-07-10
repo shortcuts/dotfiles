@@ -42,7 +42,7 @@ fish/conf.d/*
 !fish/functions/
 fish/functions/*
 !fish/functions/g*
-!fish/functions/usego.fish
+!fish/functions/rmdocker*
 fish/fish_variables*
 !fisher/
 !fisher/**
