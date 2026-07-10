@@ -16,15 +16,21 @@ Produce a concise summary of the current branch or PR suitable for engineering m
 
 ## Output Format
 
-Produce exactly this structure:
+Produce exactly this structure, wrapped in a fenced code block so the user can copy it verbatim for import into a notebook. Use a four-backtick fence (since the content itself contains triple-backtick-free markdown headings, a four-backtick outer fence keeps it copyable as one unit):
 
-```
-**PR**: [<PR title>](<PR URL>)
+````markdown
+# <PR title>
 
-**What we did**: <1-3 sentences. Plain language. Describe the change in terms of what it does for the team, the product, or the process — not how it works internally. No file names, no tool names, no technical jargon unless the audience would know the term.>
+- <PR URL>
 
-**Expected outcome**: <1-3 sentences. What improves, what risk is reduced, what becomes possible next. Concrete when possible (e.g. "cutting CI time by ~X%") but honest when speculative (e.g. "once validated, will allow us to...").>
-```
+## What we did
+
+<1-3 sentences. Plain language. Describe the change in terms of what it does for the team, the product, or the process — not how it works internally. No file names, no tool names, no technical jargon unless the audience would know the term.>
+
+## Expected outcome
+
+<1-3 sentences. What improves, what risk is reduced, what becomes possible next. Concrete when possible (e.g. "cutting CI time by ~X%") but honest when speculative (e.g. "once validated, will allow us to...").>
+````
 
 ## Rules
 
@@ -34,3 +40,4 @@ Produce exactly this structure:
 - **Honest about certainty**: distinguish between "this does X" and "this will enable X once validated".
 - **One entry per PR**: don't split into multiple summaries.
 - **Match the user's voice**: if the user's prior entries use a specific tone or phrasing style, mirror it.
+- **Copyable output**: always emit the summary inside a fenced code block so the user can copy it verbatim for import. Never print the summary as plain rendered text.
