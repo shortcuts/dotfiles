@@ -40,3 +40,4 @@
 - **Surface gaps explicitly.** If a decision has no documented "why" — no issue, silent commit message, no discussion — write a `## Gaps` section naming it. Gaps drive questions to the people in Wisdom, never fabricated answers.
 - **Prune ruthlessly.** A source that turned out to be off-mission should be removed, not buried. Better five sharp sources than thirty mediocre ones.
 - **Record contact preferences.** If the user has opted out of contacting authors/reviewers, note it here so future sessions don't keep proposing it.
+- **Flag agent-authored changes.** When the author-on-record is the user themself (agent-authored work), mark it in Wisdom: the user is the source for *intent* (what they asked for), not for implementation decisions. Route those to reviewers and the owning team.

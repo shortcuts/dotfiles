@@ -59,6 +59,17 @@ gh api repos/OWNER/REPO/issues/N/comments          # top-level discussion
 
 Also chase references: linked issues in the PR body (`Fixes #123`), design docs, earlier PRs mentioned in discussion. Fetch them with `gh api` / `gh issue view` when they carry motivation. When the change touches code you can read locally, read the surrounding files - a diff only makes sense against the code it lands in.
 
+### Agent-authored changes
+
+While gathering, check whether the change's author is the current user: compare the commit author against `git config user.email`, and the PR author against `gh api user --jq .login`. If they match, assume the work was done by a coding agent on the user's behalf - even without a `Co-Authored-By` trailer or any other sign of agentic coding. Authorship on record does not mean the user knows the change.
+
+Teach it as if a different author wrote it:
+
+- Never skip or compress material because "the user wrote this" - they didn't. The whole point is helping them understand what their agent did.
+- Commit messages and the PR body were written by the agent. They record what the agent *decided*, not necessarily what the user *asked for*. Ask the user for their original intent (the prompt, the task) - the gap between what they asked and what the agent built is often the most valuable thing to teach.
+- The author-on-record is the user themself, so "ask the author" is a dead end for implementation decisions. Route wisdom questions to reviewers and the owning team instead; route *intent* questions to the user.
+- Don't let authorship inflate the zone of proximal development. Judge what the user knows from their learning records, never from the commit log.
+
 ## Teaching Workspace
 
 Treat the current directory as a teaching workspace. The state of the user's learning is captured in these files:
@@ -179,7 +190,7 @@ For quizzes, each answer should be exactly the same number of words (and charact
 
 Wisdom about a change lives with people: the PR's author, its reviewers, the team that owns the code.
 
-When the user asks a question the sources don't answer - "why does the team avoid this pattern?", "what happened last time this was tried?" - your default posture should be to attempt to answer from the gathered material, but to ultimately delegate to those people. Name who to ask (the author, the reviewer who raised the sharpest thread) and what to ask them. Never fabricate motivation the sources don't contain - say plainly when the "why" is undocumented, and record the gap in `RESOURCES.md`.
+When the user asks a question the sources don't answer - "why does the team avoid this pattern?", "what happened last time this was tried?" - your default posture should be to attempt to answer from the gathered material, but to ultimately delegate to those people. Name who to ask (the author, the reviewer who raised the sharpest thread) and what to ask them. For agent-authored changes (see [Agent-authored changes](#agent-authored-changes)), the author-on-record is the user - delegate to reviewers and the owning team instead. Never fabricate motivation the sources don't contain - say plainly when the "why" is undocumented, and record the gap in `RESOURCES.md`.
 
 If the user expresses a preference not to contact people, respect it.
 
