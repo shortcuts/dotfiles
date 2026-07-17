@@ -1,0 +1,105 @@
+{
+  "version": 3,
+  "lines": [
+    [
+      {
+        "id": "1",
+        "type": "model",
+        "color": "brightBlack",
+        "rawValue": false,
+        "bold": false
+      },
+      {
+        "id": "2",
+        "type": "separator"
+      },
+      {
+        "id": "a06488f5-88d1-4c38-94d9-ab79d2aed26a",
+        "type": "context-percentage",
+        "color": "brightBlack"
+      },
+      {
+        "id": "9d346e69-13b9-4e8b-afd4-ead6583fba2c",
+        "type": "separator",
+        "character": " "
+      },
+      {
+        "id": "8fcfac81-756d-459a-a581-64350892a5b7",
+        "type": "session-cost",
+        "color": "brightBlack"
+      },
+      {
+        "id": "0fd3f75d-6a37-429f-8ebb-9ea4b545e065",
+        "type": "separator"
+      },
+      {
+        "id": "b2d3a6a9-2743-46a7-9f31-7c46f6f5c4e1",
+        "type": "reset-timer",
+        "metadata": {
+          "display": "time"
+        },
+        "rawValue": false,
+        "color": "brightBlack"
+      },
+      {
+        "id": "522a23b5-000c-467b-9102-268b851c9ac3",
+        "type": "separator",
+        "character": " "
+      },
+      {
+        "id": "3601e303-2d15-44b9-9f75-1129f824c8e8",
+        "type": "weekly-usage",
+        "metadata": {
+          "display": "time"
+        },
+        "rawValue": false,
+        "color": "brightBlack"
+      },
+      {
+        "id": "4",
+        "type": "separator"
+      },
+      {
+        "id": "5",
+        "type": "git-branch",
+        "color": "brightBlack"
+      },
+      {
+        "id": "6",
+        "type": "separator",
+        "character": " "
+      },
+      {
+        "id": "7",
+        "type": "git-changes",
+        "color": "brightBlack"
+      }
+    ],
+    [],
+    []
+  ],
+  "flexMode": "full-minus-40",
+  "compactThreshold": 60,
+  "colorLevel": 2,
+  "inheritSeparatorColors": false,
+  "globalBold": false,
+  "gitCacheTtlSeconds": 5,
+  "minimalistMode": false,
+  "powerline": {
+    "enabled": false,
+    "separators": [
+      ""
+    ],
+    "separatorInvertBackground": [
+      false
+    ],
+    "startCaps": [],
+    "endCaps": [],
+    "autoAlign": false,
+    "continueThemeAcrossLines": false
+  },
+  "installation": {
+    "method": "pinned",
+    "installedVersion": "2.2.23"
+  }
+}
