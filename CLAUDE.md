@@ -40,23 +40,9 @@ The `.gitignore` uses a whitelist approach: it ignores everything (`*`) then sel
 | opencode | `opencode/oh-my-openagent.json` |
 | Claude Code (settings, skills) | `.claude/` → symlinked from `~/.claude` |
 
-## Neovim architecture
+## Neovim / tmux
 
-- `nvim/init.lua` — bootstraps lazy.nvim and loads `plugins/` directory
-- `nvim/lua/plugins/` — one file per plugin group (lsp, git, fzf, treesitter, etc.)
-- `nvim/lua/shortcuts/set.lua` — vim options
-- `nvim/lua/shortcuts/map.lua` — keymaps
-- `nvim/lua/shortcuts/autocmd.lua` — autocommands
-- Plugin dev path is `~/Documents` (local plugin overrides before falling back to GitHub)
-- Formatter config: `stylua.toml` at repo root (for Lua formatting)
-
-## tmux
-
-- Prefix: `C-y` (not the default `C-b`)
-- Reload config: `<prefix> r`
-- Session finder: `<prefix> f` (uses `scripts/tmux-session-finder`, fzf over `~/Documents` + fixed paths)
-- Quick jump to dotfiles: `<prefix> C-c`
-- Pane navigation: vim-style (`h/j/k/l`) after prefix
+Detailed conventions live in `nvim/CLAUDE.md` and `tmux/CLAUDE.md` (loaded lazily when working in those directories).
 
 ## Fish shell
 
