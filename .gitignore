@@ -83,6 +83,7 @@ opencode/*
 !.claude/CLAUDE.md
 !.claude/skills/
 !.claude/skills/**
+.claude/skills/.omc/
 
 # ccstatusline
 !ccstatusline/

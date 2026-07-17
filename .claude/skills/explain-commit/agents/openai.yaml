@@ -1,0 +1,5 @@
+interface:
+  display_name: "Explain Commit"
+  short_description: "Terse single-page explanation of the why and how of a commit or pull request"
+policy:
+  allow_implicit_invocation: false
