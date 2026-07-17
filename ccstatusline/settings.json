@@ -6,8 +6,8 @@
         "id": "1",
         "type": "model",
         "color": "brightBlack",
-        "rawValue": false,
-        "bold": false
+        "bold": false,
+        "rawValue": false
       },
       {
         "id": "2",
@@ -35,11 +35,11 @@
       {
         "id": "b2d3a6a9-2743-46a7-9f31-7c46f6f5c4e1",
         "type": "reset-timer",
+        "color": "brightBlack",
+        "rawValue": false,
         "metadata": {
           "display": "time"
-        },
-        "rawValue": false,
-        "color": "brightBlack"
+        }
       },
       {
         "id": "522a23b5-000c-467b-9102-268b851c9ac3",
@@ -49,11 +49,11 @@
       {
         "id": "3601e303-2d15-44b9-9f75-1129f824c8e8",
         "type": "weekly-usage",
+        "color": "brightBlack",
+        "rawValue": false,
         "metadata": {
           "display": "time"
-        },
-        "rawValue": false,
-        "color": "brightBlack"
+        }
       },
       {
         "id": "4",

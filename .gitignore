@@ -43,6 +43,7 @@ fish/conf.d/*
 fish/functions/*
 !fish/functions/g*
 !fish/functions/rmdocker*
+!fish/functions/vpn*
 fish/fish_variables*
 !fisher/
 !fisher/**

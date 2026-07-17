@@ -91,6 +91,7 @@ sudo hostctl add domains rpi \
   jellyfin.shrtcts.fr \
   kuma.shrtcts.fr \
   openbao.shrtcts.fr \
+  observability.shrtcts.fr \
   renovaite.shrtcts.fr \
   renovaite-api.shrtcts.fr --ip 192.168.1.19
 
