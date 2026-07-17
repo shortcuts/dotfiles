@@ -1,0 +1,5 @@
+interface:
+  display_name: "Teach PR"
+  short_description: "Understand the why and how of a commit or pull request"
+policy:
+  allow_implicit_invocation: false
