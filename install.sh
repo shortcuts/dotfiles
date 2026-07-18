@@ -16,6 +16,32 @@ if [[ $MODE == "setup" ]]; then
     ln -sf ~/.config/.claude ~/.claude
 fi
 
+# ssh-agent: load keychain keys for non-fish shells too (bash/zsh subprocesses,
+# e.g. Claude Code tool calls, don't source config.fish)
+[[ -f ~/.zshenv ]] || cat > ~/.zshenv <<'EOF'
+# Load all saved ssh keys
+/usr/bin/ssh-add --apple-load-keychain >/dev/null 2>&1
+EOF
+
+[[ -f ~/.bashrc ]] || cat > ~/.bashrc <<'EOF'
+# Load all saved ssh keys
+/usr/bin/ssh-add --apple-load-keychain >/dev/null 2>&1
+EOF
+
+[[ -f ~/.bash_profile ]] || cat > ~/.bash_profile <<'EOF'
+[ -f ~/.bashrc ] && source ~/.bashrc
+EOF
+
+[[ -f ~/.ssh/config ]] || (mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat > ~/.ssh/config <<'EOF'
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+
+Host github.com
+  IdentityFile ~/.ssh/id_ed25519
+EOF
+chmod 600 ~/.ssh/config)
+
 # setup
 brew update && brew upgrade
 
