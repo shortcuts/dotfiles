@@ -1,0 +1,50 @@
+pluginManagement {
+    includeBuild("build-logic")
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+    }
+}
+
+rootProject.name = "{{PROJECT_NAME}}"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+// App module
+include(":app")
+
+// Feature modules
+// include(":feature:featurename:api")
+// include(":feature:featurename:impl")
+
+// Core modules
+include(":core:common")
+include(":core:data")
+include(":core:database")
+include(":core:datastore")
+include(":core:designsystem")
+include(":core:model")
+include(":core:network")
+include(":core:testing")
+include(":core:ui")

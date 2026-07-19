@@ -1,0 +1,24 @@
+{
+  "skill_name": "branch-auditor",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit the feat/per-device-settings branch against origin/main. Give me a full report including test coverage analysis, risk score, and recommendations. If tests are missing, prompt me to create a test plan.",
+      "expected_output": "Complete audit report with: summary of changes (files, lines, scope), breakdown by layer, test coverage analysis (either ✅ tests found, or ❌ no tests with prompted action items), findings/issues organized by severity, code quality assessment, risk score (0-10) with breakdown, and clear recommendation (safe to merge / merge with caution / do not merge).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I'm about to merge fix/retoggle. Run an audit against origin/main and give me the merge risk assessment. I want to know if there are any threading issues, memory concerns, or test gaps before I proceed.",
+      "expected_output": "Audit report emphasizing: commit summary, all changes organized by layer, test coverage status, critical/warning/note findings with specificity, code quality checks (formatting, naming, architecture), risk score justification, and merge recommendation with specific next steps.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Can you audit the feat/reconnect branch comprehensively? Scan the entire codebase changes for potential bugs, architecture violations, and missing tests. Give me actionable items and a risk score so I know whether this is safe to merge.",
+      "expected_output": "Comprehensive audit covering: change inventory by layer, exhaustive test coverage analysis (with test plan prompt if gaps exist), broad pattern scanning across all modified files (threading, memory, state, BLE, architecture), code quality validation, risk score with detailed breakdown explaining each contributing factor, and clear recommendation with numbered action items.",
+      "files": []
+    }
+  ]
+}
+

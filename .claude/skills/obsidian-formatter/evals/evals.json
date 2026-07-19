@@ -1,0 +1,23 @@
+{
+  "skill_name": "obsidian-formatter",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Format this Obsidian document using the obsidian-formatter skill.",
+      "files": ["Health/rflexibility Guide Starting to Stretch - Beginner Flexibility Program.md"],
+      "expected_output": "Output file with concise title (e.g., 'r/flexibility: Starting to Stretch'), proper YAML frontmatter with source/author/published metadata, removed HTML navigation elements, embedded images, 2-3 meaningful tags (e.g., ['reddit', 'flexibility', 'beginner']), passes markdownlint"
+    },
+    {
+      "id": 2,
+      "prompt": "Format this Obsidian document using the obsidian-formatter skill.",
+      "files": ["Health/2024-07-17 REDDIT Here's a three-month calisthenics training program for beginners to build foundational strength and start learning basic skills 1.md"],
+      "expected_output": "Output file with concise title (e.g., '3-Month Calisthenics Beginner Program'), cleaned YAML frontmatter with source metadata, removed HTML/navigation comments, embedded images, tags=['reddit', 'health', 'calisthenics', 'training'], content structure preserved with clear sections"
+    },
+    {
+      "id": 3,
+      "prompt": "Format this Obsidian document using the obsidian-formatter skill.",
+      "files": ["Home lab/Plex.md"],
+      "expected_output": "Output file with concise title (e.g., 'Plex Media Server'), proper YAML frontmatter, removed HTML metadata, embedded images, meaningful tags (e.g., ['homelab', 'media-server']), clean markdown formatting"
+    }
+  ]
+}

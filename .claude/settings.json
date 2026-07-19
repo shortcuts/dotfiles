@@ -1,13 +1,19 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "attribution": {
     "commit": "",
     "pr": ""
   },
   "includeCoAuthoredBy": false,
   "permissions": {
+    "allow": [
+      "mcp__code-review-graph__*",
+      "Bash(./gradlew *)"
+    ],
     "deny": [
-      "Bash(make build)",
       "Bash(make deploy)",
       "Bash(terraform apply)",
       "Bash(terraform apply *)",
@@ -15,8 +21,6 @@
       "Bash(terraform destroy *)"
     ],
     "ask": [
-      "Bash(git push)",
-      "Bash(git push *)",
       "Bash(go build)",
       "Bash(go build *)",
       "Bash(chmod *)",
@@ -65,30 +69,74 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
+  "model": "sonnet",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/usr/local/Cellar/node/26.5.0/bin/node\" \"/Users/k/.claude/hooks/caveman-activate.js\"",
+            "timeout": 5,
+            "statusMessage": "Loading caveman mode..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"/usr/local/Cellar/node/26.5.0/bin/node\" \"/Users/k/.claude/hooks/caveman-mode-tracker.js\"",
+            "timeout": 5,
+            "statusMessage": "Tracking caveman mode..."
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
-    "command": "ccstatusline",
+    "command": "~/.local/share/mise/installs/node/latest/bin/ccstatusline",
     "padding": 0,
     "refreshInterval": 10
   },
   "enabledPlugins": {
+    "caveman@caveman": true,
+    "lua-lsp@claude-plugins-official": true,
     "oh-my-claudecode@omc": true,
-    "gopls-lsp@claude-plugins-official": false,
-    "caveman@caveman": true
+    "clangd-lsp@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
-    "omc": {
-      "source": {
-        "source": "git",
-        "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
-      }
-    },
     "caveman": {
       "source": {
         "source": "github",
         "repo": "JuliusBrussee/caveman"
       }
+    },
+    "omc": {
+      "source": {
+        "source": "git",
+        "url": "https://github.com/Yeachan-Heo/oh-my-claudecode.git"
+      }
     }
   },
-  "theme": "dark"
+  "effortLevel": "medium",
+  "theme": "auto",
+  "remoteControlAtStartup": false,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }
