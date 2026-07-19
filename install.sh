@@ -101,6 +101,12 @@ cargo binstall tree-sitter-cli
 nvm install latest
 npm install -g yarn
 
+# ccstatusline: install under mise's global node so the binary path is stable;
+# settings.json points statusLine.command at this absolute path so it works
+# regardless of which node version a project pins
+mise use -g node
+mise exec node@latest -- npm install -g ccstatusline
+
 mise use -g python
 pip install --upgrade pip
 pip install --user pipx
