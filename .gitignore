@@ -74,6 +74,7 @@ fish/fish_variables*
 # 3D printing / STL
 !STL/
 !STL/**
+STL/**/.omc/
 
 # ai takeover
 !opencode/
