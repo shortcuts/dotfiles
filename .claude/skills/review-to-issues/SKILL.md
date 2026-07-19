@@ -41,21 +41,48 @@ name, or a PR number doesn't resolve via `gh`), ask the user rather than guessin
 State the resolved scope back in one line before proceeding, e.g.:
 `Scope: commit a1b2c3d` or `Scope: PR #123 (algolia/foo)` or `Scope: directory src/auth/`.
 
-## Step 2: Determine where ISSUES.md lives
+## Step 2: Resolve project namespace and locate ISSUES_FILE
+
+Radin never writes backlog or state files into the target repo. Resolve a canonical,
+per-project namespace under `~/.claude/.radin/` first:
 
 ```bash
 REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
-if [ -n "$REPO_ROOT" ] && [ -d "$REPO_ROOT/.claude" ]; then
-  ISSUES_FILE="$REPO_ROOT/.claude/ISSUES.md"
+if command -v md5 >/dev/null 2>&1; then
+  HASH_CMD="md5"
 else
-  ISSUES_FILE="$HOME/.claude/ISSUES.md"
+  HASH_CMD="md5sum"
+fi
+if [ -n "$REPO_ROOT" ]; then
+  SLUG="$(basename "$REPO_ROOT")-$(printf '%s' "$REPO_ROOT" | $HASH_CMD | cut -c1-8)"
+else
+  SLUG="no-repo-$(printf '%s' "$PWD" | $HASH_CMD | cut -c1-8)"
+fi
+NAMESPACE_DIR="$HOME/.claude/.radin/projects/$SLUG"
+mkdir -p "$NAMESPACE_DIR/state" "$NAMESPACE_DIR/plans" "$NAMESPACE_DIR/reviews"
+ISSUES_FILE="$NAMESPACE_DIR/ISSUES.md"
+
+REGISTRY="$HOME/.claude/.radin/registry.json"
+[ -f "$REGISTRY" ] || echo '{}' > "$REGISTRY"
+TMP="$REGISTRY.tmp.$$"   # same dir as $REGISTRY -- required for atomic mv
+if command -v jq >/dev/null 2>&1; then
+  jq --arg k "$SLUG" --arg p "$REPO_ROOT" --arg t "$(date -u +%FT%TZ)" \
+     '.[$k] = {path: $p, updated_at: $t}' "$REGISTRY" > "$TMP" && mv "$TMP" "$REGISTRY"
+elif command -v python3 >/dev/null 2>&1; then
+  python3 -c "
+import json
+r = json.load(open('$REGISTRY'))
+r['$SLUG'] = {'path': '$REPO_ROOT', 'updated_at': __import__('datetime').datetime.utcnow().isoformat()+'Z'}
+json.dump(r, open('$TMP', 'w'), indent=2)
+" && mv "$TMP" "$REGISTRY"
+else
+  echo "note: no jq/python3 found, skipping registry.json index update (non-critical)" >&2
 fi
 ```
 
-- Prefer `<repo-root>/.claude/ISSUES.md` when the current repo has a `.claude` directory.
-- Fall back to `~/.claude/ISSUES.md` when there's no repo, or the repo has no `.claude`
-  directory (don't create one — that's a project-structure decision, not this skill's
-  call).
+`registry.json` is a best-effort index — a skipped upsert never blocks `$ISSUES_FILE`
+from being written correctly.
+
 - Record the baseline line count (`wc -l "$ISSUES_FILE" 2>/dev/null || echo 0`) so you
   can report how many findings were net-new at the end.
 

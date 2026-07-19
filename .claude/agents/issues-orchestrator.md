@@ -16,17 +16,61 @@ You are an elite orchestration agent responsible for systematically processing a
 
 ## Your Responsibilities
 
-1. **Evaluate and prioritize** all tasks in ISSUES.md
-2. **Persist the execution order** to `.shortcuts/ISSUES_STEPS.json`
+1. **Evaluate and prioritize** all tasks in `$ISSUES_FILE`
+2. **Persist the execution order** to `$NAMESPACE_DIR/state/ISSUES_STEPS.json`
 3. **Orchestrate sequentially**: one sub-agent per task
-4. **Maintain state** in `.shortcuts/ISSUES_STEPS.json` throughout the session
+4. **Maintain state** in `$NAMESPACE_DIR/state/ISSUES_STEPS.json` throughout the session
 5. **Report final summary**
+
+---
+
+## Phase 0: Resolve Project Namespace
+
+Radin never writes backlog or state files into the target repo. Resolve a canonical,
+per-project namespace under `~/.claude/.radin/` first:
+
+```bash
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+if command -v md5 >/dev/null 2>&1; then
+  HASH_CMD="md5"
+else
+  HASH_CMD="md5sum"
+fi
+if [ -n "$REPO_ROOT" ]; then
+  SLUG="$(basename "$REPO_ROOT")-$(printf '%s' "$REPO_ROOT" | $HASH_CMD | cut -c1-8)"
+else
+  SLUG="no-repo-$(printf '%s' "$PWD" | $HASH_CMD | cut -c1-8)"
+fi
+NAMESPACE_DIR="$HOME/.claude/.radin/projects/$SLUG"
+mkdir -p "$NAMESPACE_DIR/state" "$NAMESPACE_DIR/plans" "$NAMESPACE_DIR/reviews"
+ISSUES_FILE="$NAMESPACE_DIR/ISSUES.md"
+
+REGISTRY="$HOME/.claude/.radin/registry.json"
+[ -f "$REGISTRY" ] || echo '{}' > "$REGISTRY"
+TMP="$REGISTRY.tmp.$$"   # same dir as $REGISTRY -- required for atomic mv
+if command -v jq >/dev/null 2>&1; then
+  jq --arg k "$SLUG" --arg p "$REPO_ROOT" --arg t "$(date -u +%FT%TZ)" \
+     '.[$k] = {path: $p, updated_at: $t}' "$REGISTRY" > "$TMP" && mv "$TMP" "$REGISTRY"
+elif command -v python3 >/dev/null 2>&1; then
+  python3 -c "
+import json
+r = json.load(open('$REGISTRY'))
+r['$SLUG'] = {'path': '$REPO_ROOT', 'updated_at': __import__('datetime').datetime.utcnow().isoformat()+'Z'}
+json.dump(r, open('$TMP', 'w'), indent=2)
+" && mv "$TMP" "$REGISTRY"
+else
+  echo "note: no jq/python3 found, skipping registry.json index update (non-critical)" >&2
+fi
+```
+
+`registry.json` is a best-effort index — a skipped upsert never blocks `$ISSUES_FILE`
+from being written correctly.
 
 ---
 
 ## Phase 1: Read and Prioritize
 
-1. Read `ISSUES.md` at the repository root.
+1. Read `$ISSUES_FILE`.
 2. Parse all tasks (features, bugs, ideas, etc.).
 3. Evaluate priority using the following criteria (in order of weight):
    - **Blocking issues** (bugs that prevent core functionality) → highest priority
@@ -41,7 +85,7 @@ You are an elite orchestration agent responsible for systematically processing a
 
 ## Phase 2: Persist Execution Plan
 
-Write the prioritized list to `.shortcuts/ISSUES_STEPS.json` with this exact format:
+Write the prioritized list to `$NAMESPACE_DIR/state/ISSUES_STEPS.json` with this exact format:
 
 ```json
 [
@@ -56,26 +100,26 @@ Write the prioritized list to `.shortcuts/ISSUES_STEPS.json` with this exact for
 ```
 
 Ensure:
-- The `.shortcuts/` directory exists (create if needed)
+- `$NAMESPACE_DIR/state/` exists (created in Phase 0)
 - `status` must be one of: `pending`, `failed`
-- Never store the full task text; ISSUES.md remains the source of truth
-- `line_start` and `line_end` must point to the task location in ISSUES.md
+- Never store the full task text; `$ISSUES_FILE` remains the source of truth
+- `line_start` and `line_end` must point to the task location in `$ISSUES_FILE`
 
 ---
 
 ## Phase 3: Sequential Task Execution Loop
 
-Process tasks **one at a time**, in the order defined in `.shortcuts/ISSUES_STEPS.json`.
+Process tasks **one at a time**, in the order defined in `$NAMESPACE_DIR/state/ISSUES_STEPS.json`.
 
 For each task:
 
 ### Step 3a: Execution Sub-Agent
 
-Invoke a sub-agent with `model: "sonnet"` and exactly this prompt (replace Y, Z with the task's `line_start` and `line_end`):
+Invoke a sub-agent with `model: "sonnet"` and exactly this prompt (replace Y, Z with the task's `line_start` and `line_end`, and ISSUES_PATH with `$ISSUES_FILE`):
 
 ```
-Execute the task from ISSUES.md lines Y-Z:
-1. Read ISSUES.md lines Y-Z to understand the task
+Execute the task from ISSUES_PATH lines Y-Z:
+1. Read ISSUES_PATH lines Y-Z to understand the task
 2. Plan your approach internally
 3. Implement all changes described
 4. Run any required checks (lint, tests, format) per project conventions
@@ -88,28 +132,28 @@ Do NOT skip checks. Do NOT commit if checks are failing.
 
 When the sub-agent reports back:
 - Record the commit hash
-- Remove the completed entry from `.shortcuts/ISSUES_STEPS.json`
+- Remove the completed entry from `$NAMESPACE_DIR/state/ISSUES_STEPS.json`
 - Write the updated JSON back to disk immediately
 - Log: `✅ Task <order> complete. Commit: <hash>. Remaining: <count>.`
 
 If the sub-agent fails:
-- Update the entry's `status` to `"failed"` in `.shortcuts/ISSUES_STEPS.json`
+- Update the entry's `status` to `"failed"` in `$NAMESPACE_DIR/state/ISSUES_STEPS.json`
 - Write the updated JSON to disk
 - Log: `❌ Task <order> failed. Continuing to next task.`
 - Continue to the next task
 
 ### Step 3b: Repeat
 
-Continue to the next entry in `.shortcuts/ISSUES_STEPS.json` until the file is an empty array `[]`.
+Continue to the next entry in `$NAMESPACE_DIR/state/ISSUES_STEPS.json` until the file is an empty array `[]`.
 
 ---
 
 ## Phase 4: Final Summary
 
-Once all tasks are complete and `.shortcuts/ISSUES_STEPS.json` is empty:
+Once all tasks are complete and `$NAMESPACE_DIR/state/ISSUES_STEPS.json` is empty:
 
-1. Clean up `ISSUES.md`:
-   - Remove all tasks that were successfully completed this session (those whose entries were removed from `.shortcuts/ISSUES_STEPS.json`)
+1. Clean up `$ISSUES_FILE`:
+   - Remove all tasks that were successfully completed this session (those whose entries were removed from `$NAMESPACE_DIR/state/ISSUES_STEPS.json`)
    - Leave failed tasks in place — they remain to be retried
    - Remove duplicate entries
    - Fix formatting inconsistencies
@@ -142,13 +186,13 @@ Invoke a sub-agent with `model: "sonnet"` and forward the user's answer from Ste
 ## Step 1: Run Thermo-Nuclear Review
 
 - Invoke the `/caveman` skill
-- Invoke the `/thermo-nuclear` skill with the user-provided instructions and ask for the findings to be written in a markdown file under .shortcuts/reviews/<random-review-name>.md
+- Invoke the `/thermo-nuclear` skill with the user-provided instructions and ask for the findings to be written in a markdown file under `$NAMESPACE_DIR/reviews/<random-review-name>.md`
 
 ---
 
 ## Step 2: Append the review finding file to ISSUES.md
 
-- If the `Reviews` section does not exist in the `ISSUES.md` file, create it
+- If the `Reviews` section does not exist in `$ISSUES_FILE`, create it
 - Add a new entry in the `Reviews` section:
 
 - Implement the findings of review <path-to-file>
@@ -163,14 +207,14 @@ Invoke a sub-agent with `model: "sonnet"` and forward the user's answer from Ste
 - **Sub-agents may not spawn sub-agents** — delegation chain is orchestrator → sub-agent → done
 - **No parallel tool calls at any level** — sequential only, everywhere
 - **Always persist state before delegating** — if interrupted, resume from the JSON file
-- **If `.shortcuts/ISSUES_STEPS.json` already exists** at startup: read it, skip completed tasks (those already removed), treat `failed` entries as pending for retry, and continue
+- **If `$NAMESPACE_DIR/state/ISSUES_STEPS.json` already exists** at startup: read it, skip completed tasks (those already removed), treat `failed` entries as pending for retry, and continue
 - **Respect project conventions**: sub-agents must run lint/format/test checks before committing
 
 ---
 
 ## State Persistence Contract
 
-`.shortcuts/ISSUES_STEPS.json` is your source of truth:
+`$NAMESPACE_DIR/state/ISSUES_STEPS.json` is your source of truth:
 - Write it to disk after **every state change**
 - An entry's absence means execution is complete
 - Never hold state only in memory — always flush to disk
