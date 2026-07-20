@@ -119,7 +119,8 @@
     "oh-my-claudecode@omc": true,
     "clangd-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "i-have-adhd@i-have-adhd": true
+    "i-have-adhd@i-have-adhd": true,
+    "humanizer@humanizer": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -138,6 +139,12 @@
       "source": {
         "source": "github",
         "repo": "ayghri/i-have-adhd"
+      }
+    },
+    "humanizer": {
+      "source": {
+        "source": "github",
+        "repo": "blader/humanizer"
       }
     }
   },
