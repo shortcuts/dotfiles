@@ -8,42 +8,38 @@ description: |
   directory and file issues", "turn this review into a backlog", or wants thermo-nuclear
   findings persisted instead of just printed to the terminal.
 ---
-
 # Review to Issues
 
-Run the `/thermo-nuclear` code quality review against a caller-specified scope, then
-persist every finding as a structured entry in `ISSUES.md` instead of only printing it
-to the terminal. This turns a one-off strict review into a durable backlog that
-`radin-orchestrator` (or a human) can work through later.
+Run `/thermo-nuclear` code quality review against caller-specified scope, persist every finding as structured entry in `ISSUES.md` instead of just printing to terminal. Turns one-off strict review into durable backlog `radin-orchestrator` (or human) can work through later.
 
-## Step 1: Resolve the scope argument
+## Step 1: Resolve scope argument
 
-The user passes one argument, which can be any of:
+User passes one argument, can be any of:
 
-- **A commit hash** (e.g. `a1b2c3d`) — review that single commit's changes:
+- **Commit hash** (e.g. `a1b2c3d`) — review that single commit's changes:
   `git show <hash>` / `git diff <hash>^..<hash>`.
-- **A PR reference** (e.g. `#123`, `123`, or a GitHub PR URL) — resolve via
-  `gh pr diff <number>` (add `--repo <owner>/<repo>` if the URL points elsewhere than
-  the current repo's remote).
-- **A directory path** — review the current state of everything under that path (not a
-  diff — read the files as they stand today).
-- **A natural-language range** (e.g. `"last commits since yesterday"`,
-  `"commits since Monday"`, `"the last 5 commits"`) — translate into a concrete
+- **PR reference** (e.g. `#123`, `123`, or GitHub PR URL) — resolve via
+  `gh pr diff <number>` (add `--repo <owner>/<repo>` if URL points elsewhere than
+  current repo's remote).
+- **Directory path** — review current state of everything under that path (not diff —
+  read files as they stand today).
+- **Natural-language range** (e.g. `"last commits since yesterday"`,
+  `"commits since Monday"`, `"the last 5 commits"`) — translate into concrete
   `git log` / `git diff` invocation, e.g. `git log --since=yesterday --oneline` then
   `git diff <oldest-of-those>^..HEAD`.
-- **No argument** — default to the working branch's diff against its base
+- **No argument** — default to working branch's diff against its base
   (`git merge-base main HEAD` or `master`, whichever exists), same default `/code-review`
   would use.
 
-If the argument is ambiguous (e.g. it could be a commit hash or could be a directory
-name, or a PR number doesn't resolve via `gh`), ask the user rather than guessing.
+Argument ambiguous (e.g. could be commit hash or directory name, or PR number doesn't
+resolve via `gh`) — ask user, don't guess.
 
-State the resolved scope back in one line before proceeding, e.g.:
+State resolved scope back in one line before proceeding, e.g.:
 `Scope: commit a1b2c3d` or `Scope: PR #123 (algolia/foo)` or `Scope: directory src/auth/`.
 
-## Step 2: Resolve project namespace and locate ISSUES_FILE
+## Step 2: Resolve project namespace, locate ISSUES_FILE
 
-Radin never writes backlog or state files into the target repo. Resolve a canonical,
+Radin never writes backlog/state files into target repo. Resolve canonical,
 per-project namespace under `~/.claude/.radin/` first:
 
 ```bash
@@ -80,23 +76,23 @@ else
 fi
 ```
 
-`registry.json` is a best-effort index — a skipped upsert never blocks `$ISSUES_FILE`
+`registry.json` best-effort index — skipped upsert never blocks `$ISSUES_FILE`
 from being written correctly.
 
-- Record the baseline line count (`wc -l "$ISSUES_FILE" 2>/dev/null || echo 0`) so you
-  can report how many findings were net-new at the end.
+- Record baseline line count (`wc -l "$ISSUES_FILE" 2>/dev/null || echo 0`) so you
+  can report net-new findings at end.
 
-## Step 3: Run the thermo-nuclear review
+## Step 3: Run thermo-nuclear review
 
-Invoke the `/thermo-nuclear` skill against the resolved scope from Step 1. Apply its
-full standards: ambitious code-judo restructuring, 1k-line file smell, spaghetti
-branching, boundary/type cleanliness, canonical-layer leaks, orchestration atomicity —
-see that skill for the complete rubric. Don't water it down for this skill.
+Invoke `/thermo-nuclear` skill against resolved scope from Step 1. Apply full standards:
+ambitious code-judo restructuring, 1k-line file smell, spaghetti branching,
+boundary/type cleanliness, canonical-layer leaks, orchestration atomicity —
+see that skill for complete rubric. Don't water down for this skill.
 
 ## Step 4: Log every finding to ISSUES.md
 
-For each finding the review surfaces, append an entry in this format (create the file
-with a `# Issues` heading first if it doesn't exist yet):
+For each finding review surfaces, append entry in this format (create file
+with `# Issues` heading first if it doesn't exist yet):
 
 ```
 ## [Thermo-Nuclear Review] <short title>
@@ -111,17 +107,16 @@ specific, no hedging>
 reframe state model, etc.>
 ```
 
-Log every finding that clears the thermo-nuclear approval bar — don't filter down to
-only the scariest one, but also don't pad the file with cosmetic nits the skill itself
-wouldn't have raised. One entry per finding, appended in the order the review produced
-them.
+Log every finding clearing thermo-nuclear approval bar — don't filter down to
+only scariest one, but also don't pad file with cosmetic nits skill itself
+wouldn't have raised. One entry per finding, appended in order review produced them.
 
 ## Step 5: Report back
 
-Tell the user:
+Tell user:
 
-- The resolved scope reviewed.
-- How many findings were logged (net-new lines/entries vs. the Step 2 baseline).
-- The path to `ISSUES.md` that was written.
-- If zero findings: say clearly that the review passed the thermo-nuclear approval bar
-  with no logged issues — don't write an empty entry just to prove the skill ran.
+- Resolved scope reviewed.
+- How many findings logged (net-new lines/entries vs. Step 2 baseline).
+- Path to `ISSUES.md` written.
+- Zero findings: say clearly review passed thermo-nuclear approval bar
+  with no logged issues — don't write empty entry just to prove skill ran.
