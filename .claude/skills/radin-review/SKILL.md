@@ -1,10 +1,10 @@
 ---
-name: review-to-issues
+name: radin-review
 description: |
   Run a thermo-nuclear code quality review over a given scope (commit hash, PR,
   directory, or a natural-language range like "last commits since yesterday") and
   log every finding as a structured entry in ISSUES.md. Use whenever the user invokes
-  /review-to-issues, or asks to "review and log to issues", "audit this commit/PR/
+  /radin-review, or asks to "review and log to issues", "audit this commit/PR/
   directory and file issues", "turn this review into a backlog", or wants thermo-nuclear
   findings persisted instead of just printed to the terminal.
 ---
@@ -14,7 +14,7 @@ description: |
 Run the `/thermo-nuclear` code quality review against a caller-specified scope, then
 persist every finding as a structured entry in `ISSUES.md` instead of only printing it
 to the terminal. This turns a one-off strict review into a durable backlog that
-`issues-orchestrator` (or a human) can work through later.
+`radin-orchestrator` (or a human) can work through later.
 
 ## Step 1: Resolve the scope argument
 
