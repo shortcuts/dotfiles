@@ -9,7 +9,7 @@ description: |
 ---
 # Review to Backlog
 
-Run `/thermo-nuclear` code quality review against caller-specified scope, persist every finding as structured entry in `BACKLOG.md` instead of just printing to terminal. Turns one-off strict review into durable backlog `radin-orchestrator` (or human) can work through later.
+Run `/thermo-nuclear` code quality review against caller-specified scope, persist every finding as structured entry in `BACKLOG.md` instead of just printing to terminal. Turns one-off strict review into durable backlog `radin-execute` (or human) can work through later.
 
 ## Step 1: Resolve scope argument
 

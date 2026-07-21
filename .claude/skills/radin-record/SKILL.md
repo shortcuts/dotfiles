@@ -15,7 +15,7 @@ structured entries in `BACKLOG.md`, so they survive past the conversation
 that surfaced them. This is the capture step for everything that isn't a
 code-review finding — things a human said, not things a diff revealed.
 `radin-review` logs code-review findings instead. `radin-plan` and
-`radin-orchestrator` consume the backlog afterward.
+`radin-execute` consume the backlog afterward.
 
 ## Step 1: Resolve project namespace, locate BACKLOG_FILE
 
@@ -69,7 +69,7 @@ conventional-commit type. Classify each item into exactly one:
 
 When an item could plausibly fit two categories, pick the closer one and
 move on — don't stall on classification; a slightly-off category costs
-nothing since `radin-orchestrator`/`radin-plan` read the description
+nothing since `radin-execute`/`radin-plan` read the description
 regardless of category.
 
 ## Step 4: Append entries to BACKLOG.md
@@ -84,12 +84,12 @@ sections already exist — then append an entry under it in this exact shape:
 <as exhaustive a description as the situation warrants: what was being
 discussed/worked on when this came up, the item itself close to how the
 user stated or clearly implied it, and why it matters if that's not
-already obvious. radin-orchestrator/radin-plan will act on this entry with
+already obvious. radin-execute/radin-plan will act on this entry with
 no other session context, so don't compress it down to one line.>
 ```
 
 Always append — don't scan `BACKLOG_FILE` for near-duplicates or try to merge
-with an existing entry; let `radin-orchestrator`/`radin-plan` or a human
+with an existing entry; let `radin-execute`/`radin-plan` or a human
 dedupe later, since a false-positive merge silently drops something the
 user cared about, which is worse than an occasional repeated entry.
 
