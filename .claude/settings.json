@@ -120,7 +120,8 @@
     "clangd-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
     "i-have-adhd@i-have-adhd": true,
-    "humanizer@humanizer": true
+    "humanizer@humanizer": true,
+    "ponytail@ponytail": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -145,6 +146,12 @@
       "source": {
         "source": "github",
         "repo": "blader/humanizer"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
       }
     }
   },

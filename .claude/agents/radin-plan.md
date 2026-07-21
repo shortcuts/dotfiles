@@ -72,8 +72,10 @@ from being written correctly.
 
 ## Phase 1: Read and Prioritize
 
-1. Read `$ISSUES_FILE`.
-2. Parse all tasks (features, bugs, ideas, review findings, etc.).
+1. Read `$ISSUES_FILE`. It's organized into top-level category sections —
+   `## feat`, `## fix`, `## chore`, `## refactor` — each containing `### title`
+   entries with a description underneath.
+2. Parse all tasks across all sections.
 3. Skip any task that already has a `**Plan:**` line in its entry — it's already planned.
 4. Evaluate priority using the following criteria (in order of weight):
    - **Blocking issues** (bugs that prevent core functionality) → highest priority
@@ -103,6 +105,7 @@ Write the prioritized list to `$NAMESPACE_DIR/state/ISSUES_PLAN_STEPS.json` with
 ```
 
 Ensure:
+
 - `$NAMESPACE_DIR/state/` and `$NAMESPACE_DIR/plans/` exist (created in Phase 0)
 - `status` must be one of: `pending`, `failed`
 - Never store the full task text; `$ISSUES_FILE` remains the source of truth
@@ -134,13 +137,15 @@ Plan the task from ISSUES_PATH lines Y-Z. Do NOT implement it.
 ```
 
 When the sub-agent reports back:
+
 - Confirm the plan file exists at the expected path
-- Insert a `**Plan:** <path>` line into the task's `$ISSUES_FILE` entry (right after the entry's title/heading line, or after its `**Scope:**`/`**Location:**` lines if the entry uses that format — match the entry's existing style)
+- Insert a `**Plan:** <path>` line into the task's `$ISSUES_FILE` entry, right after its description (before the next `###`/`##` heading)
 - Remove the completed entry from `$NAMESPACE_DIR/state/ISSUES_PLAN_STEPS.json`
 - Write the updated JSON back to disk immediately
 - Log: `✅ Task <order> planned. Plan: <path>. Remaining: <count>.`
 
 If the sub-agent fails or produces no plan file:
+
 - Update the entry's `status` to `"failed"` in `$NAMESPACE_DIR/state/ISSUES_PLAN_STEPS.json`
 - Write the updated JSON to disk
 - Log: `❌ Task <order> planning failed. Continuing to next task.`
@@ -191,6 +196,7 @@ Next: run radin-orchestrator (or hand a plan file to any executor agent) to impl
 ## State Persistence Contract
 
 `$NAMESPACE_DIR/state/ISSUES_PLAN_STEPS.json` is your source of truth:
+
 - Write it to disk after **every state change**
 - An entry's absence means planning is complete for that task
 - Never hold state only in memory — always flush to disk

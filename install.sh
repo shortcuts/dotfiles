@@ -62,7 +62,7 @@ brew install coreutils hostctl \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
     luarocks obsidian anomalyco/tap/opencode \
-    mac-cleanup-py cargo-binstall glow ghui mole
+    mac-cleanup-py cargo-binstall glow ghui mole shellcheck
 
 brew install --cask font-lilex-nerd-font
 
@@ -91,6 +91,7 @@ mise use -g java
 
 mise use -g go
 go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+go install mvdan.cc/sh/v3/cmd/shfmt@latest
 
 mise use -g rust
 

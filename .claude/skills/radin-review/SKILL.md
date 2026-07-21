@@ -91,12 +91,24 @@ see that skill for complete rubric. Don't water down for this skill.
 
 ## Step 4: Log every finding to ISSUES.md
 
-For each finding review surfaces, append entry in this format (create file
-with `# Issues` heading first if it doesn't exist yet):
+`ISSUES_FILE` is organized into top-level category sections — `## feat`,
+`## fix`, `## chore`, `## refactor` — same vocabulary as a conventional-commit
+type. Create the file with a `# Issues` heading first if it doesn't exist yet.
+
+For each finding review surfaces, classify it:
+
+- **fix** — the finding is an actual bug: incorrect behavior, not just
+  structure.
+- **refactor** — the finding is structural: spaghetti branching, a canonical-
+  layer leak, a 1k-line-file smell, orchestration atomicity, or any other
+  restructuring thermo-nuclear calls for that doesn't change behavior.
+
+If the section for that category doesn't exist yet, create it (in canonical
+order feat → fix → chore → refactor relative to whichever sections already
+exist), then append the entry under it:
 
 ```
-## [Thermo-Nuclear Review] <short title>
-
+### <short title>
 **Scope:** <what was reviewed — commit hash / PR / directory / range from Step 1>
 **Location:** <file path(s) and function/line if applicable>
 **Finding:**
@@ -106,6 +118,10 @@ specific, no hedging>
 <the concrete restructuring suggested — extract helper, delete wrapper, split file,
 reframe state model, etc.>
 ```
+
+The description under the title should be as exhaustive as the finding
+warrants — `Scope`/`Location`/`Finding`/`Preferred remedy` are that
+description's internal structure, not a separate schema.
 
 Log every finding clearing thermo-nuclear approval bar — don't filter down to
 only scariest one, but also don't pad file with cosmetic nits skill itself
