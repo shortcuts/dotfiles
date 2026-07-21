@@ -45,10 +45,14 @@ this session.
 
 ## Phase 1: Read and Prioritize
 
-0. Check whether `$REPO_ROOT/ISSUES.md` also exists (a stray repo-root file,
-   separate from the namespaced `$ISSUES_FILE`). If it does, flag it to the
-   user and ask whether its tasks should be tackled in this session too —
-   do not silently merge or ignore it either way.
+0. Determine the backlog source, in this order:
+   - If `$ISSUES_FILE` (the namespaced file) exists, use it — this is the
+     normal case and needs no further checking.
+   - Else if `$REPO_ROOT/ISSUES.md` exists (a stray repo-root file), flag it
+     to the user and ask whether to use it for this session — do not
+     silently ignore it.
+   - Else, tell the user no backlog was found at either location and ask
+     whether to create an empty `$ISSUES_FILE`, or stop here.
 1. Read `$ISSUES_FILE`. It's organized into top-level category sections —
    `## feat`, `## fix`, `## chore`, `## refactor` — each containing `### title`
    entries with a description underneath. Category doesn't set priority by
