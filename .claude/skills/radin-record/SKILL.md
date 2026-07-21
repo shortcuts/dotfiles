@@ -2,27 +2,27 @@
 name: radin-record
 description: |
   Log feedback, bugs, follow-ups, or ideas raised mid-session as structured
-  ISSUES.md entries, so they survive past the conversation. Use for
-  /radin-record, "log this to ISSUES.md", "add as follow-up/bug/idea",
+  BACKLOG.md entries, so they survive past the conversation. Use for
+  /radin-record, "log this to BACKLOG.md", "add as follow-up/bug/idea",
   "record what we just found", "note this for later", "add findings to
   backlog". Triggers even on vague asks ("add the findings") — scan the
   whole session, not just the literal text.
 ---
-# Record to Issues
+# Record to Backlog
 
 Turn feedback, bugs, follow-ups, or ideas raised during a live session into
-structured entries in `ISSUES.md`, so they survive past the conversation
-that surfaced them. Companion to `radin-review` (which logs code-review
-findings) and `radin-plan`/`radin-orchestrator` (which consume the backlog
-afterward) — this skill is the capture step for everything that isn't a
-code-review finding: things a human said, not things a diff revealed.
+structured entries in `BACKLOG.md`, so they survive past the conversation
+that surfaced them. This is the capture step for everything that isn't a
+code-review finding — things a human said, not things a diff revealed.
+`radin-review` logs code-review findings instead. `radin-plan` and
+`radin-orchestrator` consume the backlog afterward.
 
-## Step 1: Resolve project namespace, locate ISSUES_FILE
+## Step 1: Resolve project namespace, locate BACKLOG_FILE
 
 Radin never writes backlog/state files into the target repo. Run the shared
 namespace-resolution script — the single source of truth for this logic,
 shared by every radin agent/skill — and read `REPO_ROOT`, `NAMESPACE_DIR`, and
-`ISSUES_FILE` from its output:
+`BACKLOG_FILE` from its output:
 
 ```bash
 bash "$HOME/.claude/radin-lib/radin-namespace.sh"
@@ -30,8 +30,8 @@ bash "$HOME/.claude/radin-lib/radin-namespace.sh"
 
 This creates `$NAMESPACE_DIR/state`, `$NAMESPACE_DIR/plans`, and
 `$NAMESPACE_DIR/reviews`, and best-effort upserts `registry.json` (a skipped
-upsert never blocks `$ISSUES_FILE` from being written correctly). Use the
-printed `REPO_ROOT` / `NAMESPACE_DIR` / `ISSUES_FILE` values for the rest of
+upsert never blocks `$BACKLOG_FILE` from being written correctly). Use the
+printed `REPO_ROOT` / `NAMESPACE_DIR` / `BACKLOG_FILE` values for the rest of
 this session.
 
 ## Step 2: Decide what to log
@@ -44,9 +44,10 @@ The user's instruction after `/radin-record` decides scope:
 - **Generic** ("add the findings", "log what we discussed", bare
   `/radin-record` with no argument): scan the whole session so far for
   anything a reasonable person would call a bug, follow-up, idea, or piece
-  of feedback — things the user stated outright, and things that were
-  clearly surfaced as a "we should probably..." aside mid-task, even if
-  nobody stopped to write it down. Each distinct item becomes its own entry.
+  of feedback. Include things the user stated outright, and things that
+  were clearly surfaced as a "we should probably..." aside mid-task, even
+  if nobody stopped to write them down. Each distinct item becomes its own
+  entry.
 
 Either way, stay faithful to what was actually said. This is a capture tool,
 not a brainstorming one — don't invent items the conversation didn't raise,
@@ -54,7 +55,7 @@ and don't editorialize on top of what the user said.
 
 ## Step 3: Classify each item
 
-`ISSUES_FILE` is organized into top-level semver-style category sections —
+`BACKLOG_FILE` is organized into top-level semver-style category sections —
 `## feat`, `## fix`, `## chore`, `## refactor` — same vocabulary as a
 conventional-commit type. Classify each item into exactly one:
 
@@ -71,9 +72,9 @@ move on — don't stall on classification; a slightly-off category costs
 nothing since `radin-orchestrator`/`radin-plan` read the description
 regardless of category.
 
-## Step 4: Append entries to ISSUES.md
+## Step 4: Append entries to BACKLOG.md
 
-Create `$ISSUES_FILE` with a `# Issues` heading first if it doesn't exist
+Create `$BACKLOG_FILE` with a `# Backlog` heading first if it doesn't exist
 yet. For each classified item, find (or create) its category section — in
 canonical order feat → fix → chore → refactor relative to whichever
 sections already exist — then append an entry under it in this exact shape:
@@ -87,7 +88,7 @@ already obvious. radin-orchestrator/radin-plan will act on this entry with
 no other session context, so don't compress it down to one line.>
 ```
 
-Always append — don't scan `ISSUES_FILE` for near-duplicates or try to merge
+Always append — don't scan `BACKLOG_FILE` for near-duplicates or try to merge
 with an existing entry; let `radin-orchestrator`/`radin-plan` or a human
 dedupe later, since a false-positive merge silently drops something the
 user cared about, which is worse than an occasional repeated entry.
@@ -97,7 +98,7 @@ user cared about, which is worse than an occasional repeated entry.
 Tell the user:
 
 - How many entries were logged, with their titles and categories.
-- Path to `$ISSUES_FILE`.
+- Path to `$BACKLOG_FILE`.
 - If nothing in scope (Step 2) actually rose to the level of a loggable
   item, say so plainly — don't pad the file with a vague entry just to prove
   the skill ran.

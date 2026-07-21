@@ -2,14 +2,14 @@
 name: radin-review
 description: |
   Run a thermo-nuclear code quality review over a scope (commit, PR, directory,
-  or a range like "since yesterday") and log each finding as an ISSUES.md entry
+  or a range like "since yesterday") and log each finding as a BACKLOG.md entry
   instead of printing to terminal. Use for /radin-review, "review and log to
-  issues", "audit this commit/PR/directory and file issues", "turn this review
-  into a backlog".
+  backlog", "audit this commit/PR/directory and file backlog entries", "turn
+  this review into a backlog".
 ---
-# Review to Issues
+# Review to Backlog
 
-Run `/thermo-nuclear` code quality review against caller-specified scope, persist every finding as structured entry in `ISSUES.md` instead of just printing to terminal. Turns one-off strict review into durable backlog `radin-orchestrator` (or human) can work through later.
+Run `/thermo-nuclear` code quality review against caller-specified scope, persist every finding as structured entry in `BACKLOG.md` instead of just printing to terminal. Turns one-off strict review into durable backlog `radin-orchestrator` (or human) can work through later.
 
 ## Step 1: Resolve scope argument
 
@@ -36,12 +36,12 @@ resolve via `gh`) — ask user, don't guess.
 State resolved scope back in one line before proceeding, e.g.:
 `Scope: commit a1b2c3d` or `Scope: PR #123 (algolia/foo)` or `Scope: directory src/auth/`.
 
-## Step 2: Resolve project namespace, locate ISSUES_FILE
+## Step 2: Resolve project namespace, locate BACKLOG_FILE
 
 Radin never writes backlog/state files into target repo. Run the shared
 namespace-resolution script — single source of truth for this logic, shared
 by every radin agent/skill — and read `REPO_ROOT`, `NAMESPACE_DIR`, and
-`ISSUES_FILE` from its output:
+`BACKLOG_FILE` from its output:
 
 ```bash
 bash "$HOME/.claude/radin-lib/radin-namespace.sh"
@@ -49,11 +49,11 @@ bash "$HOME/.claude/radin-lib/radin-namespace.sh"
 
 This creates `$NAMESPACE_DIR/state`, `$NAMESPACE_DIR/plans`, and
 `$NAMESPACE_DIR/reviews`, and best-effort upserts `registry.json` (a skipped
-upsert never blocks `$ISSUES_FILE` from being written correctly). Use the
-printed `REPO_ROOT` / `NAMESPACE_DIR` / `ISSUES_FILE` values for the rest of
+upsert never blocks `$BACKLOG_FILE` from being written correctly). Use the
+printed `REPO_ROOT` / `NAMESPACE_DIR` / `BACKLOG_FILE` values for the rest of
 this session.
 
-- Record baseline line count (`wc -l "$ISSUES_FILE" 2>/dev/null || echo 0`) so you
+- Record baseline line count (`wc -l "$BACKLOG_FILE" 2>/dev/null || echo 0`) so you
   can report net-new findings at end.
 
 ## Step 3: Run reviews
@@ -74,11 +74,11 @@ commit/PR/range (diff scope), `/ponytail-audit` for a directory (whole-tree scop
 hunts a different axis than thermo-nuclear (over-engineering, dead flexibility,
 reinvented stdlib/native code) and is meant to complement it, not duplicate it.
 
-## Step 4: Log every finding to ISSUES.md
+## Step 4: Log every finding to BACKLOG.md
 
-`ISSUES_FILE` is organized into top-level category sections — `## feat`,
+`BACKLOG_FILE` is organized into top-level category sections — `## feat`,
 `## fix`, `## chore`, `## refactor` — same vocabulary as a conventional-commit
-type. Create the file with a `# Issues` heading first if it doesn't exist yet.
+type. Create the file with a `# Backlog` heading first if it doesn't exist yet.
 
 For each finding review surfaces, classify it:
 
@@ -121,7 +121,7 @@ Tell user:
 
 - Resolved scope reviewed.
 - How many findings logged (net-new lines/entries vs. Step 2 baseline).
-- Path to `ISSUES.md` written.
+- Path to `BACKLOG.md` written.
 - Zero findings: say clearly the review passed both thermo-nuclear's and ponytail's
   approval bar with no logged issues — don't write an empty entry just to prove the
   skill ran.

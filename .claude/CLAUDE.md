@@ -100,3 +100,46 @@ Fall back to Grep/Glob/Read **only** when graph doesn't cover what you need.
 3. Use `get_affected_flows` to understand impact.
 4. Use `query_graph` pattern="tests_for" to check coverage.
 
+---
+
+## Writing Docs: ASD-STE100 Simplified Technical English
+
+**Applies to:** README, CONTRIBUTING, CHANGELOG, architecture docs, agent/skill
+instruction files — any `*.md` meant to be read or followed. Not code comments
+(see below) and not this file's own style.
+
+STE100 is controlled English, not telegraphic shorthand. Keep full grammar
+(articles, verb endings) — cut length and ambiguity, not words.
+
+- **One idea per sentence.** Split compound sentences joined by "and"/"which"
+  into two sentences.
+- **Short sentences.** Under ~20 words for instructions, ~25 for description.
+- **Active voice, one tense.** "Run `install.sh`" not "`install.sh` should be
+  run." Prefer present tense.
+- **One term per concept, used consistently.** Don't alternate between
+  "backlog" and "issue list" and "task queue" for the same thing. Pick one
+  word and reuse it everywhere in the doc.
+- **No noun stacks.** Rewrite "namespace resolution script logic" as "the
+  script that resolves the namespace."
+- **Say who does the action.** "The script creates X" not "X gets created."
+- **Cut hedges and filler.** No "basically," "essentially," "in order to,"
+  "it should be noted that." State the fact.
+- **Cut restated context.** Don't re-explain what a linked doc already covers
+  — link to it once.
+- **Concrete over abstract.** Give the exact command, path, or example instead
+  of a general description of one.
+- **Lists over prose** for anything sequential or enumerable. Prose only for
+  narrative explanation (why a decision was made).
+
+Before finishing a doc edit, reread each paragraph and ask: does every
+sentence carry information the reader needs? Delete the ones that don't.
+
+## Code Comments
+
+- Default: no comment. Names and structure should carry the meaning.
+- Add a comment only for the **why** — a constraint, a bug workaround, a
+  non-obvious invariant — never the **what** (that's what the code already
+  shows).
+- One line. If it needs a paragraph, the code is the problem, not the
+  comment.
+
