@@ -82,12 +82,23 @@ from being written correctly.
 - Record baseline line count (`wc -l "$ISSUES_FILE" 2>/dev/null || echo 0`) so you
   can report net-new findings at end.
 
-## Step 3: Run thermo-nuclear review
+## Step 3: Run reviews
 
-Invoke `/thermo-nuclear` skill against resolved scope from Step 1. Apply full standards:
-ambitious code-judo restructuring, 1k-line file smell, spaghetti branching,
-boundary/type cleanliness, canonical-layer leaks, orchestration atomicity —
-see that skill for complete rubric. Don't water down for this skill.
+If `code-review-graph` is installed and wired for this repo (`command -v code-review-graph`
+succeeds, and its MCP tools are available) use `detect_changes` + `get_review_context`
+against the resolved scope first — risk-scored, token-efficient source context beats
+reading raw diffs/files cold. Not installed or not wired here: fall back to
+`git show`/`git diff`/reading the files directly, same as Step 1's scope resolution.
+
+Invoke `/thermo-nuclear` against the resolved scope. Apply full standards: ambitious
+code-judo restructuring, 1k-line file smell, spaghetti branching, boundary/type
+cleanliness, canonical-layer leaks, orchestration atomicity — see that skill for
+complete rubric. Don't water down for this skill.
+
+Then invoke the ponytail complexity pass over the same scope — `/ponytail-review` for a
+commit/PR/range (diff scope), `/ponytail-audit` for a directory (whole-tree scope). It
+hunts a different axis than thermo-nuclear (over-engineering, dead flexibility,
+reinvented stdlib/native code) and is meant to complement it, not duplicate it.
 
 ## Step 4: Log every finding to ISSUES.md
 
@@ -101,7 +112,9 @@ For each finding review surfaces, classify it:
   structure.
 - **refactor** — the finding is structural: spaghetti branching, a canonical-
   layer leak, a 1k-line-file smell, orchestration atomicity, or any other
-  restructuring thermo-nuclear calls for that doesn't change behavior.
+  restructuring thermo-nuclear calls for that doesn't change behavior. Every
+  ponytail-pass finding (`delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`) is
+  structural by definition — classify these as refactor too.
 
 If the section for that category doesn't exist yet, create it (in canonical
 order feat → fix → chore → refactor relative to whichever sections already
@@ -123,9 +136,10 @@ The description under the title should be as exhaustive as the finding
 warrants — `Scope`/`Location`/`Finding`/`Preferred remedy` are that
 description's internal structure, not a separate schema.
 
-Log every finding clearing thermo-nuclear approval bar — don't filter down to
-only scariest one, but also don't pad file with cosmetic nits skill itself
-wouldn't have raised. One entry per finding, appended in order review produced them.
+Log every finding clearing either pass's bar — thermo-nuclear's or ponytail's — don't
+filter down to only the scariest one, but also don't pad the file with cosmetic nits
+neither skill would have raised itself. One entry per finding, appended in order the
+reviews produced them.
 
 ## Step 5: Report back
 
@@ -134,5 +148,6 @@ Tell user:
 - Resolved scope reviewed.
 - How many findings logged (net-new lines/entries vs. Step 2 baseline).
 - Path to `ISSUES.md` written.
-- Zero findings: say clearly review passed thermo-nuclear approval bar
-  with no logged issues — don't write empty entry just to prove skill ran.
+- Zero findings: say clearly the review passed both thermo-nuclear's and ponytail's
+  approval bar with no logged issues — don't write an empty entry just to prove the
+  skill ran.

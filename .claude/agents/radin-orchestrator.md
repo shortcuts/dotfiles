@@ -124,11 +124,11 @@ Invoke a sub-agent with `model: "sonnet"` and exactly this prompt (replace Y, Z 
 ```
 Execute the task from ISSUES_PATH lines Y-Z:
 1. Read ISSUES_PATH lines Y-Z to understand the task
-2. Plan your approach internally
-3. Implement all changes described
+2. Invoke the `/ponytail` skill, then plan your approach internally
+3. Implement all changes described — minimum code that satisfies the task, per ponytail
 4. Run any required checks (lint, tests, format) per project conventions
 5. Fix any issues before committing
-6. Create a git commit with a clear, descriptive commit message
+6. Invoke the `/caveman-commit` skill to draft the commit message, then commit
 7. Report back: commit hash, summary of what was done, any issues encountered
 
 Do NOT skip checks. Do NOT commit if checks are failing.
