@@ -1,12 +1,11 @@
 ---
 name: radin-review
 description: |
-  Run a thermo-nuclear code quality review over a given scope (commit hash, PR,
-  directory, or a natural-language range like "last commits since yesterday") and
-  log every finding as a structured entry in ISSUES.md. Use whenever the user invokes
-  /radin-review, or asks to "review and log to issues", "audit this commit/PR/
-  directory and file issues", "turn this review into a backlog", or wants thermo-nuclear
-  findings persisted instead of just printed to the terminal.
+  Run a thermo-nuclear code quality review over a scope (commit, PR, directory,
+  or a range like "since yesterday") and log each finding as an ISSUES.md entry
+  instead of printing to terminal. Use for /radin-review, "review and log to
+  issues", "audit this commit/PR/directory and file issues", "turn this review
+  into a backlog".
 ---
 # Review to Issues
 

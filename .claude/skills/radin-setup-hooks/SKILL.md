@@ -1,6 +1,6 @@
 ---
 name: radin-setup-hooks
-description: Wire up per-repo hooks/MCP config for radin's companion tools (currently code-review-graph) in the current repository. Use when the user asks to "set up hooks", "wire up code-review-graph", "enable the knowledge graph here", or after running radin's install.sh in a new project and wanting its companion tools active in this repo.
+description: Wire up per-repo hooks/MCP config for radin's companion tools (code-review-graph). Use for "set up hooks", "wire up code-review-graph", "enable the knowledge graph here", or right after install.sh in a new project.
 ---
 # radin: Set Up Companion-Tool Hooks
 

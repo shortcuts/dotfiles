@@ -1,6 +1,6 @@
 ---
 name: radin-update
-description: Refresh radin's agents/skills in ~/.claude/ from the latest published release (or main) by re-running install.sh, overwriting what's there. Use when the user asks to "update radin", "pull the latest radin", "reinstall radin", or runs /radin-update.
+description: Refresh radin's agents/skills in ~/.claude/ by re-running install.sh (latest release or main), overwriting what's there. Use for "update radin", "pull the latest radin", "reinstall radin", /radin-update.
 ---
 # radin: Update
 

@@ -1,16 +1,12 @@
 ---
 name: radin-record
 description: |
-  Capture feedback, bugs, follow-ups, or ideas that surface mid-session and log
-  them as structured entries in the current project's ISSUES.md — so nothing
-  a user raises in conversation gets lost once the session ends. Use whenever
-  the user invokes /radin-record, or asks to "log this to ISSUES.md", "add
-  this as a follow-up/bug/idea", "record what we just found", "note this for
-  later", "add the findings to the backlog", or otherwise wants something said
-  in the conversation turned into a durable backlog entry instead of staying
-  buried in chat history. Trigger even when the user's instruction is vague
-  ("add the findings") — that means scan the whole session, not just the
-  literal argument text.
+  Log feedback, bugs, follow-ups, or ideas raised mid-session as structured
+  ISSUES.md entries, so they survive past the conversation. Use for
+  /radin-record, "log this to ISSUES.md", "add as follow-up/bug/idea",
+  "record what we just found", "note this for later", "add findings to
+  backlog". Triggers even on vague asks ("add the findings") — scan the
+  whole session, not just the literal text.
 ---
 # Record to Issues
 
