@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 MODE=$1
 
 if [[ $MODE != "setup" ]]; then
@@ -68,12 +70,13 @@ brew install --cask font-lilex-nerd-font
 
 # fish as default shell
 if [[ $MODE == "setup" ]]; then
-    echo $(which fish) | sudo tee -a /etc/shells
-    chsh -s $(which fish) || true
+    which fish | sudo tee -a /etc/shells
+    chsh -s "$(which fish)" || true
     fish || true
-    fish_add_path $(which brew)
+    fish_add_path "$(which brew)"
 
     # fish plugin manager
+    # shellcheck disable=SC1090
     curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
 
     fisher install jorgebucaran/nvm.fish # node version manager
@@ -138,6 +141,7 @@ bob use latest
 
 # setup fzf
 if [[ $MODE == "setup" ]]; then
+    # shellcheck disable=SC1090
     fzf --fish | source
 fi
 

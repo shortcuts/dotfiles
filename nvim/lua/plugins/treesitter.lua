@@ -1,60 +1,60 @@
 -- copied from https://github.com/ThePrimeagen/init.lua/blob/8905e229b3c002a020dce8eb88376a9f6c5181b3/lua/theprimeagen/lazy/treesitter.lua#L4
 return {
-	{
-        'nvim-treesitter/nvim-treesitter',
-        dependencies = { 'neovim-treesitter/treesitter-parser-registry' },
-		build = ":TSUpdate",
-		lazy = false,
+    {
+        "nvim-treesitter/nvim-treesitter",
+        dependencies = { "neovim-treesitter/treesitter-parser-registry" },
+        build = ":TSUpdate",
+        lazy = false,
         branch = "main",
-		init = function()
-			local parsers = {
-				"bash",
-				"css",
-				"gitignore",
-				"go",
-				"html",
-				"javascript",
-				"json",
-				"kotlin",
-				"lua",
-				"make",
-				"python",
-				"query",
-				"rust",
-				"sql",
-				"terraform",
-				"tsx",
-				"typescript",
-				"vim",
-				"vimdoc",
-				"yaml",
-			}
+        init = function()
+            local parsers = {
+                "bash",
+                "css",
+                "gitignore",
+                "go",
+                "html",
+                "javascript",
+                "json",
+                "kotlin",
+                "lua",
+                "make",
+                "python",
+                "query",
+                "rust",
+                "sql",
+                "terraform",
+                "tsx",
+                "typescript",
+                "vim",
+                "vimdoc",
+                "yaml",
+            }
 
-			local group = vim.api.nvim_create_augroup("ShortcutsTreesitter", { clear = true })
-			vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
-				group = group,
-				callback = function()
-					if vim.bo.buftype ~= "" then
-						return
-					end
+            local group = vim.api.nvim_create_augroup("ShortcutsTreesitter", { clear = true })
+            vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
+                group = group,
+                callback = function()
+                    if vim.bo.buftype ~= "" then
+                        return
+                    end
 
-					pcall(vim.treesitter.start, 0)
-				end,
-			})
+                    pcall(vim.treesitter.start, 0)
+                end,
+            })
 
-			vim.api.nvim_create_autocmd("User", {
-				group = group,
-				pattern = "VeryLazy",
-				once = true,
-				callback = function()
+            vim.api.nvim_create_autocmd("User", {
+                group = group,
+                pattern = "VeryLazy",
+                once = true,
+                callback = function()
                     require("nvim-treesitter").install(parsers)
-				end,
-			})
-		end,
-	},
+                end,
+            })
+        end,
+    },
     {
         "nvim-treesitter/nvim-treesitter-context",
-        dependencies = { 'nvim-treesitter/nvim-treesitter' },
+        dependencies = { "nvim-treesitter/nvim-treesitter" },
         event = "BufReadPre",
         opts = {
             max_lines = 2,
