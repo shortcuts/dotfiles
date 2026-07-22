@@ -1,0 +1,3 @@
+interface:
+  display_name: "radin: Setup Hooks"
+  short_description: "Wire up per-repo hooks and MCP config for radin's companion tools"

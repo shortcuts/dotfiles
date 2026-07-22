@@ -1,0 +1,3 @@
+interface:
+  display_name: "radin: Plan"
+  short_description: "Write a step-by-step implementation plan for one backlog entry"

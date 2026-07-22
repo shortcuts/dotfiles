@@ -1,0 +1,3 @@
+interface:
+  display_name: "radin: Review"
+  short_description: "Run a code quality review and log findings to BACKLOG.md"

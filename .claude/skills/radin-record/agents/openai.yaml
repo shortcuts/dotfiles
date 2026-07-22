@@ -1,0 +1,3 @@
+interface:
+  display_name: "radin: Record"
+  short_description: "Log feedback, bugs, or ideas as structured BACKLOG.md entries"

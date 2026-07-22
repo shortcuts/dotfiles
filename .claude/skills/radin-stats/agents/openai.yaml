@@ -1,0 +1,3 @@
+interface:
+  display_name: "radin: Stats"
+  short_description: "Show stats/gain output from every installed companion tool"
