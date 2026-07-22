@@ -3,7 +3,8 @@ name: release-candidate
 description: |
   Audit the main branch to determine if the repository is ready for a new release.
   Runs build/lint/test checks, audits documentation consistency against changes since
-  the last release, and logs every failure to ISSUES.md. Returns a clear go/no-go verdict.
+  the last release, and logs every failure via radin-record to radin's BACKLOG.md.
+  Returns a clear go/no-go verdict.
 
   Use this skill whenever the user wants to:
   - Check if the codebase is release-ready
@@ -15,18 +16,28 @@ description: |
 
 # Release Candidate Auditor
 
-Perform a structured go/no-go audit for a release. Every failure is logged to `ISSUES.md`
-with enough detail that a developer can act on it without re-running the audit.
+Perform a structured go/no-go audit for a release. Every failure is logged, via the
+`radin-record` skill, as an entry in radin's `BACKLOG.md` with enough detail that a
+developer can act on it without re-running the audit. Never append to `BACKLOG.md`
+directly — `radin-record` is the only writer, so route every finding through it.
 
 ---
 
 ## Step 0: Baseline
 
-Before doing anything, record the current ISSUES.md line count so you can detect net-new
-entries at the end:
+Resolve radin's per-project namespace and locate `BACKLOG_FILE` — the same shared
+resolution every radin skill/agent uses, never a repo-root file. This is read-only here;
+it's only used to count entries before/after, not to write:
 
 ```bash
-wc -l ISSUES.md 2>/dev/null || echo "0"
+bash "$HOME/.claude/radin-lib/radin-namespace.sh"
+```
+
+Read `BACKLOG_FILE` from its output. Record the current entry count so you can detect
+net-new entries at the end:
+
+```bash
+grep -c '^### ' "$BACKLOG_FILE" 2>/dev/null || echo "0"
 ```
 
 Also identify the last release tag so you know which commits are "since last release":
@@ -48,18 +59,10 @@ make lint   2>&1
 make build  2>&1
 ```
 
-For each failure, append to `ISSUES.md`:
+For each failure, invoke `radin-record` with an item along these lines:
 
-```
-## [Release Audit] Build pipeline failure — <step>
-
-**Step:** `make <step>`
-**Exit code:** <N>
-**Output:**
-```
-<relevant tail of output — last 30 lines>
-```
-```
+> Log a fix: build pipeline failure in `make <step>`. Exit code <N>. Output:
+> <relevant tail of output — last 30 lines>
 
 If all three pass, say so clearly and continue.
 
@@ -73,15 +76,9 @@ Run unit tests:
 make test 2>&1
 ```
 
-On failure, log to ISSUES.md:
+On failure, invoke `radin-record`:
 
-```
-## [Release Audit] Unit tests failed
-
-**Command:** `make test`
-**Failures:**
-<paste the failing test names / error summary>
-```
+> Log a fix: `make test` failed. Failures: <paste the failing test names / error summary>
 
 **Smoke tests (Android device):** Check for a connected device:
 
@@ -92,15 +89,9 @@ adb devices 2>/dev/null | grep -v "List of devices" | grep -v "^$"
 If a device appears, ask the user: "A device is connected — do you want to run smoke tests
 (`make smoke-test`)? They cover all navigation paths and take a few minutes."
 
-If the user says yes, run `make smoke-test 2>&1`. On failure, log to ISSUES.md:
+If the user says yes, run `make smoke-test 2>&1`. On failure, invoke `radin-record`:
 
-```
-## [Release Audit] Smoke tests failed
-
-**Command:** `make smoke-test`
-**Failing tests:**
-<paste failing test names>
-```
+> Log a fix: `make smoke-test` failed. Failing tests: <paste failing test names>
 
 ---
 
@@ -134,21 +125,11 @@ looking for:
 - Docs that describe old behavior (e.g., references to removed fields, old flow descriptions)
 - New constants, services, or domain models in AGENTS.md that aren't documented
 
-For each gap found, log to ISSUES.md:
+For each gap found, invoke `radin-record`:
 
-```
-## [Release Audit] Documentation gap — <feature area>
-
-**Changed source files:**
-- <path>
-- <path>
-
-**Documentation gap:**
-<describe what's missing or stale — be specific enough that the writer knows exactly
-what to add/update>
-
-**Relevant doc file:** <path>
-```
+> Log a fix: documentation gap in <feature area>. Changed source files: <paths>.
+> Gap: <describe what's missing or stale — be specific enough that the writer knows
+> exactly what to add/update>. Relevant doc file: <path>.
 
 ### 3c. Check AGENTS.md domain model accuracy
 
@@ -161,17 +142,17 @@ Specifically verify:
 
 ## Step 4: Intermediate verdict
 
-Count net-new items added to ISSUES.md during this audit:
+Count net-new items added to `BACKLOG_FILE` during this audit:
 
 ```bash
-wc -l ISSUES.md
+grep -c '^### ' "$BACKLOG_FILE"
 ```
 
 Compare to the baseline from Step 0.
 
 **If new items were added**, stop here and report:
 
-> ❌ Release is NOT ready. N issue(s) were logged to ISSUES.md during this audit.
+> ❌ Release is NOT ready. N issue(s) were logged to the backlog during this audit.
 > Resolve them before tagging a release.
 >
 > Issues logged:
@@ -192,31 +173,22 @@ Get the commit range:
 git log <last-release-tag>..HEAD --oneline
 ```
 
-Invoke the `/thermo-nuclear` skill with this scope:
+Invoke the `radin-review` skill with this scope — it runs the thermo-nuclear review and
+logs each finding as its own backlog entry itself, so no separate `radin-record` call is
+needed here:
 
 > Review all commits since `<last-release-tag>` (`git diff <last-release-tag> HEAD`).
-> Apply the full thermo-nuclear standards.
+> Apply the full thermo-nuclear standards and log findings to the backlog.
 
-For every finding the thermo-nuclear review surfaces, append to `ISSUES.md`:
-
-```
-## [Release Audit] Code quality — <short title>
-
-**Scope:** commits since `<last-release-tag>`
-**Finding:**
-<paste the finding — be specific: file, function, the structural problem, and the
-preferred remedy>
-```
-
-Only log findings that meet the thermo-nuclear approval bar (structural regressions,
-missed code-judo opportunities, spaghetti growth, bad abstractions, file-size explosions).
-Do not log cosmetic nits.
+Only findings that meet the thermo-nuclear approval bar (structural regressions, missed
+code-judo opportunities, spaghetti growth, bad abstractions, file-size explosions) should
+get logged. Cosmetic nits should not.
 
 ---
 
 ## Step 6: Final verdict
 
-Count net-new items added to ISSUES.md (compare to baseline from Step 0 again).
+Count net-new items added to `BACKLOG_FILE` (compare to baseline from Step 0 again).
 
 **If no new items were added across Steps 1–5:**
 
@@ -227,7 +199,7 @@ Then do Step 7 (changelog recommendation) below before finishing.
 
 **If new items were added:**
 
-> ❌ Release is NOT ready. N issue(s) were logged to ISSUES.md during this audit.
+> ❌ Release is NOT ready. N issue(s) were logged to the backlog during this audit.
 > Resolve them before tagging a release.
 >
 > Issues logged:
@@ -247,8 +219,8 @@ Tell the user, verbatim in substance:
 > automatically (title `chore(main): release <version>`) once these commits land on
 > `main`, and its body is the authoritative source list for the changelog entry.
 
-How to generate it (record this in ISSUES.md as a `[Release Audit] Next step` note, not a
-failure — it's an action item, not a defect):
+How to generate it (invoke `radin-record` to log this as a chore "next step" note, not a
+fix — it's an action item, not a defect):
 
 1. Diff commits since the last release tag: `git log <last-release-tag>..HEAD --oneline`,
    or once the release-please PR exists, read its body directly
@@ -265,16 +237,13 @@ failure — it's an action item, not a defect):
 5. Cross-check the final bullet list against the release-please PR body to make sure
    nothing user-visible was dropped.
 
-Append to `ISSUES.md`:
+Invoke `radin-record`:
 
-```
-## [Release Audit] Next step — generate changelog for <version>
-
-Release checks passed. Generate `docs/wiki/changelog.html` entry for <version> before
-tagging. Source: `git log <last-release-tag>..HEAD` and/or the release-please PR body
-once it opens (title `chore(main): release <version>`). See release-candidate SKILL.md
-Step 7 for the full procedure.
-```
+> Log a chore: generate changelog for <version>. Release checks passed. Generate
+> `docs/wiki/changelog.html` entry for <version> before tagging. Source:
+> `git log <last-release-tag>..HEAD` and/or the release-please PR body once it opens
+> (title `chore(main): release <version>`). See release-candidate SKILL.md Step 7 for the
+> full procedure.
 
 This note does not flip the verdict to ❌ — it's logged for traceability only.
 
@@ -287,5 +256,5 @@ This note does not flip the verdict to ❌ — it's logged for traceability only
 - The doc consistency check is a judgment call — use the feature docs in `docs/features/`
   as the expected baseline. If a doc exists and covers the change, it passes. If no doc
   exists for a user-visible feature, that's a gap.
-- Don't add cosmetic or nitpick items to ISSUES.md — only gaps that would confuse a
+- Don't add cosmetic or nitpick items to the backlog — only gaps that would confuse a
   developer or leave a user feature undocumented.

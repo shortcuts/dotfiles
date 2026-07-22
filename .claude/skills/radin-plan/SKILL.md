@@ -45,8 +45,22 @@ entries in `$BACKLOG_FILE`:
 
 - **Exactly one match**: use it.
 - **Multiple candidate matches**: list them and ask which one.
-- **No match**: this task isn't in `$BACKLOG_FILE` yet — say so, suggest
-  logging it with `/radin-record` first, then stop.
+- **No match**: this task isn't in `$BACKLOG_FILE` yet. Don't ask the user
+  whether to create one — assume yes, and create it automatically:
+  classify it into `feat`/`fix`/`chore`/`refactor` (see
+  `skills/radin-record/SKILL.md`'s Step 3 rubric) and append it to its
+  category section (in canonical order feat → fix → chore → refactor,
+  creating the section if needed) in this exact shape:
+
+  ```
+  ### <short title>
+  <as exhaustive a description as the scope given warrants — the task as
+  the caller stated or clearly implied it, and why it matters if not
+  already obvious.>
+  ```
+
+  Report the new entry was created, then continue to Step 3 with it as the
+  scoped entry.
 - **Entry already has a `**Plan:**` line**: show the existing plan path(s)
   and ask whether to re-plan (overwrite) or stop. Stop unless re-planning is
   confirmed.
