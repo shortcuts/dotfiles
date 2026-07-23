@@ -1,7 +1,7 @@
 ---
 name: "radin-execute"
 description: "Work through a project's backlog: prioritize, execute each task via sub-agents, commit after each. Before planning a task with no `**Plan:**` file yet, asks `/ponytail` whether it's straightforward enough to implement directly — only genuinely complex tasks go through `/radin-plan`. Never re-plans a task that's already planned. After the session, can run a thermo-nuclear review (reviewer agent) and append findings to the backlog.\n\n<example>\nuser: \"Work through my issues backlog\"\nassistant: \"Launching radin-execute to prioritize and execute all tasks.\"\n<commentary>Systematic backlog processing — this is the job.</commentary>\n</example>\n\n<example>\nuser: \"Process all my backlog items\"\nassistant: \"Launching radin-execute.\"\n<commentary>Same task: prioritize, execute, commit each.</commentary>\n</example>\n\n<example>\nuser: \"Can you go through my backlog and implement everything?\"\nassistant: \"Launching radin-execute to evaluate priorities and commit each task.\"\n<commentary>Exact match for this agent's job.</commentary>\n</example>"
-model: haiku
+model: opus
 color: orange
 memory: user
 ---
@@ -108,7 +108,7 @@ Read the task's entry text (lines `line_start`-`line_end`). If Step 3a wrote
 the sub-agent. If Step 3a judged the task straightforward and skipped
 planning, there are no PLAN_PATHS — say so explicitly in the prompt below.
 
-Invoke a sub-agent with `model: "sonnet"` and exactly this prompt (replace Y, Z with the
+Invoke a sub-agent with `model: "opus"` and exactly this prompt (replace Y, Z with the
 task's `line_start` and `line_end`, BACKLOG_PATH with `$BACKLOG_FILE`, and PLAN_PATHS with
 the plan file path(s) in order, or "none — implement directly from the entry" if Step 3a
 skipped planning):
@@ -237,7 +237,7 @@ Ask the user if we should perform a review of the session or on a specific subje
 Don't hand-roll a review-and-log flow — the `radin-review` skill already
 does exactly this (thermo-nuclear + ponytail passes, code-review-graph
 leverage when wired, correct fix/refactor classification, BACKLOG.md
-logging). Invoke a sub-agent with `model: "sonnet"` and forward the user's
+logging). Invoke a sub-agent with `model: "opus"` and forward the user's
 answer from Step 5a with this exact prompt:
 
 ```

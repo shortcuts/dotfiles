@@ -77,10 +77,6 @@ fish/fish_variables*
 STL/**/.omc/
 
 # ai takeover
-!opencode/
-opencode/*
-!opencode/oh-my-openagent.json
-!opencode/.gitignore
 !.claude/
 !.claude/settings.json
 !.claude/CLAUDE.md

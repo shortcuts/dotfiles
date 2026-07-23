@@ -37,7 +37,6 @@ The `.gitignore` uses a whitelist approach: it ignores everything (`*`) then sel
 | btop | `btop/btop.conf` |
 | borders | `borders/bordersrc` |
 | mise (language versions) | `mise/` |
-| opencode | `opencode/oh-my-openagent.json` |
 | Claude Code (settings, skills) | `.claude/` → symlinked from `~/.claude` |
 
 ## Neovim / tmux

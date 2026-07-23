@@ -69,7 +69,12 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
+<<<<<<< HEAD
   "model": "haiku",
+||||||| parent of 43bc49c (chore: remove oc)
+  "model": "sonnet",
+=======
+>>>>>>> 43bc49c (chore: remove oc)
   "hooks": {
     "PreToolUse": [
       {
