@@ -21,18 +21,19 @@ code-review finding — things a human said, not things a diff revealed.
 
 Radin never writes backlog/state files into the target repo. Run the shared
 namespace-resolution script — the single source of truth for this logic,
-shared by every radin agent/skill — and read `REPO_ROOT`, `NAMESPACE_DIR`, and
-`BACKLOG_FILE` from its output:
+shared by every radin agent/skill:
 
 ```bash
-bash "$HOME/.claude/radin-lib/radin-namespace.sh"
+source <(bash "$HOME/.claude/radin-lib/radin-namespace.sh" | sed 's/^/export /')
 ```
 
 This creates `$NAMESPACE_DIR/state`, `$NAMESPACE_DIR/plans`, and
 `$NAMESPACE_DIR/reviews`, and best-effort upserts `registry.json` (a skipped
-upsert never blocks `$BACKLOG_FILE` from being written correctly). Use the
-printed `REPO_ROOT` / `NAMESPACE_DIR` / `BACKLOG_FILE` values for the rest of
-this session.
+upsert never blocks `$BACKLOG_FILE` from being written correctly). `$REPO_ROOT`,
+`$NAMESPACE_DIR`, `$BACKLOG_FILE` are real shell variables only within the
+Bash call that ran this `source` line — shell state does not persist between
+separate Bash tool calls, so re-run this line in any later call before using
+them again.
 
 ## Step 2: Decide what to log
 

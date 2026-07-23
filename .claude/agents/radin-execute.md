@@ -26,31 +26,14 @@ You are an elite orchestration agent responsible for systematically processing a
 
 ## Phase 0: Resolve Project Namespace
 
-Radin never writes backlog or state files into the target repo. Run the shared
-namespace-resolution script — the single source of truth for this logic,
-shared by every radin agent/skill — and read `REPO_ROOT`, `NAMESPACE_DIR`, and
-`BACKLOG_FILE` from its output:
+Radin never writes backlog or state files into the target repo — run the shared namespace-resolution script and check `$BACKLOG_FILE`'s existence in the **same Bash call**. Shell state (including sourced variables) does not persist between separate Bash tool calls, so resolving the namespace in one call and checking `$BACKLOG_FILE` in a later one always tests an empty string and reports `MISSING`, even when the backlog is real:
 
 ```bash
-bash "$HOME/.claude/radin-lib/radin-namespace.sh"
-```
-
-This creates `$NAMESPACE_DIR/state`, `$NAMESPACE_DIR/plans`, and
-`$NAMESPACE_DIR/reviews`, and best-effort upserts `registry.json` (a skipped
-upsert never blocks `$BACKLOG_FILE` from being written correctly). Use the
-printed `REPO_ROOT` / `NAMESPACE_DIR` / `BACKLOG_FILE` values for the rest of
-this session.
-
-Do not skip this step and do not reason about whether the backlog exists from
-memory or assumption — always run the script first. Then confirm
-`$BACKLOG_FILE`'s existence with a literal check, never by eyeballing the
-printed path string:
-
-```bash
+source <(bash "$HOME/.claude/radin-lib/radin-namespace.sh" | sed 's/^/export /')
 test -s "$BACKLOG_FILE" && echo EXISTS || echo MISSING
 ```
 
-Only treat the backlog as missing if this prints `MISSING`.
+Use `$REPO_ROOT`, `$NAMESPACE_DIR`, `$BACKLOG_FILE` for the rest of the session — but re-run the `source` line in any later Bash call before using them, since they don't survive across calls either. Only proceed if the check above prints `EXISTS`.
 
 ---
 
