@@ -19,21 +19,17 @@ code-review finding — things a human said, not things a diff revealed.
 
 ## Step 1: Resolve project namespace, locate BACKLOG_FILE
 
-Radin never writes backlog/state files into the target repo. Run the shared
-namespace-resolution script — the single source of truth for this logic,
-shared by every radin agent/skill:
+All radin state for a project lives inside that project's repo, in
+`.claude/.radin/` at the repo root (example: repo `/Users/x/proj` →
+`/Users/x/proj/.claude/.radin/BACKLOG.md`). Do not compute this path
+yourself — run the shared namespace-resolution script and read `REPO_ROOT`,
+`NAMESPACE_DIR`, `BACKLOG_FILE` from its output:
 
 ```bash
-source <(bash "$HOME/.claude/radin-lib/radin-namespace.sh" | sed 's/^/export /')
+bash "$HOME/.claude/radin-lib/radin-namespace.sh"
 ```
 
-This creates `$NAMESPACE_DIR/state`, `$NAMESPACE_DIR/plans`, and
-`$NAMESPACE_DIR/reviews`, and best-effort upserts `registry.json` (a skipped
-upsert never blocks `$BACKLOG_FILE` from being written correctly). `$REPO_ROOT`,
-`$NAMESPACE_DIR`, `$BACKLOG_FILE` are real shell variables only within the
-Bash call that ran this `source` line — shell state does not persist between
-separate Bash tool calls, so re-run this line in any later call before using
-them again.
+Re-run this line in any later Bash call before using these variables.
 
 ## Step 2: Decide what to log
 

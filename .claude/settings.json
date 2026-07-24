@@ -69,7 +69,7 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "sonnet",
+  "model": "haiku",
   "hooks": {
     "PreToolUse": [
       {

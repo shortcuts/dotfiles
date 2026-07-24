@@ -40,3 +40,16 @@ Print each tool's output under its own heading, in the order above. Label
 which are real-measured (caveman-stats, ponytail-debt, rtk gain) vs.
 fixed-benchmark (ponytail-gain) so the user doesn't mistake one for the
 other. Do not add a combined total row.
+
+## Guardrails
+
+- Never compute or print a combined/merged total across tools — their units
+  are incompatible (real per-session tokens vs. static benchmark medians vs.
+  a counted per-repo ledger).
+- Skip a source silently if its command isn't installed; don't error.
+
+## Output
+
+Each installed tool's own stats output, printed under its own heading, in
+the fixed order from Step 1. Each heading labeled real-measured or
+fixed-benchmark.

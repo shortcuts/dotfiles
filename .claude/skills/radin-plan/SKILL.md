@@ -20,20 +20,19 @@ conversation instead of being decided out of sight.
 
 ## Step 1: Resolve project namespace, locate BACKLOG_FILE
 
-Radin never writes backlog/state files into the target repo. Run the shared
-namespace-resolution script — the single source of truth for this logic,
-shared by every radin agent/skill:
+All radin state for a project lives inside that project's repo, in
+`.claude/.radin/` at the repo root (example: repo `/Users/x/proj` →
+`/Users/x/proj/.claude/.radin/BACKLOG.md`). Do not compute this path
+yourself — run the shared namespace-resolution script and read `REPO_ROOT`,
+`NAMESPACE_DIR`, `BACKLOG_FILE` from its output:
 
 ```bash
-source <(bash "$HOME/.claude/radin-lib/radin-namespace.sh" | sed 's/^/export /')
+bash "$HOME/.claude/radin-lib/radin-namespace.sh"
 ```
 
 This creates `$NAMESPACE_DIR/state`, `$NAMESPACE_DIR/plans`, and
-`$NAMESPACE_DIR/reviews`, and best-effort upserts `registry.json`. `$REPO_ROOT`,
-`$NAMESPACE_DIR`, `$BACKLOG_FILE` are real shell variables only within the
-Bash call that ran this `source` line — shell state does not persist between
-separate Bash tool calls, so re-run this line in any later call before using
-them again.
+`$NAMESPACE_DIR/reviews`. Re-run this line in any later Bash call before
+using these variables.
 
 ## Step 2: Resolve the task scope
 
@@ -97,7 +96,11 @@ For each sub-task, in order:
    from a split, its scope is only the one-line description recorded in
    Step 3 — plan just that part.
 2. Explore the codebase as needed: current structure, affected files,
-   existing patterns, constraints.
+   existing patterns, constraints. If `code-review-graph` is installed and wired
+   for this repo, use its MCP tools (`semantic_search_nodes`, `get_impact_radius`,
+   `query_graph`) before Grep/Glob/Read — token-efficient structural context beats
+   cold file scanning. When running commands, prefer `rtk`-wrapped commands if
+   `command -v rtk` succeeds for token savings.
 3. Invoke the `/ponytail` skill, then apply its ladder to produce the plan:
    - The minimum files to touch — no speculative scope.
    - The concrete change in each file.

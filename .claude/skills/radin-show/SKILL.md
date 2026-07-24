@@ -13,12 +13,12 @@ skill/agent does this; `radin-record`/`radin-review` write to it,
 
 ## Step 1: Resolve project namespace, locate BACKLOG_FILE
 
-Radin never writes backlog/state files into the target repo. Run the shared
-namespace-resolution script — the single source of truth for this logic,
-shared by every radin agent/skill — and check/print `$BACKLOG_FILE` in the
-**same Bash call**. Shell state does not persist between separate Bash tool
-calls, so resolving the namespace in one call and using `$BACKLOG_FILE` in a
-later one would use an empty path:
+All radin state for a project lives inside that project's repo, in
+`.claude/.radin/` at the repo root (example: repo `/Users/x/proj` →
+`/Users/x/proj/.claude/.radin/BACKLOG.md`). Do not compute this path
+yourself — run the shared namespace-resolution script and read `REPO_ROOT`,
+`NAMESPACE_DIR`, `BACKLOG_FILE` from its output in the **same Bash call**
+(shell state doesn't persist between separate calls):
 
 ```bash
 source <(bash "$HOME/.claude/radin-lib/radin-namespace.sh" | sed 's/^/export /')
@@ -36,4 +36,15 @@ summarizing, reordering, or filtering. If the user's request narrowed scope
 (e.g. "show me the fix items", "just the open bugs"), filter to the matching
 `## <category>` section(s) instead of the whole file, but default to the
 whole file when they didn't ask for a subset.
+
+## Guardrails
+
+- Read-only — never writes to `$BACKLOG_FILE` or creates it if missing.
+- No summarizing/reordering/filtering unless the user's request narrowed
+  scope.
+
+## Output
+
+Full contents of `$BACKLOG_FILE` (or the matching `## <category>`
+section(s) if scope was narrowed), printed as-is.
 </content>
