@@ -69,6 +69,12 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
+<<<<<<< HEAD
+||||||| parent of 0450815 (feat: new rules of context engineering skill)
+  "model": "haiku",
+=======
+  "model": "fable",
+>>>>>>> 0450815 (feat: new rules of context engineering skill)
   "hooks": {
     "PreToolUse": [
       {

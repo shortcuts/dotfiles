@@ -1,0 +1,26 @@
+{
+  "skill_name": "new-rules-of-context-engineering-claude-5",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "bloated-claude-md",
+      "prompt": "My CLAUDE.md has grown into a mess of rules over the past year and I think it's hurting more than helping now that I'm on Claude 5. Can you apply the new context engineering rules to it? It's the CLAUDE.md in this directory.",
+      "expected_output": "Rewritten CLAUDE.md: obvious repo facts removed, ALWAYS/NEVER rules converted to judgment guidance or given reasons, conflicting comment rules resolved, db MCP tool walkthrough deleted (single-source), code review procedure moved out (progressive disclosure), manual memory ritual removed, search spec replaced with pointer to the test file. The types-in-one-file gotcha and its reason must survive. Report table with before/after and flagged items.",
+      "files": ["fixtures/bloated-claude-md/CLAUDE.md"]
+    },
+    {
+      "id": 1,
+      "eval_name": "agent-docs-directory",
+      "prompt": "Please audit docs/ against Anthropic's Claude 5 context engineering principles and fix the agent instruction files. Iterate over each file.",
+      "expected_output": "Only the three files in docs/agents/ edited; docs/README.md untouched (human-facing). Cross-file pass deduplicates the slack post_message instructions and shared deploy steps into one authoritative place, and surfaces the Friday-deploy conflict between deploy-agent.md and release-agent.md in the report rather than silently picking one. Semver explanation deleted (model already knows). The staging-shares-QA-database and bot-issue gotchas survive.",
+      "files": ["fixtures/agent-docs-dir/docs/README.md", "fixtures/agent-docs-dir/docs/agents/deploy-agent.md", "fixtures/agent-docs-dir/docs/agents/release-agent.md", "fixtures/agent-docs-dir/docs/agents/support-agent.md"]
+    },
+    {
+      "id": 2,
+      "eval_name": "single-gotcha-file-restraint",
+      "prompt": "unhobble my agent files for claude 5 — scope is just CLAUDE.md here",
+      "expected_output": "Given a CLAUDE.md that is already mostly lean gotchas, the skill makes minimal or no destructive edits, keeps every gotcha, and the report says the file is already close to the target shape instead of inventing changes.",
+      "files": ["fixtures/lean-claude-md/CLAUDE.md"]
+    }
+  ]
+}
