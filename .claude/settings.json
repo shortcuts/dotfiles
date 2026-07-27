@@ -69,17 +69,6 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
-<<<<<<< HEAD
-||||||| parent of e0f150a (fix: syntax)
-<<<<<<< HEAD
-||||||| parent of 0450815 (feat: new rules of context engineering skill)
-  "model": "haiku",
-=======
-  "model": "fable",
->>>>>>> 0450815 (feat: new rules of context engineering skill)
-=======
-  "model": "fable",
->>>>>>> e0f150a (fix: syntax)
   "hooks": {
     "PreToolUse": [
       {
