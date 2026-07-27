@@ -69,12 +69,6 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
-<<<<<<< HEAD
-||||||| parent of 0450815 (feat: new rules of context engineering skill)
-  "model": "haiku",
-=======
-  "model": "fable",
->>>>>>> 0450815 (feat: new rules of context engineering skill)
   "hooks": {
     "PreToolUse": [
       {
@@ -126,7 +120,8 @@
     "frontend-design@claude-plugins-official": true,
     "i-have-adhd@i-have-adhd": true,
     "humanizer@humanizer": true,
-    "ponytail@ponytail": true
+    "ponytail@ponytail": true,
+    "gopls-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -164,5 +159,6 @@
   "theme": "auto",
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "model": "fable"
 }

@@ -137,7 +137,7 @@ ambiguous in scope still goes through `/radin-plan`.
   `/radin-plan` in your own context. Planning explores the codebase, and
   that exploration is the biggest context bloat an orchestrator can take
   on; the plan file on disk is the only handoff the executor needs. Invoke
-  a sub-agent with `model: "sonnet"`, `run_in_background: false`, and
+  a sub-agent with `model: "opus"`, `run_in_background: false`, and
   exactly this prompt (replace TASK_TITLE with the entry's title and
   BACKLOG_PATH with `$BACKLOG_FILE`):
 
@@ -186,7 +186,7 @@ all PLAN_PATHs, in the order they appear, to the sub-agent. If Step 3a
 judged the task straightforward and skipped planning, there are no
 PLAN_PATHS — say so explicitly in the prompt below.
 
-Invoke a sub-agent with `model: "sonnet"`, `run_in_background: false`, and exactly this prompt (replace Y, Z with the
+Invoke a sub-agent with `model: "opus"`, `run_in_background: false`, and exactly this prompt (replace Y, Z with the
 task's `line_start` and `line_end`, BACKLOG_PATH with `$BACKLOG_FILE`, and PLAN_PATHS with
 the plan file path(s) in order, or "none — implement directly from the entry" if Step 3a
 skipped planning):
@@ -364,7 +364,7 @@ the prompt that invoked you:
 Don't hand-roll a review-and-log flow — the `radin-review` skill already
 does exactly this (thermo-nuclear + ponytail passes, code-review-graph
 leverage when wired, correct fix/refactor classification, BACKLOG.md
-logging). Invoke a sub-agent with `model: "sonnet"`,
+logging). Invoke a sub-agent with `model: "opus"`,
 `run_in_background: false`, and this exact prompt:
 
 ```

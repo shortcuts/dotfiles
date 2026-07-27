@@ -15,12 +15,25 @@ Read `references/principles.md` before editing anything. It contains the six
 shifts, the per-file-type guidance, and the audit checklist you apply to each
 file.
 
+Two modes: by default, audit **and** rewrite. If the user asks only whether
+there are improvements to make ("audit", "check", "review"), run steps 1–3
+without editing and deliver the step 4 report as findings with proposed
+changes instead of applied ones.
+
+(Claude Code's built-in `/doctor` does a quick automatic rightsizing of
+skills and CLAUDE.md; this skill is the thorough, reviewable version — use it
+when the user wants an audit trail or a whole-repo pass.)
+
 ## Step 1: Resolve the scope
 
-The user gives a scope: a single file, a directory, or a whole repo. Find the
-agentic files in it — files written to instruct an AI agent, not humans:
+The user gives a scope: a single file, a directory, or a whole repo. For a
+repo, sweep the full tree (`git ls-files` filtered to the names below —
+nested `subdir/CLAUDE.md` files count and are often the right pattern, not a
+smell). Find the agentic files — files written to instruct an AI agent, not
+humans:
 
 - `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.github/copilot-instructions.md`
+  — at any depth, not just the repo root
 - `SKILL.md` and skill reference files under `.claude/skills/` or `skills/`
 - Agent/subagent definitions (`.claude/agents/*.md`)
 - Files in a given `docs/` scope that are addressed to an agent (say "you",

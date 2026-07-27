@@ -1,7 +1,9 @@
 # Claude 5 Context Engineering Principles
 
-Source: Anthropic, "The New Rules of Context Engineering for Claude 5
-Generation Models" (claude.com/blog).
+Source: Thariq Shihipar (Anthropic, Claude Code team), "The new rules of
+context engineering for Claude 5 generation models" —
+https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models
+(also published at https://x.com/trq212/article/2080710971228918066).
 
 Core insight: Claude 5 generation models (Fable 5, Opus 5) need fewer
 constraints and apply judgment from surrounding context. Anthropic removed
@@ -47,8 +49,16 @@ Don't load everything into the primary file. Load context when needed:
   relevant.
 - Split long skills into a lean SKILL.md plus reference files, with clear
   pointers on when to read each.
+- Prefer a tree of CLAUDE.md files loaded at the right time (a nested
+  `subdir/CLAUDE.md` for subsystem conventions) over one monolithic root
+  file.
 - Keep the always-loaded layer (CLAUDE.md, skill descriptions) small; let
   the model pull depth on demand.
+
+The same principle applies to tools: large MCP tool sets can use deferred
+loading, where the agent fetches full definitions via ToolSearch only when
+needed. If an agent doc inlines full tool schemas or long MCP tool tables,
+that is upfront context to defer.
 
 ### 4. Repetition → Single-source tool descriptions
 
@@ -76,7 +86,8 @@ Prefer, and recommend converting to:
 - Actual code implementations to port or match
 - HTML mockups/artifacts instead of prose UI descriptions
 - Test suites that define expected behavior
-- Rubrics encoding taste/standards (usable by verification agents)
+- Rubrics encoding taste/standards (e.g. what good API design looks like) —
+  verifier agents can apply them in dynamic workflows
 
 Rewrite pattern: when an agent doc describes behavior that a test, mockup, or
 reference implementation in the repo already defines, replace the prose with
@@ -124,6 +135,9 @@ descriptions, implementations over screenshots.
    to the artifact.
 9. **Example walls**: long example lists where an interface or schema already
    communicates the pattern (shift 2). Trim to the non-obvious cases.
+10. **Inlined tool schemas**: full tool/MCP definitions or long tool tables
+    pasted into an agent doc (shifts 3+4). Delete — the tool documents
+    itself, and deferred loading fetches definitions on demand.
 
 For every cut, apply the two override rules from SKILL.md: preserve hard-won
 knowledge, and cut only what the model can recover elsewhere.
