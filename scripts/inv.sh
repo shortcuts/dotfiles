@@ -1,10 +1,29 @@
 #!/usr/bin/env bash
 
-banners=(kanto johto hoenn sinnoh unys kalos alola galar paldea)
+banners=(kanto johto hoenn)
 cookie=''
 
 count=${1:-100}
 floor=${2:-4000000000}
+seen_file="$(dirname "$0")/.seen_shinies"
+touch "$seen_file"
+
+# Response has no new/dupe flag, so track seen shiny speciesIds locally.
+log_new_shinies() {
+  local resp="$1" banner="$2" lock="$seen_file.lock"
+  local ids
+  ids=$(printf '%s' "$resp" | jq -r '(.results // [])[] | select(.isShiny) | "\(.speciesId) \(.nameEn)"')
+  [[ -z "$ids" ]] && return
+
+  while ! mkdir "$lock" 2>/dev/null; do sleep 0.05; done
+  while IFS=' ' read -r id name; do
+    if ! grep -qx "$id" "$seen_file"; then
+      echo "$id" >>"$seen_file"
+      echo "NEW SHINY: $name in $banner"
+    fi
+  done <<<"$ids"
+  rmdir "$lock"
+}
 
 fetch_gold() {
   curl -s 'https://api.poke-idle.fr/api/game/farm-sync' \
@@ -13,7 +32,7 @@ fetch_gold() {
     -b "$cookie" \
     -H 'Origin: https://poke-idle.fr' \
     -H 'Referer: https://poke-idle.fr/' \
-    --data-raw '{"amount":0,"xp":7913692,"level":256,"currentGeneration":9,"currentZone":13,"currentStage":10,"stageKills":0,"teamDpsBonus":0,"badges":117,"totalKills":52865,"combatGeneration":9,"combatZone":13,"adminVersion":130,"snapshotDps":31728,"snapshotZoneDps":1123,"snapshotGoldRate":935852,"snapshotEnemyMaxHp":33705,"snapshotGoldReward":994166,"sessionToken":"6ffb5a075c6b8a1c821d1517f55f965e72d9486a93354a76ae8e3d5ea69c502f","serverBootId":"ccc6051584c832dd1421f4a131abb8b488928e1f"}' |
+    --data-raw '{"amount":0,"xp":7913692,"level":256,"currentGeneration":9,"currentZone":13,"currentStage":10,"stageKills":0,"teamDpsBonus":0,"badges":117,"totalKills":52865,"combatGeneration":9,"combatZone":13,"adminVersion":149,"snapshotDps":31728,"snapshotZoneDps":1123,"snapshotGoldRate":935852,"snapshotEnemyMaxHp":33705,"snapshotGoldReward":994166,"sessionToken":"549a8bd99f5e927600e47ecf99967a7d5376b4623ceb38ef030aca353ce40ee0","serverBootId":"7f6d2430cafb7fec8d1f237808181e63da3d65f6"}' |
     jq -r '.gold // empty'
 }
 
@@ -27,14 +46,13 @@ invoke() {
     -H 'Referer: https://poke-idle.fr/' \
     --data-raw "{\"bannerId\":\"$1\",\"count\":100}")
 
-  local shinies
-  if ! shinies=$(printf '%s' "$resp" | jq -e -r '[(.results // [])[] | select(.isShiny)] | length' 2>/dev/null); then
+  [[ -n "$VERBOSE" ]] && echo "RESP $1: $resp"
+
+  if ! printf '%s' "$resp" | jq -e '.results' >/dev/null 2>&1; then
     echo "ERROR $1: $resp"
     return
   fi
-  if [[ "$shinies" -gt 0 ]]; then
-    echo "SHINY x$shinies in $1"
-  fi
+  log_new_shinies "$resp" "$1"
 }
 
 if [[ -t 0 ]]; then

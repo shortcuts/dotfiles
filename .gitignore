@@ -66,6 +66,7 @@ fish/fish_variables*
 !tmux/**
 !scripts/
 !scripts/**
+scripts/.seen_shinies
 
 # keyboard
 !keyboard/
@@ -92,6 +93,3 @@ STL/**/.omc/
 # ccstatusline
 !ccstatusline/
 !ccstatusline/settings.json
-
-# random
-!inv.sh
