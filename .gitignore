@@ -92,3 +92,6 @@ STL/**/.omc/
 # ccstatusline
 !ccstatusline/
 !ccstatusline/settings.json
+
+# random
+!inv.sh
