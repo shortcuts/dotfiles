@@ -52,10 +52,10 @@ entry as `pending` and execute normally.
 
 ## Phase 0: Resolve Project Namespace
 
-All radin state for a project lives inside that project's repo, in `.claude/.radin/` at the repo root (example: repo `/Users/x/proj` → `/Users/x/proj/.claude/.radin/BACKLOG.md`). Do not compute this path yourself — the shared script below resolves it, creates the directories, and prints the exact values to use. Resolve the namespace and verify `$BACKLOG_FILE`'s existence in the **same Bash call** (shell state doesn't persist across separate calls):
+All radin state for a project lives inside that project's repo, in `.claude/.radin/` at the repo root. Do not compute this path yourself — the shared backlog CLI (`$HOME/.claude/.radin/lib/radin-backlog.sh`) resolves it, creates the directories, and prints the exact values to use. Its `find`/`remove` subcommands are also the only way you locate or delete backlog entries later — never hand-edit those operations. Resolve the namespace and verify `$BACKLOG_FILE`'s existence in the **same Bash call** (shell state doesn't persist across separate calls):
 
 ```bash
-source <(bash "$HOME/.claude/radin-lib/radin-namespace.sh" | sed 's/^/export /')
+source <(bash "$HOME/.claude/.radin/lib/radin-backlog.sh" env | sed 's/^/export /')
 test -s "$BACKLOG_FILE" && echo EXISTS || echo MISSING
 ```
 
@@ -81,7 +81,7 @@ Use `$REPO_ROOT`, `$NAMESPACE_DIR`, `$BACKLOG_FILE` thereafter — re-run the `s
    report, without touching the working tree. You are a sub-agent — nobody
    can answer you mid-run. The user answers by re-invoking you after
    deciding.
-1. Read `$HOME/.claude/radin-lib/radin-prioritization.md` — the shared
+1. Read `$HOME/.claude/.radin/lib/radin-prioritization.md` — the shared
    parsing/priority-criteria/state-schema doc used by both `radin-execute`
    and `radin-plan`. Follow its parsing steps and priority criteria to
    evaluate and order every task in `$BACKLOG_FILE`.
@@ -93,7 +93,7 @@ Use `$REPO_ROOT`, `$NAMESPACE_DIR`, `$BACKLOG_FILE` thereafter — re-run the `s
 
 Write the prioritized list to `$NAMESPACE_DIR/state/BACKLOG_STEPS.json`,
 following the state file schema in
-`$HOME/.claude/radin-lib/radin-prioritization.md`. `$NAMESPACE_DIR/state/`
+`$HOME/.claude/.radin/lib/radin-prioritization.md`. `$NAMESPACE_DIR/state/`
 was created in Phase 0.
 
 ---
@@ -106,16 +106,19 @@ For each task:
 
 ### Step 3a: Ensure a Plan Exists
 
-Before anything else, re-locate the entry: find its `### title` heading in
-`$BACKLOG_FILE` and recompute `line_start`/`line_end` per the span rule in
-`radin-prioritization.md`. Earlier `**Plan:**` insertions shift every line
-below them, so stored numbers go stale. If they changed, update the entry
-in `$NAMESPACE_DIR/state/BACKLOG_STEPS.json` and write it to disk.
+Before anything else, re-locate the entry — earlier `**Plan:**` insertions
+shift every line below them, so stored numbers go stale:
 
-If the title matches no heading or several (the backlog drifted or holds
-duplicates), don't guess which entry was meant: mark the task `"blocked"`
-with what you found as its `note`, report it, and continue to the next
-task.
+```bash
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" find "<task title>"
+```
+
+It prints one `line_start<TAB>line_end<TAB>title` line per match. Exactly
+one line: if the numbers changed, update the entry in
+`$NAMESPACE_DIR/state/BACKLOG_STEPS.json` and write it to disk. Zero
+matches (it errors) or several (the backlog drifted or holds duplicates):
+don't guess which entry was meant — mark the task `"blocked"` with what the
+CLI printed as its `note`, report it, and continue to the next task.
 
 Check the task's entry text (lines `line_start`-`line_end`) for one or more
 `**Plan:** <path>` lines. If there's already at least one, skip straight to
@@ -137,7 +140,7 @@ ambiguous in scope still goes through `/radin-plan`.
   `/radin-plan` in your own context. Planning explores the codebase, and
   that exploration is the biggest context bloat an orchestrator can take
   on; the plan file on disk is the only handoff the executor needs. Invoke
-  a sub-agent with `model: "opus"`, `run_in_background: false`, and
+  a sub-agent with `model: "sonnet"`, `run_in_background: false`, and
   exactly this prompt (replace TASK_TITLE with the entry's title and
   BACKLOG_PATH with `$BACKLOG_FILE`):
 
@@ -186,7 +189,7 @@ all PLAN_PATHs, in the order they appear, to the sub-agent. If Step 3a
 judged the task straightforward and skipped planning, there are no
 PLAN_PATHS — say so explicitly in the prompt below.
 
-Invoke a sub-agent with `model: "opus"`, `run_in_background: false`, and exactly this prompt (replace Y, Z with the
+Invoke a sub-agent with `model: "sonnet"`, `run_in_background: false`, and exactly this prompt (replace Y, Z with the
 task's `line_start` and `line_end`, BACKLOG_PATH with `$BACKLOG_FILE`, and PLAN_PATHS with
 the plan file path(s) in order, or "none — implement directly from the entry" if Step 3a
 skipped planning):
@@ -256,6 +259,16 @@ When the sub-agent reports back, first find its `STATUS:` line — this always d
   - Proceed to the next task on a clean tree
 - On `STATUS: SUCCESS` with a clean tree:
   - Record the commit hash (or the pre-existing hash it cites, if no new commit)
+  - Remove the completed entry from `$BACKLOG_FILE` itself, not just the
+    state file — do this now, not deferred to Phase 4, since interactive
+    mode can stop the run before Phase 4 ever runs (a later blocked task)
+    and a completed entry left in `$BACKLOG_FILE` would look unstarted next
+    session:
+
+    ```bash
+    bash "$HOME/.claude/.radin/lib/radin-backlog.sh" remove "<task title>"
+    ```
+
   - Remove the completed entry from `$NAMESPACE_DIR/state/BACKLOG_STEPS.json`
   - Write the updated JSON back to disk immediately
   - Report to the user now: `✅ Task <order> '<title>' complete. <STATUS detail>.
@@ -305,8 +318,8 @@ tasks failed or blocked; it is the one place the user learns what needs
 manual attention or a decision.
 
 0. Run `git status --porcelain -- . ':(exclude).claude/.radin'` in `$REPO_ROOT`. If empty, note "no residual changes" in the summary. If non-empty, do NOT commit it — deciding that unknown changes belong in history is the user's call, not yours. Stash it with `git stash push -u -m "radin-execute: session end, untracked to any task" -- . ':(exclude).claude/.radin'` and record the stash ref — it goes in the summary. Changes under `.claude/.radin/` (your own state and backlog writes) stay as they are: committing or ignoring radin's namespace is the repo owner's call, never radin's.
-1. Clean up `$BACKLOG_FILE`:
-   - Remove all tasks that were successfully completed this session (those whose entries were removed from `$NAMESPACE_DIR/state/BACKLOG_STEPS.json`)
+1. Clean up `$BACKLOG_FILE` (completed entries were already removed per-task
+   in Step 3b — this is just a final pass):
    - Leave failed and blocked tasks in place — they remain to be retried or
      decided
    - Remove duplicate entries
@@ -364,7 +377,7 @@ the prompt that invoked you:
 Don't hand-roll a review-and-log flow — the `radin-review` skill already
 does exactly this (thermo-nuclear + ponytail passes, code-review-graph
 leverage when wired, correct fix/refactor classification, BACKLOG.md
-logging). Invoke a sub-agent with `model: "opus"`,
+logging). Invoke a sub-agent with `model: "sonnet"`,
 `run_in_background: false`, and this exact prompt:
 
 ```

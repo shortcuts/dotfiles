@@ -36,22 +36,16 @@ resolve via `gh`) — ask user, don't guess.
 State resolved scope back in one line before proceeding, e.g.:
 `Scope: commit a1b2c3d` or `Scope: PR #123 (algolia/foo)` or `Scope: directory src/auth/`.
 
-## Step 2: Resolve project namespace, locate BACKLOG_FILE
+## Step 2: Record the backlog baseline
 
-All radin state for a project lives inside that project's repo, in
-`.claude/.radin/` at the repo root (example: repo `/Users/x/proj` →
-`/Users/x/proj/.claude/.radin/BACKLOG.md`). Do not compute this path
-yourself — run the shared namespace-resolution script and read `REPO_ROOT`,
-`NAMESPACE_DIR`, `BACKLOG_FILE` from its output in the **same Bash call**
-(record baseline line count there too so you can report net-new findings at
-end):
+Backlog writes go through the shared CLI at
+`$HOME/.claude/.radin/lib/radin-backlog.sh` — it resolves the per-project
+backlog path itself; never hand-edit `BACKLOG.md`. Record a baseline now so
+you can report net-new findings at the end:
 
 ```bash
-source <(bash "$HOME/.claude/radin-lib/radin-namespace.sh" | sed 's/^/export /')
-wc -l "$BACKLOG_FILE" 2>/dev/null || echo 0
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" show 2>/dev/null | wc -l
 ```
-
-Re-run the `source` line in any later Bash call before using these variables.
 
 ## Step 3: Run reviews
 
@@ -73,10 +67,6 @@ reinvented stdlib/native code) and is meant to complement it, not duplicate it.
 
 ## Step 4: Log every finding to BACKLOG.md
 
-`BACKLOG_FILE` is organized into top-level category sections — `## feat`,
-`## fix`, `## chore`, `## refactor` — same vocabulary as a conventional-commit
-type. Create the file with a `# Backlog` heading first if it doesn't exist yet.
-
 For each finding review surfaces, classify it:
 
 - **fix** — the finding is an actual bug: incorrect behavior, not just
@@ -87,12 +77,11 @@ For each finding review surfaces, classify it:
   ponytail-pass finding (`delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`) is
   structural by definition — classify these as refactor too.
 
-If the section for that category doesn't exist yet, create it (in canonical
-order feat → fix → chore → refactor relative to whichever sections already
-exist), then append the entry under it:
+Then append each via the CLI (it handles file creation and section
+ordering):
 
-```
-### <short title>
+```bash
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <fix|refactor> "<short title>" <<'EOF'
 **Scope:** <what was reviewed — commit hash / PR / directory / range from Step 1>
 **Location:** <file path(s) and function/line if applicable>
 **Finding:**
@@ -101,6 +90,7 @@ specific, no hedging>
 **Preferred remedy:**
 <the concrete restructuring suggested — extract helper, delete wrapper, split file,
 reframe state model, etc.>
+EOF
 ```
 
 The description under the title should be as exhaustive as the finding

@@ -23,46 +23,44 @@ non-destructive defaults: no split, no overwrite.
 
 ## Step 1: Resolve project namespace, locate BACKLOG_FILE
 
-All radin state for a project lives inside that project's repo, in
-`.claude/.radin/` at the repo root (example: repo `/Users/x/proj` →
-`/Users/x/proj/.claude/.radin/BACKLOG.md`). Do not compute this path
-yourself — run the shared namespace-resolution script and read `REPO_ROOT`,
-`NAMESPACE_DIR`, `BACKLOG_FILE` from its output:
+All backlog reads/writes go through the shared CLI at
+`$HOME/.claude/.radin/lib/radin-backlog.sh` — never hand-edit `BACKLOG.md`
+or compute its path yourself. Get the paths (also creates
+`$NAMESPACE_DIR/state`, `plans/`, `reviews/`):
 
 ```bash
-bash "$HOME/.claude/radin-lib/radin-namespace.sh"
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" env
 ```
 
-This creates `$NAMESPACE_DIR/state`, `$NAMESPACE_DIR/plans`, and
-`$NAMESPACE_DIR/reviews`. Re-run this line in any later Bash call before
-using these variables.
+Read `REPO_ROOT`, `NAMESPACE_DIR`, `BACKLOG_FILE` from its output. Re-run
+this line in any later Bash call before using these variables.
 
 ## Step 2: Resolve the task scope
 
-Read `$HOME/.claude/radin-lib/radin-prioritization.md`'s "Parsing
-`$BACKLOG_FILE`" section — you don't need its priority-criteria section,
-since you're scoping to one entry, not ordering the whole backlog.
+Match the caller's scope against entries with the CLI — it prints one
+`line_start<TAB>line_end<TAB>title` line per matching entry (exact title
+match first, else case-insensitive substring):
 
-Match the caller's scope (a title, keyword, or paraphrase) against `### title`
-entries in `$BACKLOG_FILE`:
+```bash
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" find "<scope title/keyword>"
+```
 
 - **Exactly one match**: use it.
 - **Multiple candidate matches**: list them and ask which one. Invoked
   non-interactively: don't guess — report the candidates and stop; the
   caller marks the task blocked for the user.
 - **No match** (interactive callers only): this task isn't in
-  `$BACKLOG_FILE` yet. Don't ask the user
-  whether to create one — assume yes, and create it automatically:
-  classify it into `feat`/`fix`/`chore`/`refactor` (see
-  `skills/radin-record/SKILL.md`'s Step 3 rubric) and append it to its
-  category section (in canonical order feat → fix → chore → refactor,
-  creating the section if needed) in this exact shape:
+  `$BACKLOG_FILE` yet. Don't ask the user whether to create one — assume
+  yes, and create it automatically: classify it into
+  `feat`/`fix`/`chore`/`refactor` (see `skills/radin-record/SKILL.md`'s
+  classification rubric), then:
 
-  ```
-  ### <short title>
+  ```bash
+  bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <category> "<short title>" <<'EOF'
   <as exhaustive a description as the scope given warrants — the task as
   the caller stated or clearly implied it, and why it matters if not
   already obvious.>
+  EOF
   ```
 
   Report the new entry was created, then continue to Step 3 with it as the
@@ -96,9 +94,9 @@ unrelated changes, each independently plannable.
 
 ## Step 4: Write each plan
 
-Re-read `line_start`/`line_end` fresh from `$BACKLOG_FILE` before each
-plan — inserting a `**Plan:**` line shifts every line below it, so this
-matters as soon as more than one plan is written this run.
+Re-run the CLI's `find` before reading an entry's lines — each inserted
+`**Plan:**` line shifts every line below it, so stored numbers go stale as
+soon as more than one plan is written this run.
 
 For each sub-task, in order:
 
@@ -132,9 +130,14 @@ For each sub-task, in order:
    Invoked non-interactively, an unresolvable question stops the planning
    run instead — report it rather than writing a plan around it.
 4. Save the plan as markdown at `$NAMESPACE_DIR/plans/<sub-task-id>.md`.
-5. Insert a `**Plan:** <path>` line into the entry in `$BACKLOG_FILE`, right
-   after its description (before the next `###`/`##` heading) — after any
-   `**Plan:**` lines already inserted for earlier sub-tasks this run.
+5. Insert the pointer via the CLI — it locates the entry and appends
+   `**Plan:** <path>` after its description (and after any earlier
+   `**Plan:**` lines):
+
+   ```bash
+   bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add-plan "<entry title>" "$NAMESPACE_DIR/plans/<sub-task-id>.md"
+   ```
+
 6. Report: `✅ <sub-task-id> planned. Plan: <path>.`
 
 Do NOT implement the change, run builds/tests, or commit while producing the

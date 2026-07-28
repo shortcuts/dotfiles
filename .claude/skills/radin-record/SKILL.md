@@ -17,21 +17,13 @@ code-review finding — things a human said, not things a diff revealed.
 `radin-review` logs code-review findings instead. `radin-plan` and
 `radin-execute` consume the backlog afterward.
 
-## Step 1: Resolve project namespace, locate BACKLOG_FILE
+All backlog writes go through the shared CLI at
+`$HOME/.claude/.radin/lib/radin-backlog.sh` — it resolves the per-project
+namespace (`<repo-root>/.claude/.radin/BACKLOG.md`), creates the file and
+category sections, and appends entries deterministically. Never hand-edit
+`BACKLOG.md` or compute its path yourself.
 
-All radin state for a project lives inside that project's repo, in
-`.claude/.radin/` at the repo root (example: repo `/Users/x/proj` →
-`/Users/x/proj/.claude/.radin/BACKLOG.md`). Do not compute this path
-yourself — run the shared namespace-resolution script and read `REPO_ROOT`,
-`NAMESPACE_DIR`, `BACKLOG_FILE` from its output:
-
-```bash
-bash "$HOME/.claude/radin-lib/radin-namespace.sh"
-```
-
-Re-run this line in any later Bash call before using these variables.
-
-## Step 2: Decide what to log
+## Step 1: Decide what to log
 
 The user's instruction after `/radin-record` decides scope:
 
@@ -50,11 +42,10 @@ Either way, stay faithful to what was actually said. This is a capture tool,
 not a brainstorming one — don't invent items the conversation didn't raise,
 and don't editorialize on top of what the user said.
 
-## Step 3: Classify each item
+## Step 2: Classify each item
 
-`BACKLOG_FILE` is organized into top-level semver-style category sections —
-`## feat`, `## fix`, `## chore`, `## refactor` — same vocabulary as a
-conventional-commit type. Classify each item into exactly one:
+Classify each item into exactly one category (same vocabulary as a
+conventional-commit type):
 
 - **feat** — a new capability or behavior is being asked for (an idea, a
   "what if we...", a feature request).
@@ -69,33 +60,34 @@ move on — don't stall on classification; a slightly-off category costs
 nothing since `radin-execute`/`radin-plan` read the description
 regardless of category.
 
-## Step 4: Append entries to BACKLOG.md
+## Step 3: Append entries via the CLI
 
-Create `$BACKLOG_FILE` with a `# Backlog` heading first if it doesn't exist
-yet. For each classified item, find (or create) its category section — in
-canonical order feat → fix → chore → refactor relative to whichever
-sections already exist — then append an entry under it in this exact shape:
+For each classified item:
 
-```
-### <short title>
+```bash
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <category> "<short title>" <<'EOF'
 <as exhaustive a description as the situation warrants: what was being
 discussed/worked on when this came up, the item itself close to how the
 user stated or clearly implied it, and why it matters if that's not
 already obvious. radin-execute/radin-plan will act on this entry with
 no other session context, so don't compress it down to one line.>
+EOF
 ```
 
-Always append — don't scan `BACKLOG_FILE` for near-duplicates or try to merge
+The CLI handles file creation, section ordering, and appending — you only
+supply category, title, and body.
+
+Always append — don't scan `BACKLOG.md` for near-duplicates or try to merge
 with an existing entry; let `radin-execute`/`radin-plan` or a human
 dedupe later, since a false-positive merge silently drops something the
 user cared about, which is worse than an occasional repeated entry.
 
-## Step 5: Report back
+## Step 4: Report back
 
 Tell the user:
 
 - How many entries were logged, with their titles and categories.
-- Path to `$BACKLOG_FILE`.
-- If nothing in scope (Step 2) actually rose to the level of a loggable
+- Path to the backlog file (the CLI prints it on each `add`).
+- If nothing in scope (Step 1) actually rose to the level of a loggable
   item, say so plainly — don't pad the file with a vague entry just to prove
   the skill ran.

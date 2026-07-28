@@ -69,6 +69,7 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
+  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
@@ -121,7 +122,8 @@
     "i-have-adhd@i-have-adhd": true,
     "humanizer@humanizer": true,
     "ponytail@ponytail": true,
-    "gopls-lsp@claude-plugins-official": true
+    "gopls-lsp@claude-plugins-official": true,
+    "mattpocock-skills@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -159,6 +161,5 @@
   "theme": "auto",
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true,
-  "model": "fable"
+  "skipAutoPermissionPrompt": true
 }
