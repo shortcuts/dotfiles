@@ -5,7 +5,9 @@ description: |
   touching code. Takes a task scope — a title/keyword — instead of the whole
   backlog. Judges whether the scope is broad enough to split into multiple
   independent plans, confirms any split with you directly, then writes one
-  plan file per resulting sub-task, reviews it with thermo-nuclear and
+  plan file per resulting sub-task — interviewing you on open decisions via
+  `/grilling` and, when a third-party API/library fact is load-bearing,
+  verifying it via `/research` — reviews the plan with thermo-nuclear and
   ponytail-review before handing it off, and appends a `**Plan:**` pointer
   back to the entry. Use for /radin-plan, "plan this backlog entry", "write
   a plan for X before we execute it". radin-execute delegates to a planning
@@ -108,7 +110,10 @@ For each sub-task, in order:
    for this repo, use its MCP tools (`semantic_search_nodes`, `get_impact_radius`,
    `query_graph`) before Grep/Glob/Read — token-efficient structural context beats
    cold file scanning. When running commands, prefer `rtk`-wrapped commands if
-   `command -v rtk` succeeds for token savings.
+   `command -v rtk` succeeds for token savings. If the plan hinges on a
+   third-party API's or library's behavior that local code can't confirm,
+   invoke `/research` to verify it against primary sources before planning
+   around it — don't guess at external behavior.
 3. Invoke the `/ponytail` skill, then apply its ladder to produce the plan:
    - The minimum files to touch — no speculative scope.
    - The concrete change in each file.
@@ -116,19 +121,16 @@ For each sub-task, in order:
    - How to verify the change (tests/checks to run), per the ladder's
      "lazy code without its check is unfinished" rule.
    Surface any open questions or risks the plan raised — don't silently
-   resolve genuine ambiguity. Invoked interactively, interview the user
-   about every open aspect of the entry until you reach a shared
-   understanding: walk each branch of the decision tree, resolving
-   dependent decisions one by one. Ask the questions one at a time, each
-   with your recommended answer, and wait for the reply before the next —
-   asking several at once is bewildering. If a *fact* can be found by
-   exploring the repo (filesystem, code-review-graph, git history), look
-   it up instead of asking; the *decisions* are the user's — put each one
-   to them and wait. Don't finalize the plan until that shared
-   understanding is confirmed: the plan you hand off must leave zero
-   decisions to whoever executes it.
+   resolve genuine ambiguity. Invoked interactively, invoke the `/grilling`
+   skill on the entry's open aspects instead of interviewing free-form — it
+   already walks the decision tree one question at a time, leads with a
+   recommended answer, defers facts to repo exploration (filesystem,
+   code-review-graph, git history) instead of asking, and won't let you
+   finalize until shared understanding is confirmed. The plan you hand off
+   must leave zero decisions to whoever executes it.
    Invoked non-interactively, an unresolvable question stops the planning
-   run instead — report it rather than writing a plan around it.
+   run instead — report it rather than writing a plan around it (`/grilling`
+   assumes a live user, so skip it here).
 4. Save the plan as markdown at `$NAMESPACE_DIR/plans/<sub-task-id>.md`.
 5. Insert the pointer via the CLI — it locates the entry and appends
    `**Plan:** <path>` after its description (and after any earlier
