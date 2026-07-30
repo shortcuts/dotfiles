@@ -69,7 +69,6 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
@@ -123,7 +122,8 @@
     "humanizer@humanizer": true,
     "ponytail@ponytail": true,
     "gopls-lsp@claude-plugins-official": true,
-    "mattpocock-skills@claude-plugins-official": true
+    "mattpocock-skills@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -154,6 +154,12 @@
       "source": {
         "source": "github",
         "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
       }
     }
   },
