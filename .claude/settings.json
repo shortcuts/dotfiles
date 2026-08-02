@@ -108,7 +108,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "~/.local/share/mise/installs/node/latest/bin/ccstatusline",
+    "command": "ccstatusline",
     "padding": 0,
     "refreshInterval": 10
   },

@@ -43,7 +43,8 @@
         "color": "brightBlack",
         "rawValue": false,
         "metadata": {
-          "display": "time"
+          "display": "time",
+          "compact": "true"
         }
       },
       {
@@ -51,18 +52,21 @@
         "type": "separator"
       },
       {
-        "id": "5",
-        "type": "git-branch",
+        "id": "6ec74cf3-f5f3-49fc-8c39-9ed8178a36e9",
+        "type": "weekly-usage",
         "color": "brightBlack"
       },
       {
-        "id": "6",
+        "id": "ccf1093c-9d10-485c-9c39-6159de8fd0e3",
         "type": "separator",
         "character": " "
       },
       {
-        "id": "7",
-        "type": "git-changes",
+        "id": "351d7748-fbc2-4912-b170-9fcdc117dbde",
+        "type": "weekly-reset-timer",
+        "metadata": {
+          "compact": "true"
+        },
         "color": "brightBlack"
       }
     ],
@@ -92,6 +96,6 @@
   },
   "installation": {
     "method": "pinned",
-    "installedVersion": "2.2.23"
+    "installedVersion": "2.2.27"
   }
 }

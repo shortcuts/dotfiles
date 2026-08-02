@@ -206,10 +206,15 @@ PLAN_PATHs to the sub-agent, in the order they appear. If Step 3a judged
 the task straightforward and skipped planning, there are no PLAN_PATHS.
 Say so explicitly in the prompt below.
 
+Also check the task's file for one or more `**Skill:** <skill-name>` lines —
+`radin-record` appends these when the item was raised alongside an explicit
+skill invocation (e.g. `/frontend-design`). Collect them as SKILLS, or "none"
+if there are none.
+
 Invoke a sub-agent with `model: "sonnet"`, `run_in_background: false`, and exactly this prompt (replace TASK_FILE with
 `$BACKLOG_TASKS_DIR/<id>.md`, PLAN_PATHS with
 the plan file path(s) in order, or "none — implement directly from the entry" if Step 3a
-skipped planning, and DEPENDS_ON with the list of `<id>: <commit hash>` pairs gathered in
+skipped planning, SKILLS with the collected `**Skill:**` name(s) or "none", and DEPENDS_ON with the list of `<id>: <commit hash>` pairs gathered in
 Step 3a-0, or "none" if `depends_on` was empty):
 
 ```
@@ -221,6 +226,9 @@ Execute the task described in TASK_FILE:
    there's more than one, they cover different parts of the same task — implement all
    of them. If PLAN_PATHS is "none", the task was judged straightforward enough to skip
    planning — implement directly from the entry text.
+2a. If SKILLS is not "none", invoke each named skill (e.g. `/frontend-design`) before
+   implementing — the entry was raised alongside that skill and needs its guidance to
+   implement correctly.
 2b. If DEPENDS_ON is not "none", this task's scope/plan was written assuming certain
    other tasks in this backlog would land a certain way. Those tasks already committed
    this session at the listed hashes. Run `git show --stat <hash>` for each and skim
