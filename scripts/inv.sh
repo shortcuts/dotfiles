@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-banners=(kanto johto hoenn)
+banners=(hoenn sinnoh)
 cookie=''
 
 count=${1:-100}
@@ -37,22 +37,35 @@ fetch_gold() {
 }
 
 invoke() {
-  local resp
-  resp=$(curl -s 'https://api.poke-idle.fr/api/invocations' \
-    -H 'Accept: application/json' \
-    -H 'Content-Type: application/json' \
-    -b "$cookie" \
-    -H 'Origin: https://poke-idle.fr' \
-    -H 'Referer: https://poke-idle.fr/' \
-    --data-raw "{\"bannerId\":\"$1\",\"count\":100}")
+  local banner="$1" resp backoff=1 max_backoff=30
 
-  [[ -n "$VERBOSE" ]] && echo "RESP $1: $resp"
+  while true; do
+    resp=$(curl -s 'https://api.poke-idle.fr/api/invocations' \
+      -H 'Accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -b "$cookie" \
+      -H 'Origin: https://poke-idle.fr' \
+      -H 'Referer: https://poke-idle.fr/' \
+      --data-raw "{\"bannerId\":\"$banner\",\"count\":100}")
 
-  if ! printf '%s' "$resp" | jq -e '.results' >/dev/null 2>&1; then
-    echo "ERROR $1: $resp"
-    return
-  fi
-  log_new_shinies "$resp" "$1"
+    [[ -n "$VERBOSE" ]] && echo "RESP $banner: $resp"
+
+    if printf '%s' "$resp" | jq -e '.results' >/dev/null 2>&1; then
+      log_new_shinies "$resp" "$banner"
+      return
+    fi
+
+    local retry_after
+    retry_after=$(printf '%s' "$resp" | jq -r '.retryAfter // empty' 2>/dev/null)
+    if [[ -z "$retry_after" ]]; then
+      echo "ERROR $banner: $resp"
+      return
+    fi
+
+    echo "RATE LIMITED $banner: backing off ${backoff}s"
+    sleep "$backoff"
+    (( backoff = backoff * 2 > max_backoff ? max_backoff : backoff * 2 ))
+  done
 }
 
 if [[ -t 0 ]]; then
