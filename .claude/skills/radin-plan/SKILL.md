@@ -16,46 +16,47 @@ description: |
 ---
 # Plan a Backlog Entry
 
-Turn one `BACKLOG.md` entry into one or more concrete implementation plans,
-without writing any code. This runs inline in whichever context invokes it,
-so any split judgment or open question surfaces in that conversation. When
-the invoking context cannot reach the user (e.g. radin-execute's planning
-sub-agent), the caller says so and this skill's questions resolve to their
-non-destructive defaults: no split, no overwrite.
+Turn one backlog entry into one or more concrete implementation plans,
+without writing any code. This runs inline in whichever context invokes
+it, so any split judgment or open question surfaces in that conversation.
+When the invoking context cannot reach the user (e.g. radin-execute's
+planning sub-agent), the caller says so. This skill's questions then
+resolve to their non-destructive defaults: no split, no overwrite.
 
-## Step 1: Resolve project namespace, locate BACKLOG_FILE
+## Step 1: Resolve project namespace, locate the backlog
 
 All backlog reads/writes go through the shared CLI at
-`$HOME/.claude/.radin/lib/radin-backlog.sh` — never hand-edit `BACKLOG.md`
-or compute its path yourself. Get the paths (also creates
-`$NAMESPACE_DIR/state`, `plans/`, `reviews/`):
+`$HOME/.claude/.radin/lib/radin-backlog.sh` — never hand-edit the backlog's
+JSONL index or task files, or compute their paths yourself. Get the paths
+(also creates `$NAMESPACE_DIR/state`, `plans/`, `reviews/`,
+`$BACKLOG_TASKS_DIR`):
 
 ```bash
 bash "$HOME/.claude/.radin/lib/radin-backlog.sh" env
 ```
 
-Read `REPO_ROOT`, `NAMESPACE_DIR`, `BACKLOG_FILE` from its output. Re-run
-this line in any later Bash call before using these variables.
+Read `REPO_ROOT`, `NAMESPACE_DIR`, `BACKLOG_INDEX`, `BACKLOG_TASKS_DIR` from
+its output. Re-run this line in any later Bash call before using these
+variables.
 
 ## Step 2: Resolve the task scope
 
-Match the caller's scope against entries with the CLI — it prints one
-`line_start<TAB>line_end<TAB>title` line per matching entry (exact title
-match first, else case-insensitive substring):
+Match the caller's scope against tasks with the CLI — it prints one
+`id<TAB>category<TAB>title<TAB>file` line per matching task (exact id
+match first, then exact title, else case-insensitive substring on title):
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-backlog.sh" find "<scope title/keyword>"
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" find "<scope id/title/keyword>"
 ```
 
 - **Exactly one match**: use it.
 - **Multiple candidate matches**: list them and ask which one. Invoked
   non-interactively: don't guess — report the candidates and stop; the
   caller marks the task blocked for the user.
-- **No match** (interactive callers only): this task isn't in
-  `$BACKLOG_FILE` yet. Don't ask the user whether to create one — assume
-  yes, and create it automatically: classify it into
-  `feat`/`fix`/`chore`/`refactor` (see `skills/radin-record/SKILL.md`'s
-  classification rubric), then:
+- **No match** (interactive callers only): this task isn't in the backlog
+  yet. Don't ask the user whether to create one — assume yes and create it
+  automatically. Classify it into `feat`/`fix`/`chore`/`refactor` (see
+  `skills/radin-record/SKILL.md`'s classification rubric), then:
 
   ```bash
   bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <category> "<short title>" <<'EOF'
@@ -75,8 +76,8 @@ bash "$HOME/.claude/.radin/lib/radin-backlog.sh" find "<scope title/keyword>"
   and ask whether to re-plan (overwrite) or stop. Stop unless re-planning is
   confirmed.
 
-Record the entry's title, `line_start`, `line_end`, and derive a kebab-case
-`parent_id` from its title.
+Record the entry's `id`, `title`, and use the id as the `parent_id` — no
+separate slugification needed, the CLI already assigned it.
 
 ## Step 3: Judge whether the scope should split
 
@@ -96,48 +97,48 @@ unrelated changes, each independently plannable.
 
 ## Step 4: Write each plan
 
-Re-run the CLI's `find` before reading an entry's lines — each inserted
-`**Plan:**` line shifts every line below it, so stored numbers go stale as
-soon as more than one plan is written this run.
+The entry's file (`$BACKLOG_TASKS_DIR/<parent_id>.md`) never moves —
+inserting a `**Plan:**` line into it (or into any other task's file) can't
+shift anything, so there's no re-resolution needed between sub-tasks.
 
 For each sub-task, in order:
 
-1. Read the entry (lines `line_start`-`line_end`). If this sub-task came
-   from a split, its scope is only the one-line description recorded in
-   Step 3 — plan just that part.
+1. Read the entry's file (`$BACKLOG_TASKS_DIR/<parent_id>.md`). If this
+   sub-task came from a split, its scope is only the one-line description
+   recorded in Step 3 — plan just that part.
 2. Explore the codebase as needed: current structure, affected files,
-   existing patterns, constraints. If `code-review-graph` is installed and wired
-   for this repo, use its MCP tools (`semantic_search_nodes`, `get_impact_radius`,
-   `query_graph`) before Grep/Glob/Read — token-efficient structural context beats
-   cold file scanning. When running commands, prefer `rtk`-wrapped commands if
-   `command -v rtk` succeeds for token savings. If the plan hinges on a
-   third-party API's or library's behavior that local code can't confirm,
-   invoke `/research` to verify it against primary sources before planning
-   around it — don't guess at external behavior.
+   existing patterns, constraints. If `code-review-graph` is installed and
+   wired for this repo, use its MCP tools (`semantic_search_nodes`,
+   `get_impact_radius`, `query_graph`) before Grep/Glob/Read — token-efficient
+   structural context beats cold file scanning. When running commands,
+   prefer `rtk`-wrapped commands if `command -v rtk` succeeds, for token
+   savings. If the plan hinges on a third-party API's or library's behavior
+   that local code can't confirm, invoke `/research` to verify it against
+   primary sources before planning around it. Don't guess at external
+   behavior.
 3. Invoke the `/ponytail` skill, then apply its ladder to produce the plan:
    - The minimum files to touch — no speculative scope.
    - The concrete change in each file.
    - Order of operations, where it matters.
    - How to verify the change (tests/checks to run), per the ladder's
      "lazy code without its check is unfinished" rule.
-   Surface any open questions or risks the plan raised — don't silently
+   Surface any open questions or risks the plan raised. Don't silently
    resolve genuine ambiguity. Invoked interactively, invoke the `/grilling`
-   skill on the entry's open aspects instead of interviewing free-form — it
+   skill on the entry's open aspects instead of interviewing free-form. It
    already walks the decision tree one question at a time, leads with a
    recommended answer, defers facts to repo exploration (filesystem,
    code-review-graph, git history) instead of asking, and won't let you
    finalize until shared understanding is confirmed. The plan you hand off
    must leave zero decisions to whoever executes it.
    Invoked non-interactively, an unresolvable question stops the planning
-   run instead — report it rather than writing a plan around it (`/grilling`
-   assumes a live user, so skip it here).
+   run instead. Report it rather than writing a plan around it — `/grilling`
+   assumes a live user, so skip it here.
 4. Save the plan as markdown at `$NAMESPACE_DIR/plans/<sub-task-id>.md`.
-5. Insert the pointer via the CLI — it locates the entry and appends
-   `**Plan:** <path>` after its description (and after any earlier
-   `**Plan:**` lines):
+5. Insert the pointer via the CLI — it locates the task's file and appends
+   `**Plan:** <path>` to it (after any earlier `**Plan:**` lines):
 
    ```bash
-   bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add-plan "<entry title>" "$NAMESPACE_DIR/plans/<sub-task-id>.md"
+   bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add-plan "<parent_id>" "$NAMESPACE_DIR/plans/<sub-task-id>.md"
    ```
 
 6. Report: `✅ <sub-task-id> planned. Plan: <path>.`
@@ -151,9 +152,9 @@ point in this skill.
 
 ## Step 4.5: Review each plan before handing it off
 
-A plan is still just a proposal — catch structural problems in it before
-`radin-execute` builds on top of it, the same way a diff gets reviewed before
-merge. For each plan file just written:
+A plan is still just a proposal. Catch structural problems in it before
+`radin-execute` builds on top of it, the same way a diff gets reviewed
+before merge. For each plan file just written:
 
 1. Invoke `/thermo-nuclear` against the plan file's content (not the
    codebase) — does the proposed approach itself have a spaghetti shape, a
@@ -165,9 +166,9 @@ merge. For each plan file just written:
    caller?
 3. For each finding either pass raises, edit the plan file in place to fix
    it — the plan file itself is the only artifact that needs to reflect the
-   finding. Don't log anything to `$BACKLOG_FILE`; there's no separate
-   review record to keep, unlike `radin-review`'s scope (a merged commit),
-   this plan hasn't executed yet, so the fix belongs in the plan itself.
+   finding. Don't log anything to the backlog. Unlike `radin-review`'s
+   scope (a merged commit), this plan hasn't executed yet, so there's no
+   separate review record to keep — the fix belongs in the plan itself.
 4. Zero findings from both passes: leave the plan file untouched.
 
 ## Step 5: Report back
@@ -182,5 +183,5 @@ merge. For each plan file just written:
 Next: radin-execute (or a human) can implement from the plan(s) above.
 ```
 
-Never remove or rewrite anything in `$BACKLOG_FILE` beyond inserting the
-`**Plan:**` line(s) for the scoped entry.
+Never remove or rewrite anything in the scoped task's file beyond
+appending the `**Plan:**` line(s), and never touch any other task's file.

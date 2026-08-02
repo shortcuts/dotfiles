@@ -1,15 +1,15 @@
 ---
 name: radin-show
 description: |
-  Print the current project's BACKLOG.md to the terminal. Use for
+  Print the current project's backlog to the terminal. Use for
   /radin-show, "show me the backlog", "what's in the backlog", "list backlog
-  items", "print BACKLOG.md".
+  items", "print the backlog".
 ---
 # Show Backlog
 
-Print the current project's `BACKLOG.md` as-is. Read-only — no other radin
-skill/agent does this; `radin-record`/`radin-review` write to it,
-`radin-plan`/`radin-execute` consume it, this just displays it.
+Print current project backlog as markdown. Read-only — no other
+radin skill/agent do this. `radin-record`/`radin-review` write to it.
+`radin-plan`/`radin-execute` consume it. This just display it.
 
 ## Step 1: Print it
 
@@ -17,17 +17,10 @@ skill/agent does this; `radin-record`/`radin-review` write to it,
 bash "$HOME/.claude/.radin/lib/radin-backlog.sh" show
 ```
 
-If the user narrowed scope to one category ("show me the fix items"), pass
-it: `show fix` (categories: feat/fix/chore/refactor). Default to the whole
-file.
+CLI render it from JSONL index plus each task's own file — never read those directly. User narrow scope to one category ("show me fix items"), pass it: `show fix` (categories: feat/fix/chore/refactor). Default: whole backlog.
 
-The CLI resolves the per-project backlog path itself. If it errors with
-"no backlog", tell the user this project has no backlog yet and point them
-at `radin-record` or `radin-review` to start one — don't create an empty
-file.
+CLI resolve per-project backlog path itself. Errors "no backlog": tell user project has no backlog yet, point at `radin-record` or `radin-review` to start one — don't create empty file.
 
 ## Step 2: Show it
 
-Print the output to the user as-is — no summarizing, reordering, or
-filtering beyond the category scoping above.
-</content>
+Print output to user as-is — no summarize, reorder, filter beyond category scoping above.

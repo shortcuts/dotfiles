@@ -2,14 +2,14 @@
 name: radin-review
 description: |
   Run a thermo-nuclear code quality review over a scope (commit, PR, directory,
-  or a range like "since yesterday") and log each finding as a BACKLOG.md entry
+  or a range like "since yesterday") and log each finding as a backlog entry
   instead of printing to terminal. Use for /radin-review, "review and log to
   backlog", "audit this commit/PR/directory and file backlog entries", "turn
   this review into a backlog".
 ---
 # Review to Backlog
 
-Run `/thermo-nuclear` code quality review against caller-specified scope, persist every finding as structured entry in `BACKLOG.md` instead of just printing to terminal. Turns one-off strict review into durable backlog `radin-execute` (or human) can work through later.
+Run `/thermo-nuclear` code quality review against caller-specified scope, persist every finding as structured backlog entry instead of printing to terminal. Turns one-off strict review into durable backlog `radin-execute` (or human) can work through later.
 
 ## Step 1: Resolve scope argument
 
@@ -30,18 +30,18 @@ User passes one argument, can be any of:
   (`git merge-base main HEAD` or `master`, whichever exists), same default `/code-review`
   would use.
 
-Argument ambiguous (e.g. could be commit hash or directory name, or PR number doesn't
-resolve via `gh`) — ask user, don't guess.
+Argument ambiguous (e.g. could be commit hash or directory
+name, or PR number doesn't resolve via `gh`) — ask user. Don't guess.
 
 State resolved scope back in one line before proceeding, e.g.:
 `Scope: commit a1b2c3d` or `Scope: PR #123 (algolia/foo)` or `Scope: directory src/auth/`.
 
-## Step 2: Record the backlog baseline
+## Step 2: Record backlog baseline
 
-Backlog writes go through the shared CLI at
-`$HOME/.claude/.radin/lib/radin-backlog.sh` — it resolves the per-project
-backlog path itself; never hand-edit `BACKLOG.md`. Record a baseline now so
-you can report net-new findings at the end:
+Backlog writes go through shared CLI at
+`$HOME/.claude/.radin/lib/radin-backlog.sh` — resolves per-project
+backlog paths itself; never hand-edit index or task file. Record
+baseline now so you can report net-new findings at end:
 
 ```bash
 bash "$HOME/.claude/.radin/lib/radin-backlog.sh" show 2>/dev/null | wc -l
@@ -49,35 +49,38 @@ bash "$HOME/.claude/.radin/lib/radin-backlog.sh" show 2>/dev/null | wc -l
 
 ## Step 3: Run reviews
 
-If `code-review-graph` is installed and wired for this repo (`command -v code-review-graph`
-succeeds, and its MCP tools are available) use `detect_changes` + `get_review_context`
-against the resolved scope first — risk-scored, token-efficient source context beats
-reading raw diffs/files cold. Not installed or not wired here: fall back to
-`git show`/`git diff`/reading the files directly, same as Step 1's scope resolution.
+If `code-review-graph` installed and wired for this repo (`command -v
+code-review-graph` succeeds, and its MCP tools available), use
+`detect_changes` + `get_review_context` against resolved scope first —
+risk-scored, token-efficient source context beats reading raw diffs/files
+cold. Not installed or not wired here — fall back to
+`git show`/`git diff`/reading files directly, same as Step 1's scope
+resolution.
 
-Invoke `/thermo-nuclear` against the resolved scope. Apply full standards: ambitious
-code-judo restructuring, 1k-line file smell, spaghetti branching, boundary/type
-cleanliness, canonical-layer leaks, orchestration atomicity — see that skill for
-complete rubric. Don't water down for this skill.
+Invoke `/thermo-nuclear` against resolved scope. Apply full standards:
+ambitious code-judo restructuring, 1k-line file smell, spaghetti branching,
+boundary/type cleanliness, canonical-layer leaks, orchestration atomicity —
+see that skill for complete rubric. Don't water down for this skill.
 
-Then invoke the ponytail complexity pass over the same scope — `/ponytail-review` for a
-commit/PR/range (diff scope), `/ponytail-audit` for a directory (whole-tree scope). It
-hunts a different axis than thermo-nuclear (over-engineering, dead flexibility,
-reinvented stdlib/native code) and is meant to complement it, not duplicate it.
+Then invoke ponytail complexity pass over same scope: `/ponytail-review`
+for commit/PR/range (diff scope), `/ponytail-audit` for directory
+(whole-tree scope). Hunts different axis than thermo-nuclear —
+over-engineering, dead flexibility, reinvented stdlib/native code — and
+complements it rather than duplicating it.
 
-## Step 4: Log every finding to BACKLOG.md
+## Step 4: Log every finding to backlog
 
 For each finding review surfaces, classify it:
 
-- **fix** — the finding is an actual bug: incorrect behavior, not just
+- **fix** — finding is actual bug: incorrect behavior, not just
   structure.
-- **refactor** — the finding is structural: spaghetti branching, a canonical-
-  layer leak, a 1k-line-file smell, orchestration atomicity, or any other
+- **refactor** — finding is structural: spaghetti branching, canonical-
+  layer leak, 1k-line-file smell, orchestration atomicity, or any other
   restructuring thermo-nuclear calls for that doesn't change behavior. Every
   ponytail-pass finding (`delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`) is
   structural by definition — classify these as refactor too.
 
-Then append each via the CLI (it handles file creation and section
+Then append each via CLI (handles file creation and section
 ordering):
 
 ```bash
@@ -93,14 +96,14 @@ reframe state model, etc.>
 EOF
 ```
 
-The description under the title should be as exhaustive as the finding
+Description under title should be as exhaustive as finding
 warrants — `Scope`/`Location`/`Finding`/`Preferred remedy` are that
-description's internal structure, not a separate schema.
+description's internal structure, not separate schema.
 
-Log every finding clearing either pass's bar — thermo-nuclear's or ponytail's — don't
-filter down to only the scariest one, but also don't pad the file with cosmetic nits
-neither skill would have raised itself. One entry per finding, appended in order the
-reviews produced them.
+Log every finding that clears either pass's bar — thermo-nuclear's or
+ponytail's. Don't filter down to only scariest one, but also don't pad
+file with cosmetic nits neither skill would have raised itself. One
+entry per finding, appended in order reviews produced them.
 
 ## Step 5: Report back
 
@@ -108,7 +111,7 @@ Tell user:
 
 - Resolved scope reviewed.
 - How many findings logged (net-new lines/entries vs. Step 2 baseline).
-- Path to `BACKLOG.md` written.
-- Zero findings: say clearly the review passed both thermo-nuclear's and ponytail's
-  approval bar with no logged issues — don't write an empty entry just to prove the
-  skill ran.
+- Path to backlog index written to.
+- Zero findings: say clearly review passed both thermo-nuclear's
+  and ponytail's approval bar with no logged issues. Don't write empty
+  entry just to prove skill ran.

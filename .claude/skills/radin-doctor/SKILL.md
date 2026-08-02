@@ -8,12 +8,7 @@ description: |
 ---
 # Doctor
 
-Read-only health check for radin's own install under `~/.claude` --
-confirms the agent/skill files `install.sh` should have copied are
-present, that radin's own lib shell scripts have valid syntax, and reports
-which optional companion tools (rtk, code-review-graph, caveman,
-i-have-adhd, ponytail) are currently reachable. Never mutates anything --
-mirrors `install.sh`'s own "advisory only" stance on companion tools.
+Read-only health check for radin's own install under `~/.claude`. Confirms agent/skill files `install.sh` should've copied present, checks radin's own lib shell scripts have valid syntax, reports which optional companion tools (rtk, code-review-graph, caveman, i-have-adhd, ponytail) currently reachable. Never mutates — mirrors `install.sh`'s own "advisory only" stance on companion tools.
 
 ## Step 1: Run it
 
@@ -23,10 +18,6 @@ bash "$HOME/.claude/.radin/lib/radin-doctor.sh"
 
 ## Step 2: Report it
 
-Print the full output to the user as-is -- it already lists every checked
-item with its status.
+Print full output to user as-is — already lists every checked item with status.
 
-If the command exits non-zero, one or more expected files are missing or
-have invalid syntax: tell the user to re-run `install.sh` (or
-`radin-update`) to fix it. Missing/not-found companion tools are advisory
-only, never a failure -- they don't need this remediation.
+Command exits non-zero: one or more expected files missing or invalid syntax. Tell user re-run `install.sh` (or `radin-update`) to fix. Missing/not-found companion tools advisory only, never failure — don't need this remediation.

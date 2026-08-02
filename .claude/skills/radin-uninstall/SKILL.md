@@ -7,17 +7,9 @@ description: |
 ---
 # Uninstall
 
-Removes every file `install.sh` copies into `~/.claude` -- the
-`radin-execute` agent, all `radin-*` skill directories (including this
-one), and radin's lib scripts under `~/.claude/.radin/lib/`. Only removes
-files radin can prove it shipped, by exact name -- never a wildcard
-delete of `~/.claude/agents` or `~/.claude/skills`, which are shared with
-a consumer's other tools.
+Removes every file `install.sh` copied into `~/.claude`: `radin-execute` agent, all `radin-*` skill directories (including this one), radin's lib scripts under `~/.claude/.radin/lib/`. Removes only files radin proves it shipped, by exact name — never wildcard delete of `~/.claude/agents` or `~/.claude/skills`, shared with consumer's other tools.
 
-Leaves untouched: `thermo-nuclear` (not vendored by this repo), advisory
-companion tools (rtk, code-review-graph, caveman, i-have-adhd, ponytail),
-and any `<repo-root>/.claude/.radin/` backlog directory in a consumer
-repo -- that's the user's data, not something to delete on their behalf.
+Leaves untouched: `thermo-nuclear` (not vendored by this repo), advisory companion tools (rtk, code-review-graph, caveman, i-have-adhd, ponytail), any `<repo-root>/.claude/.radin/` backlog directory in consumer repo. That backlog user's data, not something to delete on their behalf.
 
 ## Step 1: Run it
 
@@ -27,6 +19,4 @@ bash "$HOME/.claude/.radin/lib/radin-uninstall.sh"
 
 ## Step 2: Report it
 
-Print the full output to the user as-is -- it already lists what was
-removed and what was left untouched, with manual removal commands for
-the advisory companion tools.
+Print full output to user as-is — already lists what removed, what left untouched, with manual removal commands for advisory companion tools.

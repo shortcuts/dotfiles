@@ -7,49 +7,30 @@ description: |
 ---
 # Stats Roundup
 
-Surface each installed companion tool's own stats/gain command, back to back.
-No merged total: the numbers below use incompatible units (real per-session
-tokens, static benchmark medians, a counted per-repo ledger) — summing them
-would misrepresent all three, so display each as-is instead.
+Each installed tool print own stats/gain command, back to back. No merged total: numbers use incompatible units — real per-session tokens, static benchmark medians, counted per-repo ledger. Sum would misrepresent all three. Display each as-is.
 
 ## Step 1: Invoke each available source
 
-Run whichever of these are installed (`command -v` / skill lookup — skip
-silently if missing, don't error):
+Run whichever installed (`command -v` / skill lookup — skip silent if missing, don't error):
 
-- **`/caveman-stats`** — real per-session token usage and savings, read from
-  the session log itself.
-- **`/ponytail-gain`** — ponytail's published benchmark scoreboard (medians
-  across 5 tasks, 3 models). Not this session, not this repo.
-- **`/ponytail-debt`** — ponytail's real per-repo ledger of deferred
-  shortcuts, if this repo has one.
-- **`rtk gain`** — rtk's real token-savings ledger (`command -v rtk`; use
-  `-p` to scope to the current project).
+- **`/caveman-stats`** — real per-session token usage and savings, read from session log itself.
+- **`/ponytail-gain`** — ponytail's published benchmark scoreboard (medians across 5 tasks, 3 models). Not this session, not this repo.
+- **`/ponytail-debt`** — ponytail's real per-repo ledger of deferred shortcuts, if repo has one.
+- **`rtk gain`** — rtk's real token-savings ledger (`command -v rtk`; use `-p` to scope to current project).
 
-Any other installed tool with its own `stats`/`gain` command belongs here
-too — add it to this list, don't build a separate skill.
+Other installed tool with own `stats`/`gain` command belongs here too — add to list, don't build separate skill.
 
-If a source (e.g. `caveman-stats`) finds nothing to report, treat that as a
-normal empty result — one quick check, then move on. Don't keep searching
-for entries that aren't there. This is informative only, not exact/precise
-required.
+If source (e.g. `caveman-stats`) finds nothing to report, treat as normal empty result: one quick check, move on. Don't keep searching for entries not there. Informative only — doesn't need exact.
 
 ## Step 2: Display, don't merge
 
-Print each tool's output under its own heading, in the order above. Label
-which are real-measured (caveman-stats, ponytail-debt, rtk gain) vs.
-fixed-benchmark (ponytail-gain) so the user doesn't mistake one for the
-other. Do not add a combined total row.
+Print each tool's output under own heading, in order above. Label which real-measured (caveman-stats, ponytail-debt, rtk gain) vs. fixed-benchmark (ponytail-gain) so user doesn't mistake one for other. No combined total row.
 
 ## Guardrails
 
-- Never compute or print a combined/merged total across tools — their units
-  are incompatible (real per-session tokens vs. static benchmark medians vs.
-  a counted per-repo ledger).
-- Skip a source silently if its command isn't installed; don't error.
+- Never compute or print combined/merged total across tools — units incompatible (real per-session tokens vs. static benchmark medians vs. counted per-repo ledger).
+- Skip source silent if command not installed; don't error.
 
 ## Output
 
-Each installed tool's own stats output, printed under its own heading, in
-the fixed order from Step 1. Each heading labeled real-measured or
-fixed-benchmark.
+Each installed tool's own stats output, printed under own heading, fixed order from Step 1. Each heading labeled real-measured or fixed-benchmark.
