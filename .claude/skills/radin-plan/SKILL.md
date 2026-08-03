@@ -82,9 +82,15 @@ separate slugification needed, the CLI already assigned it.
 ## Step 3: Judge whether the scope should split
 
 Invoke the `/ponytail` skill, then apply its ladder to this judgment call:
-does this entry need to exist as more than one plan? Default to NOT
-splitting (YAGNI) — only split if the entry genuinely bundles multiple
-unrelated changes, each independently plannable.
+does this entry need to exist as more than one plan? Lean toward NOT
+splitting (YAGNI) — only propose a split if the entry genuinely bundles
+multiple unrelated changes, each independently plannable.
+
+Either way, this is a judgment call about the user's own task — don't
+resolve it silently. Invoked interactively: state your read (split or not,
+and why) and confirm it with the user before proceeding, using `/grilling`
+if the entry's scope is genuinely unclear rather than just a formality.
+Invoked non-interactively: fall back to the default below without asking.
 
 - **Not splitting**: the sub-task list is exactly one item — the entry
   itself.
