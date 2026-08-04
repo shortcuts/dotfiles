@@ -9,7 +9,7 @@ description: |
 
 Removes every file `install.sh` copied into `~/.claude`: `radin-execute` agent, all `radin-*` skill directories (including this one), radin's lib scripts under `~/.claude/.radin/lib/`. Removes only files radin proves it shipped, by exact name — never wildcard delete of `~/.claude/agents` or `~/.claude/skills`, shared with consumer's other tools.
 
-Leaves untouched: `thermo-nuclear` (not vendored by this repo), advisory companion tools (rtk, code-review-graph, caveman, i-have-adhd, ponytail), any `<repo-root>/.claude/.radin/` backlog directory in consumer repo. That backlog user's data, not something to delete on their behalf.
+Leaves untouched: `thermo-nuclear` (not vendored by this repo), advisory companion tools (rtk, code-review-graph, caveman, ponytail), any `<repo-root>/.claude/.radin/` backlog directory in consumer repo. That backlog user's data, not something to delete on their behalf.
 
 ## Step 1: Run it
 

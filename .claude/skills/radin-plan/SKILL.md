@@ -2,17 +2,10 @@
 name: radin-plan
 description: |
   Write a step-by-step implementation plan for one backlog entry, without
-  touching code. Takes a task scope — a title/keyword — instead of the whole
-  backlog. Judges whether the scope is broad enough to split into multiple
-  independent plans, confirms any split with you directly, then writes one
-  plan file per resulting sub-task — interviewing you on open decisions via
-  `/grilling` and, when a third-party API/library fact is load-bearing,
-  verifying it via `/research` — reviews the plan with thermo-nuclear and
-  ponytail-review before handing it off, and appends a `**Plan:**` pointer
-  back to the entry. Use for /radin-plan, "plan this backlog entry", "write
-  a plan for X before we execute it". radin-execute delegates to a planning
-  sub-agent that invokes this skill, non-interactively, for any entry it
-  judges too complex to implement without a plan.
+  touching code. Scope is one task (a title/keyword), not the whole backlog.
+  Use for /radin-plan, "plan this backlog entry", "write a plan for X before
+  we execute it". radin-execute delegates here for any entry too complex to
+  implement directly.
 ---
 # Plan a Backlog Entry
 
@@ -89,7 +82,7 @@ multiple unrelated changes, each independently plannable.
 Either way, this is a judgment call about the user's own task — don't
 resolve it silently. Invoked interactively: state your read (split or not,
 and why) and confirm it with the user before proceeding, using `/grilling`
-if the entry's scope is genuinely unclear rather than just a formality.
+if the entry's scope is genuinely unclear rather than a formality.
 Invoked non-interactively: fall back to the default below without asking.
 
 - **Not splitting**: the sub-task list is exactly one item — the entry
@@ -112,7 +105,7 @@ For each sub-task, in order:
 1. Read the entry's file (`$BACKLOG_TASKS_DIR/<parent_id>.md`). If this
    sub-task came from a split, its scope is only the one-line description
    recorded in Step 3 — plan just that part.
-2. Explore the codebase as needed: current structure, affected files,
+2. Explore the codebase: current structure, affected files,
    existing patterns, constraints. If `code-review-graph` is installed and
    wired for this repo, use its MCP tools (`semantic_search_nodes`,
    `get_impact_radius`, `query_graph`) before Grep/Glob/Read — token-efficient
@@ -149,12 +142,9 @@ For each sub-task, in order:
 
 6. Report: `✅ <sub-task-id> planned. Plan: <path>.`
 
-Do NOT implement the change, run builds/tests, or commit while producing the
-plan — planning and executing are separate tools, even when the same
-conversation ends up doing both in sequence.
-
 Do NOT edit any source file, run builds/tests, or create a git commit at any
-point in this skill.
+point in this skill. Planning and executing are separate tools, even when the
+same conversation does both in sequence.
 
 ## Step 4.5: Review each plan before handing it off
 

@@ -10,68 +10,80 @@ description: |
 ---
 # Record to Backlog
 
-Feedback, bugs, follow-ups, ideas from live session → structured backlog entries. Survive past conversation that raised them. Capture step for anything not code-review finding — human said, not diff revealed. `radin-review` logs code-review findings instead. `radin-plan` and `radin-execute` consume backlog after.
+This skill turns feedback, bugs, follow-ups, and ideas from the live session into structured backlog entries that survive past the conversation. It captures what a human said, not what a diff revealed. `radin-review` logs code-review findings instead. `radin-plan` and `radin-execute` consume the backlog afterward.
 
-All backlog writes go through shared CLI at
-`$HOME/.claude/.radin/lib/radin-backlog.sh`. Resolves per-project
-namespace (`<repo-root>/.claude/.radin/backlog/`, JSONL index plus one
-markdown file per task), appends entries deterministic. Never
-hand-edit index or task file, never compute paths yourself.
+All backlog writes go through the shared CLI at
+`$HOME/.claude/.radin/lib/radin-backlog.sh`. It resolves the per-project
+namespace (`<repo-root>/.claude/.radin/backlog/`, a JSONL index plus one
+markdown file per task) and appends entries deterministically. Never
+hand-edit the index or a task file. Never compute paths yourself.
 
 ## Step 1: Decide what to log
 
-User's instruction after `/radin-record` decides scope:
+The user's instruction after `/radin-record` decides the scope:
 
-- **Specific** (names particular thing — "add the auth timeout bug",
+- **Specific** (names a particular thing — "add the auth timeout bug",
   "log the caching idea we discussed"): log exactly that item. Don't dig
-  for other candidates user didn't point at.
+  for other candidates the user didn't point at.
 - **Generic** ("add the findings", "log what we discussed", bare
-  `/radin-record` with no argument): scan whole session so far for
-  anything reasonable person calls bug, follow-up, idea, feedback. Include
-  things user stated outright, and things clearly surfaced as "we should
-  probably..." aside mid-task, even if nobody wrote down. Each distinct
-  item becomes own entry.
+  `/radin-record` with no argument): scan the whole session so far for
+  anything a reasonable person calls a bug, follow-up, idea, or feedback.
+  Include things the user stated outright, and things clearly surfaced as a
+  "we should probably..." aside mid-task, even if nobody wrote them down.
+  Each distinct item becomes its own entry.
 
-Either way, stay faithful to what actually said. Capture tool, not
-brainstorming — don't invent items conversation didn't raise, don't
-editorialize on top of what user said.
+Either way, stay faithful to what was actually said. This is a capture
+tool, not brainstorming. Don't invent items the conversation didn't raise.
+Don't editorialize on top of what the user said.
 
-Single thing raised in conversation can be broad enough it's really
-two or more sequential pieces of work — e.g. "add rate limiting on top of
-new auth middleware" needs middleware exist first. Log each piece own
-entry, don't let one entry hide two tasks. Splitting about work's shape,
-not user's phrasing — single sentence can still name two sequential tasks.
+A single thing raised in conversation can be broad enough to be two or more
+sequential pieces of work. For example, "add rate limiting on top of new
+auth middleware" needs the middleware to exist first. Log each piece as its
+own entry. Don't let one entry hide two tasks. Splitting is about the work's
+shape, not the user's phrasing — a single sentence can still name two
+sequential tasks.
 
-Genuinely unclear whether something belongs in scope, or whether it's one
-entry or several — don't guess, invoke `/grilling` on the ambiguous point
-and let user settle it before logging anything. Applies mid-scan for
-generic asks too: surfacing a question beats silently deciding a boundary
-user never stated.
+When it is genuinely unclear whether something belongs in scope, or whether
+it's one entry or several, don't guess. Invoke `/grilling` on the ambiguous
+point and let the user settle it before logging anything. This applies
+mid-scan for generic asks too: surfacing a question beats silently deciding
+a boundary the user never stated.
+
+That's a different case from an item that's *real but not yet sharp* — the
+scope/split boundary is clear, but the shape of the work itself isn't (a
+"we should figure out caching at some point" aside with no concrete
+approach yet). Don't grill the user just to force detail that doesn't exist
+yet, and don't invent detail to fill the gap either. Log it as a stub: short
+title, a body that says plainly it's not yet specified and what's known so
+far, no invented approach or scope. `radin-plan` sharpens it into a real
+plan once someone picks it up — grilling at that point has the concrete
+question to grill about, which right now it doesn't.
 
 ## Step 1b: Note any skill invoked for this item
 
-If the request that raised this item explicitly invoked a skill (e.g. user
-wrote `/radin-record /frontend-design make the accent color...`, or a skill
-ran earlier in the session and this item continues that work), record it
-as a standing instruction, not a note. User chose that skill for this task —
-record it even if it looks redundant, wrong-fit, or skippable to you. Nobody
-downstream re-judges it either: not `radin-record` now, not `radin-execute`'s
-sub-agent later. `radin-execute`'s sub-agent has no visibility into this
-conversation — without this line it re-implements the item from bare
-description text and never invokes the skill the user asked for.
+If the request that raised this item explicitly invoked a skill (e.g. the
+user wrote `/radin-record /frontend-design make the accent color...`, or a
+skill ran earlier in the session and this item continues that work), record
+it as a standing instruction, not a note. The user chose that skill for this
+task — record it even if it looks redundant, wrong-fit, or skippable to you.
+Nobody downstream re-judges it either: not `radin-record` now, not
+`radin-execute`'s sub-agent later. `radin-execute`'s sub-agent has no
+visibility into this conversation. Without this line it re-implements the
+item from bare description text and never invokes the skill the user asked
+for.
 
 ## Step 2: Classify each item and note dependencies
 
-Before writing each item, ask: landing it require another item in same
-batch (or task already in backlog) land first? Use same signal
-`radin-execute` and `radin-plan` already use: same file, function, or
-behavior touched by both, or item explicitly builds on other. If so,
-dependent entry's description must name other entry's exact title, say
-why comes first — e.g. "Depends on the '<other title>' entry — needs
-the endpoint it adds before this can call it." Plain prose, not special
-tag. `radin-execute`'s prioritization step reads entry bodies for exactly
-this signal when ordering backlog. Leave out of text → invisible to it
-later.
+Before writing each item, ask: does landing it require another item in the
+same batch (or a task already in the backlog) to land first? Use the same
+signal `radin-execute` and `radin-plan` already use: both touch the same
+file, function, or behavior, or the item explicitly builds on the other. If
+so, the dependent entry's description must name the other entry's exact
+title and say why it comes first — e.g. "Depends on the '<other title>'
+entry — needs the endpoint it adds before this can call it." Use plain
+prose, not a special tag. `radin-execute`'s prioritization step reads entry
+bodies for exactly this signal when ordering the backlog. Leave it out of
+the text and it stays invisible to that step.
 
 Classify each item into exactly one category (same vocabulary as
 conventional-commit type):
@@ -84,19 +96,20 @@ conventional-commit type):
 - **refactor** — feedback existing approach/structure should change
   without changing behavior (e.g. "I don't love how this got structured").
 
-Item could plausibly fit two categories → pick closer one, move on. Don't
-stall on classification; slightly-off category costs nothing since
-`radin-execute`/`radin-plan` read description regardless of category.
+An item could plausibly fit two categories — pick the closer one and move
+on. Don't stall on classification. A slightly-off category costs nothing,
+since `radin-execute` and `radin-plan` read the description regardless of
+category.
 
 ## Step 3: Confirm scope with user, then append via the CLI
 
-**Generic ask** (Step 1 scanned whole session): before writing anything,
-show user the finalized item list — title + category per item — and
-confirm it's the right set before running the CLI. Scanning free-form
-conversation for "anything reasonable person calls a bug/idea" is a guess
-about what user actually wants captured; don't let that guess become a
-backlog entry unchecked. **Specific ask** (user named the exact item): skip
-confirmation, log directly — nothing ambiguous to check.
+**Generic ask** (Step 1 scanned the whole session): before writing
+anything, show the user the finalized item list — title and category per
+item — and confirm it's the right set before running the CLI. Scanning
+free-form conversation for "anything a reasonable person calls a bug/idea"
+is a guess about what the user actually wants captured. Don't let that guess
+become a backlog entry unchecked. **Specific ask** (user named the exact
+item): skip confirmation and log directly — nothing ambiguous to check.
 
 For each confirmed, classified item:
 
@@ -112,24 +125,25 @@ EOF
 ```
 
 If Step 1b found a skill, append that `**Skill:** Invoke <skill-name> to
-tackle this task.` line as the last line of the body (same convention
-`radin-plan` uses for `**Plan:**` pointers) — omit the line entirely if no
+tackle this task.` line as the last line of the body (the same convention
+`radin-plan` uses for `**Plan:**` pointers). Omit the line entirely if no
 skill applies. Word it as an instruction, not metadata — `radin-execute`
 follows it verbatim, it doesn't decide whether to.
 
-CLI handles file creation, section ordering, appending — you only supply
-category, title, body.
+The CLI handles file creation, section ordering, and appending. You only
+supply the category, title, and body.
 
-Always append. Don't scan backlog for near-duplicates, don't try merge
-with existing entry — let `radin-execute`/`radin-plan` or human dedupe
-later. False-positive merge silently drops something user cared about,
-worse than occasional repeated entry.
+Always append. Don't scan the backlog for near-duplicates. Don't try to
+merge with an existing entry — let `radin-execute`, `radin-plan`, or a
+human dedupe later. A false-positive merge silently drops something the
+user cared about, which is worse than an occasional repeated entry.
 
 ## Step 4: Report back
 
 Tell user:
 
-- How many entries logged, with titles and categories.
-- Path to backlog file (CLI prints it on each `add`).
-- If nothing in scope (Step 1) actually rose to level of loggable item,
-  say so plainly — don't pad file with vague entry just to prove skill ran.
+- How many entries were logged, with titles and categories.
+- The path to the backlog file (the CLI prints it on each `add`).
+- If nothing in scope (Step 1) actually rose to the level of a loggable
+  item, say so plainly — don't pad the file with a vague entry just to
+  prove the skill ran.

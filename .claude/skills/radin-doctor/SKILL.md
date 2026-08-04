@@ -8,7 +8,7 @@ description: |
 ---
 # Doctor
 
-Read-only health check for radin's own install under `~/.claude`. Confirms agent/skill files `install.sh` should've copied present, checks radin's own lib shell scripts have valid syntax, reports which optional companion tools (rtk, code-review-graph, caveman, i-have-adhd, ponytail) currently reachable. Never mutates — mirrors `install.sh`'s own "advisory only" stance on companion tools.
+Read-only health check for radin's own install under `~/.claude`. Confirms agent/skill files `install.sh` should've copied present, checks radin's own lib shell scripts have valid syntax, reports which optional companion tools (rtk, code-review-graph, caveman, ponytail) currently reachable. Never mutates — mirrors `install.sh`'s own "advisory only" stance on companion tools.
 
 ## Step 1: Run it
 

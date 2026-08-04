@@ -45,6 +45,7 @@ fish/functions/*
 !fish/functions/rmdocker*
 !fish/functions/td*
 !fish/functions/vpn*
+!fish/functions/obsd*
 fish/fish_variables*
 !fisher/
 !fisher/**
