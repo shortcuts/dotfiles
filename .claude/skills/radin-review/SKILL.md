@@ -13,31 +13,27 @@ This review logs every finding as a backlog entry instead of printing it to the 
 
 ## Step 1: Resolve scope argument
 
-The user passes one argument. It is one of:
+The user passes one argument (or none). Resolve the mechanical cases via
+the shared CLI — don't probe git/gh by hand:
 
-- **Commit hash** (e.g. `a1b2c3d`) — review that single commit's changes:
-  `git show <hash>` / `git diff <hash>^..<hash>`.
-- **PR reference** (e.g. `#123`, `123`, or GitHub PR URL) — resolve via
-  `gh pr diff <number>` (add `--repo <owner>/<repo>` if URL points elsewhere than
-  current repo's remote).
-- **Directory path** — review current state of everything under that path (not diff —
-  read files as they stand today).
-- **Natural-language range** (e.g. `"last commits since yesterday"`,
-  `"commits since Monday"`, `"the last 5 commits"`) — translate into concrete
-  `git log` / `git diff` invocation, e.g. `git log --since=yesterday --oneline` then
-  `git diff <oldest-of-those>^..HEAD`.
-- **No argument** — default to working branch's diff against its base
-  (`git merge-base main HEAD` or `master`, whichever exists), same default `/code-review`
-  would use.
+```bash
+bash "$HOME/.claude/.radin/lib/radin-scope.sh" [<arg>]
+```
 
-The argument looks ambiguous (e.g. it could be a commit hash or a directory
-name, or a PR number that doesn't resolve via `gh`) — check facts before
-asking anyone: `git cat-file -t <arg>` (expect `commit`), `test -d <arg>`,
-`gh pr view <arg>` all settle it without a question. Most "ambiguous"
-arguments resolve this way.
+It settles a commit hash, a PR reference (`#123`, `123`, a GitHub PR URL),
+a directory path, and the no-argument default (the working branch's diff
+against its merge-base with main/master). Exit codes:
 
-Still ambiguous after checking facts — e.g. it resolves as both a valid
-commit-ish and an existing directory:
+- **0** — resolved. It prints `type`/`scope`/`command` lines; run the
+  printed command to get the scope's content.
+- **1** — not a commit, PR, or directory. If the argument is a
+  **natural-language range** (e.g. `"last commits since yesterday"`,
+  `"the last 5 commits"`), that's yours to translate into a concrete
+  `git log` / `git diff` invocation, e.g. `git log --since=yesterday
+  --oneline` then `git diff <oldest-of-those>^..HEAD`. Otherwise the
+  argument doesn't resolve — report it.
+- **2** — genuinely ambiguous: the argument reads several valid ways
+  (candidates on stderr, e.g. both a PR number and a directory):
 
 - **Invoked interactively** (a live user is in this conversation): ask
   which one they meant. Don't guess.
@@ -58,7 +54,7 @@ backlog paths itself. Never hand-edit the index or task file. Record the
 baseline now so you can report net-new findings at the end:
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-backlog.sh" show 2>/dev/null | wc -l
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" count
 ```
 
 ## Step 3: Run reviews

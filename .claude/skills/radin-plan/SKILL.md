@@ -65,9 +65,11 @@ bash "$HOME/.claude/.radin/lib/radin-backlog.sh" find "<scope id/title/keyword>"
   Invoked non-interactively, never create an entry: the scope always came
   from an existing one, so no match means the backlog drifted — report it
   and stop instead of writing a duplicate.
-- **Entry already has a `**Plan:**` line**: show the existing plan path(s)
-  and ask whether to re-plan (overwrite) or stop. Stop unless re-planning is
-  confirmed.
+- **Entry already planned**: check with
+  `bash "$HOME/.claude/.radin/lib/radin-backlog.sh" meta "<id>"` — one
+  `plan<TAB><path>` line per existing pointer. If any, show the existing
+  plan path(s) and ask whether to re-plan (overwrite) or stop. Stop unless
+  re-planning is confirmed.
 
 Record the entry's `id`, `title`, and use the id as the `parent_id` — no
 separate slugification needed, the CLI already assigned it.

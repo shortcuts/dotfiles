@@ -114,24 +114,23 @@ item): skip confirmation and log directly — nothing ambiguous to check.
 For each confirmed, classified item:
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <category> "<short title>" <<'EOF'
+bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <category> "<short title>" [--skill <skill-name>] <<'EOF'
 <as exhaustive a description as the situation warrants: what was being
 discussed/worked on when this came up, the item itself close to how the
 user stated or clearly implied it, and why it matters if that's not
 already obvious. radin-execute/radin-plan will act on this entry with
 no other session context, so don't compress it down to one line.>
-**Skill:** Invoke <skill-name> to tackle this task.
 EOF
 ```
 
-If Step 1b found a skill, append that `**Skill:** Invoke <skill-name> to
-tackle this task.` line as the last line of the body (the same convention
-`radin-plan` uses for `**Plan:**` pointers). Omit the line entirely if no
-skill applies. Word it as an instruction, not metadata — `radin-execute`
-follows it verbatim, it doesn't decide whether to.
+If Step 1b found a skill, pass it as `--skill <skill-name>` (repeatable) —
+the CLI appends the canonical `**Skill:** Invoke <skill-name> to tackle
+this task.` line to the body itself, worded as an instruction
+`radin-execute` follows verbatim. Omit the flag entirely if no skill
+applies. Never write the `**Skill:**` line by hand.
 
-The CLI handles file creation, section ordering, and appending. You only
-supply the category, title, and body.
+The CLI handles file creation, section ordering, appending, and the skill
+line. You only supply the category, title, body, and any `--skill` flags.
 
 Always append. Don't scan the backlog for near-duplicates. Don't try to
 merge with an existing entry — let `radin-execute`, `radin-plan`, or a
