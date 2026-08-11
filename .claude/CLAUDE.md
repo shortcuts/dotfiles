@@ -1,115 +1,51 @@
-<!-- User customizations (migrated from previous CLAUDE.md) -->
-@RTK.md
-
 # CLAUDE.md
 
-Behavioral guidelines to reduce LLM coding mistakes. Merge with project-specific instructions as needed.
+Behavioral guidelines to reduce LLM coding mistakes. Project instructions add to these guidelines.
 
 **Tradeoff:** Guidelines bias toward caution over speed. Trivial tasks: use judgment.
 
-## 1. Think Before Coding
+## 1. Communication and writing style
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
-
-Before implementing:
-- State assumptions explicitly. Uncertain: ask.
-- Multiple interpretations exist: present them, don't pick silently.
-- Simpler approach exists: say so. Push back when warranted.
-- Unclear: stop. Name what's confusing. Ask.
-
-## 2. Simplicity First
-
-**Minimum code that solves problem. Nothing speculative.**
-
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No unrequested "flexibility" or "configurability".
-- No error handling for impossible scenarios.
-- 200 lines when 50 works: rewrite.
-
-Ask: "Would senior engineer say this is overcomplicated?" If yes, simplify.
-
-## 3. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-Editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- Unrelated dead code: mention it, don't delete.
-
-Your changes create orphans:
-- Remove imports/variables/functions YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-Test: every changed line traces directly to user's request.
-
-## 4. Goal-Driven Execution
-
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-Multi-step tasks, state brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria: loop independently. Weak criteria ("make it work"): constant clarification.
-
----
-
-<!-- code-review-graph MCP tools -->
-## MCP Tools: code-review-graph
-
-When a project has the code-review-graph knowledge graph (auto-updated via hooks), it answers structural questions — callers, dependents, impact radius, test coverage, review context — more cheaply than scanning files. Reach for it before Grep/Glob/Read when exploring code, assessing the blast radius of a change, or reviewing a diff; fall back to file scanning when the graph doesn't cover what you need. The MCP tools document their own parameters and use.
-
----
-
-## Writing Docs: ASD-STE100 Simplified Technical English
-
-**Applies to:** README, CONTRIBUTING, CHANGELOG, architecture docs, agent/skill
-instruction files — any `*.md` meant to be read or followed. Not code comments
-(see below) and not this file's own style.
-
-STE100 is controlled English, not telegraphic shorthand. Keep full grammar
-(articles, verb endings) — cut length and ambiguity, not words.
+**Formulate all sentences in ASD-STE100 Simplified Technical English.** STE keeps
+output short and unambiguous. This rule applies to answers and to file content.
 
 - **One idea per sentence.** Split compound sentences joined by "and"/"which"
   into two sentences.
 - **Short sentences.** Under ~20 words for instructions, ~25 for description.
 - **Active voice, one tense.** "Run `install.sh`" not "`install.sh` should be
   run." Prefer present tense.
-- **One term per concept, used consistently.** Don't alternate between
-  "backlog" and "issue list" and "task queue" for the same thing. Pick one
-  word and reuse it everywhere in the doc.
+- **One term per concept, used consistently.** Pick one word and reuse it
+  everywhere in the doc.
 - **No noun stacks.** Rewrite "namespace resolution script logic" as "the
   script that resolves the namespace."
 - **Say who does the action.** "The script creates X" not "X gets created."
 - **Cut hedges and filler.** No "basically," "essentially," "in order to,"
   "it should be noted that." State the fact.
-- **Cut restated context.** Don't re-explain what a linked doc already covers
-  — link to it once.
-- **Concrete over abstract.** Give the exact command, path, or example instead
-  of a general description of one.
+- **Cut restated context.** Link to a doc once. Do not re-explain it.
+- **Concrete over abstract.** Give the exact command, path, or example.
 - **Lists over prose** for anything sequential or enumerable. Prose only for
   narrative explanation (why a decision was made).
 
-Before finishing a doc edit, reread each paragraph and ask: does every
-sentence carry information the reader needs? Delete the ones that don't.
+Before you finish a doc edit, reread each paragraph. Delete each sentence that
+carries no information the reader needs.
 
-## Code Comments
+## 2. Working style
 
-- Default: no comment. Names and structure should carry the meaning.
-- Add a comment only for the **why** — a constraint, a bug workaround, a
-  non-obvious invariant — never the **what** (that's what the code already
-  shows).
-- One line. If it needs a paragraph, the code is the problem, not the
-  comment.
+- State assumptions explicitly. If uncertain, ask. If multiple interpretations
+  exist, present them. Do not pick silently.
+- Push back when a simpler approach exists.
+- Write the minimum code that solves the problem. No speculative features,
+  abstractions, or configurability.
+- Touch only what the request needs. Match existing style. Remove only the
+  orphans your changes created.
+- Turn tasks into verifiable goals ("fix the bug" → "write a test that
+  reproduces it, then make it pass"). Loop until verified.
 
+## MCP Tools: code-review-graph
+
+Some projects have the code-review-graph knowledge graph, auto-updated via
+hooks. It answers structural questions cheaply: callers, dependents, impact
+radius, test coverage, review context. Use it before Grep/Glob/Read when you
+explore code, assess blast radius, or review a diff. Fall back to file
+scanning when the graph does not cover what you need. The MCP tools document
+their own parameters and use.

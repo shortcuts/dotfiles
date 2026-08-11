@@ -1,7 +1,5 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## What this repo is
 
 Personal dotfiles stored at `~/.config`, shared across two Macs:
@@ -9,7 +7,7 @@ Personal dotfiles stored at `~/.config`, shared across two Macs:
 - **2023 MacBook** — Apple Silicon (ARM, `/opt/homebrew`)
 - **2018 Mac Mini** — Intel x86_64 (`/usr/local`)
 
-Configs must stay compatible with both architectures. The fish config already handles dual Homebrew paths by adding both `/usr/local/bin` and `/opt/homebrew/bin` to `fish_user_paths`. When editing shell configs or scripts that reference Homebrew paths, always use `$(which brew)` / `brew shellenv` rather than hardcoding a prefix. Avoid ARM-only or Intel-only binaries in configs without a fallback.
+Configs must stay compatible with both architectures. The fish config handles dual Homebrew paths: it adds both `/usr/local/bin` and `/opt/homebrew/bin` to `fish_user_paths`. Do not hardcode a Homebrew prefix. Use `$(which brew)` or `brew shellenv`. Avoid ARM-only or Intel-only binaries in configs without a fallback.
 
 ## Install / update
 
@@ -22,7 +20,7 @@ On first-time setup, `install.sh` creates `~/.claude → ~/.config/.claude` so t
 
 ## Gitignore strategy
 
-The `.gitignore` uses a whitelist approach: it ignores everything (`*`) then selectively un-ignores specific directories and files. When adding new config files to track, you must add explicit `!path/` and `!path/**` rules — not just remove an ignore rule. Machine-local ignores go in `.gitignore.local` (already wired via `.gitconfig` `core.excludesFile`).
+The `.gitignore` uses a whitelist approach. It ignores everything (`*`), then un-ignores specific directories and files. To track a new config file, add explicit `!path/` and `!path/**` rules — do not just remove an ignore rule. Machine-local ignores go in `.gitignore.local` (wired via `.gitconfig` `core.excludesFile`).
 
 ## Key config locations
 
@@ -47,11 +45,10 @@ Detailed conventions live in `nvim/CLAUDE.md` and `tmux/CLAUDE.md` (loaded lazil
 
 - Abbreviations (git shortcuts, etc.) are in `fish/alias.fish`
 - `fish/functions/g*.fish` — custom git workflow functions (`gco`, `gl`, `gpl`, `gps`, `gpsf`, `gsq`)
-- Language managers: `mise` for Go/Rust/Python/Java/Zig, `nvm.fish` for Node
 
 ## Language toolchains
 
-Managed via `mise`. Node via `nvm.fish` fisher plugin. Run `mise use -g <lang>` to add/update.
+`mise` manages Go/Rust/Python/Java/Zig. The `nvm.fish` fisher plugin manages Node. Run `mise use -g <lang>` to add/update.
 
 ## 3D printing / STL work
 
