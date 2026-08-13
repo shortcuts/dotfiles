@@ -36,9 +36,9 @@ if [ -f '~/google-cloud-sdk/path.fish.inc' ]; . '~/google-cloud-sdk/path.fish.in
 set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
-# Auto-attach tmux, skip if already in tmux
+# Auto-attach herdr, skip if already inside a herdr pane
 if status is-interactive
-    and not set -q TMUX
-    and type -q tmux
-    tmux attach; or tmux new
+    and not set -q HERDR_ENV
+    and type -q herdr
+    herdr --session home
 end
