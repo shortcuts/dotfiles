@@ -63,9 +63,9 @@ module door() {
         union() {
             difference() {
                 import("battery_plate.stl");
-                translate([-1, -1, 1.82]) cube([5, 18, 2]);
-                translate([2, 0, 2.1]) cube([20, 20, 20]);
-                translate([10, 0, 1.2]) cube([25, 1.53, 5]);
+                translate([-1, -1, 1.82]) cube([17.5, 18, 2]);
+                translate([2, 0, 2.5]) cube([20, 20, 20]);
+                translate([10, 0,1.2]) cube([25, 1.53, 5]);
                 translate([10, 14.94, 1.2]) cube([25, 1.53, 5]);
             }
             grip_tabs();
