@@ -29,6 +29,27 @@ output short and unambiguous. This rule applies to answers and to file content.
 Before you finish a doc edit, reread each paragraph. Delete each sentence that
 carries no information the reader needs.
 
+### Explain WHY, never WHAT
+
+This rule applies to everything you write: code comments, commit messages,
+docs, PR descriptions.
+
+- **Only explain what the code cannot say.** The code shows WHAT it does.
+  Write only the WHY: the constraint, the tradeoff, the reason it is not the
+  obvious way.
+- **Default to zero comments.** Add one only when a reader would ask "why is
+  it like this?"
+- **One line, no more.** A comment longer than one line means the code needs
+  a rewrite, not a longer comment. Never write multi-line comment blocks
+  above self-explanatory code.
+- **Never narrate.** No "this function does X", no restating the next line,
+  no section-header comments, no "we changed X to Y" (that is the diff's job).
+- **Commit messages:** subject says what changed; body (if any) says only why.
+  If the why is obvious, no body.
+
+Test before you write a comment: delete it and reread the code. If nothing is
+lost, do not write it.
+
 ## 2. Working style
 
 - State assumptions explicitly. If uncertain, ask. If multiple interpretations
