@@ -18,6 +18,7 @@ fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin $ANDROID_HOME/platform-tool
 set -gx KO_DOCKER_REPO ko.local
 set -gx BUN_INSTALL $HOME/.bun
 set -gx MANPAGER "nvim +Man!"
+set -gx EDITOR nvim
 
 brew shellenv | source
 

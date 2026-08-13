@@ -39,18 +39,20 @@ split_horizontal = "prefix+b"
 # tmux: bind-key q killp
 close_pane = "prefix+q"
 
-# tmux: prefix+[ (copy-mode-vi) -- opens scrollback in $EDITOR instead, so
-# you get real vim hjkl/G/gg/? search rather than a copy-mode subset
-edit_scrollback = "prefix+["
+# tmux: bind-key [ copy-mode
+copy_mode = "prefix+["
 
 # tmux: bind -r n/p next-window/previous-window (already herdr defaults)
 next_tab = "prefix+n"
-previous_tab = "prefix+p"
+# rebound from prefix+p; with 2 tabs this doubles as toggle-last-tab
+previous_tab = "prefix+space"
 
 # tmux default: prefix+c new-window
 new_tab = "prefix+c"
 # herdr default is prefix+shift+x; rebound to plain prefix+x, tmux prefix+x kills pane
 close_tab = "prefix+x"
+
+toggle_sidebar = "prefix+t"
 
 # tmux: bind-key -r f run-shell "tmux neww ~/.config/scripts/tmux-session-finder"
 [[keys.command]]
@@ -60,6 +62,10 @@ command = "~/.config/scripts/herdr-session-finder"
 
 [ui]
 accent = "orange"  # matches tmux active-pane-border / window-status-current
+
+# phone terminal has little width; start collapsed, prefix+t toggles
+sidebar_start_collapsed = true
+sidebar_collapsed_mode = "hidden"
 
 # no prompt on new tab/workspace, but ask before closing a workspace
 prompt_new_tab_name = false
@@ -74,3 +80,6 @@ delivery = "system"
 [theme]
 name = "gruvbox"
 auto_switch = false
+
+[ui.sound]
+enabled = false
