@@ -1,44 +1,43 @@
 source ~/.config/fish/alias.fish
 
-# Load all saved ssh keys
-/usr/bin/ssh-add --apple-load-keychain ^/dev/null
+# Paths — fish_add_path is idempotent, no-op when already present
+fish_add_path /usr/local/bin /opt/homebrew/bin \
+    $HOME/.local/bin \
+    $HOME/.cargo/bin \
+    $HOME/go/bin \
+    $HOME/.local/share/bob/nvim-bin \
+    $HOME/Documents/no-neck-pain.nvim/.ci/lua-ls \
+    /Library/Frameworks/Python.framework/Versions/3.11/bin \
+    $HOME/.bun/bin \
+    $HOME/.local/share/mise/shims
 
-# Paths
-set -U fish_user_paths /usr/local/bin $fish_user_paths
-set -U fish_user_paths $HOME/.local/bin $fish_user_paths
-set -U fish_user_paths $HOME/.cargo/bin $fish_user_paths
-set -U fish_user_paths $HOME/go/bin $fish_user_paths
-set -U fish_user_paths $HOME/.local/share/bob/nvim-bin $fish_user_paths
-set -U fish_user_paths $HOME/Documents/no-neck-pain.nvim/.ci/lua-ls $fish_user_paths
-set -U fish_user_paths /Library/Frameworks/Python.framework/Versions/3.11/bin $fish_user_paths
+set -gx ANDROID_HOME $HOME/Android/Sdk
+set -gx ANDROID_SDK_ROOT $HOME/Android/Sdk
+fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin $ANDROID_HOME/platform-tools
 
-set -Ux ANDROID_HOME $HOME/Android/Sdk
-set -Ux ANDROID_SDK_ROOT $HOME/Android/Sdk
-fish_add_path $ANDROID_HOME/cmdline-tools/latest/bin
-fish_add_path $ANDROID_HOME/platform-tools
+set -gx KO_DOCKER_REPO ko.local
+set -gx BUN_INSTALL $HOME/.bun
+set -gx MANPAGER "nvim +Man!"
 
-set -x KO_DOCKER_REPO ko.local
+brew shellenv | source
 
-set brewbin (which brew)
+if test -f ~/google-cloud-sdk/path.fish.inc
+    source ~/google-cloud-sdk/path.fish.inc
+end
 
-eval "$($brewbin shellenv)"
-
-fzf --fish | source
-
-starship init fish | source
-
-export MANPAGER="nvim +Man!"
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '~/google-cloud-sdk/path.fish.inc' ]; . '~/google-cloud-sdk/path.fish.inc'; end
-
-# bun
-set --export BUN_INSTALL "$HOME/.bun"
-set --export PATH $BUN_INSTALL/bin $PATH
-
-# Auto-attach herdr, skip if already inside a herdr pane
+# Interactive-only: scripts, nvim :! and herdr pane spawns skip all of this
 if status is-interactive
-    and not set -q HERDR_ENV
-    and type -q herdr
-    herdr --session home
+    mise activate fish | source
+
+    # Load keychain only when the agent is empty
+    ssh-add -l >/dev/null 2>&1
+    or /usr/bin/ssh-add --apple-load-keychain >/dev/null 2>&1
+
+    fzf --fish | source
+    starship init fish | source
+
+    # Auto-attach herdr, skip if already inside a herdr pane
+    if not set -q HERDR_ENV; and type -q herdr
+        herdr --session home
+    end
 end

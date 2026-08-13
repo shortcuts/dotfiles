@@ -39,6 +39,7 @@ fish/*
 !fish/conf.d/
 fish/conf.d/*
 !fish/conf.d/tmux_autorename.fish
+!fish/conf.d/00-mise.fish
 !fish/functions/
 fish/functions/*
 !fish/functions/g*
