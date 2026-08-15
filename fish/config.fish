@@ -42,7 +42,6 @@ if status is-interactive
     set -gx FZF_ALT_C_COMMAND 'fd --type d --hidden --exclude .git'
     fzf --fish | source
     starship init fish | source
-    zoxide init fish | source
 
     # Auto-attach tmux, skip if already in tmux
     if not set -q TMUX; and type -q tmux
