@@ -58,7 +58,7 @@ brew tap guumaster/tap
 # install life basically
 brew install coreutils hostctl \
     ghostty starship tmux \
-    btop jq yq wget fswatch bat ripgrep fd fzf \
+    btop jq yq wget fswatch bat ripgrep fd fzf zoxide \
     kind derailed/k9s/k9s kubectl kubectx jesseduffield/lazydocker/lazydocker ko \
     gh lazygit git-delta \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \

@@ -21,12 +21,18 @@ function __tmux_session_update
     set -g __tmux_cached_name "$name"
 end
 
-function __tmux_on_pwd_change --on-variable PWD
+# Arm hooks at first prompt: startup scripts (gcloud, mise) cd around and
+# would fire the git lookups several times before the shell is usable
+function __tmux_arm --on-event fish_prompt
+    functions -e __tmux_arm
+
+    function __tmux_on_pwd_change --on-variable PWD
+        __tmux_session_update
+    end
+
+    function __tmux_on_postexec --on-event fish_postexec
+        string match -rq '^git\b' $argv[1]; and __tmux_session_update
+    end
+
     __tmux_session_update
 end
-
-function __tmux_on_postexec --on-event fish_postexec
-    string match -rq '^git\b' $argv[1]; and __tmux_session_update
-end
-
-__tmux_session_update

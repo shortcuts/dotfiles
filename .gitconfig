@@ -5,6 +5,8 @@
 [core]
     pager = delta
     excludesFile = ~/.config/.gitignore.local
+    fsmonitor = true
+    untrackedCache = true
 
 [rerere]
     enabled = true

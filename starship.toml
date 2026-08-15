@@ -17,8 +17,9 @@ style = "bright-blue"
 format = '([\[$all_status$ahead_behind\]]($style))'
 style = "dimmed white"
 
+# disabled: runs a full diff on every prompt, laggy in big repos
 [git_metrics]
-disabled = false
+disabled = true
 format = '([ +$added]($added_style))([ -$deleted]($deleted_style))'
 added_style = "bold dimmed green"
 deleted_style = "bold dimmed red"

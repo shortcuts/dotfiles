@@ -20,7 +20,8 @@ set -gx BUN_INSTALL $HOME/.bun
 set -gx MANPAGER "nvim +Man!"
 set -gx EDITOR nvim
 
-brew shellenv | source
+# Subshells inherit the env from the first shell; skip the brew spawn then
+set -q HOMEBREW_PREFIX; or brew shellenv | source
 
 if test -f ~/google-cloud-sdk/path.fish.inc
     source ~/google-cloud-sdk/path.fish.inc
@@ -28,14 +29,20 @@ end
 
 # Interactive-only: scripts and nvim :! skip all of this
 if status is-interactive
-    mise activate fish | source
+    # No `mise activate`: shims (already in PATH) resolve versions per directory
+    # and skip the ~380ms hook-env spawn. Tradeoff: .mise.toml [env] vars no
+    # longer auto-load; restore the activate line if a project needs them.
 
     # Load keychain only when the agent is empty
     ssh-add -l >/dev/null 2>&1
     or /usr/bin/ssh-add --apple-load-keychain >/dev/null 2>&1
 
+    set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --exclude .git'
+    set -gx FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
+    set -gx FZF_ALT_C_COMMAND 'fd --type d --hidden --exclude .git'
     fzf --fish | source
     starship init fish | source
+    zoxide init fish | source
 
     # Auto-attach tmux, skip if already in tmux
     if not set -q TMUX; and type -q tmux
