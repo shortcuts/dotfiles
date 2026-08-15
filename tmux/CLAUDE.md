@@ -6,23 +6,10 @@
 - Quick jump to dotfiles: `<prefix> C-c`
 - Pane navigation: vim-style (`h/j/k/l`) after prefix
 
-## herdr
+## Agent notifications
 
-`herdr/config.toml` mirrors this file's prefix, vim pane nav, and split keys.
-Herdr has no equivalent for the session-finder script or discrete `-`/`=`
-resize keys. `resize_mode` is left unbound here (its default key, `r`,
-went to `reload_config` to match tmux). Use herdr's built-in workspace
-picker (`<prefix> w`) for session switching instead.
-
-Fish auto-attaches the named persistent session `home` on shell start
-(`fish/config.fish`), replacing tmux's old auto-attach. tmux itself is
-untouched and still launches manually (`tmux attach` / `tmux new`).
-
-`home` ships with one workspace per project, seeded once via
-`herdr --session home workspace create --cwd <path>`:
-`~/.config`, `~/Documents/locationjoystick`, `~/Documents/renovAIte`,
-`~/Documents/pgpemu`, `~/Documents/no-neck-pain.nvim`, `~/Documents/rpi`,
-`~/Documents/radin`. Workspaces persist in the session's saved state
-(`herdr/sessions/home/`, untracked) — adding a new default project means
-running that command again by hand, there's no declarative list in
-`config.toml`.
+`.claude/hooks/tmux-agent-notify.sh` runs on Claude Code `Notification` and
+`Stop` events (wired in `.claude/settings.json`). It sends a macOS toast and
+rings the pane bell. The bell sets an orange flag on the window
+(`window-status-bell-style`). The flag clears when the window gets focus.
+The hook stays silent when the pane is active in an attached session.

@@ -26,7 +26,7 @@ if test -f ~/google-cloud-sdk/path.fish.inc
     source ~/google-cloud-sdk/path.fish.inc
 end
 
-# Interactive-only: scripts, nvim :! and herdr pane spawns skip all of this
+# Interactive-only: scripts and nvim :! skip all of this
 if status is-interactive
     mise activate fish | source
 
@@ -37,8 +37,8 @@ if status is-interactive
     fzf --fish | source
     starship init fish | source
 
-    # Auto-attach herdr, skip if already inside a herdr pane
-    if not set -q HERDR_ENV; and type -q herdr
-        herdr --session home
+    # Auto-attach tmux, skip if already in tmux
+    if not set -q TMUX; and type -q tmux
+        tmux attach; or tmux new
     end
 end

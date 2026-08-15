@@ -144,6 +144,11 @@
             "command": "$([ -x /opt/homebrew/bin/node ] && echo /opt/homebrew/bin/node || echo /usr/local/bin/node) ~/.claude/hooks/caveman-mode-tracker.js",
             "timeout": 5,
             "statusMessage": "Tracking caveman mode..."
+          },
+          {
+            "type": "command",
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh working",
+            "timeout": 5
           }
         ]
       }

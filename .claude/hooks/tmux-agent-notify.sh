@@ -6,6 +6,18 @@ set -u
 event="${1:-stop}"
 input=$(cat 2>/dev/null || true)
 
+# Session state for the prefix+s tree: working / stuck / idle.
+# ponytail: last event wins per session; per-pane states if multi-agent sessions happen
+case "$event" in
+    working) state="working" ;;
+    notification) state="stuck" ;;
+    *) state="idle" ;;
+esac
+if [ -n "${TMUX_PANE:-}" ]; then
+    tmux set-option -t "$TMUX_PANE" @agent_state "$state" 2>/dev/null || true
+fi
+[ "$event" = "working" ] && exit 0
+
 # Skip when the user already looks at this pane in an attached session.
 if [ -n "${TMUX_PANE:-}" ]; then
     watching=$(tmux display-message -p -t "$TMUX_PANE" \

@@ -17,7 +17,7 @@ function __tmux_session_update
 
     test "$__tmux_cached_name" = "$name"; and return
 
-    tmux rename-session -- "$name"
+    tmux rename-session -- "$name" 2>/dev/null
     set -g __tmux_cached_name "$name"
 end
 

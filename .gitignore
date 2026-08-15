@@ -67,10 +67,6 @@ fish/fish_variables*
 !tmux/
 !tmux/**
 
-# herdr (runtime state/logs stay ignored, only config tracked)
-!herdr/
-herdr/*
-!herdr/config.toml
 !scripts/
 !scripts/**
 scripts/.seen_shinies
