@@ -47,6 +47,30 @@ saying plainly it's unspecified and what's known so far. `radin-plan`
 sharpens it when someone picks it up; grilling now has nothing concrete to
 grill about.
 
+## Step 2: Chart each item's open decisions
+
+The user is at the keyboard now; `radin-execute` may later run with nobody
+behind it. Settle judgment calls here so execution never has to.
+
+For each item, list what an executor with zero session context would have
+to decide that the conversation didn't settle. Tag each question:
+
+- **Fact** — checkable against the repo, docs, or an API. Never ask the
+  user for these. Note each in the entry body as an open fact to verify;
+  `radin-execute` resolves facts AFK via `/research`.
+- **Decision** — a judgment call only the user can make (tradeoff, scope
+  boundary, behavior choice). Invoke `/grilling` on these now, one
+  question at a time. Keep every settled answer for Step 4's body.
+
+An item with no open decisions — one obvious change — skips this step;
+don't manufacture questions. A stub from Step 1 also skips: it is one
+deliberately deferred whole, not an item with grillable edges.
+
+If the user defers a question or stops answering, record the question
+itself as an open decision in the entry body — options and your
+recommendation included — so `radin-execute` blocks on it explicitly
+instead of guessing.
+
 ## Step 1b: Note any skill invoked for this item
 
 If the request that raised the item explicitly invoked a skill (e.g.
@@ -64,7 +88,7 @@ and never invokes the skill the user chose.
 against the task's file. Running it now would log the item as already
 resolved — exactly what this form exists to avoid.
 
-## Step 2: Classify each item and note dependencies
+## Step 3: Classify each item and note dependencies
 
 Does landing this item require another item in the batch (or an existing
 backlog task) to land first — same file/function/behavior, or an explicit
@@ -84,7 +108,13 @@ Classify into exactly one category (conventional-commit vocabulary):
 Two plausible fits: pick the closer one and move on — `radin-execute` and
 `radin-plan` read the description regardless of category.
 
-## Step 3: Confirm scope with user, then append via the CLI
+## Step 4: Review, confirm scope with user, then append via the CLI
+
+Before anything is appended, review each entry against one bar: can an
+agent with no session context and no user reachable plan and execute this
+without inventing a choice? An entry passes by carrying its decisions, or
+by naming plainly what stays open (an open fact, a deferred decision, a
+stub). If it fails and the gap is grillable, return to Step 2.
 
 **Generic ask**: show the finalized list (title + category per item) and
 confirm before running the CLI — a session scan is a guess about what the
@@ -99,6 +129,11 @@ bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <category> "<short title>" 
 worked on when this came up, the item close to how the user stated it, and
 why it matters. radin-execute/radin-plan act on this entry with no other
 session context — don't compress it to one line.>
+
+<one `**Decision:** <question — settled answer>` line per Step 2 answer —
+the same marker radin-execute appends when it settles one, so downstream
+readers see one vocabulary. Then any open facts or deferred decisions, in
+plain prose.>
 EOF
 ```
 
@@ -111,9 +146,10 @@ entry. A false-positive merge silently drops something the user cared
 about — worse than an occasional repeat. Let `radin-execute`, `radin-plan`,
 or a human dedupe later.
 
-## Step 4: Report back
+## Step 5: Report back
 
 - How many entries logged, with titles and categories.
+- Decisions settled by grilling, and questions left open, per entry.
 - The backlog path (the CLI prints it on each `add`).
 - If nothing in scope rose to a loggable item, say so plainly — don't pad
   the file with a vague entry to prove the skill ran.

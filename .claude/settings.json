@@ -69,7 +69,7 @@
     ],
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "sonnet",
+  "model": "fable",
   "hooks": {
     "PreToolUse": [
       {
@@ -112,14 +112,26 @@
             "timeout": 10
           }
         ]
-      },
+      }
+    ],
+    "Notification": [
       {
-        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/Users/k/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh notification",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh stop",
+            "timeout": 5
           }
         ]
       }
