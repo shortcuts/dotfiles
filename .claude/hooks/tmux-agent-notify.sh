@@ -9,6 +9,7 @@ input=$(cat 2>/dev/null || true)
 if [ "$event" = "end" ]; then
     if [ -n "${TMUX_PANE:-}" ]; then
         tmux set-option -u -t "$TMUX_PANE" @agent_state 2>/dev/null || true
+        tmux set-option -uw -t "$TMUX_PANE" @agent_win_state 2>/dev/null || true
     fi
     exit 0
 fi
@@ -30,6 +31,8 @@ case "$event" in
 esac
 if [ -n "${TMUX_PANE:-}" ]; then
     tmux set-option -t "$TMUX_PANE" @agent_state "$state" 2>/dev/null || true
+    # separate window option: a session-scoped @agent_state leaks into every window's status format
+    tmux set-option -w -t "$TMUX_PANE" @agent_win_state "$state" 2>/dev/null || true
 fi
 [ "$event" = "working" ] && exit 0
 
