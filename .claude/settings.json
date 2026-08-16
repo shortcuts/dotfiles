@@ -214,7 +214,6 @@
     "lua-lsp@claude-plugins-official": true,
     "clangd-lsp@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
-    "humanizer@humanizer": true,
     "ponytail@ponytail": true,
     "gopls-lsp@claude-plugins-official": true,
     "mattpocock-skills@claude-plugins-official": true,
