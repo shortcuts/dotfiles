@@ -49,7 +49,7 @@ fi
 # PreToolUse repaints working as soon as you approve a permission prompt,
 # instead of leaving the pane red until the turn ends.
 CMD='sh ~/.claude/hooks/tmux-agent-notify.sh'
-EVENTS='UserPromptSubmit:working PreToolUse:working Notification:notification Stop:stop SessionEnd:end'
+EVENTS='SessionStart:start UserPromptSubmit:working PreToolUse:working Notification:notification Stop:stop SessionEnd:end'
 
 mkdir -p "$(dirname "$SETTINGS")"
 [ -s "$SETTINGS" ] || printf '{}\n' >"$SETTINGS"

@@ -47,7 +47,7 @@ if [ -n "${TMUX_PANE:-}" ]; then
     # separate window option: a session-scoped @agent_state leaks into every window's status format
     tmux set-option -w -t "$TMUX_PANE" @agent_win_state "$state" 2>/dev/null || true
 fi
-[ "$event" = "working" ] && exit 0
+case "$event" in working|start) exit 0 ;; esac
 [ "${NOTIFY:-1}" = "0" ] && exit 0
 
 # Skip when the user already looks at this pane in an attached session.

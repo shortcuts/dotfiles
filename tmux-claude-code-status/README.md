@@ -21,7 +21,7 @@ curl -fsSL https://raw.githubusercontent.com/shortcuts/dotfiles/main/tmux-claude
 | Path | Change |
 |------|--------|
 | `~/.claude/hooks/tmux-agent-notify.sh` | the hook script |
-| `~/.claude/settings.json` | wires the hook to `UserPromptSubmit`, `PreToolUse`, `Notification`, `Stop`, `SessionEnd` |
+| `~/.claude/settings.json` | wires the hook to `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `Notification`, `Stop`, `SessionEnd` |
 | `~/.config/tmux/tmux-claude-code-status.conf` | generated tmux options |
 | your `tmux.conf` | one `source-file` line, after it asks |
 
@@ -44,7 +44,7 @@ session tree shows the last event. The per-window dot is unaffected.
 rm ~/.claude/hooks/tmux-agent-notify.sh ~/.config/tmux/tmux-claude-code-status.conf
 ```
 
-Then drop the `source-file` line from your `tmux.conf`. Remove the four hook
+Then drop the `source-file` line from your `tmux.conf`. Remove the hook
 entries from `~/.claude/settings.json`:
 
 ```sh
