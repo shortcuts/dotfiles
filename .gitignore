@@ -99,3 +99,7 @@ STL/.DS_Store
 # ccstatusline
 !ccstatusline/
 !ccstatusline/settings.json
+
+# tmux-claude-code-status installer (public one-liner)
+!tmux-claude-code-status/
+!tmux-claude-code-status/**

@@ -80,6 +80,14 @@
             "command": "rtk hook claude"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh working"
+          }
+        ]
       }
     ],
     "SessionStart": [
