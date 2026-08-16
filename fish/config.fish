@@ -43,6 +43,19 @@ if status is-interactive
     fzf --fish | source
     starship init fish | source
 
+    # Starship's [time] renders when the prompt draws, i.e. when the command
+    # ended. Stamp the start instead, before the command runs.
+    function __stamp_cmd_start --on-event fish_preexec
+        set -g __cmd_start (date +%H:%M:%S)
+    end
+
+    functions --copy fish_right_prompt __starship_right_prompt
+    function fish_right_prompt
+        __starship_right_prompt
+        set -q __cmd_start
+        and echo -n (set_color -d white)" at $__cmd_start"(set_color normal)
+    end
+
     # Auto-attach tmux, skip if already in tmux
     if not set -q TMUX; and type -q tmux
         tmux attach; or tmux new
