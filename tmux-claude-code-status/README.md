@@ -21,7 +21,7 @@ curl -fsSL https://raw.githubusercontent.com/shortcuts/dotfiles/main/tmux-claude
 | Path | Change |
 |------|--------|
 | `~/.claude/hooks/tmux-agent-notify.sh` | the hook script |
-| `~/.claude/settings.json` | wires the hook to `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `Notification`, `Stop`, `SessionEnd` |
+| `~/.claude/settings.json` | wires the hook to `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `Notification`, `Stop`, `SessionEnd` |
 | `~/.config/tmux/tmux-claude-code-status.conf` | generated tmux options |
 | your `tmux.conf` | one `source-file` line, after it asks |
 

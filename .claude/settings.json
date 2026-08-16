@@ -201,6 +201,16 @@
           }
         ]
       }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh stuck"
+          }
+        ]
+      }
     ]
   },
   "statusLine": {

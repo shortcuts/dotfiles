@@ -20,6 +20,7 @@ fi
 
 # ponytail: sed JSON parse breaks on escaped quotes in message; jq if it matters
 msg=$(printf '%s' "$input" | sed -n 's/.*"message"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+tool=$(printf '%s' "$input" | sed -n 's/.*"tool_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
 
 # A turn that ends with a background Bash task still running is not idle.
 # Claude fires another Stop once the task finishes, which then marks idle.
@@ -35,6 +36,7 @@ fi
 # ponytail: last event wins per session; per-pane states if multi-agent sessions happen
 case "$event" in
     working) state="working" ;;
+    stuck) state="stuck" ;;
     notification)
         case "$msg" in
             *waiting\ for\ your\ input*) state="idle" ;;
@@ -57,11 +59,11 @@ if [ -n "${TMUX_PANE:-}" ]; then
     [ "$watching" = "1" ] && exit 0
 fi
 
-if [ "$event" = "notification" ]; then
-    [ -n "$msg" ] || msg="needs attention"
-else
-    msg="done"
-fi
+case "$event" in
+    stuck) msg="needs permission: ${tool:-a tool}" ;;
+    notification) [ -n "$msg" ] || msg="needs attention" ;;
+    *) msg="done" ;;
+esac
 
 title="Claude Code · $(basename "$PWD")"
 if command -v osascript >/dev/null 2>&1; then

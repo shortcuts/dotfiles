@@ -8,8 +8,9 @@
 
 ## Agent notifications
 
-`.claude/hooks/tmux-agent-notify.sh` runs on the Claude Code `UserPromptSubmit`,
-`PreToolUse`, `Notification`, `Stop` and `SessionEnd` events (wired in
+`.claude/hooks/tmux-agent-notify.sh` runs on the Claude Code `SessionStart`,
+`UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `Notification`, `Stop`
+and `SessionEnd` events (wired in
 `.claude/settings.json`). It sends a macOS toast and
 rings the pane bell. The bell sets an orange flag on the window
 (`window-status-bell-style`). The flag clears when the window gets focus.
