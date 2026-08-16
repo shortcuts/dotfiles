@@ -8,7 +8,7 @@
 
 ## Agent notifications
 
-`.claude/hooks/tmux-agent-notify.sh` runs on the Claude Code `SessionStart`,
+`.claude/hooks/tmux-claude-code-status.sh` runs on the Claude Code `SessionStart`,
 `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `Notification`, `Stop`
 and `SessionEnd` events (wired in
 `.claude/settings.json`). It sends a macOS toast and

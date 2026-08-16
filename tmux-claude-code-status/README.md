@@ -24,7 +24,8 @@ curl -fsSL https://raw.githubusercontent.com/shortcuts/dotfiles/main/tmux-claude
 
 | Path | Change |
 |------|--------|
-| `~/.claude/hooks/tmux-agent-notify.sh` | the hook script |
+| `~/.claude/hooks/tmux-claude-code-status.sh` | the hook script |
+| `~/.claude/hooks/tmux-claude-code-status.conf` | `NOTIFY=0` when you decline notifications |
 | `~/.claude/settings.json` | wires the hook to `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `Notification`, `Stop`, `SessionEnd` |
 | `~/.config/tmux/tmux-claude-code-status.conf` | generated tmux options |
 | your `tmux.conf` | one `source-file` line, after it asks |
@@ -45,13 +46,15 @@ session tree shows the last event. The per-window dot is unaffected.
 ## Uninstall
 
 ```sh
-rm ~/.claude/hooks/tmux-agent-notify.sh ~/.config/tmux/tmux-claude-code-status.conf
+rm ~/.claude/hooks/tmux-claude-code-status.sh \
+   ~/.claude/hooks/tmux-claude-code-status.conf \
+   ~/.config/tmux/tmux-claude-code-status.conf
 ```
 
 Then drop the `source-file` line from your `tmux.conf`. Remove the hook
 entries from `~/.claude/settings.json`:
 
 ```sh
-jq 'del(.hooks[][] | select(.hooks[]?.command? // "" | test("tmux-agent-notify")))' \
+jq 'del(.hooks[][] | select(.hooks[]?.command? // "" | test("tmux-claude-code-status")))' \
   ~/.claude/settings.json >/tmp/s.json && mv /tmp/s.json ~/.claude/settings.json
 ```

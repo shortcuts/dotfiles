@@ -4,8 +4,8 @@
 set -u
 
 # NOTIFY=0 keeps the tmux state but drops the toast and the bell.
-[ -f "$HOME/.claude/hooks/tmux-agent-notify.conf" ] &&
-    . "$HOME/.claude/hooks/tmux-agent-notify.conf"
+[ -f "$HOME/.claude/hooks/tmux-claude-code-status.conf" ] &&
+    . "$HOME/.claude/hooks/tmux-claude-code-status.conf"
 
 event="${1:-stop}"
 input=$(cat 2>/dev/null || true)

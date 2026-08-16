@@ -85,7 +85,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh working"
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
           }
         ]
       }
@@ -125,7 +125,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh start"
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh start"
           }
         ]
       }
@@ -135,7 +135,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh notification"
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh notification"
           }
         ]
       }
@@ -145,7 +145,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh end"
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh end"
           }
         ]
       }
@@ -155,7 +155,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh stop"
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh stop"
           }
         ]
       }
@@ -175,7 +175,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh working"
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
           }
         ]
       }
@@ -207,7 +207,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh stuck"
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh stuck"
           }
         ]
       }

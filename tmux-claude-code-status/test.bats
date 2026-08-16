@@ -2,7 +2,7 @@
 # Which events raise a desktop toast. Run: bats test.bats
 
 setup() {
-    HOOK="$BATS_TEST_DIRNAME/../.claude/hooks/tmux-agent-notify.sh"
+    HOOK="$BATS_TEST_DIRNAME/../.claude/hooks/tmux-claude-code-status.sh"
     mkdir -p "$BATS_TEST_TMPDIR/bin"
     printf '#!/bin/sh\nprintf "%%s\\n" "$*" >>"%s/toasts"\n' \
         "$BATS_TEST_TMPDIR" >"$BATS_TEST_TMPDIR/bin/osascript"

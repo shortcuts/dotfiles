@@ -8,9 +8,9 @@
 set -eu
 
 # RAW is overridable so `make tmux-status` can install the hook from a checkout.
-RAW="${RAW:-https://raw.githubusercontent.com/shortcuts/dotfiles/main/.claude/hooks/tmux-agent-notify.sh}"
+RAW="${RAW:-https://raw.githubusercontent.com/shortcuts/dotfiles/main/.claude/hooks/tmux-claude-code-status.sh}"
 HOOK_DIR="$HOME/.claude/hooks"
-HOOK="$HOOK_DIR/tmux-agent-notify.sh"
+HOOK="$HOOK_DIR/tmux-claude-code-status.sh"
 SETTINGS="$HOME/.claude/settings.json"
 TMUX_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/tmux"
 FRAGMENT="$TMUX_DIR/tmux-claude-code-status.conf"
@@ -40,22 +40,22 @@ curl -fsSL "$RAW" -o "$HOOK.tmp" || die "cannot download $RAW"
 mv "$HOOK.tmp" "$HOOK"
 chmod +x "$HOOK"
 if [ "$want_notify" = n ]; then
-    printf 'NOTIFY=0\n' >"$HOOK_DIR/tmux-agent-notify.conf"
+    printf 'NOTIFY=0\n' >"$HOOK_DIR/tmux-claude-code-status.conf"
 else
-    rm -f "$HOOK_DIR/tmux-agent-notify.conf"
+    rm -f "$HOOK_DIR/tmux-claude-code-status.conf"
 fi
 
 # 2. hook wiring
 # PreToolUse repaints working as soon as you approve a permission prompt,
 # instead of leaving the pane red until the turn ends.
-CMD='sh ~/.claude/hooks/tmux-agent-notify.sh'
+CMD='sh ~/.claude/hooks/tmux-claude-code-status.sh'
 EVENTS='SessionStart:start UserPromptSubmit:working PreToolUse:working PermissionRequest:stuck Notification:notification Stop:stop SessionEnd:end'
 
 mkdir -p "$(dirname "$SETTINGS")"
 [ -s "$SETTINGS" ] || printf '{}\n' >"$SETTINGS"
 jq --arg h "$CMD" --arg events "$EVENTS" '
   def strip: (. // [])
-    | map(.hooks |= map(select((.command // "") | test("tmux-agent-notify") | not)))
+    | map(.hooks |= map(select((.command // "") | test("tmux-claude-code-status") | not)))
     | map(select((.hooks | length) > 0));
   reduce ($events | split(" ") | .[] | split(":")) as [$event, $arg] (.;
     .hooks = (.hooks // {})
