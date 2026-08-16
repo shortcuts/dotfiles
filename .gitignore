@@ -52,8 +52,6 @@ fish/functions/*
 !fish/functions/vpn*
 !fish/functions/obsd*
 fish/fish_variables*
-!fisher/
-!fisher/**
 
 # pkg manager
 !mise/

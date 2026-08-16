@@ -13,9 +13,7 @@ if [[ $MODE == "setup" ]]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     curl -fsSL https://bun.com/install | bash
     cp ~/.config/.gitconfig ~/.gitconfig
-    # symlink ~/.claude -> ~/.config/.claude so skills/settings are tracked in git
-    rm -rf ~/.claude
-    ln -sf ~/.config/.claude ~/.claude
+    make -C ~/.config symlink
 fi
 
 # ssh-agent: load keychain keys for non-fish shells too (bash/zsh subprocesses,
@@ -82,16 +80,8 @@ if [[ $MODE == "setup" ]]; then
     chsh -s "$(which fish)" || true
     fish || true
     fish_add_path "$(which brew)"
-
-    # fish plugin manager
-    # shellcheck disable=SC1090
-    curl -sL https://git.io/fisher | source && fisher install jorgebucaran/fisher
-
-    fisher install jorgebucaran/nvm.fish # node version manager
-    fisher install edc/bass # bash with fish
 fi
 
-fisher update
 fish_update_completions
 
 # languages
@@ -110,14 +100,11 @@ brew install lua
 cargo install stylua
 cargo binstall tree-sitter-cli
 
-nvm install latest
-npm install -g yarn
-
 # ccstatusline: install under mise's global node so the binary path is stable;
 # settings.json points statusLine.command at this absolute path so it works
 # regardless of which node version a project pins
 mise use -g node
-mise exec node@latest -- npm install -g ccstatusline
+mise exec node@latest -- npm install -g yarn ccstatusline
 
 mise use -g python
 pip install --upgrade pip

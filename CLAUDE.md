@@ -12,7 +12,7 @@ Configs must stay compatible with both architectures. The fish config handles du
 ## Install / update
 
 ```bash
-./install.sh         # update everything (brew, fisher, mise, language toolchains)
+./install.sh         # update everything (brew, mise, language toolchains)
 ./install.sh setup   # first-time setup: installs Homebrew, changes shell to fish, creates ~/.claude symlink
 ```
 
@@ -48,7 +48,7 @@ Detailed conventions live in `nvim/CLAUDE.md` and `tmux/CLAUDE.md` (loaded lazil
 
 ## Language toolchains
 
-`mise` manages Go/Rust/Python/Java/Zig. The `nvm.fish` fisher plugin manages Node. Run `mise use -g <lang>` to add/update.
+`mise` manages Go/Rust/Python/Java/Zig/Node. Run `mise use -g <lang>` to add/update.
 
 ## 3D printing / STL work
 
