@@ -4,7 +4,7 @@
 #   curl -fsSL https://raw.githubusercontent.com/shortcuts/dotfiles/main/tmux-claude-code-status/install.sh | sh
 #
 # Non-interactive run (no tty) answers yes to every prompt.
-# Needs: jq, curl. tmux is only needed to use the result.
+# Needs: curl, jq. tmux is only needed to use the result.
 set -eu
 
 # RAW is overridable so `make tmux-status` can install the hook from a checkout.
@@ -28,6 +28,7 @@ ask() {
 }
 
 command -v curl >/dev/null || die "curl is required"
+command -v jq >/dev/null || die "jq is required"
 
 want_window=$(ask "Colored agent dot on the tmux window (status bar)?")
 want_tree=$(ask "Agent state in the session tree (rebinds <prefix> s)?")
@@ -50,51 +51,18 @@ fi
 CMD='sh ~/.claude/hooks/tmux-agent-notify.sh'
 EVENTS='UserPromptSubmit:working PreToolUse:working Notification:notification Stop:stop SessionEnd:end'
 
-# The "hooks" object as JSON, indented to sit inside the top-level object.
-hooks_body() {
-    printf '  "hooks": {\n'
-    sep=""
-    for pair in $EVENTS; do
-        [ -n "$sep" ] && printf ',\n'
-        printf '    "%s": [{ "hooks": [{ "type": "command", "command": "%s %s" }] }]' \
-            "${pair%:*}" "$CMD" "${pair#*:}"
-        sep=x
-    done
-    printf '\n  }'
-}
-
-patch_with_jq() {
-    jq --arg h "$CMD" --arg events "$EVENTS" '
-      def strip: (. // [])
-        | map(.hooks |= map(select((.command // "") | test("tmux-agent-notify") | not)))
-        | map(select((.hooks | length) > 0));
-      reduce ($events | split(" ") | .[] | split(":")) as [$event, $arg] (.;
-        .hooks = (.hooks // {})
-        | .hooks[$event] = ((.hooks[$event] | strip)
-            + [{hooks: [{type: "command", command: "\($h) \($arg)"}]}]))
-    ' "$SETTINGS" >"$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
-}
-
-# Insert the hooks object after the opening brace. Only safe when the file has
-# no hooks of its own; merging into existing ones needs a real JSON parser.
-patch_without_jq() {
-    raw=$(cat "$SETTINGS")
-    printf '%s{\n%s,%s\n' "${raw%%\{*}" "$(hooks_body)" "${raw#*\{}" >"$SETTINGS.tmp" &&
-        mv "$SETTINGS.tmp" "$SETTINGS"
-}
-
-settings_body=$( { tr -d ' \t\n' <"$SETTINGS"; } 2>/dev/null || true)
-if [ -z "$settings_body" ] || [ "$settings_body" = "{}" ]; then
-    mkdir -p "$(dirname "$SETTINGS")"
-    printf '{\n%s\n}\n' "$(hooks_body)" >"$SETTINGS"
-    wired=y
-elif command -v jq >/dev/null; then
-    patch_with_jq && wired=y || wired=n
-elif ! grep -q '"hooks"' "$SETTINGS"; then
-    patch_without_jq && wired=y || wired=n
-else
-    wired=n
-fi
+mkdir -p "$(dirname "$SETTINGS")"
+[ -s "$SETTINGS" ] || printf '{}\n' >"$SETTINGS"
+jq --arg h "$CMD" --arg events "$EVENTS" '
+  def strip: (. // [])
+    | map(.hooks |= map(select((.command // "") | test("tmux-agent-notify") | not)))
+    | map(select((.hooks | length) > 0));
+  reduce ($events | split(" ") | .[] | split(":")) as [$event, $arg] (.;
+    .hooks = (.hooks // {})
+    | .hooks[$event] = ((.hooks[$event] | strip)
+        + [{hooks: [{type: "command", command: "\($h) \($arg)"}]}]))
+' "$SETTINGS" >"$SETTINGS.tmp" || die "cannot patch $SETTINGS"
+mv "$SETTINGS.tmp" "$SETTINGS"
 
 # 3. tmux fragment
 # Formats are read from the running server so an existing custom format
@@ -138,11 +106,6 @@ else
 fi
 
 [ -n "${TMUX:-}" ] && tmux source-file "$conf" >/dev/null 2>&1
-
-if [ "$wired" = n ]; then
-    printf '\n%s already has hooks and jq is not installed.\n' "$SETTINGS"
-    printf 'Merge this into its "hooks" object yourself:\n\n%s\n\n' "$(hooks_body)"
-fi
 
 printf '\nDone. Restart Claude Code to load the hooks.\n'
 printf 'Hook:     %s\n' "$HOOK"
