@@ -88,7 +88,10 @@ mkdir -p "$TMUX_DIR"
 } >"$FRAGMENT"
 
 # 4. source line
-src_line="source-file $FRAGMENT"
+# ~-relative and -q so the same tmux.conf works on another machine, whose
+# $HOME differs and where the generated fragment may not exist yet.
+src_line="source-file -q $FRAGMENT"
+case "$FRAGMENT" in "$HOME"/*) src_line="source-file -q ~/${FRAGMENT#"$HOME"/}" ;; esac
 conf=""
 for c in "$TMUX_DIR/tmux.conf" "$HOME/.tmux.conf"; do
     [ -f "$c" ] && { conf="$c"; break; }
@@ -97,7 +100,7 @@ if [ -z "$conf" ]; then
     conf="$TMUX_DIR/tmux.conf"
     printf '%s\n' "$src_line" >"$conf"
     printf 'created %s\n' "$conf"
-elif grep -qF "$FRAGMENT" "$conf"; then
+elif grep -qF "tmux-claude-code-status.conf" "$conf"; then
     :
 elif [ "$(ask "Add '$src_line' to $conf?")" = y ]; then
     printf '\n%s\n' "$src_line" >>"$conf"
@@ -105,7 +108,8 @@ else
     printf '\nAdd this line to your tmux.conf yourself:\n    %s\n' "$src_line"
 fi
 
-[ -n "${TMUX:-}" ] && tmux source-file "$conf" >/dev/null 2>&1
+# A broken line elsewhere in the user's tmux.conf must not fail the install.
+[ -n "${TMUX:-}" ] && { tmux source-file "$conf" >/dev/null 2>&1 || true; }
 
 printf '\nDone. Restart Claude Code to load the hooks.\n'
 printf 'Hook:     %s\n' "$HOOK"

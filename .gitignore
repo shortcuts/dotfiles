@@ -68,6 +68,7 @@ fish/fish_variables*
 # tmux
 !tmux/
 !tmux/**
+tmux/tmux-claude-code-status.conf
 
 !scripts/
 !scripts/**
