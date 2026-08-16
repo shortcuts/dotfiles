@@ -1,41 +1,29 @@
 return {
     {
-        "ibhagwan/fzf-lua",
-        dependencies = { "nvim-tree/nvim-web-devicons" },
-        lazy = false,
-        config = function()
-            local fzflua = require("fzf-lua")
-            vim.keymap.set("n", "<Leader>ff", function()
-                fzflua.files()
-            end, { silent = true, desc = "open file finder" })
-            vim.keymap.set("n", "<Leader>fg", function()
-                fzflua.live_grep()
-            end, { silent = true, desc = "rg in the current nvim session" })
-            vim.keymap.set("n", "<Leader>gs", function()
-                fzflua.git_status()
-            end, { silent = true })
-            vim.keymap.set("n", "<Leader>fh", function()
-                fzflua.helptags()
-            end, { silent = true })
-            vim.keymap.set("n", "<Leader>fr", function()
-                fzflua.lsp_references()
-            end, { silent = true })
-
-            fzflua.setup({
-                winopts = {
-                    preview = {
-                        layout = "vertical",
-                        vertical = "down:70%",
-                    },
-                },
-                keymap = {
-                    builtin = {
-                        true,
-                        ["<C-d>"] = "preview-page-down",
-                        ["<C-u>"] = "preview-page-up",
-                    },
-                },
-            })
-        end,
-    },
+      'dmtrKovalenko/fff',
+      build = function()
+        -- downloads a prebuilt binary or falls back to cargo build
+        require("fff.download").download_or_build_binary()
+      end,
+      opts = {
+        debug = {
+          enabled = true,
+          show_scores = true,
+        },
+      },
+      lazy = false, -- the plugin lazy-initialises itself
+      keys = {
+        { "ff", function() require('fff').find_files() end, desc = 'FFFind files' },
+        { "fg", function() require('fff').live_grep() end, desc = 'LiFFFe grep' },
+        { "fz",
+          function() require('fff').live_grep({ grep = { modes = { 'fuzzy', 'plain' } } }) end,
+          desc = 'Live fffuzy grep',
+        },
+        { "fw",
+          function() require('fff').live_grep_under_cursor() end,
+          mode = { 'n', 'x' },
+          desc = 'Search current word / selection',
+        },
+      },
+    }
 }

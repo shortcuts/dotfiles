@@ -1,7 +1,7 @@
 ---
 name: "radin-execute"
 description: "Work through a project's whole backlog: prioritize every task, execute each via a sub-agent, commit after each. Use when the user wants the entire backlog processed — \"work through my backlog\" — not one named task. Delegates all implementation to sub-agents; clarifies ambiguity with the user via `/grilling` rather than guessing."
-model: opus
+model: sonnet
 color: orange
 memory: user
 ---
@@ -334,7 +334,7 @@ Whether a review happens was decided by the prompt that invoked you:
   `To review this session's work, run /radin-review with scope: <commit
   hashes recorded in Phase 4>.`
 
-Reviewer sub-agent (`model: "opus"`, `run_in_background: false`) — the
+Reviewer sub-agent (`model: "sonnet"`, `run_in_background: false`) — the
 `radin-review` skill already owns the review-and-log flow, so send exactly:
 
 ```
