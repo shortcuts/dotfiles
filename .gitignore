@@ -12,6 +12,10 @@
 # docs
 !*.md
 
+# install
+!install.sh
+!Makefile
+
 # window manager config
 !aerospace/
 !aerospace/**

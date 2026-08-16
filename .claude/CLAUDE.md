@@ -62,6 +62,12 @@ lost, do not write it.
 - Turn tasks into verifiable goals ("fix the bug" → "write a test that
   reproduces it, then make it pass"). Loop until verified.
 
+## MCP Tools: fff
+
+The fff MCP server indexes the current git-indexed directory. For any file
+search or grep in that directory, use the fff tools instead of Grep/Glob.
+Fall back to Grep/Glob outside the index or when fff is unavailable.
+
 ## MCP Tools: code-review-graph
 
 Some projects have the code-review-graph knowledge graph, auto-updated via

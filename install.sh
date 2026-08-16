@@ -64,7 +64,15 @@ brew install coreutils hostctl \
     openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
     luarocks obsidian anomalyco/tap/opencode \
-    mac-cleanup-py cargo-binstall glow ghui mole shellcheck
+    mac-cleanup-py cargo-binstall glow ghui mole shellcheck \
+    dmtrKovalenko/fff/fff-mcp
+
+# fff MCP server for Claude Code (user scope, stored in ~/.claude.json)
+if command -v claude >/dev/null 2>&1; then
+    claude mcp get fff >/dev/null 2>&1 || claude mcp add --scope user fff -- fff-mcp
+else
+    echo "claude CLI not found, skipping fff MCP registration"
+fi
 
 brew install --cask font-lilex-nerd-font
 
@@ -117,8 +125,8 @@ pip install --user pipx
 mise plugins install poetry --force
 poetry completions fish > ~/.config/fish/completions/poetry.fish
 
-# rpi
-
+# rpi (needs sudo, one-time)
+if [[ $MODE == "setup" ]]; then
 sudo hostctl add domains rpi \
   dashboard.shrtcts.fr \
   wgeasy.shrtcts.fr \
@@ -130,6 +138,7 @@ sudo hostctl add domains rpi \
   observability.shrtcts.fr \
   renovaite.shrtcts.fr \
   renovaite-api.shrtcts.fr --ip 192.168.1.19
+fi
 
 # lang
 
@@ -149,4 +158,7 @@ fi
 brew update && brew upgrade && brew doctor && brew cleanup
 
 # mission control https://nikitabobko.github.io/AeroSpace/guide#a-note-on-mission-control
-defaults write com.apple.dock expose-group-apps -bool true && killall Dock
+# killall Dock is disruptive, keep it out of routine updates
+if [[ $MODE == "setup" ]]; then
+    defaults write com.apple.dock expose-group-apps -bool true && killall Dock
+fi
