@@ -8,6 +8,10 @@ See what every Claude Code session does from any tmux pane, window, or session.
 - A desktop notification and a window bell when a session stops or needs input.
   Both stay silent when you already look at that pane.
 
+| Sessions | Panes |
+| ------------- | ------------- |
+| <img width="575" height="67" alt="Screenshot 2026-08-16 at 15 03 09" src="https://github.com/user-attachments/assets/a82a057a-f18d-4575-850e-dee472d96359" />  | <img width="249" height="41" alt="Screenshot 2026-08-16 at 15 03 19" src="https://github.com/user-attachments/assets/1d0d79b7-a1b8-4943-b8c8-3e327e7af84d" /> |
+
 ## Install
 
 Needs `curl` and `jq`.
