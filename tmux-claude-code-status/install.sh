@@ -7,7 +7,8 @@
 # Needs: jq, curl. tmux is only needed to use the result.
 set -eu
 
-RAW="https://raw.githubusercontent.com/shortcuts/dotfiles/main/.claude/hooks/tmux-agent-notify.sh"
+# RAW is overridable so `make tmux-status` can install the hook from a checkout.
+RAW="${RAW:-https://raw.githubusercontent.com/shortcuts/dotfiles/main/.claude/hooks/tmux-agent-notify.sh}"
 HOOK_DIR="$HOME/.claude/hooks"
 HOOK="$HOOK_DIR/tmux-agent-notify.sh"
 SETTINGS="$HOME/.claude/settings.json"
