@@ -1,8 +1,6 @@
-.PHONY: install update symlink lint tmux-status
+.PHONY: install update symlink lint tmux-status tmux-status-test
 
-# Sandbox HOME by default, so a test run cannot touch the real config.
-# Install for real with: make tmux-status TMUX_STATUS_HOME=$HOME
-TMUX_STATUS_HOME ?= /tmp/tmux-claude-code-status
+SANDBOX ?= /tmp/tmux-claude-code-status
 
 install:
 	./install.sh setup
@@ -15,12 +13,15 @@ symlink:
 	ln -sf ~/.config/.claude ~/.claude
 
 tmux-status:
-	mkdir -p $(TMUX_STATUS_HOME)
-	env -u TMUX HOME=$(TMUX_STATUS_HOME) \
-		XDG_CONFIG_HOME=$(TMUX_STATUS_HOME)/.config \
+	RAW=file://$(CURDIR)/.claude/hooks/tmux-agent-notify.sh \
+		sh tmux-claude-code-status/install.sh
+
+tmux-status-test:
+	mkdir -p $(SANDBOX)
+	env -u TMUX HOME=$(SANDBOX) XDG_CONFIG_HOME=$(SANDBOX)/.config \
 		RAW=file://$(CURDIR)/.claude/hooks/tmux-agent-notify.sh \
 		sh tmux-claude-code-status/install.sh
-	@echo "installed under $(TMUX_STATUS_HOME)"
+	@echo "installed under $(SANDBOX)"
 
 lint:
 	shellcheck install.sh tmux-claude-code-status/install.sh

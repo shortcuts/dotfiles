@@ -120,6 +120,14 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh start"
+          }
+        ]
       }
     ],
     "Notification": [
@@ -127,8 +135,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh notification",
-            "timeout": 5
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh notification"
           }
         ]
       }
@@ -138,8 +145,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh end",
-            "timeout": 5
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh end"
           }
         ]
       }
@@ -149,8 +155,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh stop",
-            "timeout": 5
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh stop"
           }
         ]
       }
@@ -163,11 +168,14 @@
             "command": "$([ -x /opt/homebrew/bin/node ] && echo /opt/homebrew/bin/node || echo /usr/local/bin/node) ~/.claude/hooks/caveman-mode-tracker.js",
             "timeout": 5,
             "statusMessage": "Tracking caveman mode..."
-          },
+          }
+        ]
+      },
+      {
+        "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh working",
-            "timeout": 5
+            "command": "sh ~/.claude/hooks/tmux-agent-notify.sh working"
           }
         ]
       }
