@@ -6,11 +6,26 @@ set -u
 event="${1:-stop}"
 input=$(cat 2>/dev/null || true)
 
+if [ "$event" = "end" ]; then
+    if [ -n "${TMUX_PANE:-}" ]; then
+        tmux set-option -u -t "$TMUX_PANE" @agent_state 2>/dev/null || true
+    fi
+    exit 0
+fi
+
+# ponytail: sed JSON parse breaks on escaped quotes in message; jq if it matters
+msg=$(printf '%s' "$input" | sed -n 's/.*"message"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+
 # Session state for the prefix+s tree: working / stuck / idle.
+# The idle-timeout Notification ("waiting for your input") is not stuck.
 # ponytail: last event wins per session; per-pane states if multi-agent sessions happen
 case "$event" in
     working) state="working" ;;
-    notification) state="stuck" ;;
+    notification)
+        case "$msg" in
+            *waiting\ for\ your\ input*) state="idle" ;;
+            *) state="stuck" ;;
+        esac ;;
     *) state="idle" ;;
 esac
 if [ -n "${TMUX_PANE:-}" ]; then
@@ -26,8 +41,6 @@ if [ -n "${TMUX_PANE:-}" ]; then
 fi
 
 if [ "$event" = "notification" ]; then
-    # ponytail: sed JSON parse breaks on escaped quotes in message; jq if it matters
-    msg=$(printf '%s' "$input" | sed -n 's/.*"message"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
     [ -n "$msg" ] || msg="needs attention"
 else
     msg="done"
