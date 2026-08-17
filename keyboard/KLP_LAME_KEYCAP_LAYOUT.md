@@ -21,15 +21,14 @@ Elora v2 (choc build) — Kailh Choc low-profile switches. **MX-stem keycaps wil
 
 Note: no dedicated numrow profile confirmed in repo — check README/folder names for a `Numrow`/`Flat` profile before finalizing.
 
-## Imported STEP files (`keyboard/`)
+## Imported STL files (`keyboard/`)
 Elora v2 total key math: 6 cols × 2 halves × 4 rows = 48 main keys + 14 thumb = 62 ✓
 
 | File | Count | Notes |
 |---|---|---|
-| `Choc_Stem_Choc_Size_Thumb.step` | 14 | 7 thumb keys × 2 halves |
-| `Choc_Stem_Choc_Size_Saddle_Homing.step` | 2 | F/J-equivalent home row bump, 1 per half |
-| `Choc_Stem_Choc_Size_Saddle_Tilted.step` | 36 | number + top + bottom rows: 12 keys/row × 3 rows |
-| `Choc_Stem_Choc_Size_Saddle.step` | 10 | home row minus 2 homing keys |
-| `Clip Seat.step` | — | switch clip/mount, not a keycap; count depends on build, likely 1/switch — confirm against repo docs |
+| `Choc_Stem_Choc_Size_Thumb.stl` | 14 | 7 thumb keys × 2 halves |
+| `Choc_Stem_Choc_Size_Saddle_Homing.stl` | 2 | F/J-equivalent home row bump, 1 per half |
+| `Choc_Stem_Choc_Size_Saddle_Tilted.stl` | 36 | number + top + bottom rows: 6 keys/row × 3 rows × 2 halves |
+| `Choc_Stem_Choc_Size_Saddle.stl` | 10 | home row minus 2 homing keys |
 
 Total keycaps: 14+2+36+10 = **62**
