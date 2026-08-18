@@ -16,9 +16,9 @@ human said — `radin-review` logs what a diff revealed; `radin-plan` and
 `radin-execute` consume the backlog afterward.
 
 All writes go through the shared CLI at
-`$HOME/.claude/.radin/lib/radin-backlog.sh`. It resolves the per-project
-namespace and appends deterministically. Never hand-edit the index or a
-task file, and never compute their paths yourself.
+`$HOME/.claude/.radin/lib/radin-backlog.sh` — it owns the index's schema and
+resolves the per-project namespace, so never hand-edit a backlog file or
+compute its path yourself.
 
 ## Step 1: Decide what to log
 
@@ -60,7 +60,7 @@ to decide that the conversation didn't settle. Tag each question:
   `radin-execute` resolves facts AFK via `/research`.
 - **Decision** — a judgment call only the user can make (tradeoff, scope
   boundary, behavior choice). Invoke `/grilling` on these now, one
-  question at a time. Keep every settled answer for Step 4's body.
+  question at a time. Keep every settled answer for Step 5's body.
 
 An item with no open decisions — one obvious change — skips this step;
 don't manufacture questions. A stub from Step 1 also skips: it is one
@@ -71,7 +71,7 @@ itself as an open decision in the entry body — options and your
 recommendation included — so `radin-execute` blocks on it explicitly
 instead of guessing.
 
-## Step 1b: Note any skill invoked for this item
+## Step 3: Note any skill invoked for this item
 
 If the request that raised the item explicitly invoked a skill (e.g.
 `/radin-record /frontend-design make the accent color...`, or a skill ran
@@ -88,7 +88,7 @@ and never invokes the skill the user chose.
 against the task's file. Running it now would log the item as already
 resolved — exactly what this form exists to avoid.
 
-## Step 3: Classify each item and note dependencies
+## Step 4: Classify each item and note dependencies
 
 Does landing this item require another item in the batch (or an existing
 backlog task) to land first — same file/function/behavior, or an explicit
@@ -108,7 +108,7 @@ Classify into exactly one category (conventional-commit vocabulary):
 Two plausible fits: pick the closer one and move on — `radin-execute` and
 `radin-plan` read the description regardless of category.
 
-## Step 4: Review, confirm scope with user, then append via the CLI
+## Step 5: Review, confirm scope with user, then append via the CLI
 
 Before anything is appended, review each entry against one bar: can an
 agent with no session context and no user reachable plan and execute this
@@ -137,7 +137,7 @@ plain prose.>
 EOF
 ```
 
-Pass Step 1b's skill(s) as `--skill <skill-name>` (repeatable) — the CLI
+Pass Step 3's skill(s) as `--skill <skill-name>` (repeatable) — the CLI
 appends the canonical `**Skill:**` instruction line itself; never write it
 by hand. Omit the flag when no skill applies.
 
@@ -146,7 +146,7 @@ entry. A false-positive merge silently drops something the user cared
 about — worse than an occasional repeat. Let `radin-execute`, `radin-plan`,
 or a human dedupe later.
 
-## Step 5: Report back
+## Step 6: Report back
 
 - How many entries logged, with titles and categories.
 - Decisions settled by grilling, and questions left open, per entry.

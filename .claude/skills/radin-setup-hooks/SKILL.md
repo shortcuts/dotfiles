@@ -24,9 +24,4 @@ Only `code-review-graph` needs this step today. `caveman` = Claude Code plugin �
 
 Never pass `--no-hooks` or `--no-instructions` unless user specifically asks skip one — skill's whole point full wiring.
 
-## Non-goals
-
-- Don't touch global `~/.claude/` state — that's `install.sh`'s job, already done.
-- Don't run against repo user didn't ask about.
-- Don't silently re-run if config already exists. `code-review-graph
-  install` safe to re-run (idempotent, per own contract), but still confirm with user first, per step 4.
+`code-review-graph install` idempotent per own contract, so existing config no problem — step 4's confirmation still applies. Touch no global `~/.claude/` state: `install.sh` owns that.

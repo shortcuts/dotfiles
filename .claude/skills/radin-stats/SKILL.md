@@ -25,12 +25,3 @@ If source (e.g. `caveman-stats`) finds nothing to report, treat as normal empty 
 ## Step 2: Display, don't merge
 
 Print each tool's output under own heading, in order above. Label which real-measured (caveman-stats, ponytail-debt, rtk gain) vs. fixed-benchmark (ponytail-gain) so user doesn't mistake one for other. No combined total row.
-
-## Guardrails
-
-- Never compute or print combined/merged total across tools — units incompatible (real per-session tokens vs. static benchmark medians vs. counted per-repo ledger).
-- Skip source silent if command not installed; don't error.
-
-## Output
-
-Each installed tool's own stats output, printed under own heading, fixed order from Step 1. Each heading labeled real-measured or fixed-benchmark.

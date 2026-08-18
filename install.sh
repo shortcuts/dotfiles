@@ -63,7 +63,7 @@ brew install coreutils hostctl \
     stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
     luarocks obsidian anomalyco/tap/opencode \
     mac-cleanup-py cargo-binstall glow ghui mole shellcheck \
-    dmtrKovalenko/fff/fff-mcp
+    dmtrKovalenko/fff/fff-mcp hunk
 
 # fff MCP server for Claude Code (user scope, stored in ~/.claude.json)
 if command -v claude >/dev/null 2>&1; then

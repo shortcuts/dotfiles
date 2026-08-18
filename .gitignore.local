@@ -2,3 +2,5 @@
 .omc
 
 **/.claude/settings.local.json
+
+**/.claude/worktrees/

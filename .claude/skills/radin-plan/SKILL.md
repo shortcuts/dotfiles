@@ -12,9 +12,8 @@ description: |
 Turn one backlog entry into one or more implementation plans, without
 writing any code. Runs inline in whichever context invokes it. When the
 invoking context cannot reach the user (e.g. radin-execute's planning
-sub-agent), the caller says so; every question below then resolves to its
-non-destructive default: no split, no overwrite, no created entry, and an
-unresolvable question stops the run instead of being planned around.
+sub-agent), the caller says so; every question below then takes the
+non-destructive branch marked "non-interactive".
 
 ## Step 1: Resolve project namespace
 

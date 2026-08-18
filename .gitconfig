@@ -49,6 +49,9 @@
 [pull]
     rebase = true
 
+[alias]
+    # single pager pass, else delta's less alt-screen hides the shortstat line
+    d = "!f() { { git --no-pager diff --shortstat \"$@\"; git --no-pager diff --color=always \"$@\"; } | delta; }; f"
 [protocol "file"]
     allow = always
 

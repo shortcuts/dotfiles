@@ -21,6 +21,4 @@ CLI render it from JSONL index plus each task's own file — never read those di
 
 CLI resolve per-project backlog path itself. Errors "no backlog": tell user project has no backlog yet, point at `radin-record` or `radin-review` to start one — don't create empty file.
 
-## Step 2: Show it
-
-Print output to user as-is — no summarize, reorder, filter beyond category scoping above.
+Print output as-is — no summarize, reorder, filter beyond category scoping above.
