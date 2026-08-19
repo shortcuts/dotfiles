@@ -34,8 +34,18 @@ return {
         version = "*",
         keys = {
             { "<Leader>gdo", "<cmd>DiffviewOpen<cr>", mode = { "n", "v" }, desc = "open git diff" },
-            { "<Leader>gdq", "<cmd>DiffviewClose<cr>", mode = { "n", "v" }, desc = "close git diff" },
-            { "<Leader>gsh", "<cmd>DiffviewOpen @<cr>", mode = { "n", "v" }, desc = "close git diff" },
+            {
+                "<Leader>gdq",
+                "<cmd>DiffviewClose<cr>",
+                mode = { "n", "v" },
+                desc = "close git diff",
+            },
+            {
+                "<Leader>gsh",
+                "<cmd>DiffviewOpen @<cr>",
+                mode = { "n", "v" },
+                desc = "close git diff",
+            },
         },
         cmd = {
             "DiffviewOpen",
@@ -44,5 +54,5 @@ return {
             "DiffviewDiffFiles",
             "DiffviewLog",
         },
-    }
+    },
 }
