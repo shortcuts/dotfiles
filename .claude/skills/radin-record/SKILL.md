@@ -57,7 +57,8 @@ to decide that the conversation didn't settle. Tag each question:
 
 - **Fact** — checkable against the repo, docs, or an API. Never ask the
   user for these. Note each in the entry body as an open fact to verify;
-  `radin-execute` resolves facts AFK via `/research`.
+  `radin-execute` resolves facts AFK by dispatching its own read-only
+  fact-finding sub-agent.
 - **Decision** — a judgment call only the user can make (tradeoff, scope
   boundary, behavior choice). Invoke `/grilling` on these now, one
   question at a time. Keep every settled answer for Step 5's body.

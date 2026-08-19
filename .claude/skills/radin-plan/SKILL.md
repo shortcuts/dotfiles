@@ -13,7 +13,10 @@ Turn one backlog entry into one or more implementation plans, without
 writing any code. Runs inline in whichever context invokes it. When the
 invoking context cannot reach the user (e.g. radin-execute's planning
 sub-agent), the caller says so; every question below then takes the
-non-destructive branch marked "non-interactive".
+non-destructive branch marked "non-interactive". Such a run also cannot be
+notified when a background task finishes, so `/grilling` and `/research` are
+interactive-only here — waiting on either hangs the caller. Each
+"non-interactive" branch below says what to do instead.
 
 ## Step 1: Resolve project namespace
 
@@ -91,7 +94,9 @@ re-resolution is needed between sub-tasks. For each sub-task, in order:
    Grep/Glob/Read. Prefer `rtk`-wrapped commands when `command -v rtk`
    succeeds. If the plan hinges on third-party API or library behavior
    local code can't confirm, invoke `/research` against primary sources
-   first — never guess at external behavior.
+   first — never guess at external behavior. Non-interactive: `/research`
+   spawns a background agent whose result cannot reach you, so stop and
+   report the unconfirmed external behavior instead of guessing or waiting.
 3. Invoke `/ponytail` and apply its ladder to produce the plan:
    - The minimum files to touch.
    - The concrete change in each file.

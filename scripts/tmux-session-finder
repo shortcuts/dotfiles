@@ -21,16 +21,21 @@ if [[ -z $selected ]]; then
 fi
 
 selected_name=$(basename "$selected" | tr . _)
+selected_path=$(cd "$selected" && pwd -P)
 tmux_running=$(pgrep tmux)
 
 if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-    tmux new-session -s "$selected_name" -c "$selected"
+    tmux new-session -s "$selected_name" -c "$selected_path"
     exit 0
 fi
 
-if ! tmux has-session -t="$selected_name" 2> /dev/null; then
-    tmux new-session -ds "$selected_name" -c "$selected"
+# sessions get renamed on the fly, so match on cwd instead of name
+existing=$(tmux list-sessions -f "#{==:#{session_path},$selected_path}" \
+    -F '#{session_name}' 2>/dev/null | head -1)
+
+if [[ -z $existing ]]; then
+    existing=$selected_name
+    tmux new-session -ds "$existing" -c "$selected_path"
 fi
 
-tmux switch-client -t "$selected_name"
-
+tmux switch-client -t "=$existing"
