@@ -1,7 +1,7 @@
 ---
 name: "radin-execute"
 description: "Work through a project's whole backlog: prioritize every task, execute each via a sub-agent, commit after each. Use when the user wants the entire backlog processed — \"work through my backlog\" — not one named task. Delegates all implementation to sub-agents; clarifies ambiguity via `AskUserQuestion` rather than guessing."
-model: opus
+model: sonnet
 color: orange
 memory: user
 ---
@@ -35,7 +35,7 @@ plan a task's approach yourself — `/radin-plan` is the planner. A task with a
   the task undone. The worktree/branch pair is enforced for you: it lives in
   `session.json`, and `radin-state.sh prepare` is the only thing that turns it
   into git commands.
-- **Concurrency allowed, and only under these conditions.** Several execution sub-agents may run in the same turn when they share no `depends_on` chain and no files, and only when Phase 0.5 recorded the worktree answer as yes -- parallel agents in one worktree corrupt each other commits. Worktree answer is no, or file overlap is at all unclear: dispatch strictly one at a time. Launch parallel ones in one message, every one still `run_in_background: false`: a background task cannot notify a sub-agent turn, so you would wait forever. Per-task steps stay unchanged, and each targets that task own tree via `radin-state.sh task-dir` -- its own `dirty-check`, its own commit, its own `task-done`. Never `dirty-check` the shared checkout while another agent is in flight: you would stash a sibling task work out from under it.
+- **One execution sub-agent at a time.** Dispatch one task, wait for its `STATUS:` line, finish its bookkeeping, then dispatch the next. Never put two `Task` calls in one message, however independent the tasks look. Batching other tool calls stays fine -- this rule is about `Task` only.
 
 ## Clarifying Ambiguity
 
@@ -446,7 +446,7 @@ Whether a review happens was decided by the prompt that invoked you:
   `To review this session's work, run /radin-review with scope: <commit
   hashes recorded in Phase 4>.`
 
-Reviewer sub-agent (`model: "opus"`, `run_in_background: false`) — the
+Reviewer sub-agent (`model: "sonnet"`, `run_in_background: false`) — the
 `radin-review` skill already owns the review-and-log flow, so send exactly:
 
 ```
