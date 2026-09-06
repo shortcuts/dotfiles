@@ -47,10 +47,13 @@ saying plainly it's unspecified and what's known so far. `radin-plan`
 sharpens it when someone picks it up; grilling now has nothing concrete to
 grill about.
 
-## Step 2: Chart each item's open decisions
+## Step 2: Chart each item's open decisions — MANDATORY, do not skip silently
 
 The user is at the keyboard now; `radin-execute` may later run with nobody
-behind it. Settle judgment calls here so execution never has to.
+behind it. This is the only point in the whole flow where that's true — settle
+judgment calls here so execution never has to. Skipping this step is the
+single biggest way this skill fails: an item that looks "obvious" to you
+still needs the check below before it's allowed to skip.
 
 For each item, list what an executor with zero session context would have
 to decide that the conversation didn't settle. Tag each question:
@@ -60,11 +63,21 @@ to decide that the conversation didn't settle. Tag each question:
   `radin-execute` resolves facts AFK by dispatching its own read-only
   fact-finding sub-agent.
 - **Decision** — a judgment call only the user can make (tradeoff, scope
-  boundary, behavior choice). Invoke `/grilling` on these now, one
-  question at a time. Keep every settled answer for Step 5's body.
+  boundary, behavior choice). Invoke `/grilling` on these NOW, before moving
+  to the next item, one question at a time. Do not batch decisions across
+  items into a single end-of-scan question, and do not summarize the
+  decision yourself and ask the user to confirm your summary — `/grilling`
+  asks the actual question. Keep every settled answer for Step 5's body.
 
-An item with no open decisions — one obvious change — skips this step;
-don't manufacture questions. A stub from Step 1 also skips: it is one
+Before calling an item decision-free, name out loud why: what would an
+executor with no session context have to guess to land this without asking
+anyone? If you can name even one plausible guess (a threshold, a naming
+choice, keep-vs-remove, which of two reasonable approaches), it's a
+Decision — grill it. "It seemed obvious" is not a pass condition; only "there
+is no second reasonable way to do this" is. Default to grilling when unsure.
+
+An item with no open decisions — genuinely one obvious change — skips this
+step; don't manufacture questions. A stub from Step 1 also skips: it is one
 deliberately deferred whole, not an item with grillable edges.
 
 If the user defers a question or stops answering, record the question

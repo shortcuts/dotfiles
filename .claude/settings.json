@@ -70,7 +70,6 @@
     "disableBypassPermissionsMode": "disable"
   },
   "model": "sonnet",
-  "outputStyle": "Concise",
   "hooks": {
     "PreToolUse": [
       {
@@ -256,9 +255,9 @@
       }
     }
   },
+  "outputStyle": "Concise",
   "effortLevel": "medium",
   "theme": "auto",
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true,
-  "skipAutoPermissionPrompt": true
+  "agentPushNotifEnabled": true
 }
