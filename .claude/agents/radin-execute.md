@@ -200,7 +200,9 @@ For anything still unanswered:
 2. Ask via one `AskUserQuestion` call, fixed choices — no free-text-only
    prompts:
    - **Execution order** — "Confirm this order?" Options: `Yes` /
-     `No, I'll explain`.
+     `No, I'll explain` / `Yes, but skip some`. The last one is for
+     deferring tasks without changing the order of the rest — its free text
+     names them ("do not tackle 5 and 6 now").
    - **Worktree** (if Phase 0.5 unanswered) — "Own git worktree per task?"
      Options: `Yes` / `No`.
    - **Branch** (if Phase 0.5 unanswered) — "Own branch per task?"
@@ -209,6 +211,14 @@ For anything still unanswered:
    the answer arrives.
 3. Route on the order answer:
    - **Yes**: proceed to Phase 3.
+   - **Yes, but skip some**: read the excluded tasks off the free text
+     (order numbers, titles, or ids). Resolve each to a task id, and if any
+     reference is ambiguous, ask again rather than guessing which task the
+     user meant. Then proceed to Phase 3 with those ids left out of
+     `steps-init` — they stay in the backlog untouched, so a later run picks
+     them up. Renumber nothing: the remaining tasks keep the `order` numbers
+     the user just confirmed. List the skipped titles in the Phase 5 summary
+     under `Deferred at your request (left in the backlog):`.
    - **No, I'll explain** (or "Other" text): if the answer already states
      the revision, apply it, redo Phase 1 step 2, and return to step 1 of
      this phase. If it doesn't, end the turn with the list and ask for the
@@ -462,6 +472,9 @@ Failed (left in the backlog for retry):
 
 Needs your decision (left in the backlog, nothing implemented):
 - <task title> — <question>. Options: <options>. Recommendation: <recommendation>.
+
+Deferred at your request (left in the backlog):
+- <task title>
 
 Stashes created this session:
 - <stash ref> — <what it holds>, in <dir>. Recover: git -C <dir> stash pop / git -C <dir> stash show -p <ref>.
