@@ -42,7 +42,7 @@ return {
             },
             {
                 "<Leader>gsh",
-                "<cmd>DiffviewOpen @<cr>",
+                "<cmd>DiffviewOpen HEAD~1<cr>",
                 mode = { "n", "v" },
                 desc = "close git diff",
             },
