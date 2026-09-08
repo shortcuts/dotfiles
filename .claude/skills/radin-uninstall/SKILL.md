@@ -7,11 +7,12 @@ description: |
 ---
 # Uninstall
 
-Removes every file `install.sh` copied into `~/.claude`: the `radin-execute`
-agent, all `radin-*` skill directories (including this one), and radin's lib
-scripts under `~/.claude/.radin/lib/`. It removes only the files it names
-explicitly. It never wildcard-deletes `~/.claude/agents` or
-`~/.claude/skills`, because the consumer's other tools live there too.
+Removes every file `install.sh` copied into `~/.claude`: all `radin-*` skill
+directories (including this one), radin's lib scripts under
+`~/.claude/.radin/lib/`, and a pre-migration `agents/radin-execute.md` if an
+older install left one behind. It removes only the files it names explicitly.
+It never wildcard-deletes `~/.claude/skills` or `~/.claude/agents`, because
+the consumer's other tools live there too.
 
 It leaves three things untouched: `thermo-nuclear` (this repo does not vendor
 it), the advisory companion tools (rtk, code-review-graph, caveman, ponytail),

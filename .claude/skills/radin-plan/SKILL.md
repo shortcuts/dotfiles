@@ -13,10 +13,12 @@ Turn one backlog entry into one or more implementation plans, without
 writing any code. It runs inline in whichever context invokes it. When the
 invoking context cannot reach the user (e.g. radin-execute's planning
 sub-agent), the caller says so, and every question below then takes the
-non-destructive branch marked "non-interactive". Such a run also cannot be
-notified when a background task finishes, so `/grilling` and `/research` are
-interactive-only here: waiting on either hangs the caller. Each
-"non-interactive" branch below says what to do instead.
+non-destructive branch marked "non-interactive". A sub-agent can neither
+reach the user nor call `AskUserQuestion`, so `/mattpocock-skills:grilling`
+is interactive-only here: there is no way for it to get an answer. Same for
+`/mattpocock-skills:research`, which spawns its own agent whose result may
+never come back within the turn. Each "non-interactive" branch below says
+what to do instead.
 
 ## Step 1: Resolve project namespace
 
@@ -67,14 +69,14 @@ Record the entry's `id` and `title`; the id is the `parent_id`.
 
 ## Step 3: Judge whether the scope should split
 
-Invoke `/ponytail` and apply its ladder: does this entry need more than one
+Invoke `/ponytail:ponytail` and apply its ladder: does this entry need more than one
 plan? Lean toward NOT splitting. Split only when the entry genuinely
 bundles multiple unrelated, independently plannable changes.
 
 This is a judgment call about the user's own task, so surface it.
 Interactive: state your read (split or not, and why) and confirm it, using
-`/grilling` when the entry's scope is genuinely unclear. Non-interactive:
-take the default (no split) without asking.
+`/mattpocock-skills:grilling` when the entry's scope is genuinely unclear.
+Non-interactive: take the default (no split) without asking.
 
 - **Not splitting**: the sub-task list is the entry itself.
 - **Splitting**: show the proposed sub-tasks (short titles, one-line
@@ -93,11 +95,12 @@ re-resolution is needed between sub-tasks. For each sub-task, in order:
    (`semantic_search_nodes`, `get_impact_radius`, `query_graph`) before
    Grep/Glob/Read. Prefer `rtk`-wrapped commands when `command -v rtk`
    succeeds. If the plan hinges on third-party API or library behavior
-   local code can't confirm, invoke `/research` against primary sources
-   first, and never guess at external behavior. Non-interactive: `/research`
-   spawns a background agent whose result cannot reach you, so stop and
-   report the unconfirmed external behavior instead of guessing or waiting.
-3. Invoke `/ponytail` and apply its ladder to produce the plan:
+   local code can't confirm, invoke `/mattpocock-skills:research` against
+   primary sources first, and never guess at external behavior.
+   Non-interactive: `/mattpocock-skills:research` spawns its own agent whose result
+   you cannot count on receiving, so stop and report the unconfirmed external behavior
+   instead of guessing or waiting.
+3. Invoke `/ponytail:ponytail` and apply its ladder to produce the plan:
    - The minimum files to touch.
    - The concrete change in each file.
    - Order of operations, where it matters.
@@ -105,8 +108,8 @@ re-resolution is needed between sub-tasks. For each sub-task, in order:
      check is unfinished.
 
    Surface every open question the plan raised. Interactive: invoke
-   `/grilling` on the entry's open aspects. It walks the decision tree one
-   question at a time, defers facts to repo exploration, and won't finalize
+   `/mattpocock-skills:grilling` on the entry's open aspects. It walks the
+   decision tree one question at a time, defers facts to repo exploration, and won't finalize
    until understanding is confirmed. The plan you hand off must leave zero
    decisions to whoever executes it. Non-interactive: an unresolvable
    question stops the run, so report it rather than plan around it.
@@ -133,7 +136,7 @@ each plan file just written:
 1. Invoke `/thermo-nuclear` against the plan file's content (not the
    codebase): does the proposed approach itself carry a structural issue
    the rubric flags?
-2. Invoke `/ponytail-review` against the same file: speculative
+2. Invoke `/ponytail:ponytail-review` against the same file: speculative
    flexibility, reinvented stdlib, single-caller layers?
 3. Fix each finding by editing the plan file in place. The fix belongs in
    the plan itself, and nothing goes to the backlog (unlike `radin-review`,

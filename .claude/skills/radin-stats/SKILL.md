@@ -18,11 +18,11 @@ Run whichever sources are installed, checking with `command -v` or a skill
 lookup. Skip a missing source without printing anything, and never treat it
 as an error.
 
-- **`/caveman-stats`** -- real per-session token usage and savings, read from
-  the session log itself.
-- **`/ponytail-gain`** -- ponytail's published benchmark scoreboard (medians
-  across 5 tasks, 3 models). Not this session, and not this repo.
-- **`/ponytail-debt`** -- ponytail's real per-repo ledger of deferred
+- **`/caveman:caveman-stats`** -- real per-session token usage and savings,
+  read from the session log itself.
+- **`/ponytail:ponytail-gain`** -- ponytail's published benchmark scoreboard
+  (medians across 5 tasks, 3 models). Not this session, and not this repo.
+- **`/ponytail:ponytail-debt`** -- ponytail's real per-repo ledger of deferred
   shortcuts, if the repo has one.
 - **`rtk gain`** -- rtk's real token-savings ledger (`command -v rtk`; pass
   `-p` to scope it to the current project).

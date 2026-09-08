@@ -77,8 +77,8 @@ risk-scored context beats reading raw diffs cold. Otherwise fall back to
 
 Invoke `/thermo-nuclear` against the scope.
 
-Then invoke the ponytail pass over the same scope: `/ponytail-review` for a
-diff scope (commit/PR/range), `/ponytail-audit` for a directory. It hunts a
+Then invoke the ponytail pass over the same scope: `/ponytail:ponytail-review` for a
+diff scope (commit/PR/range), `/ponytail:ponytail-audit` for a directory. It hunts a
 different axis (over-engineering, dead flexibility, reinvented stdlib/native
 code) and complements thermo-nuclear.
 
