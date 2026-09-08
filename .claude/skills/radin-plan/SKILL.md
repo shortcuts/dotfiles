@@ -10,20 +10,20 @@ description: |
 # Plan a Backlog Entry
 
 Turn one backlog entry into one or more implementation plans, without
-writing any code. Runs inline in whichever context invokes it. When the
+writing any code. It runs inline in whichever context invokes it. When the
 invoking context cannot reach the user (e.g. radin-execute's planning
-sub-agent), the caller says so; every question below then takes the
+sub-agent), the caller says so, and every question below then takes the
 non-destructive branch marked "non-interactive". Such a run also cannot be
 notified when a background task finishes, so `/grilling` and `/research` are
-interactive-only here — waiting on either hangs the caller. Each
+interactive-only here: waiting on either hangs the caller. Each
 "non-interactive" branch below says what to do instead.
 
 ## Step 1: Resolve project namespace
 
 All backlog reads/writes go through the shared CLI at
-`$HOME/.claude/.radin/lib/radin-backlog.sh` — never hand-edit the backlog's
-index or task files, or compute their paths yourself. Get the paths (also
-creates the state/plans/reviews/tasks directories):
+`$HOME/.claude/.radin/lib/radin-backlog.sh`. Never hand-edit the backlog's
+index or task files, and never compute their paths yourself. Get the paths
+(this also creates the state/plans/reviews/tasks directories):
 
 ```bash
 bash "$HOME/.claude/.radin/lib/radin-backlog.sh" env
@@ -45,7 +45,7 @@ first, then exact title, else substring on title).
 - **Several**: list them and ask which one. Non-interactive: report the
   candidates and stop.
 - **None** (interactive only): the task isn't in the backlog yet. Create it
-  without asking — classify into `feat`/`fix`/`chore`/`refactor` (rubric in
+  without asking. Classify it into `feat`/`fix`/`chore`/`refactor` (rubric in
   `skills/radin-record/SKILL.md`), then:
 
   ```bash
@@ -57,7 +57,7 @@ first, then exact title, else substring on title).
 
   Report the new entry, then continue with it as the scoped entry.
   Non-interactive: the scope always came from an existing entry, so no
-  match means backlog drift — report and stop instead of writing a
+  match means backlog drift. Report and stop instead of writing a
   duplicate.
 - **Already planned**: `radin-backlog.sh meta "<id>"` prints one
   `plan<TAB><path>` line per existing pointer. If any, show the path(s) and
@@ -68,7 +68,7 @@ Record the entry's `id` and `title`; the id is the `parent_id`.
 ## Step 3: Judge whether the scope should split
 
 Invoke `/ponytail` and apply its ladder: does this entry need more than one
-plan? Lean toward NOT splitting — split only when the entry genuinely
+plan? Lean toward NOT splitting. Split only when the entry genuinely
 bundles multiple unrelated, independently plannable changes.
 
 This is a judgment call about the user's own task, so surface it.
@@ -87,29 +87,29 @@ The entry's file (`$BACKLOG_TASKS_DIR/<parent_id>.md`) never moves, so no
 re-resolution is needed between sub-tasks. For each sub-task, in order:
 
 1. Read the entry's file. A sub-task from a split has only its one-line
-   Step 3 description as scope — plan just that part.
+   Step 3 description as scope, so plan just that part.
 2. Explore the codebase: structure, affected files, patterns, constraints.
    If `code-review-graph` is wired for this repo, use its MCP tools
    (`semantic_search_nodes`, `get_impact_radius`, `query_graph`) before
    Grep/Glob/Read. Prefer `rtk`-wrapped commands when `command -v rtk`
    succeeds. If the plan hinges on third-party API or library behavior
    local code can't confirm, invoke `/research` against primary sources
-   first — never guess at external behavior. Non-interactive: `/research`
+   first, and never guess at external behavior. Non-interactive: `/research`
    spawns a background agent whose result cannot reach you, so stop and
    report the unconfirmed external behavior instead of guessing or waiting.
 3. Invoke `/ponytail` and apply its ladder to produce the plan:
    - The minimum files to touch.
    - The concrete change in each file.
    - Order of operations, where it matters.
-   - How to verify (tests/checks to run) — lazy code without its check is
-     unfinished.
+   - How to verify (tests/checks to run), because lazy code without its
+     check is unfinished.
 
    Surface every open question the plan raised. Interactive: invoke
-   `/grilling` on the entry's open aspects — it walks the decision tree one
+   `/grilling` on the entry's open aspects. It walks the decision tree one
    question at a time, defers facts to repo exploration, and won't finalize
    until understanding is confirmed. The plan you hand off must leave zero
    decisions to whoever executes it. Non-interactive: an unresolvable
-   question stops the run — report it rather than plan around it.
+   question stops the run, so report it rather than plan around it.
 4. Save the plan at `$NAMESPACE_DIR/plans/<sub-task-id>.md`.
 5. Insert the pointer via the CLI (appends `**Plan:** <path>` to the task's
    file, after any earlier `**Plan:**` lines):
@@ -125,9 +125,9 @@ build/test, create no commit anywhere in this skill. Never touch the scoped
 task's file beyond the appended `**Plan:**` line(s), and never touch any
 other task's file.
 
-## Step 4.5: Review each plan before handing it off
+## Step 5: Review each plan before handing it off
 
-A plan is a proposal — review it before `radin-execute` builds on it. For
+A plan is a proposal, so review it before `radin-execute` builds on it. For
 each plan file just written:
 
 1. Invoke `/thermo-nuclear` against the plan file's content (not the
@@ -135,12 +135,12 @@ each plan file just written:
    the rubric flags?
 2. Invoke `/ponytail-review` against the same file: speculative
    flexibility, reinvented stdlib, single-caller layers?
-3. Fix each finding by editing the plan file in place — the fix belongs in
-   the plan itself, nothing goes to the backlog (unlike `radin-review`,
+3. Fix each finding by editing the plan file in place. The fix belongs in
+   the plan itself, and nothing goes to the backlog (unlike `radin-review`,
    this plan hasn't executed yet, so there is no review record to keep).
 4. Zero findings: leave the file untouched.
 
-## Step 5: Report back
+## Step 6: Report back
 
 ```
 ✅ Entry planned.

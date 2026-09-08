@@ -10,12 +10,12 @@ description: |
 # Review to Backlog
 
 Run the strict review passes against a caller-specified scope and persist
-every finding as a backlog entry instead of terminal output — a durable
-backlog that `radin-execute` (or a human) works through later.
+every finding as a backlog entry instead of terminal output. That leaves a
+durable backlog `radin-execute` (or a human) works through later.
 
 ## Step 1: Resolve scope argument
 
-Resolve the argument (or its absence) via the shared CLI — don't probe
+Resolve the argument (or its absence) via the shared CLI. Don't probe
 git/gh by hand:
 
 ```bash
@@ -26,15 +26,15 @@ It settles commit hashes, PR references, directory paths, and the
 no-argument default (working branch's diff against its merge-base with
 main/master). Route on exit code:
 
-- **0** — resolved. It prints `type`/`scope`/`command` lines; run the
+- **0**: resolved. It prints `type`/`scope`/`command` lines; run the
   printed command to get the scope's content.
-- **1** — not a commit, PR, or directory. A natural-language range ("the
+- **1**: not a commit, PR, or directory. A natural-language range ("the
   last 5 commits", "since yesterday") is yours to translate into concrete
   `git log`/`git diff` invocations. Anything else: report it as
   unresolvable.
-- **2** — ambiguous (candidates on stderr, e.g. both a PR number and a
+- **2**: ambiguous (candidates on stderr, e.g. both a PR number and a
   directory). Interactive: ask which one. Non-interactive (e.g.
-  radin-execute's reviewer sub-agent): report both readings and stop — the
+  radin-execute's reviewer sub-agent): report both readings and stop, so the
   caller retries with an unambiguous scope or resolves it with the user.
 
 State the resolved scope in one line before proceeding, e.g.
@@ -61,7 +61,7 @@ however real the problem is.
 ## Step 2: Record backlog baseline
 
 Backlog writes go through
-`$HOME/.claude/.radin/lib/radin-backlog.sh` — never hand-edit the index or
+`$HOME/.claude/.radin/lib/radin-backlog.sh`. Never hand-edit the index or
 task files. Record the baseline for the end-of-run count:
 
 ```bash
@@ -71,7 +71,7 @@ bash "$HOME/.claude/.radin/lib/radin-backlog.sh" count
 ## Step 3: Run reviews
 
 If `code-review-graph` is installed and wired for this repo, use
-`detect_changes` + `get_review_context` against the scope first —
+`detect_changes` + `get_review_context` against the scope first, because
 risk-scored context beats reading raw diffs cold. Otherwise fall back to
 `git show`/`git diff`/reading files.
 
@@ -79,8 +79,8 @@ Invoke `/thermo-nuclear` against the scope.
 
 Then invoke the ponytail pass over the same scope: `/ponytail-review` for a
 diff scope (commit/PR/range), `/ponytail-audit` for a directory. It hunts a
-different axis — over-engineering, dead flexibility, reinvented
-stdlib/native code — and complements thermo-nuclear.
+different axis (over-engineering, dead flexibility, reinvented stdlib/native
+code) and complements thermo-nuclear.
 
 Name the exact scope in each invocation and restate the scope discipline
 above. It narrows what both rubrics look at, never how hard they look.
@@ -88,14 +88,14 @@ above. It narrows what both rubrics look at, never how hard they look.
 ## Step 4: Log every finding to backlog
 
 For a diff scope, check each finding's cited line against the diff before
-classifying anything — both passes read whole files, so they surface findings
+classifying anything, because both passes read whole files and surface findings
 this skill must drop.
 
 Classify each finding:
 
-- **fix** — an actual bug: incorrect behavior, not just structure.
-- **refactor** — structural: anything thermo-nuclear's rubric flags without
-  a behavior change, and every ponytail finding
+- **fix**: an actual bug, meaning incorrect behavior rather than structure.
+- **refactor**: structural. That covers anything thermo-nuclear's rubric
+  flags without a behavior change, and every ponytail finding
   (`delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`) by definition.
 
 Append each via the CLI:
@@ -105,14 +105,14 @@ bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <fix|refactor> "<short titl
 **Scope:** <what was reviewed, from Step 1>
 **Location:** <file path(s) and function/line if applicable>
 **Finding:**
-<the problem, stated the way the review skill states it — direct, specific>
+<the problem, stated the way the review skill states it: direct, specific>
 **Preferred remedy:**
 <the concrete restructuring suggested>
 EOF
 ```
 
-Those four labels are the description's internal structure, not a separate
-schema; make the body as exhaustive as the finding warrants.
+Those four labels are the description's own internal structure. Make the
+body as exhaustive as the finding warrants.
 
 Log every finding that clears either pass's bar, one entry per finding, in
 the order produced. Skip cosmetic nits neither skill would raise itself.
@@ -121,7 +121,8 @@ the order produced. Skip cosmetic nits neither skill would raise itself.
 
 - The resolved scope reviewed.
 - Findings logged (net-new vs. the Step 2 baseline).
-- Count of findings dropped as out of scope, if any — one line, no detail.
+- Count of findings dropped as out of scope, if any, in one line with no
+  detail.
 - The backlog index path.
-- Zero findings: say the review passed both bars — don't write an empty
+- Zero findings: say the review passed both bars, and don't write an empty
   entry to prove the skill ran.

@@ -4,24 +4,40 @@ description: Wire up per-repo hooks/MCP config for radin's companion tools (code
 ---
 # radin: Set Up Companion-Tool Hooks
 
-`install.sh` installs companion tool *binaries* globally (rtk, code-review-graph, caveman). No per-repo config wiring. That config — MCP server registration, hooks, CLAUDE.md instructions — repo-scoped, needs setup once per project. Skill does that setup, for repo user currently in.
+`install.sh` installs the companion tool *binaries* globally (rtk,
+code-review-graph, caveman). It wires up no per-repo config. That config --
+MCP server registration, hooks, CLAUDE.md instructions -- is repo-scoped and
+needs setup once per project. This skill does that setup for the repo the
+user is currently in.
 
 ## Scope
 
-Only `code-review-graph` needs this step today. `caveman` = Claude Code plugin — hooks register globally at plugin-install time, nothing repo-scoped to do. `rtk` = CLI, no hook/MCP wiring. Radin adds more per-repo-wired companion tools later, extend this skill rather than write new one.
+Only `code-review-graph` needs this step today. `caveman` is a Claude Code
+plugin, so its hooks register globally at plugin-install time and there is
+nothing repo-scoped to do. `rtk` is a CLI with no hook or MCP wiring. If
+radin later adds another companion tool that needs per-repo wiring, extend
+this skill instead of writing a new one.
 
 ## Steps
 
-1. Confirm `code-review-graph` installed: `command -v code-review-graph`. Missing: tell user run radin's `install.sh` first (or install themselves), stop — don't install it from this skill.
-2. Confirm user in repo they want wired (check `git rev-parse
-   --show-toplevel`, show path). Doesn't look right: ask.
+1. Confirm `code-review-graph` is installed: `command -v code-review-graph`.
+   If it is missing, tell the user to run radin's `install.sh` first (or
+   install it themselves) and stop. Do not install it from this skill.
+2. Confirm the user is in the repo they want wired. Run `git rev-parse
+   --show-toplevel` and show the path. If it does not look right, ask.
 3. Preview first: run `code-review-graph install --platform claude-code
-   --dry-run`, show user exactly which files it will write/edit (typically `.mcp.json` and append to `CLAUDE.md`/`AGENTS.md`).
-4. Ask explicit y/n confirmation before writing anything — edits files in user's repo. State plainly: "This will write `.mcp.json` and append graph-tool instructions to CLAUDE.md in `<repo
+   --dry-run` and show the user exactly which files it will write or edit
+   (typically `.mcp.json`, plus an append to `CLAUDE.md`/`AGENTS.md`).
+4. Ask for explicit y/n confirmation before writing anything, because this
+   edits files in the user's repo. State it plainly: "This will write
+   `.mcp.json` and append graph-tool instructions to CLAUDE.md in `<repo
    path>`. Proceed?"
-5. Yes: run `code-review-graph install --platform claude-code -y`.
-6. No: stop. Don't run any variant of install command.
+5. On yes: run `code-review-graph install --platform claude-code -y`.
+6. On no: stop. Do not run any variant of the install command.
 
-Never pass `--no-hooks` or `--no-instructions` unless user specifically asks skip one — skill's whole point full wiring.
+Never pass `--no-hooks` or `--no-instructions` unless the user specifically
+asks to skip one. Full wiring is this skill's whole point.
 
-`code-review-graph install` idempotent per own contract, so existing config no problem — step 4's confirmation still applies. Touch no global `~/.claude/` state: `install.sh` owns that.
+`code-review-graph install` is idempotent per its own contract, so existing
+config is not a problem, but step 4's confirmation still applies. Touch no
+global `~/.claude/` state: `install.sh` owns that.
