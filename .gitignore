@@ -51,6 +51,7 @@ fish/functions/*
 !fish/functions/td*
 !fish/functions/vpn*
 !fish/functions/obsd*
+!fish/functions/prettyjson*
 fish/fish_variables*
 
 # pkg manager
@@ -73,6 +74,7 @@ tmux/tmux-claude-code-status.conf
 !scripts/
 !scripts/**
 scripts/.seen_shinies
+scripts/**/.env
 
 # keyboard
 !keyboard/
