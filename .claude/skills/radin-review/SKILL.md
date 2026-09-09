@@ -2,16 +2,17 @@
 name: radin-review
 description: |
   Run a thermo-nuclear code quality review over a scope (commit, PR, directory,
-  or a range like "since yesterday") and log each finding as a backlog entry
-  instead of printing to terminal. Use for /radin-review, "review and log to
+  or a range like "since yesterday"), triage the findings with the user, and
+  log the ones they keep as backlog entries instead of printing to terminal. Use for /radin-review, "review and log to
   backlog", "audit this commit/PR/directory and file backlog entries", "turn
   this review into a backlog".
 ---
 # Review to Backlog
 
 Run the strict review passes against a caller-specified scope and persist
-every finding as a backlog entry instead of terminal output. That leaves a
-durable backlog `radin-execute` (or a human) works through later.
+every finding the user agrees to as a backlog entry instead of terminal
+output. That leaves a durable backlog `radin-execute` (or a human) works
+through later.
 
 ## Step 1: Resolve scope argument
 
@@ -85,18 +86,55 @@ code) and complements thermo-nuclear.
 Name the exact scope in each invocation and restate the scope discipline
 above. It narrows what both rubrics look at, never how hard they look.
 
-## Step 4: Log every finding to backlog
+## Step 4: Present findings and get agreement
 
-For a diff scope, check each finding's cited line against the diff before
-classifying anything, because both passes read whole files and surface findings
-this skill must drop.
+Nothing reaches the backlog until the user agrees to it. First, drop the
+out-of-scope findings yourself: for a diff scope, check each finding's cited
+line against the diff, because both passes read whole files and surface
+findings this skill must drop.
 
-Classify each finding:
+Then classify each survivor:
 
 - **fix**: an actual bug, meaning incorrect behavior rather than structure.
 - **refactor**: structural. That covers anything thermo-nuclear's rubric
   flags without a behavior change, and every ponytail finding
   (`delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`) by definition.
+
+Print the numbered list — one line each: number, category, location, the
+finding in a clause. Mark the ones you recommend tackling. Recommend on
+severity and effort, not on count; recommending all of them is a valid
+answer when they all earn it.
+
+Then gate on `AskUserQuestion` (single select):
+
+1. **Recommended only** — log the ones you marked.
+2. **All** — log every in-scope finding.
+3. **Let me pick** — the user names which to keep or discard, by number.
+
+On option 3, read their answer and restate the surviving set in one line
+before continuing. Iterate if they correct it.
+
+**Non-interactive caller** (e.g. radin-execute's reviewer sub-agent, which
+has no `AskUserQuestion`): skip this gate and Step 5, log every in-scope
+finding, and say in Step 7's report that no triage happened.
+
+## Step 5: Optional refinement pass
+
+Ask one yes/no on `AskUserQuestion`: refine the selected findings before
+logging?
+
+**No**: go to Step 6 with the entries as reviewed.
+
+**Yes**: invoke `/mattpocock-skills:grilling` over the selected findings, one
+finding at a time, in order. Name the finding and what is open about it
+(scope too wide, remedy wrong, priority off, a constraint the review cannot
+see). Grilling asks the actual questions one at a time and won't finalize
+until the answer is settled — don't restate a finding's problem back to the
+user as a yes/no, and don't batch findings into one pass. Fold each settled
+answer into that finding's category, title, and body before moving to the
+next finding. Drop a finding the user argues away, and say so.
+
+## Step 6: Log the agreed findings to backlog
 
 Append each via the CLI:
 
@@ -112,17 +150,20 @@ EOF
 ```
 
 Those four labels are the description's own internal structure. Make the
-body as exhaustive as the finding warrants.
+body as exhaustive as the finding warrants, and carry Step 5's refinements
+into it.
 
-Log every finding that clears either pass's bar, one entry per finding, in
-the order produced. Skip cosmetic nits neither skill would raise itself.
+Log one entry per agreed finding, in the order presented. Log nothing the
+user discarded.
 
-## Step 5: Report back
+## Step 7: Report back
 
 - The resolved scope reviewed.
 - Findings logged (net-new vs. the Step 2 baseline).
+- Findings the user discarded, as a count.
 - Count of findings dropped as out of scope, if any, in one line with no
   detail.
 - The backlog index path.
 - Zero findings: say the review passed both bars, and don't write an empty
-  entry to prove the skill ran.
+  entry to prove the skill ran. Same when the user discarded all of them —
+  report that, and write nothing.
