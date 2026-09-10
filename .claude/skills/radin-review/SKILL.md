@@ -109,10 +109,11 @@ Then gate on `AskUserQuestion` (single select):
 
 1. **Recommended only** — log the ones you marked.
 2. **All** — log every in-scope finding.
-3. **Let me pick** — the user names which to keep or discard, by number.
 
-On option 3, read their answer and restate the surviving set in one line
-before continuing. Iterate if they correct it.
+The tool's own free-text field already covers a hand-picked subset, so don't
+add a third option for it. If the user types numbers instead of picking,
+restate the surviving set in one line before continuing. Iterate if they
+correct it.
 
 **Non-interactive caller** (e.g. radin-execute's reviewer sub-agent, which
 has no `AskUserQuestion`): skip this gate and Step 5, log every in-scope

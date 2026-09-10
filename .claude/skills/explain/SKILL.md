@@ -1,11 +1,11 @@
 ---
 name: explain
-description: Explain any topic as one terse HTML page - enough to hold the subject, plus the links to go deeper.
+description: Explain any topic as one terse HTML page - from zero knowledge to the subject itself, plus the links to go deeper.
 disable-model-invocation: true
 argument-hint: "A topic, concept, commit hash, PR/commit URL, file, or directory"
 ---
 
-The user asked you to explain something. Produce one self-contained HTML page a technical reader absorbs in a few minutes:
+The user asked you to explain something. Produce one self-contained HTML page. Assume the reader knows nothing about the subject. They read it in a few minutes and come out with:
 
 - **Why** it exists: the motivation, the decisions, the rejected alternatives.
 - **How** it works: the architecture, the key mechanisms, the non-obvious parts.
@@ -18,11 +18,11 @@ Three ideas decide everything else.
 
 **It builds fluency, not retention.** The reader needs to hold the subject now. One read cannot build long-term recall. Do not pad the page with exercises to fake it.
 
-**It starts from what the reader knows.** Working memory is small. Anchor each mechanism to something already on the page, or already in the reader's hands: a familiar pattern, the layer above it, the thing it replaced. Then extend by one step. Five unanchored concepts explain nothing.
+**It starts from zero.** Assume no prior knowledge of the subject, and none of its prerequisites. The reader is sharp and knows their own field. They may have never heard the word in the title. Anchor the first step to something outside the subject: an everyday object, a problem they have hit, the thing this replaced. Anchor every later step to a step already on the page. Five unanchored concepts explain nothing.
 
 ## Depth
 
-ELI5 in tone. Far past ELI5 in substance. Deliberately short of exhaustive.
+ELI5 at the entry point and in tone. Far past ELI5 in substance. Deliberately short of exhaustive.
 
 Calibrate to this: the reader can hold the subject, follow a conversation about it, and ask a sharp question. Not this: the reader can implement or maintain it.
 
@@ -32,19 +32,38 @@ The cut is the point. Name what you left out instead of covering it. Each skippe
 
 One page is the cap, not the target. Too big a topic means you narrow the topic and say which parts you dropped. A second page defeats the format.
 
+### The ladder
+
+Order the page as rungs, not as topics. Each rung is one step, and it stands on the rung below it.
+
+- Rung one uses no term from the subject. It states the problem in plain words, or shows the thing that breaks.
+- Each later rung adds at most one new idea, and uses only terms the page already defined.
+- Define every term at first use, in one clause, inline. No forward references. An idea a rung needs goes lower on the ladder, or off the page.
+- Test a rung by deleting the rungs below it. If it still reads on its own, it is an aside, not a rung. Cut it or move it.
+
+Work one example by hand on the page, with small concrete values. A reader who follows one case owns the mechanism. A reader who only reads the general rule does not.
+
 ## Resolving the input
 
 | Input | Meaning |
 |---|---|
+| Anything not listed below | A concept, subsystem, tool, protocol, practice, event, or idea |
 | Bare commit hash | A commit of the repo in the current directory |
 | GitHub commit URL | A commit of that remote repo |
 | GitHub PR URL | The full PR: commits, body, review discussion |
 | A path | That code as it stands, not a change to it |
-| Anything else | A concept, subsystem, tool, protocol, or idea |
 
 A bare word can be a concept or a directory. Ask which. Keep questions to that one - the user wants a page, not an interview.
 
 ## Gathering the source material
+
+Find the primary source first, whatever the subject is: the spec, the RFC, the reference implementation, the maintainers' own docs, the standard reference work for a general idea. Chase every reference it names - each one becomes a link on the page.
+
+When one source owns the subject, quote it. When none does - a math idea, a practice, a piece of history - read two independent sources, and say on the page where they disagree.
+
+When the subject also lives in the current repo, explain the general shape from the primary source and the local shape from the local code. Mark which is which.
+
+### When the subject is code, a commit, or a PR
 
 Use `git` and `gh` read operations only. Any write - push, comment, review, label - makes you a participant in a history you are here to read.
 
@@ -63,13 +82,11 @@ Chase every reference while you gather, because each one becomes a link on the p
 
 For code as it stands, read the code, then recover what it cannot state. `git log --follow <path>` gives the commits that shaped it. `gh pr list --search <path>` gives the discussions behind it.
 
-For a concept, tool, or protocol, find the primary source: the spec, the RFC, the reference implementation, the maintainers' own docs. When the topic also lives in the current repo, explain the general shape from the primary source and the local shape from the local code. Mark which is which.
-
-### Repository conventions
+#### Repository conventions
 
 Read `AGENTS.md` and `CLAUDE.md` - the root ones, and any in the directories the topic touches. Use `gh api repos/OWNER/REPO/contents/...` for a remote topic. They explain choices the code cannot: why this layer, why this naming, why this test shape. Cite them when they explain a decision.
 
-### Changes the user's own agent wrote
+#### Changes the user's own agent wrote
 
 Compare the commit author against `git config user.email`, and the PR author against `gh api user --jq .login`. A match means a coding agent probably did the work for the user, even with no `Co-Authored-By` trailer. Authorship on record does not mean the user knows the change.
 
@@ -81,7 +98,7 @@ Compare the commit author against `git config user.email`, and the PR author aga
 
 Never explain from parametric knowledge. It produces confident, plausible, wrong pages, and the reader cannot tell. Ground every claim in the code, the messages, the discussion, the primary source, or the conventions files. Cite each one: link the commit, the PR, the specific review thread, the spec section.
 
-Establish the motivation before you walk the mechanism. A mechanism without its why is noise. Best "why" sources, in order: the linked issue, the PR body, the commit messages, then the review discussion - which often records the rejected alternatives, the sharpest form of why.
+Establish the motivation before you walk the mechanism. A mechanism without its why is noise. For a concept, the why is the problem it solves and what people did before it - the spec rationale, the design notes, the history section. For a change, the "why" sources rank: the linked issue, the PR body, the commit messages, then the review discussion, which often records the rejected alternatives, the sharpest form of why.
 
 When the sources hold no motivation, say so on the page. Name who would know: a reviewer, the owning team, the spec authors. An invented motivation is worse than an admitted gap.
 
@@ -96,6 +113,9 @@ Prose is the slowest way to convey a shape. Per mechanism, pick the form that ca
 - **A Mermaid sequence or flow diagram** for interaction across components or services.
 - **A diff** when the point is what changed and the surrounding shape exists already. Match the diff to the topic: diff the file tree for a layout change, the call tree for a flow change, the pseudocode for a logic change.
 - **A real code block** when most of it is new, or when the missing context would hide ownership or order.
+- **A worked example**, small values, computed step by step - the fastest form for a rule, a formula, or a protocol exchange.
+- **A small table** for a finite set of cases, states, or side-by-side options.
+- **A before and after pair** for a process, a practice, or a decision.
 
 Keep only the calls, files, props, states, and boundaries that answer the question at hand. A complete diagram is a failed diagram. Put each visual next to the short text it supports, never in a gallery at the end. One or two forms carry most pages.
 
@@ -103,10 +123,10 @@ Keep only the calls, files, props, states, and boundaries that answer the questi
 
 Structure:
 
-- **Header**: title, linked ref (commit, PR, path, or primary source). For a change, add author, date, merge state.
-- **TL;DR**: two or three sentences, and the reader's win. The whole page in miniature.
+- **Header**: title, linked ref (primary source, commit, PR, or path). For a change, add author, date, merge state. Say what the subject is. Never say what it is not.
+- **TL;DR**: two or three sentences, and the reader's win. The whole page in miniature. The first sentence defines the subject in plain words, and uses no term the reader must already know.
 - **Why**: the motivation and the decisions. Quote the exact commit line, PR excerpt, review comment, or spec passage behind each claim, linked to its source. Include the rejected alternatives the sources record.
-- **How**: the shape first - the file tree, the `--stat`, the top-level flow. Then the mechanisms, in the order a reader needs them. Each gets its visual form and a line of prose. Call out the non-obvious parts, and how repo conventions shaped them.
+- **How**: the shape first - the one tree, table, or diagram that holds the whole subject. For a change, the file tree or the `--stat`. Then the mechanisms in ladder order, lowest rung first. Each gets its visual form and a line of prose. Call out the non-obvious parts, and how repo conventions shaped them.
 - **Sources**: every link worth opening next. See [Links](#links).
 
 Past three mechanisms, add a jump list of internal anchors. A one-pager still has to be navigable on the second visit.
@@ -136,7 +156,7 @@ Skip a category you found nothing for. A padded link list costs the reader more 
 
 ## The slop pass
 
-Run the drafted prose through the `no-ai-slop` skill in Edit mode before you write the file. That skill asks the writer who the piece is for; answer up front so it does not stall. The audience is a technical reader fluent in code. The format is this one-pager. The reader should close it able to reason about the subject.
+Run the drafted prose through the `no-ai-slop` skill in Edit mode before you write the file. That skill asks the writer who the piece is for; answer up front so it does not stall. The audience is a sharp reader who is new to this subject. The format is this one-pager. The reader should close it able to reason about the subject.
 
 It catches what this page leaks most: throat-clearing, hedges, abstraction standing where a mechanism belongs, sentences that would survive unchanged on a page about something else. Cut rather than smooth. A shorter page is the right outcome.
 
