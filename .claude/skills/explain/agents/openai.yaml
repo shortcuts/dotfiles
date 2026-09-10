@@ -1,0 +1,5 @@
+interface:
+  display_name: "Explain"
+  short_description: "Terse single-page explanation of why a thing exists and how it works"
+policy:
+  allow_implicit_invocation: false

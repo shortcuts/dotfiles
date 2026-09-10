@@ -167,3 +167,15 @@ user discarded.
 - Zero findings: say the review passed both bars, and don't write an empty
   entry to prove the skill ran. Same when the user discarded all of them —
   report that, and write nothing.
+
+## Step 8: Backlog now, or execute now
+
+Logged entries stay in the backlog either way — this only decides what
+happens next. Ask one `AskUserQuestion` (single select):
+
+1. **Leave in backlog** — stop here.
+2. **Tackle now** — invoke `/radin-execute`. It prioritizes and executes the
+   whole backlog, not only these entries. Say that before it runs.
+
+Skip this step when nothing was logged, and when the caller is
+non-interactive.

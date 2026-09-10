@@ -1,7 +1,7 @@
 ---
 name: "radin-execute-background"
 description: "Work through the project's backlog in its own agent thread, so the calling session stays free. Dispatch it and then say nothing further about it: it reports to the user in its own transcript, never back to you. Use when the user asks for the backlog run to happen in the background or out of the way."
-model: sonnet
+model: opus
 color: orange
 memory: user
 ---
