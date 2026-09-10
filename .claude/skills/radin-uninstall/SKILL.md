@@ -1,18 +1,17 @@
 ---
 name: radin-uninstall
 description: |
-  Remove everything install.sh copied into ~/.claude -- radin's agent,
-  skills, and lib scripts. Use for /radin-uninstall, "uninstall radin",
+  Remove everything install.sh copied into ~/.claude -- radin's skills
+  and lib scripts. Use for /radin-uninstall, "uninstall radin",
   "remove radin", "tear down radin", "get rid of radin".
 ---
 # Uninstall
 
 Removes every file `install.sh` copied into `~/.claude`: all `radin-*` skill
-directories (including this one), radin's lib scripts under
-`~/.claude/.radin/lib/`, and a pre-migration `agents/radin-execute.md` if an
-older install left one behind. It removes only the files it names explicitly.
-It never wildcard-deletes `~/.claude/skills` or `~/.claude/agents`, because
-the consumer's other tools live there too.
+directories (including this one) and radin's lib scripts under
+`~/.claude/.radin/lib/`. It removes only the files it names explicitly.
+It never wildcard-deletes `~/.claude/skills`, because the consumer's other
+tools live there too.
 
 It leaves three things untouched: `thermo-nuclear` (this repo does not vendor
 it), the advisory companion tools (rtk, code-review-graph, caveman, ponytail),
@@ -22,7 +21,7 @@ repo. That backlog is the user's own data, so deleting it is not radin's call.
 ## Step 1: Run it
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-uninstall.sh"
+radin uninstall
 ```
 
 ## Step 2: Report it

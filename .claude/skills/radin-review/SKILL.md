@@ -20,7 +20,7 @@ Resolve the argument (or its absence) via the shared CLI. Don't probe
 git/gh by hand:
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-scope.sh" [<arg>]
+radin scope [<arg>]
 ```
 
 It settles commit hashes, PR references, directory paths, and the
@@ -62,11 +62,11 @@ however real the problem is.
 ## Step 2: Record backlog baseline
 
 Backlog writes go through
-`$HOME/.claude/.radin/lib/radin-backlog.sh`. Never hand-edit the index or
+the `radin backlog` CLI. Never hand-edit the index or
 task files. Record the baseline for the end-of-run count:
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-backlog.sh" count
+radin backlog count
 ```
 
 ## Step 3: Run reviews
@@ -140,7 +140,7 @@ next finding. Drop a finding the user argues away, and say so.
 Append each via the CLI:
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <fix|refactor> "<short title>" <<'EOF'
+radin backlog add <fix|refactor> "<short title>" <<'EOF'
 **Scope:** <what was reviewed, from Step 1>
 **Location:** <file path(s) and function/line if applicable>
 **Finding:**

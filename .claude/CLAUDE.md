@@ -76,3 +76,16 @@ radius, test coverage, review context. Use it before Grep/Glob/Read when you
 explore code, assess blast radius, or review a diff. Fall back to file
 scanning when the graph does not cover what you need. The MCP tools document
 their own parameters and use.
+
+
+<!-- radin:begin -->
+## radin
+
+radin keeps a per-repo backlog in `<repo-root>/.claude/.radin/` so tasks
+survive past one conversation. Reach for it instead of ad-hoc task tracking:
+
+- A bug, idea, or follow-up comes up mid-session: record it with `/radin-record`.
+- The user asks what is pending: `/radin-show`. One entry needs a plan first: `/radin-plan`.
+- The user wants the backlog worked through: `/radin-execute`. A code review whose findings should become tasks: `/radin-review`.
+- Never hand-edit files under `.claude/.radin/` -- every backlog operation goes through the `radin backlog` CLI.
+<!-- radin:end -->

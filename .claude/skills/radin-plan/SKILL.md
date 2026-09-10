@@ -23,12 +23,12 @@ what to do instead.
 ## Step 1: Resolve project namespace
 
 All backlog reads/writes go through the shared CLI at
-`$HOME/.claude/.radin/lib/radin-backlog.sh`. Never hand-edit the backlog's
+the `radin backlog` CLI. Never hand-edit the backlog's
 index or task files, and never compute their paths yourself. Get the paths
 (this also creates the state/plans/reviews/tasks directories):
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-backlog.sh" env
+radin backlog env
 ```
 
 Read `REPO_ROOT`, `NAMESPACE_DIR`, `BACKLOG_INDEX`, `BACKLOG_TASKS_DIR` from
@@ -37,7 +37,7 @@ its output. Re-run this line in any later Bash call that uses them.
 ## Step 2: Resolve the task scope
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-backlog.sh" find "<scope id/title/keyword>"
+radin backlog find "<scope id/title/keyword>"
 ```
 
 It prints one `id<TAB>category<TAB>title<TAB>file` line per match (exact id
@@ -51,7 +51,7 @@ first, then exact title, else substring on title).
   `skills/radin-record/SKILL.md`), then:
 
   ```bash
-  bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add <category> "<short title>" <<'EOF'
+  radin backlog add <category> "<short title>" <<'EOF'
   <the task as the caller stated or clearly implied it, and why it matters
   if not already obvious>
   EOF
@@ -118,7 +118,7 @@ re-resolution is needed between sub-tasks. For each sub-task, in order:
    file, after any earlier `**Plan:**` lines):
 
    ```bash
-   bash "$HOME/.claude/.radin/lib/radin-backlog.sh" add-plan "<parent_id>" "$NAMESPACE_DIR/plans/<sub-task-id>.md"
+   radin backlog add-plan "<parent_id>" "$NAMESPACE_DIR/plans/<sub-task-id>.md"
    ```
 
 6. Report: `✅ <sub-task-id> planned. Plan: <path>.`

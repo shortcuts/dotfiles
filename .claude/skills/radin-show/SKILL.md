@@ -15,7 +15,7 @@ it.
 ## Step 1: Print it
 
 ```bash
-bash "$HOME/.claude/.radin/lib/radin-backlog.sh" show
+radin backlog show
 ```
 
 The CLI renders the backlog from the JSONL index plus each task's own file.
