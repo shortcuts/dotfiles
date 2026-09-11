@@ -1,0 +1,8 @@
+{
+  "name": "algolia-scripts",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "algoliasearch": "^5.46.1"
+  }
+}
