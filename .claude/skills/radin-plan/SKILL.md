@@ -99,13 +99,17 @@ re-resolution is needed between sub-tasks. For each sub-task, in order:
    Cypher-shaped. `index_repository` first when `list_projects` doesn't list
    this repo. Name affected files in the plan only after reading them —
    a graph hit is a pointer, not a substitute. Prefer `rtk`-wrapped commands when `command -v rtk`
-   succeeds. If the plan hinges on third-party API or library behavior
+   succeeds, and `headroom loc` for the shape of a repo you have not seen
+   before when `command -v headroom` succeeds. If the plan hinges on third-party API or library behavior
    local code can't confirm, invoke `/mattpocock-skills:research` against
    primary sources first, and never guess at external behavior.
    Non-interactive: `/mattpocock-skills:research` spawns its own agent whose result
    you cannot count on receiving, so stop and report the unconfirmed external behavior
    instead of guessing or waiting.
-3. Invoke `/ponytail:ponytail` and apply its ladder to produce the plan:
+3. Invoke `/ponytail:ponytail` and apply its ladder to produce the plan. When
+   the plan has to place a new module boundary or reshape an interface, invoke
+   `/mattpocock-skills:codebase-design` for that part instead of inventing
+   your own vocabulary for it. The plan states:
    - The minimum files to touch.
    - The concrete change in each file.
    - Order of operations, where it matters.

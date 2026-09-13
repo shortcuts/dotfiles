@@ -26,6 +26,9 @@ as an error.
   shortcuts, if the repo has one.
 - **`rtk gain`** -- rtk's real token-savings ledger (`command -v rtk`; pass
   `-p` to scope it to the current project).
+- **`headroom savings`** -- headroom's real compression ledger
+  (`command -v headroom`). "No savings recorded yet" is a normal empty
+  result: nothing has been routed through its proxy or MCP tool.
 
 Any other installed tool with its own `stats` or `gain` command belongs in
 this list too. Add it here rather than building a separate skill.
@@ -37,6 +40,7 @@ not there. This output is informative only, so it does not need to be exact.
 ## Step 2: Display, don't merge
 
 Print each tool's output under its own heading, in the order above. Label
-which numbers are really measured (caveman-stats, ponytail-debt, rtk gain)
+which numbers are really measured (caveman-stats, ponytail-debt, rtk gain,
+headroom savings)
 and which come from a fixed benchmark (ponytail-gain), so the user does not
 mistake one for the other. Print no combined total row.

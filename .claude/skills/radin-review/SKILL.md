@@ -81,10 +81,20 @@ diff`/reading files when the graph has nothing for it.
 
 Invoke `/thermo-nuclear` against the scope.
 
+Wrap the scope-content commands (`git show`, `git diff`, a test run) in `rtk`
+when `command -v rtk` succeeds: a raw diff is the largest thing this skill
+reads.
+
 Then invoke the ponytail pass over the same scope: `/ponytail:ponytail-review` for a
 diff scope (commit/PR/range), `/ponytail:ponytail-audit` for a directory. It hunts a
 different axis (over-engineering, dead flexibility, reinvented stdlib/native
 code) and complements thermo-nuclear.
+
+For a directory scope, also run `/ponytail:ponytail-debt`. It harvests the
+`ponytail:` shortcut comments already in that code, so the deliberate
+deferrals become findings the user can triage instead of rotting in place.
+Each one it reports is in scope only when the named file is under the
+reviewed path.
 
 Name the exact scope in each invocation and restate the scope discipline
 above. It narrows what both rubrics look at, never how hard they look.

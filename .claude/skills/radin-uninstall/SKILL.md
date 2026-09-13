@@ -14,9 +14,10 @@ It never wildcard-deletes `~/.claude/skills`, because the consumer's other
 tools live there too.
 
 It leaves three things untouched: `thermo-nuclear` (this repo does not vendor
-it), the advisory companion tools (rtk, codebase-memory-mcp, caveman, ponytail),
-and any `<repo-root>/.claude/.radin/` backlog directory in the consumer's
-repo. That backlog is the user's own data, so deleting it is not radin's call.
+it), every companion tool (each installed through its own installer, so each
+is removed through it), and any `<repo-root>/.claude/.radin/` backlog
+directory in the consumer's repo. That backlog is the user's own data, so
+deleting it is not radin's call.
 
 ## Step 1: Run it
 

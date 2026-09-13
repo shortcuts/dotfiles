@@ -2,7 +2,7 @@
 name: radin-doctor
 description: |
   Check that radin's own install under ~/.claude is complete and its
-  optional companion tools are reachable. Use for /radin-doctor, "check my
+  companion tools are reachable. Use for /radin-doctor, "check my
   radin install", "is radin installed correctly", "radin doctor", "verify
   radin install".
 ---
@@ -11,9 +11,10 @@ description: |
 A read-only health check for radin's own install under `~/.claude`. It
 confirms that every skill and lib file `install.sh` copies is present,
 checks that radin's own lib shell scripts have valid syntax, and reports
-which optional companion tools (rtk, codebase-memory-mcp, caveman, ponytail)
-are currently reachable. It never mutates anything, which mirrors
-`install.sh`'s own "advisory only" stance on companion tools.
+which companion tools (rtk, codebase-memory-mcp, headroom, caveman,
+ponytail, mattpocock-skills) are currently reachable. It never mutates
+anything: a companion install is advisory, so an unreachable one is a report,
+not a failure.
 
 ## Step 1: Run it
 

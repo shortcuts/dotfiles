@@ -342,6 +342,9 @@ this task's `Task` call may share a message with another's. Send the
 - `TASK_FILE`: `$BACKLOG_TASKS_DIR/<id>.md`
 - `PLAN_PATHS`: the `plan` paths in printed order, or "none — implement
   directly from the entry" if Step 4a skipped planning
+- `CATEGORY`: the entry's category from Step 4a's `find` line. It picks which
+  discipline skill the sub-agent implements through, so pass it verbatim and
+  never substitute your own read of the task's shape.
 - `NAMESPACE_DIR`: `$NAMESPACE_DIR`, and `TASK_ID`: the task's id. The
   sub-agent passes both to `radin-state.sh prepare` to get its working tree.
   Never substitute the worktree/branch answers themselves, and never tell the

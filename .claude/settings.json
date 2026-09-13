@@ -59,7 +59,8 @@
       "Bash(cat ~/.azure/*)",
       "Bash(cat ~/.ssh/*)"
     ],
-    "disableBypassPermissionsMode": "disable"
+    "disableBypassPermissionsMode": "disable",
+    "defaultMode": "auto"
   },
   "model": "opus",
   "hooks": {
@@ -80,6 +81,16 @@
             "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
           }
         ]
+      },
+      {
+        "matcher": "Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-code-discovery-gate'",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -87,17 +98,47 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$([ -x /opt/homebrew/bin/node ] && echo /opt/homebrew/bin/node || echo /usr/local/bin/node) ~/.claude/hooks/caveman-activate.js",
-            "timeout": 5,
-            "statusMessage": "Loading caveman mode..."
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh start"
           }
         ]
       },
       {
+        "matcher": "startup",
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh start"
+            "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+            "timeout": 5
           }
         ]
       }
@@ -137,22 +178,22 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$([ -x /opt/homebrew/bin/node ] && echo /opt/homebrew/bin/node || echo /usr/local/bin/node) ~/.claude/hooks/caveman-mode-tracker.js",
-            "timeout": 5,
-            "statusMessage": "Tracking caveman mode..."
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
           }
         ]
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-code-discovery-gate'",
+            "timeout": 5
+          }
+        ]
+      }
     ],
     "PermissionRequest": [
       {
@@ -160,6 +201,18 @@
           {
             "type": "command",
             "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh stuck"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-subagent-reminder'",
+            "timeout": 5
           }
         ]
       }
