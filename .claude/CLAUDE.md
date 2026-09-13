@@ -71,7 +71,14 @@ Fall back to Grep/Glob outside the index or when fff is unavailable.
 
 
 
+<<<<<<< HEAD
 
+||||||| parent of a49f9cf (chore: update radin)
+=======
+
+
+
+>>>>>>> a49f9cf (chore: update radin)
 <!-- radin:begin -->
 ## radin
 
