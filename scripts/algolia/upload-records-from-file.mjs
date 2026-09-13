@@ -11,10 +11,11 @@ const suffix = opts.suffix === true ? new Date().toISOString().replace(/[:.]/g, 
 const indexName = suffix ? `${baseName}-${suffix}` : baseName;
 const batchSize = Number(opts.batch ?? 1000);
 const limit = opts.limit ? Number(opts.limit) : Infinity;
+const concurrency = Number(opts.concurrency ?? 1);
 
 if (!file || !baseName) {
   console.error(
-    'usage: ALGOLIA_APP_ID=.. ALGOLIA_API_KEY=.. upload-records-from-file.mjs <file> <index> [--batch=1000] [--limit=N] [--suffix[=name]] [--clear] [--dry-run]',
+    'usage: ALGOLIA_APP_ID=.. ALGOLIA_API_KEY=.. upload-records-from-file.mjs <file> <index> [--batch=1000] [--concurrency=1] [--limit=N] [--suffix[=name]] [--clear] [--dry-run]',
   );
   process.exit(1);
 }
@@ -33,10 +34,27 @@ if (opts.clear && !opts['dry-run'] && (await algolia.indexExists({ indexName }))
 const rl = createInterface({ input: createReadStream(file), crlfDelay: Infinity });
 let batch = [];
 let count = 0;
+const start = Date.now();
+let mark = start;
+let marked = 0;
 
-const push = opts['dry-run']
+const send = opts['dry-run']
   ? async () => {}
   : (objects) => retry(() => algolia.saveObjects({ indexName, objects }), indexName);
+
+// Keeps `concurrency` saveObjects calls in flight so a load test can saturate the API.
+const inFlight = new Set();
+let failure;
+async function push(objects) {
+  if (failure) throw failure;
+  const p = send(objects)
+    .catch((e) => {
+      failure ??= e;
+    })
+    .finally(() => inFlight.delete(p));
+  inFlight.add(p);
+  if (inFlight.size >= concurrency) await Promise.race(inFlight);
+}
 
 for await (const line of rl) {
   const trimmed = line.trim().replace(/,$/, '');
@@ -44,16 +62,28 @@ for await (const line of rl) {
   batch.push(JSON.parse(trimmed));
   if (count + batch.length >= limit) break;
   if (batch.length === batchSize) {
-    await push(batch);
     count += batch.length;
+    await push(batch);
     batch = [];
     if (count % 100_000 === 0) {
-      console.log(`${file}: ${count}  rss ${(process.memoryUsage.rss() / 1e6) | 0} MB`);
+      const now = Date.now();
+      const rate = ((count - marked) / (now - mark)) * 1000;
+      const avg = (count / (now - start)) * 1000;
+      console.log(
+        `${file}: ${count}  ${rate.toFixed(0)}/s (avg ${avg.toFixed(0)}/s)  inflight ${inFlight.size}/${concurrency}  rss ${(process.memoryUsage.rss() / 1e6) | 0} MB`,
+      );
+      mark = now;
+      marked = count;
     }
   }
 }
 if (batch.length) {
-  await push(batch);
   count += batch.length;
+  await push(batch);
 }
-console.log(`${file}: done, ${count} records into ${indexName}`);
+await Promise.all(inFlight);
+if (failure) throw failure;
+const secs = (Date.now() - start) / 1000;
+console.log(
+  `${file}: done, ${count} records into ${indexName} in ${secs.toFixed(1)}s (avg ${((count / secs) | 0)}/s)`,
+);
