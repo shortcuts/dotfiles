@@ -68,6 +68,7 @@ The fff MCP server indexes the current git-indexed directory. For any file
 search or grep in that directory, use the fff tools instead of Grep/Glob.
 Fall back to Grep/Glob outside the index or when fff is unavailable.
 
+
 <!-- radin:begin -->
 ## radin
 
