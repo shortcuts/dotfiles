@@ -61,3 +61,6 @@ if status is-interactive
         tmux attach; or tmux new
     end
 end
+
+# Added by codebase-memory-mcp install
+fish_add_path /Users/k/.local/bin

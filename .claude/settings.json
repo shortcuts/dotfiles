@@ -10,7 +10,6 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "mcp__code-review-graph__*",
       "Bash(./gradlew *)"
     ],
     "deny": [
@@ -21,27 +20,20 @@
       "Bash(terraform destroy *)"
     ],
     "ask": [
-      "Bash(go build)",
-      "Bash(go build *)",
       "Bash(chmod *)",
       "Bash(chmod 777:*)",
       "Bash(chown *)",
       "Bash(docker *)",
       "Bash(eval:*)",
-      "Bash(curl *)",
       "Bash(fdisk *)",
       "Bash(gcloud *)",
       "Bash(git clean -fd:*)",
       "Bash(git reset *)",
       "Bash(git rebase *)",
-      "Bash(kill *)",
-      "Bash(killall *)",
       "Bash(kubectl *)",
       "Bash(mkfs *)",
       "Bash(npm publish*)",
-      "Bash(pkill *)",
       "Bash(pnpm publish*)",
-      "Bash(rm *)",
       "Bash(rmdir *)",
       "Bash(shred *)",
       "Bash(sudo:*)",
@@ -98,26 +90,6 @@
             "command": "$([ -x /opt/homebrew/bin/node ] && echo /opt/homebrew/bin/node || echo /usr/local/bin/node) ~/.claude/hooks/caveman-activate.js",
             "timeout": 5,
             "statusMessage": "Loading caveman mode..."
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "code-review-graph status",
-            "timeout": 10
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat >/dev/null || true; git rev-parse --git-dir >/dev/null 2>&1 && code-review-graph status --repo \"/Users/k/Documents/renovAIte\" || echo 'Not a git repo, skipping'",
-            "timeout": 10
           }
         ]
       },
@@ -181,26 +153,6 @@
       }
     ],
     "PostToolUse": [
-      {
-        "matcher": "Edit|Write|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "code-review-graph update --skip-flows",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "matcher": "Edit|Write|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cat >/dev/null || true; git rev-parse --git-dir >/dev/null 2>&1 && code-review-graph update --skip-flows --repo \"/Users/k/Documents/renovAIte\" || true",
-            "timeout": 30
-          }
-        ]
-      }
     ],
     "PermissionRequest": [
       {
