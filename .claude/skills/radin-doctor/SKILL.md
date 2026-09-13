@@ -11,7 +11,7 @@ description: |
 A read-only health check for radin's own install under `~/.claude`. It
 confirms that every skill and lib file `install.sh` copies is present,
 checks that radin's own lib shell scripts have valid syntax, and reports
-which optional companion tools (rtk, code-review-graph, caveman, ponytail)
+which optional companion tools (rtk, codebase-memory-mcp, caveman, ponytail)
 are currently reachable. It never mutates anything, which mirrors
 `install.sh`'s own "advisory only" stance on companion tools.
 

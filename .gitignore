@@ -106,5 +106,3 @@ STL/.DS_Store
 # tmux-claude-code-status installer (public one-liner)
 !tmux-claude-code-status/
 !tmux-claude-code-status/**
-# Added by code-review-graph
-.code-review-graph/

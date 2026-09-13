@@ -68,16 +68,6 @@ The fff MCP server indexes the current git-indexed directory. For any file
 search or grep in that directory, use the fff tools instead of Grep/Glob.
 Fall back to Grep/Glob outside the index or when fff is unavailable.
 
-## MCP Tools: code-review-graph
-
-Some projects have the code-review-graph knowledge graph, auto-updated via
-hooks. It answers structural questions cheaply: callers, dependents, impact
-radius, test coverage, review context. Use it before Grep/Glob/Read when you
-explore code, assess blast radius, or review a diff. Fall back to file
-scanning when the graph does not cover what you need. The MCP tools document
-their own parameters and use.
-
-
 <!-- radin:begin -->
 ## radin
 

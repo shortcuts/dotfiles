@@ -71,10 +71,13 @@ radin backlog count
 
 ## Step 3: Run reviews
 
-If `code-review-graph` is installed and wired for this repo, use
-`detect_changes` + `get_review_context` against the scope first, because
-risk-scored context beats reading raw diffs cold. Otherwise fall back to
-`git show`/`git diff`/reading files.
+If `codebase-memory-mcp` is installed and wired for this repo, start with
+`detect_changes` (git diff mapped to affected symbols, with blast radius and
+risk classification), then `trace_path` on the symbols it flags and
+`get_code_snippet` to read them: risk-scored impact beats reading a raw diff
+cold. `detect_changes` reads the working tree, so for a commit or PR scope
+check out or diff that scope first, and fall back to `git show`/`git
+diff`/reading files when the graph has nothing for it.
 
 Invoke `/thermo-nuclear` against the scope.
 

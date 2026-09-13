@@ -64,3 +64,6 @@ end
 
 # Added by codebase-memory-mcp install
 fish_add_path /Users/k/.local/bin
+
+# Added by codebase-memory-mcp install
+fish_add_path /Users/clement.vannicatte/.local/bin
