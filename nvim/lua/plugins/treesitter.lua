@@ -31,14 +31,14 @@ return {
             }
 
             local group = vim.api.nvim_create_augroup("ShortcutsTreesitter", { clear = true })
-            vim.api.nvim_create_autocmd({ "BufEnter", "FileType" }, {
+            vim.api.nvim_create_autocmd("FileType", {
                 group = group,
-                callback = function()
-                    if vim.bo.buftype ~= "" then
+                callback = function(e)
+                    if vim.bo[e.buf].buftype ~= "" then
                         return
                     end
 
-                    pcall(vim.treesitter.start, 0)
+                    pcall(vim.treesitter.start, e.buf)
                 end,
             })
 

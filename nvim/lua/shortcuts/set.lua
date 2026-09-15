@@ -4,18 +4,9 @@
 
 vim.g.mapleader = ";"
 
--- Plugin global opts
-vim.g.go_gopls_gofumpt = 1
-vim.g.go_imports_autosave = 0
-vim.g.go_imports_mode = "goimports"
-vim.g.go_fmt_command = "gopls"
-vim.g.go_def_mode = "gopls"
-vim.g.go_info_mode = "gopls"
-vim.g.go_doc_popup_window = 1
-
 -- Folding
 vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldenable = false
 
 -- disable netrw

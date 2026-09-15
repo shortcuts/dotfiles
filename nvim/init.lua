@@ -27,7 +27,7 @@ local opts = {
     install = {
         missing = true,
         notify = false,
-        colorscheme = { "carbonfox" },
+        colorscheme = { "vague" },
     },
     change_detection = {
         enabled = true,
