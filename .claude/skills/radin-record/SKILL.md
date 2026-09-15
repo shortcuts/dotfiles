@@ -155,6 +155,14 @@ literal content to quote.>
 the same marker radin-execute appends when it settles one, so downstream
 readers see one vocabulary. Then any open facts or deferred decisions, in
 plain prose.>
+
+<when the session already stated a checkable outcome for this item, an
+`**Acceptance:**` line followed by one flat `- ` bullet per criterion, each
+one thing a later reader can check against a diff or a command's output.
+Omit the whole block otherwise: never ask the user for criteria, and never
+synthesise one from the item's own description — a made-up criterion is worse
+than none, because radin-execute then measures the work against a guess.
+Each criterion is one unindented line; an indented sub-bullet ends the list.>
 EOF
 ```
 

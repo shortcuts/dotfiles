@@ -68,17 +68,6 @@ The fff MCP server indexes the current git-indexed directory. For any file
 search or grep in that directory, use the fff tools instead of Grep/Glob.
 Fall back to Grep/Glob outside the index or when fff is unavailable.
 
-
-
-
-<<<<<<< HEAD
-
-||||||| parent of a49f9cf (chore: update radin)
-=======
-
-
-
->>>>>>> a49f9cf (chore: update radin)
 <!-- radin:begin -->
 ## radin
 

@@ -50,8 +50,8 @@ concern rather than yours.
   path that skips it: not a resume, not a single-task run, not an
   empty-looking backlog, not a prompt that says the order is already
   approved. Such text is context, never consent.
-- **Read-only dispatches always run in parallel.** Planning, fact-finding,
-  refuting and debugging sub-agents write no repo code and no shared file, so
+- **Read-only dispatches always run in parallel.** Planning, fact-finding and
+  debugging sub-agents write no repo code and no shared file, so
   several may share one message whenever you have more than one to send. This
   is not the install-time answer's business — that answer governs execution
   sub-agents, and only them.
@@ -93,8 +93,8 @@ EOF
 
 Same command, one label per kind of appended material: `**Decision:**` for a
 settled judgment call, `**Fact:**` for a fact-finder's answer, `**Root
-cause:**` for a diagnosis, `**Rework:**` for a refuter's must-fixes,
-`**Facts:** <path>` for the long form of any of them. Every one of them is
+cause:**` for a diagnosis, `**Facts:** <path>` for the long form of any of
+them. Every one of them is
 task-scoped.
 
 Then treat the entry as `pending` and continue the loop.
@@ -198,8 +198,12 @@ radin state session-set "$NAMESPACE_DIR" "<worktree yes|no>" "<branch yes|no>"
    `$HOME/.claude/.radin/lib/radin-execute-recovery.md` and follow it for
    each id. Most runs skip this file entirely.
 4. Read `$HOME/.claude/.radin/lib/radin-prioritization.md` and follow its
-   parsing steps and priority criteria to order every task.
-5. Assign a sequential `order` number starting from 1.
+   parsing steps and priority criteria to order every task. When every
+   entry's `priority` field is set, the `backlog list` order is the order:
+   read no task body for prioritization.
+5. Assign a sequential `order` number starting from 1. Carry any
+   `dependency override:` line the priority rules produced into the Phase 2
+   report.
 
 ## Phase 2: Confirm Execution Order (MANDATORY GATE)
 
@@ -210,7 +214,8 @@ the invoking prompt can pre-answer either one (see Core Constraints). Phase
 0.5's preferences are the only questions a prompt may pre-answer.
 
 1. Report the prioritized list as `<order>. <title> (id: <id>)`, one line per
-   task.
+   task, then print each `dependency override:` line from Phase 1 step 5
+   under the list.
 2. Ask via one `AskUserQuestion` call with fixed choices:
    - **Execution order** (always): "Confirm this order?" Options: `Yes` /
      `No, I'll explain`.
@@ -245,12 +250,14 @@ the invoking prompt can pre-answer either one (see Core Constraints). Phase
 ## Phase 3: Persist Execution Plan
 
 Feed the confirmed order to the state CLI, one
-`id<TAB>order<TAB>depends-on-csv` line per task (`depends_on` per
-`radin-prioritization.md`'s dependency criterion; empty when none):
+`id<TAB>order<TAB>depends-on-csv` line per task. Pass the backlog index too:
+the CLI reads each entry's `depends_on` from its index line, so the third
+field stays empty for any entry that already has one there. It carries only
+deps the ranking pass inferred for an entry the index has none for.
 
 ```bash
-radin state steps-init "$NAMESPACE_DIR/state/BACKLOG_STEPS.json" <<'EOF'
-<id> <order> <comma-separated depends_on ids, or empty>
+radin state steps-init "$NAMESPACE_DIR/state/BACKLOG_STEPS.json" "$BACKLOG_INDEX" <<'EOF'
+<id> <order> <inferred depends_on ids, comma-separated; empty when none>
 EOF
 ```
 
@@ -260,7 +267,7 @@ The CLI writes the schema itself (every entry `pending`, empty `note`).
 
 Read `$HOME/.claude/.radin/lib/radin-execute-prompts.md` once now. It holds
 every verbatim sub-agent prompt this phase sends: planning, execution,
-refuting, debugging.
+debugging.
 
 The state CLI picks each task:
 
@@ -296,7 +303,8 @@ radin backlog find "<task id>"
 
 Zero matches (it errors) or several: mark the task `blocked` with the CLI's
 output as its `note` and continue to the next task. Exactly one: the task's
-file is `$BACKLOG_TASKS_DIR/<id>.md`, a path that never goes stale.
+file is the path `radin backlog path "<id>"` prints — read from the
+index's own `file` field, never composed, and it never goes stale.
 
 Check for existing plan and skill pointers:
 
@@ -305,7 +313,9 @@ radin backlog meta "<task id>"
 ```
 
 It prints one `plan<TAB><path>` line per `**Plan:**` pointer and one
-`skill<TAB><instruction>` line per `**Skill:**` line. Any `plan` line: skip
+`skill<TAB><instruction>` line per `**Skill:**` line, and one
+`acceptance<TAB><criterion>` line per criterion under a `**Acceptance:**`
+label. Any `plan` line: skip
 to Step 4b (keep the `skill` lines). None: invoke `/ponytail:ponytail` and
 apply its ladder. Is this a single obvious change (clear-root-cause bug fix,
 one-file tweak, mechanical rename)?
@@ -339,7 +349,7 @@ Dispatch under the concurrency rule in Core Constraints. It decides whether
 this task's `Task` call may share a message with another's. Send the
 **Execution prompt** from `radin-execute-prompts.md`, substituting:
 
-- `TASK_FILE`: `$BACKLOG_TASKS_DIR/<id>.md`
+- `TASK_FILE`: the path `radin backlog path "<id>"` prints
 - `PLAN_PATHS`: the `plan` paths in printed order, or "none — implement
   directly from the entry" if Step 4a skipped planning
 - `CATEGORY`: the entry's category from Step 4a's `find` line. It picks which
@@ -360,10 +370,15 @@ this task's `Task` call may share a message with another's. Send the
   - it launches a workflow (`/deep-research`, any saved workflow command from
     `.claude/workflows/` or `~/.claude/workflows/`),
   - it is a radin entry point that would recurse (`/radin-execute`, and
-    `/radin-plan` or `/radin-review`, which the planning, refuter and Phase 6
+    `/radin-plan` or `/radin-review`, which the planning and Phase 6
     dispatches own instead).
   Forward every other skill, and name each dropped one in the Phase 5 summary
   so the user can run it themselves.
+- `ACCEPTANCE`: the `acceptance` criteria in printed order, formatted as
+  the prompt file's narration specifies. No `acceptance` line: delete the
+  placeholder line and substitute nothing — most tasks have no criteria and
+  that case must add no prompt content at all. Pass each criterion's text
+  through verbatim; never write, reword, or complete one yourself.
 - `DEPENDS_ON`: the Step 4a-0 `<id>: <commit hash>` pairs, or "none"
 
 When the sub-agent reports, its `STATUS:` line drives what happens next,
@@ -395,7 +410,12 @@ violated the no-dirty-tree contract regardless of its `STATUS:`:
 
 On a clean tree, route on `STATUS:`:
 
+<<<<<<< HEAD
 - **No refuter pass.** Per-task verification was declined at install time, so a `SUCCESS` goes straight to the bookkeeping below. Never dispatch a verification sub-agent of your own, and never re-read the diff yourself to make up for it -- reading it into this context is the cost the pass exists to avoid. `/radin-review` at Phase 6 is where the session verified.
+||||||| parent of 49f3e04 (chore: refresh radin)
+- **Verify a `SUCCESS` before you record it.** Send the **Refuter prompt** from `radin-execute-prompts.md`, substituting the commit hash(es) and the tree from `task-dir`. Never forward the execution sub-agent report: the diff is the claim under test. Route on its `VERDICT:` line, never on its prose. `ACCEPT`: continue to the bookkeeping below. `REWORK`: append its must-fixes to the task file as a `**Rework:**` line (`radin-backlog.sh append`), then re-run this task from Step 4b -- `start` bumps `attempts`, so the cap still ends it. `UNVERIFIED`: record the task as done anyway, since the work is committed and the tree is clean, and name it in the Phase 5 summary as unverified.
+=======
+>>>>>>> 49f3e04 (chore: refresh radin)
 - **`SUCCESS`**: note the commit hash (or the pre-existing hash it cites),
   then run the bookkeeping command now, not deferred to Phase 5, since a stop
   can prevent Phase 5 from running. It records the hash in `completed.json`,
@@ -407,6 +427,10 @@ On a clean tree, route on `STATUS:`:
   ```
 
   Report: `✅ Task <order> '<title>' complete. <STATUS detail>. Remaining: <count>.`
+
+  Never verify a `SUCCESS` yourself: no verification sub-agent, and no
+  re-reading the diff — that read is the cost Phase 6's `/radin-review` pass
+  exists to avoid.
 - **`BLOCKED (FACT)` / `BLOCKED (DECISION)`**: route per Clarifying
   Ambiguity. Once settled, re-run this task from Step 4a.
 - **`FAILED`**: diagnose once before you park it. A retry that carries no new
@@ -463,9 +487,7 @@ template.
   its outcome.
 - **They didn't**: no review. Close the summary with `To review this
   session's work, run /radin-review with scope: <commit hashes recorded in
-  Phase 4>.` Say instead that each task was already reviewed as it landed if
-  the refuter pass ran this session — a second pass over the same commits
-  re-logs the same findings.
+  Phase 4>.`
 
 Reviewer sub-agent (`model: "sonnet"`). The
 `radin-review` skill already owns the review-and-log flow, so send exactly:

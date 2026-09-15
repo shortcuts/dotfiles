@@ -59,8 +59,8 @@
       "Bash(cat ~/.azure/*)",
       "Bash(cat ~/.ssh/*)"
     ],
-    "disableBypassPermissionsMode": "disable",
-    "defaultMode": "auto"
+    "defaultMode": "auto",
+    "disableBypassPermissionsMode": "disable"
   },
   "model": "opus",
   "hooks": {
