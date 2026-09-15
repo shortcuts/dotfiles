@@ -34,17 +34,22 @@ return {
                             },
                             usePlaceholders = true,
                             completeUnimported = true,
-                            staticcheck = true,
+                            -- runs the full SA suite before the first diagnostic; flip on if you want the extra lints
+                            staticcheck = false,
                             buildFlags = { "-tags=integration" },
                             directoryFilters = {
                                 "-.git",
-                                "-.vscode",
+                                "-.direnv",
                                 "-.idea",
+                                "-.vscode",
                                 "-.vscode-test",
-                                "-node_modules",
                                 "-build",
+                                "-dist",
+                                "-node_modules",
+                                "-vendor",
                             },
-                            semanticTokens = true,
+                            -- treesitter already highlights Go; semantic tokens only add per-edit round trips
+                            semanticTokens = false,
                         },
                     },
                 },
@@ -54,29 +59,5 @@ return {
     {
         "mason-org/mason.nvim",
         opts = { ensure_installed = { "goimports", "gofumpt" } },
-    },
-    {
-        "nvimtools/none-ls.nvim",
-        optional = true,
-        dependencies = {
-            {
-                "mason-org/mason.nvim",
-                opts = { ensure_installed = { "gomodifytags", "impl" } },
-            },
-        },
-        opts = function(_, opts)
-            local nls = require("null-ls")
-            opts.sources = vim.list_extend(opts.sources or {}, {
-                nls.builtins.code_actions.gomodifytags,
-                nls.builtins.code_actions.impl,
-                nls.builtins.formatting.goimports,
-                nls.builtins.formatting.gofumpt,
-            })
-        end,
-    },
-    {
-        "fatih/vim-go",
-        build = ":GoUpdateBinaries",
-        ft = "go",
     },
 }

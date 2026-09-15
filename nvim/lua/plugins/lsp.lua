@@ -6,35 +6,14 @@ return {
             "mason.nvim",
             { "mason-org/mason-lspconfig.nvim", config = function() end },
             "hrsh7th/cmp-nvim-lsp",
-            "hrsh7th/cmp-buffer",
-            "hrsh7th/cmp-path",
-            "hrsh7th/cmp-cmdline",
-            {
-                "hrsh7th/nvim-cmp",
-                event = "InsertEnter",
-                dependencies = {
-                    {
-                        "ray-x/lsp_signature.nvim",
-                        event = "InsertEnter",
-                        opts = {
-                            bind = true,
-                            hint_enable = false,
-                        },
-                    },
-                },
-            },
-            "hrsh7th/nvim-cmp",
-            "L3MON4D3/LuaSnip",
-            "saadparwaiz1/cmp_luasnip",
             "j-hui/fidget.nvim",
         },
-        opts = function()
-            local cmp_lsp = require("cmp_nvim_lsp")
+        opts = function(_, opts)
             local capabilities = vim.tbl_deep_extend(
                 "force",
                 {},
                 vim.lsp.protocol.make_client_capabilities(),
-                cmp_lsp.default_capabilities()
+                require("cmp_nvim_lsp").default_capabilities()
             )
 
             ---@class PluginLspOpts
@@ -50,6 +29,15 @@ return {
                         prefix = "●",
                     },
                     severity_sort = true,
+                    float = {
+                        scope = "cursor",
+                        focusable = false,
+                        style = "minimal",
+                        border = "rounded",
+                        source = true,
+                        header = "",
+                        prefix = "",
+                    },
                 },
                 inlay_hints = {
                     enabled = true,
@@ -58,27 +46,29 @@ return {
                 codelens = {
                     enabled = true,
                 },
-                folds = {
-                    enabled = false,
-                },
-                format = {
-                    formatting_options = nil,
-                    timeout_ms = nil,
-                },
                 servers = {
-                    -- configuration for all lsp servers
+                    -- merged into every server by nvim itself
                     ["*"] = {
                         capabilities = capabilities,
                     },
-                    stylua = { enabled = false },
+                    bashls = {},
+                    clangd = {},
+                    cssls = {},
+                    docker_compose_language_service = {},
+                    dockerls = {},
+                    fish_lsp = {},
+                    html = {},
+                    jsonls = {},
+                    rust_analyzer = {},
+                    sqlls = {},
+                    terraformls = {},
+                    vimls = {},
+                    yamlls = {},
                     lua_ls = {
                         settings = {
                             Lua = {
-                                workspace = {
-                                    checkThirdParty = false,
-                                    library = vim.api.nvim_get_runtime_file("lua", true),
-                                },
-                                runtime = { version = "Lua 5.4" },
+                                workspace = { checkThirdParty = false },
+                                runtime = { version = "LuaJIT" },
                                 completion = {
                                     callSnippet = "Replace",
                                 },
@@ -108,39 +98,93 @@ return {
                     },
                 },
             }
-            return ret
+            -- specs imported before this file already merged into `opts`; keep their settings on top
+            return vim.tbl_deep_extend("force", ret, opts or {})
         end,
 
+        ---@param opts PluginLspOpts
+        config = function(_, opts)
+            require("fidget").setup({})
+            require("mason-lspconfig").setup({ automatic_enable = false })
+
+            vim.diagnostic.config(opts.diagnostics)
+
+            local servers = opts.servers or {}
+            if servers["*"] then
+                vim.lsp.config("*", servers["*"])
+            end
+            local enabled = {}
+            for name, cfg in pairs(servers) do
+                if name ~= "*" and cfg.enabled ~= false then
+                    cfg = vim.deepcopy(cfg)
+                    cfg.enabled = nil
+                    vim.lsp.config(name, cfg)
+                    -- a declared-but-uninstalled server would only surface as an attach-time error
+                    local cmd = (vim.lsp.config[name] or {}).cmd
+                    if type(cmd) ~= "table" or vim.fn.executable(cmd[1]) == 1 then
+                        enabled[#enabled + 1] = name
+                    end
+                end
+            end
+            vim.lsp.enable(enabled)
+
+            -- FileType already fired for the buffer that triggered this load; replay it so it attaches
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == "" then
+                    vim.api.nvim_exec_autocmds("FileType", { buffer = buf, modeline = false })
+                end
+            end
+
+            vim.api.nvim_create_autocmd("LspAttach", {
+                group = vim.api.nvim_create_augroup("lsp_features", {}),
+                callback = function(e)
+                    local client = vim.lsp.get_client_by_id(e.data.client_id)
+                    if not client then
+                        return
+                    end
+                    if
+                        opts.inlay_hints.enabled
+                        and client:supports_method("textDocument/inlayHint")
+                        and not vim.tbl_contains(opts.inlay_hints.exclude, vim.bo[e.buf].filetype)
+                    then
+                        vim.lsp.inlay_hint.enable(true, { bufnr = e.buf })
+                    end
+                    if
+                        opts.codelens.enabled and client:supports_method("textDocument/codeLens")
+                    then
+                        vim.lsp.codelens.refresh({ bufnr = e.buf })
+                        vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
+                            buffer = e.buf,
+                            callback = function()
+                                vim.lsp.codelens.refresh({ bufnr = e.buf })
+                            end,
+                        })
+                    end
+                end,
+            })
+        end,
+    },
+    {
+        "hrsh7th/nvim-cmp",
+        event = { "InsertEnter", "CmdlineEnter" },
+        dependencies = {
+            "hrsh7th/cmp-nvim-lsp",
+            "hrsh7th/cmp-buffer",
+            "hrsh7th/cmp-path",
+            "hrsh7th/cmp-cmdline",
+            "L3MON4D3/LuaSnip",
+            "saadparwaiz1/cmp_luasnip",
+            {
+                "ray-x/lsp_signature.nvim",
+                event = "InsertEnter",
+                opts = {
+                    bind = true,
+                    hint_enable = false,
+                },
+            },
+        },
         config = function()
             local cmp = require("cmp")
-
-            require("fidget").setup({})
-            require("mason-lspconfig").setup({
-                ensure_installed = {
-                    "bashls",
-                    "clangd",
-                    "cssls",
-                    "docker_compose_language_service",
-                    "dockerls",
-                    "dotls",
-                    "fish_lsp",
-                    "gopls",
-                    "html",
-                    "htmx",
-                    "jsonls",
-                    "lua_ls",
-                    "pylsp",
-                    "pyright",
-                    "ruff",
-                    "rust_analyzer",
-                    "sqlls",
-                    "terraformls",
-                    "ts_ls",
-                    "vimls",
-                    "yamlls",
-                },
-            })
-
             local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
             cmp.setup({
@@ -184,18 +228,6 @@ return {
                 mapping = cmp.mapping.preset.cmdline(),
                 sources = cmp.config.sources({ { name = "path" } }, { { name = "cmdline" } }),
             })
-
-            vim.diagnostic.config({
-                float = {
-                    scope = "cursor",
-                    focusable = false,
-                    style = "minimal",
-                    border = "rounded",
-                    source = "always",
-                    header = "",
-                    prefix = "",
-                },
-            })
         end,
     },
     {
@@ -214,15 +246,18 @@ return {
         ---@param opts MasonSettings | {ensure_installed: string[]}
         config = function(_, opts)
             require("mason").setup(opts)
-            local mr = require("mason-registry")
-            mr.refresh(function()
-                for _, tool in ipairs(opts.ensure_installed) do
-                    local p = mr.get_package(tool)
-                    if not p:is_installed() then
-                        p:install()
+            -- registry refresh is a network call; only pay it on demand
+            vim.api.nvim_create_user_command("MasonEnsureInstalled", function()
+                local mr = require("mason-registry")
+                mr.refresh(function()
+                    for _, tool in ipairs(opts.ensure_installed) do
+                        local p = mr.get_package(tool)
+                        if not p:is_installed() then
+                            p:install()
+                        end
                     end
-                end
-            end)
+                end)
+            end, { desc = "Install missing Mason tools" })
         end,
     },
 }
