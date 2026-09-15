@@ -90,14 +90,25 @@ STL/.DS_Store
 !.claude/
 !.claude/settings.json
 !.claude/CLAUDE.md
+!.claude/output-styles/
+!.claude/output-styles/**
 !.claude/skills/
-!.claude/skills/**
-.claude/skills/seo*
-.claude/skills/.omc/
-!.claude/agents/
-!.claude/agents/**
+!.claude/skills/branch-auditor-pgpemu/
+!.claude/skills/branch-auditor-pgpemu/**
+!.claude/skills/radin-*/
+!.claude/skills/radin-*/**
+!.claude/skills/explain/
+!.claude/skills/explain/**
+!.claude/skills/new-rules-of-context-engineering-claude-5/
+!.claude/skills/new-rules-of-context-engineering-claude-5/**
+!.claude/skills/no-ai-slop/
+!.claude/skills/no-ai-slop/**
+!.claude/skills/release-candidate/
+!.claude/skills/release-candidate/**
+!.claude/skills/release-notes/
+!.claude/skills/release-notes/**
 !.claude/hooks/
-!.claude/hooks/**
+!.claude/hooks/tmux-claude-code-status.sh
 
 # ccstatusline
 !ccstatusline/

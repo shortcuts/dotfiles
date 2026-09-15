@@ -65,84 +65,134 @@
   "model": "opus",
   "hooks": {
     "PreToolUse": [
-      {
+    {
         "matcher": "Bash",
         "hooks": [
-          {
-            "type": "command",
-            "command": "rtk hook claude"
-          }
+            {
+                "type": "command",
+                "command": "rtk hook claude"
+            }
         ]
-      },
-      {
+    },
+    {
         "hooks": [
-          {
-            "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
-          }
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
+            }
         ]
-      },
-      {
+    },
+    {
         "matcher": "Grep|Glob",
         "hooks": [
-          {
-            "type": "command",
-            "command": "'/Users/k/.config/.claude/hooks/cbm-code-discovery-gate'",
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/cbm-code-discovery-gate",
+                "timeout": 5
+            }
         ]
-      }
-    ],
-    "SessionStart": [
-      {
+    },
+    {
+        "matcher": "Grep|Glob",
         "hooks": [
-          {
-            "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh start"
-          }
+            {
+                "type": "command",
+                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-code-discovery-gate'",
+                "timeout": 5
+            }
         ]
-      },
-      {
+    }
+],
+    "SessionStart": [
+    {
+        "hooks": [
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh start"
+            }
+        ]
+    },
+    {
         "matcher": "startup",
         "hooks": [
-          {
-            "type": "command",
-            "command": "'/Users/k/.config/.claude/hooks/cbm-session-reminder'",
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/cbm-session-reminder",
+                "timeout": 5
+            }
         ]
-      },
-      {
+    },
+    {
         "matcher": "resume",
         "hooks": [
-          {
-            "type": "command",
-            "command": "'/Users/k/.config/.claude/hooks/cbm-session-reminder'",
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/cbm-session-reminder",
+                "timeout": 5
+            }
         ]
-      },
-      {
+    },
+    {
         "matcher": "clear",
         "hooks": [
-          {
-            "type": "command",
-            "command": "'/Users/k/.config/.claude/hooks/cbm-session-reminder'",
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/cbm-session-reminder",
+                "timeout": 5
+            }
         ]
-      },
-      {
+    },
+    {
         "matcher": "compact",
         "hooks": [
-          {
-            "type": "command",
-            "command": "'/Users/k/.config/.claude/hooks/cbm-session-reminder'",
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/cbm-session-reminder",
+                "timeout": 5
+            }
         ]
-      }
-    ],
+    },
+    {
+        "matcher": "startup",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+                "timeout": 5
+            }
+        ]
+    },
+    {
+        "matcher": "resume",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+                "timeout": 5
+            }
+        ]
+    },
+    {
+        "matcher": "clear",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+                "timeout": 5
+            }
+        ]
+    },
+    {
+        "matcher": "compact",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+                "timeout": 5
+            }
+        ]
+    }
+],
     "Notification": [
       {
         "hooks": [
@@ -184,17 +234,27 @@
       }
     ],
     "PostToolUse": [
-      {
+    {
         "matcher": "Read",
         "hooks": [
-          {
-            "type": "command",
-            "command": "'/Users/k/.config/.claude/hooks/cbm-code-discovery-gate'",
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/cbm-code-discovery-gate",
+                "timeout": 5
+            }
         ]
-      }
-    ],
+    },
+    {
+        "matcher": "Read",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-code-discovery-gate'",
+                "timeout": 5
+            }
+        ]
+    }
+],
     "PermissionRequest": [
       {
         "hooks": [
@@ -206,17 +266,27 @@
       }
     ],
     "SubagentStart": [
-      {
+    {
         "matcher": "*",
         "hooks": [
-          {
-            "type": "command",
-            "command": "'/Users/k/.config/.claude/hooks/cbm-subagent-reminder'",
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "sh ~/.claude/hooks/cbm-subagent-reminder",
+                "timeout": 5
+            }
         ]
-      }
-    ]
+    },
+    {
+        "matcher": "*",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-subagent-reminder'",
+                "timeout": 5
+            }
+        ]
+    }
+]
   },
   "statusLine": {
     "type": "command",
@@ -232,7 +302,8 @@
     "ponytail@ponytail": true,
     "gopls-lsp@claude-plugins-official": true,
     "mattpocock-skills@claude-plugins-official": true,
-    "pyright-lsp@claude-plugins-official": true
+    "pyright-lsp@claude-plugins-official": true,
+    "interfaces@interfaces": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -241,10 +312,10 @@
         "repo": "JuliusBrussee/caveman"
       }
     },
-    "humanizer": {
+    "interfaces": {
       "source": {
         "source": "github",
-        "repo": "blader/humanizer"
+        "repo": "jakubkrehel/skills"
       }
     },
     "ponytail": {
@@ -260,7 +331,7 @@
       }
     }
   },
-  "outputStyle": "Concise",
+  "outputStyle": "STE",
   "effortLevel": "medium",
   "theme": "auto",
   "remoteControlAtStartup": false,

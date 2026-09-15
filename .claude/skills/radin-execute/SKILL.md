@@ -55,7 +55,7 @@ concern rather than yours.
   several may share one message whenever you have more than one to send. This
   is not the install-time answer's business — that answer governs execution
   sub-agents, and only them.
-- **One execution sub-agent at a time.** Dispatch one task, wait for its `STATUS:` line, finish its bookkeeping, then dispatch the next. Never put two `Task` calls in one message, however independent the tasks look. Batching other tool calls stays fine -- this rule is about `Task` only, and about execution sub-agents only: read-only dispatches stay parallel per Core Constraints.
+- **Concurrency allowed, and only under these conditions.** Several execution sub-agents may run in the same turn when they share no `depends_on` chain and no files, and only when Phase 0.5 recorded the worktree answer as yes -- parallel agents in one worktree corrupt each other commits. Worktree answer is no, or file overlap is at all unclear: dispatch strictly one at a time. Launch parallel ones in one message, every one still `run_in_background: false`: a background task cannot notify a sub-agent turn, so you would wait forever. Per-task steps stay unchanged, and each targets that task own tree via `radin-state.sh task-dir` -- its own `dirty-check`, its own commit, its own `task-done`. Never `dirty-check` the shared checkout while another agent is in flight: you would stash a sibling task work out from under it.
 
 ## Clarifying Ambiguity
 
@@ -410,12 +410,6 @@ violated the no-dirty-tree contract regardless of its `STATUS:`:
 
 On a clean tree, route on `STATUS:`:
 
-<<<<<<< HEAD
-- **No refuter pass.** Per-task verification was declined at install time, so a `SUCCESS` goes straight to the bookkeeping below. Never dispatch a verification sub-agent of your own, and never re-read the diff yourself to make up for it -- reading it into this context is the cost the pass exists to avoid. `/radin-review` at Phase 6 is where the session verified.
-||||||| parent of 49f3e04 (chore: refresh radin)
-- **Verify a `SUCCESS` before you record it.** Send the **Refuter prompt** from `radin-execute-prompts.md`, substituting the commit hash(es) and the tree from `task-dir`. Never forward the execution sub-agent report: the diff is the claim under test. Route on its `VERDICT:` line, never on its prose. `ACCEPT`: continue to the bookkeeping below. `REWORK`: append its must-fixes to the task file as a `**Rework:**` line (`radin-backlog.sh append`), then re-run this task from Step 4b -- `start` bumps `attempts`, so the cap still ends it. `UNVERIFIED`: record the task as done anyway, since the work is committed and the tree is clean, and name it in the Phase 5 summary as unverified.
-=======
->>>>>>> 49f3e04 (chore: refresh radin)
 - **`SUCCESS`**: note the commit hash (or the pre-existing hash it cites),
   then run the bookkeeping command now, not deferred to Phase 5, since a stop
   can prevent Phase 5 from running. It records the hash in `completed.json`,
@@ -489,7 +483,7 @@ template.
   session's work, run /radin-review with scope: <commit hashes recorded in
   Phase 4>.`
 
-Reviewer sub-agent (`model: "sonnet"`). The
+Reviewer sub-agent (`model: "opus"`). The
 `radin-review` skill already owns the review-and-log flow, so send exactly:
 
 ```
