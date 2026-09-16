@@ -5,7 +5,7 @@ return {
         dev = true,
         opts = {
             -- debug = true,
-            width = 85,
+            width = 75,
             minSideBufferWidth = 10,
             autocmds = {
                 enableOnTabEnter = true,

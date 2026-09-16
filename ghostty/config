@@ -1,8 +1,21 @@
 # font
 
-font-family = JetBrains Mono
+font-family = JetBrainsMono Nerd Font Mono
 font-size = 18
+
+# ligatures off: -calt covers JetBrains Mono's, the rest cover fallback faces
 font-feature = -calt
+font-feature = -liga
+font-feature = -clig
+font-feature = -dlig
+
+# italics off terminal-wide, so every TUI inherits it without its own setting
+font-style-italic = false
+font-style-bold-italic = false
+font-synthetic-style = bold
+
+# long reading sessions: extra leading separates lines
+adjust-cell-height = 18%
 
 # opts
 
@@ -16,4 +29,14 @@ window-padding-color = background
 macos-titlebar-style = hidden
 macos-window-shadow = false
 
-theme = Vague
+theme = GitHub Dark Dimmed
+
+# dimmed trades peak contrast for a mid-gray ground and a soft off-white,
+# which halves halation; these two lift its only weak spot without
+# brightening the foreground
+minimum-contrast = 4.5
+font-thicken = true
+
+# the theme's accent is blue; orange reads as the one highlight color and
+# leaves blue free for tmux's "working" agent state
+cursor-color = #e0823d

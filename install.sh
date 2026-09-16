@@ -72,7 +72,7 @@ else
     echo "claude CLI not found, skipping fff MCP registration"
 fi
 
-brew install --cask font-lilex-nerd-font
+brew install --cask font-lilex-nerd-font font-jetbrains-mono-nerd-font
 
 # fish as default shell
 if [[ $MODE == "setup" ]]; then

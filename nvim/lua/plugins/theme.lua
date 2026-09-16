@@ -1,10 +1,33 @@
 return {
     {
-        "vague-theme/vague.nvim",
+        "projekt0n/github-nvim-theme",
+        name = "github-theme",
         lazy = false, -- make sure we load this during startup if it is your main colorscheme
         priority = 1000, -- make sure to load this before all the other plugins
-        config = function()
-            vim.cmd("colorscheme vague")
+        opts = {
+            options = {
+                -- italics blur at this font size and add nothing on a TUI read all day
+                styles = {
+                    comments = "NONE",
+                    functions = "NONE",
+                    keywords = "NONE",
+                    variables = "NONE",
+                    conditionals = "NONE",
+                    constants = "NONE",
+                    numbers = "NONE",
+                    operators = "NONE",
+                    strings = "NONE",
+                    types = "NONE",
+                },
+            },
+        },
+        config = function(_, opts)
+            require("github-theme").setup(opts)
+            vim.cmd("colorscheme github_dark_dimmed")
+
+            -- orange marks the active thing, matching tmux's accent
+            vim.api.nvim_set_hl(0, "BufferCurrentSign", { fg = "#e0823d", bg = "#636e7b" })
+            vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#e0823d", bold = true })
         end,
     },
     {
@@ -14,44 +37,7 @@ return {
         opts = {
             options = {
                 icons_enabled = true,
-                theme = {
-                    normal = {
-                        a = { bg = "NONE" },
-                        b = { bg = "NONE" },
-                        c = { bg = "NONE" },
-                        z = { bg = "NONE" },
-                    },
-                    insert = {
-                        a = { bg = "NONE" },
-                        b = { bg = "NONE" },
-                        c = { bg = "NONE" },
-                        z = { bg = "NONE" },
-                    },
-                    visual = {
-                        a = { bg = "NONE" },
-                        b = { bg = "NONE" },
-                        c = { bg = "NONE" },
-                        z = { bg = "NONE" },
-                    },
-                    replace = {
-                        a = { bg = "NONE" },
-                        b = { bg = "NONE" },
-                        c = { bg = "NONE" },
-                        z = { bg = "NONE" },
-                    },
-                    command = {
-                        a = { bg = "NONE" },
-                        b = { bg = "NONE" },
-                        c = { bg = "NONE" },
-                        z = { bg = "NONE" },
-                    },
-                    inactive = {
-                        a = { bg = "NONE" },
-                        b = { bg = "NONE" },
-                        c = { bg = "NONE" },
-                        z = { bg = "NONE" },
-                    },
-                },
+                theme = "github_dark_dimmed",
                 component_separators = { left = "", right = "" },
                 section_separators = { left = "", right = "" },
                 always_divide_middle = true,
