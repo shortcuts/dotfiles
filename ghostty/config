@@ -30,13 +30,3 @@ macos-titlebar-style = hidden
 macos-window-shadow = false
 
 theme = GitHub Dark Dimmed
-
-# dimmed trades peak contrast for a mid-gray ground and a soft off-white,
-# which halves halation; these two lift its only weak spot without
-# brightening the foreground
-minimum-contrast = 4.5
-font-thicken = true
-
-# the theme's accent is blue; orange reads as the one highlight color and
-# leaves blue free for tmux's "working" agent state
-cursor-color = #e0823d

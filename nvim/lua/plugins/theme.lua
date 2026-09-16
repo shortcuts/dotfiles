@@ -4,30 +4,8 @@ return {
         name = "github-theme",
         lazy = false, -- make sure we load this during startup if it is your main colorscheme
         priority = 1000, -- make sure to load this before all the other plugins
-        opts = {
-            options = {
-                -- italics blur at this font size and add nothing on a TUI read all day
-                styles = {
-                    comments = "NONE",
-                    functions = "NONE",
-                    keywords = "NONE",
-                    variables = "NONE",
-                    conditionals = "NONE",
-                    constants = "NONE",
-                    numbers = "NONE",
-                    operators = "NONE",
-                    strings = "NONE",
-                    types = "NONE",
-                },
-            },
-        },
-        config = function(_, opts)
-            require("github-theme").setup(opts)
+        config = function()
             vim.cmd("colorscheme github_dark_dimmed")
-
-            -- orange marks the active thing, matching tmux's accent
-            vim.api.nvim_set_hl(0, "BufferCurrentSign", { fg = "#e0823d", bg = "#636e7b" })
-            vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#e0823d", bold = true })
         end,
     },
     {
