@@ -11,7 +11,7 @@ right_format = """$cmd_duration"""
 ## ____ LEFT
 [git_branch]
 format = " [on](bright-black) [$branch]($style)"
-style = "bright-blue"
+style = "#e0823d"
 
 [git_status]
 format = '([\[$all_status$ahead_behind\]]($style))'
@@ -27,7 +27,7 @@ deleted_style = "bold dimmed red"
 
 [git_state]
 format = '\([$state( $progress_current/$progress_total)]($style)\)'
-style = "bold bright-blue"
+style = "bold #e0823d"
 
 ## ____ RIGHT
 [cmd_duration]
