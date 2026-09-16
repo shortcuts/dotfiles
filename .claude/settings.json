@@ -62,7 +62,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "opus",
+  "model": "opus[1m]",
   "hooks": {
     "PreToolUse": [
     {
@@ -87,17 +87,20 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "sh ~/.claude/hooks/cbm-code-discovery-gate",
+                "command": "sh /Users/clement.vannicatte/.claude/hooks/cbm-code-discovery-gate",
                 "timeout": 5
             }
         ]
     },
     {
-        "matcher": "Grep|Glob",
+        "matcher": "Grep|Glob|Bash",
         "hooks": [
             {
                 "type": "command",
-                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-code-discovery-gate'",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
                 "timeout": 5
             }
         ]
@@ -117,7 +120,7 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "sh ~/.claude/hooks/cbm-session-reminder",
+                "command": "sh /Users/clement.vannicatte/.claude/hooks/cbm-session-reminder",
                 "timeout": 5
             }
         ]
@@ -127,7 +130,7 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "sh ~/.claude/hooks/cbm-session-reminder",
+                "command": "sh /Users/clement.vannicatte/.claude/hooks/cbm-session-reminder",
                 "timeout": 5
             }
         ]
@@ -137,7 +140,7 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "sh ~/.claude/hooks/cbm-session-reminder",
+                "command": "sh /Users/clement.vannicatte/.claude/hooks/cbm-session-reminder",
                 "timeout": 5
             }
         ]
@@ -147,7 +150,7 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "sh ~/.claude/hooks/cbm-session-reminder",
+                "command": "sh /Users/clement.vannicatte/.claude/hooks/cbm-session-reminder",
                 "timeout": 5
             }
         ]
@@ -157,7 +160,10 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
                 "timeout": 5
             }
         ]
@@ -167,7 +173,10 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
                 "timeout": 5
             }
         ]
@@ -177,7 +186,10 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
                 "timeout": 5
             }
         ]
@@ -187,7 +199,10 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-session-reminder'",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
                 "timeout": 5
             }
         ]
@@ -239,7 +254,7 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "sh ~/.claude/hooks/cbm-code-discovery-gate",
+                "command": "sh /Users/clement.vannicatte/.claude/hooks/cbm-code-discovery-gate",
                 "timeout": 5
             }
         ]
@@ -249,7 +264,10 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-code-discovery-gate'",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
                 "timeout": 5
             }
         ]
@@ -271,7 +289,7 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "sh ~/.claude/hooks/cbm-subagent-reminder",
+                "command": "sh /Users/clement.vannicatte/.claude/hooks/cbm-subagent-reminder",
                 "timeout": 5
             }
         ]
@@ -281,7 +299,10 @@
         "hooks": [
             {
                 "type": "command",
-                "command": "'/Users/clement.vannicatte/.config/.claude/hooks/cbm-subagent-reminder'",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
                 "timeout": 5
             }
         ]

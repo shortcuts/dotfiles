@@ -13,5 +13,6 @@ abbr -a gsh  git show --shortstat -p
 alias reload='exec fish'
 alias cat='bat'
 alias v='nvim .'
+alias c='claude'
 alias k=kubectl
 alias kctx=kubectx

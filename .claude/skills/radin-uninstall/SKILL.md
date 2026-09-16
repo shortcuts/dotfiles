@@ -7,25 +7,11 @@ description: |
 ---
 # Uninstall
 
-Removes every file `install.sh` copied into `~/.claude`: all `radin-*` skill
-directories (including this one) and radin's lib scripts under
-`~/.claude/.radin/lib/`. It removes only the files it names explicitly.
-It never wildcard-deletes `~/.claude/skills`, because the consumer's other
-tools live there too.
-
-It leaves three things untouched: `thermo-nuclear` (this repo does not vendor
-it), every companion tool (each installed through its own installer, so each
-is removed through it), and any `<repo-root>/.claude/.radin/` backlog
-directory in the consumer's repo. That backlog is the user's own data, so
-deleting it is not radin's call.
-
-## Step 1: Run it
+Removes every file `install.sh` copied into `~/.claude`, and only those.
 
 ```bash
 radin uninstall
 ```
-
-## Step 2: Report it
 
 Print the full output to the user as-is. It already lists what was removed and
 what was left untouched, with manual removal commands for the advisory

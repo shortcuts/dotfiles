@@ -23,61 +23,53 @@ git/gh by hand:
 radin scope [<arg>]
 ```
 
-It settles commit hashes, PR references, directory paths, and the
-no-argument default (working branch's diff against its merge-base with
-main/master). Route on exit code:
+Route on exit code:
 
-- **0**: resolved. It prints `type`/`scope`/`command` lines; run the
+- **0**: resolved. It prints `type`/`scope`/`command`/`passes` lines; run the
   printed command to get the scope's content.
-- **1**: not a commit, PR, or directory. A natural-language range ("the
-  last 5 commits", "since yesterday") is yours to translate into concrete
-  `git log`/`git diff` invocations. Anything else: report it as
-  unresolvable.
+- **1**: not a commit, PR, directory, or range. `last 3 commits`, `last commit`
+  and `<rev>..<rev>` resolve as `type range`, so exit 1 means the argument names
+  no revision the CLI can verify. A date phrase is the one case worth a second
+  try: turn it into a revision with
+  `git log --since="<phrase>" --format=%H | tail -1`
+  (not `log -1 ... --reverse`: `-1` applies before `--reverse`, so it returns
+  the newest commit in the window, not the oldest) and re-run
+  `radin scope "<that hash>~1..HEAD"`, so the diff command still comes from
+  the CLI. Anything else: report it as unresolvable and stop.
 - **2**: ambiguous (candidates on stderr, e.g. both a PR number and a
-  directory). Interactive: ask which one. Non-interactive (e.g.
-  radin-execute's reviewer sub-agent): report both readings and stop, so the
-  caller retries with an unambiguous scope or resolves it with the user.
+  directory). Interactive: ask which one. Non-interactive: report both
+  readings and stop.
 
 State the resolved scope in one line before proceeding, e.g.
-`Scope: commit a1b2c3d` or `Scope: directory src/auth/`.
+`Scope: commit a1b2c3d` or `Scope: directory src/auth/`. Keep the `passes` line;
+Step 2 invokes exactly the skills it names.
 
 ## Scope discipline
 
-The resolved scope is the whole review surface. A finding qualifies only if
-the scope introduced it.
+The resolved scope is the whole review surface, and every finding cites one
+in-scope line.
 
-- **Diff scope** (commit, PR, branch, range): only lines the diff adds or
-  changes. Code that already existed and the diff left alone is out of
-  scope, even in a file the diff touches, even when it is worse than what
-  the diff added. Read surrounding code for context, never to find
-  findings.
+- **Diff scope** (commit, PR, branch, range): the lines the diff adds or
+  changes. Code the diff left alone is out of scope, even in a file it touches,
+  even when it is worse than what the diff added. Read surrounding code for
+  context, never to find findings.
 - **Directory scope**: every file under that path, nothing outside it.
-- Out-of-scope problem the diff makes worse: report it only when the
-  in-scope change is what makes it wrong, and say which changed line
-  causes that.
+- A problem that predates the scope qualifies only when a changed line is what
+  makes it wrong, and that changed line is the finding's citation.
 
-A finding you cannot tie to a specific in-scope line is not a finding here,
-however real the problem is.
+So there is one test, not two: no in-scope line to cite, no finding — however
+real the problem is.
 
-## Step 2: Record backlog baseline
+## Step 2: Run reviews
 
-Backlog writes go through
-the `radin backlog` CLI. Never hand-edit the index or
-task files. Record the baseline for the end-of-run count:
-
-```bash
-radin backlog count
-```
-
-## Step 3: Run reviews
-
-Start with `codebase-memory-mcp`'s
-`detect_changes` (git diff mapped to affected symbols, with blast radius and
-risk classification), then `trace_path` on the symbols it flags and
-`get_code_snippet` to read them: risk-scored impact beats reading a raw diff
-cold. `detect_changes` reads the working tree, so for a commit or PR scope
-check out or diff that scope first, and fall back to `git show`/`git
-diff`/reading files when the graph has nothing for it.
+Where the working tree **is** the scope — a `dir` or `branch-diff` type — start
+with `codebase-memory-mcp`'s `detect_changes` (git diff mapped to affected
+symbols, with blast radius and risk classification), then `trace_path` on the
+symbols it flags and `get_code_snippet` to read them: risk-scored impact beats
+reading a raw diff cold — a graph hit is a pointer: read the file before you cite or edit it, and never conclude something is absent from an empty result.
+For a `commit`, `pr` or `range` scope `detect_changes` reads the wrong tree, so
+run Step 1's `command` and read the files it names instead; never check a commit
+out to satisfy a tool.
 
 Invoke `/thermo-nuclear` against the scope.
 
@@ -85,33 +77,36 @@ Wrap the scope-content commands (`git show`, `git diff`, a test run) in `rtk`
 when `command -v rtk` succeeds: a raw diff is the largest thing this skill
 reads.
 
-Then invoke the ponytail pass over the same scope: `/ponytail:ponytail-review` for a
-diff scope (commit/PR/range), `/ponytail:ponytail-audit` for a directory. It hunts a
-different axis (over-engineering, dead flexibility, reinvented stdlib/native
-code) and complements thermo-nuclear.
-
-For a directory scope, also run `/ponytail:ponytail-debt`. It harvests the
-`ponytail:` shortcut comments already in that code, so the deliberate
-deferrals become findings the user can triage instead of rotting in place.
-Each one it reports is in scope only when the named file is under the
-reviewed path.
+Then invoke every skill on Step 1's `passes` line against the same scope. They
+hunt a different axis (over-engineering, dead flexibility, reinvented
+stdlib/native code) and complement thermo-nuclear; the debt pass appears there
+for a directory, harvesting the `ponytail:` shortcut comments already in that
+code so the deferrals become findings the user can triage. Their findings go
+through Step 3's filter like every other.
 
 Name the exact scope in each invocation and restate the scope discipline
 above. It narrows what both rubrics look at, never how hard they look.
 
-## Step 4: Present findings and get agreement
+## Step 3: Present findings and get agreement
 
-Nothing reaches the backlog until the user agrees to it. First, drop the
-out-of-scope findings yourself: for a diff scope, check each finding's cited
-line against the diff, because both passes read whole files and surface
-findings this skill must drop.
+Nothing reaches the backlog until the user agrees to it. First drop the
+out-of-scope findings:
 
-Then classify each survivor:
+```bash
+printf '%s\n' "<path:line per finding, one per line>" |
+  radin scope --in-scope [<the same scope arg as Step 1>]
+```
 
-- **fix**: an actual bug, meaning incorrect behavior rather than structure.
-- **refactor**: structural. That covers anything thermo-nuclear's rubric
-  flags without a behavior change, and every ponytail finding
-  (`delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`) by definition.
+Keep the findings on the `in` lines, drop the `out` ones, and carry the
+`dropped` count into Step 6's report. Cite one line per finding; for a range,
+cite its first line.
+
+Then classify each survivor. This is a rule, not a judgment:
+
+- **fix**: incorrect behavior.
+- **refactor**: everything else — anything thermo-nuclear's rubric flags
+  without a behavior change, and every ponytail finding
+  (`delete:`/`stdlib:`/`native:`/`yagni:`/`shrink:`).
 
 Print the numbered list — one line each: number, category, location, the
 finding in a clause. Mark the ones you recommend tackling. Recommend on
@@ -124,20 +119,21 @@ Then gate on `AskUserQuestion` (single select):
 2. **All** — log every in-scope finding.
 
 The tool's own free-text field already covers a hand-picked subset, so don't
-add a third option for it. If the user types numbers instead of picking,
-restate the surviving set in one line before continuing. Iterate if they
-correct it.
+add a third option for it. A free-text answer names the numbers you printed;
+read it as that subset and nothing more, and restate the subset in one line
+before continuing.
 
-**Non-interactive caller** (e.g. radin-execute's reviewer sub-agent, which
-has no `AskUserQuestion`): skip this gate and Step 5, log every in-scope
-finding, and say in Step 7's report that no triage happened.
+**Non-interactive caller**: skip this gate and Step 4, log every in-scope
+finding, and say in Step 6's report that no triage happened.
 
-## Step 5: Optional refinement pass
+## Step 4: Optional refinement pass
+
+Non-interactive: skipped (Step 3).
 
 Ask one yes/no on `AskUserQuestion`: refine the selected findings before
 logging?
 
-**No**: go to Step 6 with the entries as reviewed.
+**No**: go to Step 5 with the entries as reviewed.
 
 **Yes**: invoke `/mattpocock-skills:grilling` over the selected findings, one
 finding at a time, in order. Name the finding and what is open about it
@@ -148,48 +144,43 @@ user as a yes/no, and don't batch findings into one pass. Fold each settled
 answer into that finding's category, title, and body before moving to the
 next finding. Drop a finding the user argues away, and say so.
 
-## Step 6: Log the agreed findings to backlog
+## Step 5: Log the agreed findings to backlog
 
-Append each via the CLI:
+Four labels carry the body, and `**Acceptance:**` is an optional fifth. Make the
+body as exhaustive as the finding warrants, and carry Step 4's refinements into
+it. Append each via the CLI:
 
 ```bash
 radin backlog add <fix|refactor> "<short title>" <<'EOF'
 **Scope:** <what was reviewed, from Step 1>
-**Location:** <file path(s) and function/line if applicable>
+**Location:** <the cited path:line>
 **Finding:**
-<the problem, stated the way the review skill states it: direct, specific>
+<the problem as the review stated it: direct, specific>
 **Preferred remedy:**
 <the concrete restructuring suggested>
-**Acceptance:** <only when Step 5's refinement settled a checkable outcome
-for this finding — one flat `- ` bullet per criterion below this line. Omit
-the label entirely otherwise, and always omit it on the non-interactive path
-(Step 5 does not run there), because a criterion derived from the remedy on
-your own is a fabrication a later reader would then measure the work
-against.>
+**Acceptance:** <one flat `- ` bullet per criterion below this line, only when
+Step 4's refinement settled a checkable outcome. Omit the label otherwise, and
+always on the non-interactive path where Step 4 does not run — never synthesise
+one (`radin-record`'s Step 5 owns that rule).>
 EOF
 ```
-
-Those four required labels are the description's own internal structure, and
-the `**Acceptance:**` block is an optional fifth. Make the
-body as exhaustive as the finding warrants, and carry Step 5's refinements
-into it.
 
 Log one entry per agreed finding, in the order presented. Log nothing the
 user discarded.
 
-## Step 7: Report back
+## Step 6: Report back
 
 - The resolved scope reviewed.
-- Findings logged (net-new vs. the Step 2 baseline).
+- The entries logged, one line each — these are the `add` calls you just made.
 - Findings the user discarded, as a count.
-- Count of findings dropped as out of scope, if any, in one line with no
-  detail.
+- The `dropped` count from Step 3's filter, in one line with no detail, when it
+  is not 0.
 - The backlog index path.
 - Zero findings: say the review passed both bars, and don't write an empty
   entry to prove the skill ran. Same when the user discarded all of them —
   report that, and write nothing.
 
-## Step 8: Backlog now, or execute now
+## Step 7: Backlog now, or execute now
 
 Logged entries stay in the backlog either way — this only decides what
 happens next. Ask one `AskUserQuestion` (single select):

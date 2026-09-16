@@ -34,4 +34,5 @@ survive past one conversation. Reach for it instead of ad-hoc task tracking:
 - The user asks what is pending: `/radin-show`. One entry needs a plan first: `/radin-plan`.
 - The user wants the backlog worked through: `/radin-execute`. A code review whose findings should become tasks: `/radin-review`.
 - Never hand-edit files under `.claude/.radin/` -- every backlog operation goes through the `radin backlog` CLI.
+- Never guess on a broad or ambiguous ask: invoke `/mattpocock-skills:grilling` and let the user settle it before radin writes anything.
 <!-- radin:end -->

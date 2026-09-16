@@ -5,20 +5,19 @@ description: Wire codebase-memory-mcp into this repo when install.sh could not d
 # radin: Set Up Companion-Tool Hooks
 
 `install.sh` normally wires codebase-memory-mcp globally: it runs upstream's
-own configuration (skill, three graph agents, hooks, user-scope MCP entry) and
-restores whatever that write dropped. When it did that, **there is nothing for
+own configuration and restores whatever that write dropped. When it did that, **there is nothing for
 this skill to do** — the graph works in every repo with no per-project step.
 
 This skill is the fallback for two cases:
 
-- `python3` was missing at install time, so `install.sh` installed the binary
-  only and skipped upstream's configuration (it cannot restore the hooks that
-  write drops without `python3`).
+- A C compiler was missing at install time, so `radin-cbm-json` was never built
+  and `install.sh` installed the binary only.
 - The user ran `codebase-memory-mcp uninstall` but kept radin.
 
-Check first: `~/.claude/.radin/manifest.json` has `"cbm_agent_config": true`
-when upstream's configuration ran. Say so and stop, unless the user wants a
-per-repo `.mcp.json` entry anyway.
+Check first with `radin doctor` and read its
+`codebase-memory-mcp wiring (informational)` section. Both lines `OK` means
+upstream's configuration already landed: say so and stop, unless the user
+wants a per-repo `.mcp.json` entry anyway.
 
 ## Scope
 
@@ -28,12 +27,13 @@ Claude Code plugins, so their hooks register globally at plugin-install time.
 companion tool that needs wiring, extend this skill and
 `lib/radin-cbm-hooks.sh` rather than writing a new one.
 
-**Never run `codebase-memory-mcp install` yourself.** It writes into
-`~/.claude`, and upstream #1200 makes that write replace the whole
-`SessionStart` array, deleting other tools' hooks. Only
-`radin cbm-config install` may run it: it snapshots first and restores
-after. If the user wants the full wiring and has `python3`, run that instead of
-the merge-only path below, and report its `RESTORED`/`INTACT` lines as-is.
+**Never run `codebase-memory-mcp install` yourself.** Its write replaces whole
+hook arrays in `~/.claude`, deleting other tools' hooks. Only
+`radin cbm-config install` may run it, because it snapshots first and
+restores after. When the user wants the full wiring, run that and report its
+`RESTORED`/`INTACT` lines as-is; it exits non-zero naming
+`radin cbm-hooks all` as the fallback when it cannot. Otherwise use the
+merge-only path below.
 
 ## Steps
 
@@ -53,12 +53,10 @@ the merge-only path below, and report its `RESTORED`/`INTACT` lines as-is.
 
 ## Report
 
-Print the script's output as-is: one `ADDED` or `PRESENT` line per write. It
-exits non-zero without writing when `codebase-memory-mcp` is missing (point the
-user at radin's `install.sh`), when `python3` is missing (it prints the
-`.mcp.json` entry to paste by hand), or when a target file holds invalid JSON
-(the user must fix that file first).
+Print the script's output as-is: one `ADDED` or `PRESENT` line per write. A
+non-zero exit writes nothing and prints its own cause and remedy -- relay that
+line, add nothing to it.
 
 Then tell the user to restart Claude Code so the MCP server loads. The graph
 indexes itself on first connection (`install.sh` sets `auto_index`); if a query
-reports no project, ask the agent to index it (`index_repository`).
+reports no project, ask the agent to index the project.
