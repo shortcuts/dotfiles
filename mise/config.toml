@@ -5,7 +5,8 @@ java = "latest"
 node = "latest"
 python = "latest"
 rust = "latest"
-zig = "latest"
+# Pinned, not floating: mise's latest is already 0.16.0.
+zig = "0.15.2"
 
 # CLIs are pinned so both Macs run identical binaries. Bump with `mise up --bump`.
 bat = "0.26.1"
