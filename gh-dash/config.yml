@@ -1,0 +1,19 @@
+# Repeated qualifiers OR implicitly, so these need no parentheses.
+prSections:
+  - title: work
+    filters: is:open author:cdoucy author:corps-fini author:ant-hem author:cedalgo author:samouss author:shortcuts repo:algolia/metis repo:algolia/metis-deployments
+  - title: perso
+    filters: is:open repo:shortcuts/locationjoystick repo:shortcuts/pgpemu repo:shortcuts/no-neck-pain.nvim repo:shortcuts/codes repo:shortcuts/dotfiles repo:shortcuts/neovim-plugin-boilerplate
+  - title: mine
+    filters: is:open author:@me
+  - title: review requested
+    filters: is:open review-requested:@me
+
+issuesSections: []
+
+defaults:
+  view: prs
+  preview:
+    open: true
+    width: 70
+  prsLimit: 50

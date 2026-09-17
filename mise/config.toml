@@ -18,6 +18,8 @@ fastfetch = "2.68.1"
 fd = "10.5.0"
 fzf = "0.74.4"
 gh = "2.101.0"
+# Absent from mise's own registry, so pull it straight from aqua.
+"aqua:dlvhdr/gh-dash" = "4.25.2"
 glow = "3.0.0"
 golangci-lint = "2.13.2"
 hostctl = "1.1.4"
@@ -44,9 +46,3 @@ yarn = "4.9.4"
 yq = "4.53.6"
 
 "npm:ccstatusline" = "2.2.29"
-
-# Low weekly downloads trip mise's supply-chain guard. Author is the same one
-# whose brew tap now fails brew's own trust check, so npm is the better source.
-[tools."npm:@kitlangton/ghui"]
-version = "0.9.1"
-allow_low_downloads = true

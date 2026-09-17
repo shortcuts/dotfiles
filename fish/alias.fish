@@ -16,3 +16,4 @@ alias v='nvim .'
 alias c='claude'
 alias k=kubectl
 alias kctx=kubectx
+alias prs='gh-dash'

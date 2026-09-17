@@ -61,6 +61,10 @@ fish/fish_variables*
 # starship config
 !starship.toml
 
+# gh-dash (PR review TUI)
+!gh-dash/
+!gh-dash/**
+
 # github workflows
 !.git*
 !.github/

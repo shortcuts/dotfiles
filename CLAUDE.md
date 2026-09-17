@@ -32,6 +32,7 @@ The `.gitignore` uses a whitelist approach. It ignores everything (`*`), then un
 | Ghostty | `ghostty/config` |
 | AeroSpace (window manager) | `aerospace/aerospace.toml` |
 | Starship prompt | `starship.toml` |
+| gh-dash (PR review TUI) | `gh-dash/config.yml` |
 | btop | `btop/btop.conf` |
 | borders | `borders/bordersrc` |
 | mise (language versions) | `mise/` |
