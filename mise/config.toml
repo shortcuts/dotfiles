@@ -1,3 +1,4 @@
+# Language toolchains float: projects pin their own versions, global is a fallback.
 [tools]
 go = "latest"
 java = "latest"
@@ -5,3 +6,46 @@ node = "latest"
 python = "latest"
 rust = "latest"
 zig = "latest"
+
+# CLIs are pinned so both Macs run identical binaries. Bump with `mise up --bump`.
+bat = "0.26.1"
+bob = "4.1.7"
+cargo-binstall = "1.23.0"
+# 0.19.0 dropped x86_64-apple-darwin; 0.18.2 is the last release with an Intel Mac binary.
+delta = "0.18.2"
+fastfetch = "2.68.1"
+fd = "10.5.0"
+fzf = "0.74.4"
+gh = "2.101.0"
+glow = "3.0.0"
+golangci-lint = "2.13.2"
+hostctl = "1.1.4"
+hunk = "0.22.0"
+jq = "1.8.2"
+k9s = "0.51.0"
+kind = "0.33.0"
+kubectl = "1.37.0"
+kubectx = "0.11.0"
+lazydocker = "0.25.2"
+lazygit = "0.65.1"
+ko = "0.19.1"
+pipx = "1.17.3"
+poetry = "2.4.3"
+ripgrep = "15.2.0"
+shellcheck = "0.11.0"
+shfmt = "3.14.1"
+starship = "1.26.0"
+stylua = "2.5.2"
+terraform = "1.16.2"
+tree-sitter = "0.27.0"
+vault = "2.1.0"
+yarn = "4.9.4"
+yq = "4.53.6"
+
+"npm:ccstatusline" = "2.2.29"
+
+# Low weekly downloads trip mise's supply-chain guard. Author is the same one
+# whose brew tap now fails brew's own trust check, so npm is the better source.
+[tools."npm:@kitlangton/ghui"]
+version = "0.9.1"
+allow_low_downloads = true

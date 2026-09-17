@@ -48,22 +48,18 @@ brew update && brew upgrade
 brew install fish mise
 
 # brew taps
-brew tap hashicorp/tap
 brew tap FelixKratz/formulae
 brew tap nikitabobko/tap
-brew tap guumaster/tap
 
-# install life basically
-brew install coreutils hostctl \
-    ghostty starship tmux \
-    btop jq yq wget fswatch bat ripgrep fd fzf \
-    kind derailed/k9s/k9s kubectl kubectx jesseduffield/lazydocker/lazydocker ko \
-    gh lazygit git-delta \
-    openvpn-connect hashicorp/tap/terraform hashicorp/tap/vault \
-    stats borders fastfetch nikitabobko/tap/aerospace font-hack-nerd-font \
-    luarocks obsidian anomalyco/tap/opencode \
-    mac-cleanup-py cargo-binstall glow ghui mole shellcheck \
-    dmtrKovalenko/fff/fff-mcp hunk
+# GNU coreutils, not the uutils rewrite mise's registry points at.
+# tmux stays on brew: the aqua static build is less tested against macOS terminfo.
+# Everything else here is a cask, a daemon, or absent from mise's registry.
+# btop's aqua build is linux-only.
+brew install coreutils tmux wget fswatch btop \
+    ghostty openvpn-connect obsidian font-hack-nerd-font \
+    stats felixkratz/formulae/borders nikitabobko/tap/aerospace \
+    luarocks mac-cleanup-py mole \
+    dmtrKovalenko/fff/fff-mcp
 
 # fff MCP server for Claude Code (user scope, stored in ~/.claude.json)
 if command -v claude >/dev/null 2>&1; then
@@ -84,32 +80,11 @@ fi
 
 fish_update_completions
 
-# languages
-
-mise use -g zig
-
-mise use -g java
-
-mise use -g go
-go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
-go install mvdan.cc/sh/v3/cmd/shfmt@latest
-
-mise use -g rust
+# languages and CLIs: versions live in mise/config.toml
+mise install
+mise prune --yes
 
 brew install lua
-cargo install stylua
-cargo binstall tree-sitter-cli
-
-# ccstatusline: install under mise's global node so the binary path is stable;
-# settings.json points statusLine.command at this absolute path so it works
-# regardless of which node version a project pins
-mise use -g node
-mise exec node@latest -- npm install -g yarn ccstatusline
-
-mise use -g python
-pip install --upgrade pip
-pip install --user pipx
-mise plugins install poetry --force
 poetry completions fish > ~/.config/fish/completions/poetry.fish
 
 # rpi (needs sudo, one-time)
@@ -132,7 +107,6 @@ fi
 luarocks install luacheck
 luarocks install argparse
 
-cargo install bob-nvim
 bob use latest
 
 # setup fzf
