@@ -83,7 +83,7 @@ mkdir -p "$TMUX_DIR"
         printf 'set -gw window-status-current-format "%s%s"\n' "$base_cur" "$DOT"
     fi
     if [ "$want_tree" = y ]; then
-        printf "bind-key s choose-tree -Zs -F '#{?session_format,#{session_windows} windows#{?@agent_state, #{?#{==:#{@agent_state},stuck},#[fg=red],#{?#{==:#{@agent_state},working},#[fg=orange],#[fg=green]}}● #{@agent_state}#[default],},#{?window_format,#{window_name},}}'\n"
+        printf "bind-key s choose-tree -Zw -F '#{?session_format,#{session_windows} windows#{?@agent_state, #{?#{==:#{@agent_state},stuck},#[fg=red],#{?#{==:#{@agent_state},working},#[fg=orange],#[fg=green]}}● #{@agent_state}#[default],},#{?window_format,#{window_name},}}'\n"
     fi
 } >"$FRAGMENT"
 
