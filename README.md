@@ -16,3 +16,14 @@ Here you'll find what I use on a daily basis, located in my `~/.config` folder
 ## update all
 
 `./install.sh`
+
+### cleanup after mise migration
+
+  brew uninstall anomalyco/tap/opencode cask emacs neovim zig
+  brew uninstall bat cargo-binstall fastfetch fd fzf gh ghui git-delta glow \
+      hostctl hunk jq k9s kind kubectx lazydocker lazygit ko pipx ripgrep \
+      shfmt starship tree-sitter hashicorp/tap/terraform hashicorp/tap/vault yq
+  brew autoremove
+  rm -f ~/.cargo/bin/{tree-sitter,stylua,bob} ~/go/bin/golangci-lint \
+        ~/.local/bin/{pipx,poetry}
+

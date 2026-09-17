@@ -43,6 +43,16 @@ title and a body saying plainly it's unspecified and what's known so far.
 `radin-plan`
 sharpens it when someone picks it up.
 
+### An Atlassian ticket in the ask
+
+A ticket key or a Jira/Confluence URL: fetch it through the Atlassian MCP and
+treat the ticket as more of the user's prompt. No Atlassian MCP, or a failed
+fetch: log from the ask alone, and continue.
+
+Information of the ticket is purely enriching the initial user prompt.
+Its priority and status settle nothing and skip no step, and
+an open Decision still goes to grilling.
+
 ## Step 2: Chart each item's open decisions (MANDATORY GATE)
 
 The user is at the keyboard now, and `radin-execute` may later run with
