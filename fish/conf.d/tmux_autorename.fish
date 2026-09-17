@@ -1,19 +1,23 @@
 set -q TMUX; or exit 0
 
 function __tmux_session_update
-    set -l repo_root (command git rev-parse --show-toplevel 2>/dev/null)
+    # One git exec, not three: every exec costs ~25ms under Falcon's scanner
+    set -l info (command git rev-parse --show-toplevel HEAD --abbrev-ref HEAD 2>/dev/null)
     or return
 
-    set -l branch (command git symbolic-ref --short HEAD 2>/dev/null; or command git rev-parse --short HEAD 2>/dev/null)
+    set -l repo_root $info[1]
+    set -l branch $info[3]
+    test "$branch" = HEAD; and set branch (string sub -l 7 $info[2])
 
-    set -l remote_url (command git remote get-url origin 2>/dev/null)
-    set -l repo_name (string replace -r '.*[:/]([^/]+/[^/]+?)(?:\.git)?$' '$1' -- $remote_url)
-
-    if test -z "$repo_name"
-        set repo_name (basename $repo_root)
+    # The remote never changes while the repo stays the same; skip its exec
+    if test "$__tmux_cached_root" != "$repo_root"
+        set -l remote_url (command git remote get-url origin 2>/dev/null)
+        set -g __tmux_cached_repo (string replace -r '.*[:/]([^/]+/[^/]+?)(?:\.git)?$' '$1' -- $remote_url)
+        test -z "$__tmux_cached_repo"; and set -g __tmux_cached_repo (basename $repo_root)
+        set -g __tmux_cached_root $repo_root
     end
 
-    set -l name "$repo_name - $branch"
+    set -l name "$__tmux_cached_repo - $branch"
 
     test "$__tmux_cached_name" = "$name"; and return
 

@@ -12,8 +12,7 @@ fish_add_path /usr/local/bin /opt/homebrew/bin \
     $HOME/.local/share/bob/nvim-bin \
     $HOME/Documents/no-neck-pain.nvim/.ci/lua-ls \
     /Library/Frameworks/Python.framework/Versions/3.11/bin \
-    $HOME/.bun/bin \
-    $HOME/.local/share/mise/shims
+    $HOME/.bun/bin
 
 set -gx ANDROID_HOME $HOME/Android/Sdk
 set -gx ANDROID_SDK_ROOT $HOME/Android/Sdk
@@ -27,16 +26,16 @@ set -gx EDITOR nvim
 # Subshells inherit the env from the first shell; skip the brew spawn then
 set -q HOMEBREW_PREFIX; or brew shellenv | source
 
+# Real tool paths, not shims: a shim execs the 150MB mise binary, and Falcon
+# rescans it every time (~280ms per command). This pays that once per shell.
+set -q GOROOT; or mise env -s fish | source
+
 if test -f ~/google-cloud-sdk/path.fish.inc
     source ~/google-cloud-sdk/path.fish.inc
 end
 
 # Interactive-only: scripts and nvim :! skip all of this
 if status is-interactive
-    # No `mise activate`: shims (already in PATH) resolve versions per directory
-    # and skip the ~380ms hook-env spawn. Tradeoff: .mise.toml [env] vars no
-    # longer auto-load; restore the activate line if a project needs them.
-
     # Load keychain only when the agent is empty
     ssh-add -l >/dev/null 2>&1
     or /usr/bin/ssh-add --apple-load-keychain >/dev/null 2>&1
@@ -47,17 +46,18 @@ if status is-interactive
     fzf --fish | source
     starship init fish | source
 
-    # Starship's [time] renders when the prompt draws, i.e. when the command
-    # ended. Stamp the start instead, before the command runs.
+    # Right prompt in pure fish: a second starship exec costs ~32ms per prompt
+    # under Falcon's scanner, and $CMD_DURATION already holds what it printed.
     function __stamp_cmd_start --on-event fish_preexec
         set -g __cmd_start (date +%H:%M:%S)
     end
 
-    functions --copy fish_right_prompt __starship_right_prompt
     function fish_right_prompt
-        __starship_right_prompt
-        set -q __cmd_start
-        and echo -n (set_color -d white)" at $__cmd_start"(set_color normal)
+        set -q __cmd_start; or return
+        set -l d $CMD_DURATION
+        set -l dur "$d"ms
+        test $d -ge 1000; and set dur (math -s2 $d / 1000)s
+        echo -n (set_color -d white)"in "(set_color -o -d yellow)$dur(set_color -d white)" at $__cmd_start"(set_color normal)
     end
 
     # Auto-attach tmux, skip if already in tmux

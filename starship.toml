@@ -5,7 +5,6 @@ command_timeout = 2000
 
 # dispaly
 format = """$git_branch$git_status$git_metrics$git_state [❯](dimmed white) """
-right_format = """$cmd_duration"""
 
 # configs
 ## ____ LEFT
@@ -28,10 +27,3 @@ deleted_style = "bold dimmed red"
 [git_state]
 format = '\([$state( $progress_current/$progress_total)]($style)\)'
 style = "bold bright-blue"
-
-## ____ RIGHT
-[cmd_duration]
-min_time = 0
-show_milliseconds = true
-format = '[in](dimmed white) [$duration]($style)'
-style = 'bold dimmed yellow'
