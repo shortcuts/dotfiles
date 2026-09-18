@@ -111,6 +111,8 @@ STL/.DS_Store
 !.claude/skills/release-candidate/**
 !.claude/skills/release-notes/
 !.claude/skills/release-notes/**
+!.claude/skills/self-review/
+!.claude/skills/self-review/**
 !.claude/hooks/
 !.claude/hooks/tmux-claude-code-status.sh
 

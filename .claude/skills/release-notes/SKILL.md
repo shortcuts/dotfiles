@@ -1,63 +1,44 @@
 ---
 name: release-notes
-description: "Generate user-facing release notes from tickets, PRDs, or changelogs. Creates clear, engaging summaries organized by category (new features, improvements, fixes). Use when writing release notes, creating changelogs, announcing product updates, or summarizing what shipped."
+description: "Generate user-facing release notes from tickets, PRDs, git logs, or internal changelogs. Use when writing release notes, creating a changelog, announcing a product update, or summarizing what shipped."
+argument-hint: "A version, a path to tickets/PRDs/changelogs, or a product URL"
 ---
 
-## Release Notes Generator
+# Release Notes Generator
 
-Transform technical tickets, PRDs, or internal changelogs into polished, user-facing release notes.
+Write user-facing release notes for **$ARGUMENTS**. Read every file the user provides
+first. A product URL means web search for the product and its audience.
 
-### Context
+Lead every entry with the **benefit**, not the change:
 
-You are writing release notes for **$ARGUMENTS**.
+- "Implemented Redis caching layer for dashboard API endpoints" → "Dashboards now load up
+  to 3× faster, so you spend less time waiting and more time analyzing."
+- "Fixed race condition in concurrent checkout flow" → "Fixed an issue where some orders
+  could fail during high-traffic periods."
 
-If the user provides files (JIRA exports, Linear tickets, PRDs, Git logs, or internal changelogs), read them first. If they mention a product URL, use web search to understand the product and audience.
+Write in plain language. Keep ticket numbers, internal codenames, class names, and module
+names off the notes. One to three sentences per entry.
 
-### Instructions
+Done when every user-facing change in the source material appears under a heading below,
+and every non-user-facing one is dropped.
 
-1. **Gather raw material**: Read all provided tickets, changelogs, or descriptions. Extract:
-   - What changed (feature, improvement, or fix)
-   - Who it affects (which user segment)
-   - Why it matters (the user benefit)
+```
+# [Product Name] — [Version / Date]
 
-2. **Categorize changes**:
-   - **New Features**: Entirely new capabilities
-   - **Improvements**: Enhancements to existing features
-   - **Bug Fixes**: Issues resolved
-   - **Breaking Changes**: Anything that requires user action (migrations, API changes)
-   - **Deprecations**: Features being sunset
+## New Features
+- **[Feature name]**: [what it does and why it matters]
 
-3. **Write each entry** following these principles:
-   - Lead with the user benefit, not the technical change
-   - Use plain language — avoid jargon, internal codenames, or ticket numbers
-   - Keep each entry to 1-3 sentences
-   - Include visuals or screenshots if the user provides them
+## Improvements
+- **[Area]**: [what got better and how it helps]
 
-   **Example transformations**:
-   - Technical: "Implemented Redis caching layer for dashboard API endpoints"
-   - User-facing: "Dashboards now load up to 3× faster, so you spend less time waiting and more time analyzing."
+## Bug Fixes
+- Fixed [issue, in user terms]
 
-   - Technical: "Fixed race condition in concurrent checkout flow"
-   - User-facing: "Fixed an issue where some orders could fail during high-traffic periods."
+## Breaking Changes
+- **Action required**: [what users need to do]
 
-4. **Structure the release notes**:
+## Deprecations
+- **[Feature]**: [what replaces it, and by when]
+```
 
-   ```
-   # [Product Name] — [Version / Date]
-
-   ## New Features
-   - **[Feature name]**: [1-2 sentence description of what it does and why it matters]
-
-   ## Improvements
-   - **[Area]**: [What got better and how it helps]
-
-   ## Bug Fixes
-   - Fixed [issue description in user terms]
-
-   ## Breaking Changes (if any)
-   - **Action required**: [What users need to do]
-   ```
-
-5. **Adjust tone** to match the product's voice — professional for B2B, friendly for consumer, developer-focused for APIs.
-
-Save as a markdown document. If the user wants HTML or another format, convert accordingly.
+Drop a heading with no entries.

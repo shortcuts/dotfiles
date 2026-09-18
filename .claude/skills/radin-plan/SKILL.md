@@ -65,19 +65,20 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
 1. Read the entry's file. A sub-task from a split has only its one-line
    Step 2 description as scope, so plan just that part.
 2. Explore the codebase: structure, affected files, patterns, constraints.
-   Use `codebase-memory-mcp`'s MCP tools before Grep/Glob/Read: `get_architecture` for the shape of an unfamiliar area,
-   `search_graph` to find the symbols in scope, `trace_path` for every
-   caller and callee the plan will touch, `get_code_snippet` to read one
-   function, `query_graph` (after `get_graph_schema`) for anything
-   Cypher-shaped. `index_repository` first when `list_projects` doesn't list
-   this repo — a graph hit is a pointer: read the file before you cite or edit it, and never conclude something is absent from an empty result.
-   Prefer `rtk`-wrapped commands when `command -v rtk`
-   succeeds, and `headroom loc` for the shape of a repo you have not seen
-   before when `command -v headroom` succeeds. If the plan hinges on
-   third-party API or library behavior local code can't confirm, invoke
-   `/mattpocock-skills:research` against primary sources first and never guess
-   at external behavior. Non-interactive: that skill spawns its own agent whose
-   result may not come back, so report the unconfirmed behavior and stop.
+
+   - Use `codebase-memory-mcp`'s MCP tools before Grep/Glob/Read:
+     `get_architecture` for the shape of an unfamiliar area, `search_graph` to
+     find the symbols in scope, `trace_path` for every caller and callee the
+     plan will touch, `get_code_snippet` to read one function, `query_graph`
+     (after `get_graph_schema`) for anything Cypher-shaped. Run
+     `index_repository` first when `list_projects` doesn't list this repo — a graph hit is a pointer: read the file before you cite or edit it, and never conclude something is absent from an empty result.
+   - Prefer `rtk`-wrapped commands when `command -v rtk` succeeds. Add
+     `headroom loc` for the shape of a repo you have not seen before, when
+     `command -v headroom` succeeds.
+   - A plan hinging on third-party API or library behavior that local code
+     cannot confirm goes to `/mattpocock-skills:research` against primary
+     sources first. Non-interactive: that skill spawns its own agent whose
+     result may not come back, so report the unconfirmed behavior and stop.
 3. Invoke `/ponytail:ponytail` and apply its ladder to produce the plan. When
    the plan has to place a new module boundary or reshape an interface, invoke
    `/mattpocock-skills:codebase-design` for that part instead of inventing

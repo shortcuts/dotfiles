@@ -36,8 +36,7 @@ limiting on top of new auth middleware" needs the middleware first). Log
 each piece as its own entry, split by the work's shape rather than the user's
 phrasing.
 
-Distinguish that
-from an item that is *real but not yet sharp* (clear boundary, fuzzy work,
+An item can instead be *real but not yet sharp* (clear boundary, fuzzy work,
 as in "figure out caching at some point"): log it as a stub with a short
 title and a body saying plainly it's unspecified and what's known so far.
 `radin-plan`
@@ -67,20 +66,17 @@ to decide that the conversation didn't settle. Tag each question:
   `radin-execute` resolves facts AFK by dispatching its own read-only
   fact-finding sub-agent.
 - **Decision**: a judgment call only the user can make (tradeoff, scope
-  boundary, behavior choice). Invoke `/mattpocock-skills:grilling` on these
-  NOW, before moving to the next item, one question at a time. Do not batch
-  decisions across items into a single end-of-scan question, and do not
-  summarize the decision yourself and ask the user to confirm your summary.
-  Grilling asks the actual question. Keep every settled answer for Step 5's body.
+  boundary, behavior choice). Invoke `/mattpocock-skills:grilling` on this
+  item's decisions now, before the next item: grilling asks the actual
+  question, one at a time. Keep every settled answer for Step 5's body.
 
 One test decides whether an item may skip this step: what would an executor
 with no session context have to guess to land it without asking anyone? Name
 even one plausible guess (a threshold, a naming choice, keep-vs-remove, which
-of two reasonable approaches) and it is a Decision, so grill it. The only
-pass condition is "there is no second reasonable way to do this". An item
-that clears the test skips the step, so don't manufacture questions for it. A
-stub from Step 1 also skips: it is one deliberately deferred whole, not an
-item with grillable edges.
+of two reasonable approaches) and it is a Decision, so grill it. An item with
+no second reasonable way to do it clears the test and skips the step. A stub
+from Step 1 skips too: one deliberately deferred whole, not an item with
+grillable edges.
 
 If the user defers a question or stops answering, record the question itself
 as an open decision in the entry body, options and your recommendation

@@ -21,11 +21,9 @@ wants a per-repo `.mcp.json` entry anyway.
 
 ## Scope
 
-Only `codebase-memory-mcp` needs wiring at all. `caveman` and `ponytail` are
-Claude Code plugins, so their hooks register globally at plugin-install time.
-`rtk` is a CLI with no hook or MCP wiring. If radin later adds another
-companion tool that needs wiring, extend this skill and
-`lib/radin-cbm-hooks.sh` rather than writing a new one.
+Only `codebase-memory-mcp` needs wiring. `caveman` and `ponytail` register
+their hooks globally at plugin-install time, and `rtk` is a CLI with no hook
+or MCP wiring.
 
 **Never run `codebase-memory-mcp install` yourself.** Its write replaces whole
 hook arrays in `~/.claude`, deleting other tools' hooks. Only

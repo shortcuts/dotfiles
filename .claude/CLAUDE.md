@@ -1,28 +1,20 @@
 # CLAUDE.md
 
-Behavioral guidelines to reduce LLM coding mistakes. Project instructions add to these guidelines.
-
-**Tradeoff:** Guidelines bias toward caution over speed. Trivial tasks: use judgment.
-
-Voice and prose rules live in the `STE` output style, not here.
+Project instructions add to these guidelines.
 
 ## Working style
 
-- State assumptions explicitly. If uncertain, ask. If multiple interpretations
-  exist, present them. Do not pick silently.
-- Push back when a simpler approach exists.
-- Write the minimum code that solves the problem. No speculative features,
-  abstractions, or configurability.
-- Touch only what the request needs. Match existing style. Remove only the
-  orphans your changes created.
-- Turn tasks into verifiable goals ("fix the bug" → "write a test that
-  reproduces it, then make it pass"). Loop until verified.
+- Multiple readings of the request exist: present them. Never pick one silently.
+- Touch only what the request needs. Match existing style. Remove only the orphans your
+  changes created.
+- Turn the task into a loop you can watch go **red**, then green. "Fix the bug" becomes
+  "write the test that reproduces it, then make it pass." Loop until it is green.
 
 ## MCP Tools: fff
 
-The fff MCP server indexes the current git-indexed directory. For any file
-search or grep in that directory, use the fff tools instead of Grep/Glob.
-Fall back to Grep/Glob outside the index or when fff is unavailable.
+The fff MCP server indexes the current git-indexed directory. Search and grep inside that
+directory with the fff tools. Fall back to Grep/Glob outside the index, or when fff is
+unavailable.
 
 <!-- radin:begin -->
 ## radin

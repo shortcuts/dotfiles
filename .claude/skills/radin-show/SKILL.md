@@ -2,8 +2,7 @@
 name: radin-show
 description: |
   Print the current project's backlog to the terminal. Use for
-  /radin-show, "show me the backlog", "what's in the backlog", "list backlog
-  items", "print the backlog".
+  /radin-show, "show me the backlog", "what's in the backlog".
 ---
 # Show Backlog
 
@@ -20,5 +19,4 @@ It exits 1 with "no backlog" when the project has none. Tell the user that,
 point them at `radin-record` or `radin-review` to start one, and create no
 file.
 
-Print the output as-is. Do not summarize, reorder, or filter it beyond the
-category scoping above.
+Print the output as-is: the CLI already orders and formats it.

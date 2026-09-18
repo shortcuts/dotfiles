@@ -3,9 +3,9 @@ name: radin-review
 description: |
   Run a thermo-nuclear code quality review over a scope (commit, PR, directory,
   or a range like "since yesterday"), triage the findings with the user, and
-  log the ones they keep as backlog entries instead of printing to terminal. Use for /radin-review, "review and log to
-  backlog", "audit this commit/PR/directory and file backlog entries", "turn
-  this review into a backlog".
+  log the ones they keep as backlog entries instead of printing to terminal.
+  Use for /radin-review, "review and log to backlog", "audit this
+  commit/PR/directory and file backlog entries".
 ---
 # Review to Backlog
 
@@ -77,12 +77,12 @@ Wrap the scope-content commands (`git show`, `git diff`, a test run) in `rtk`
 when `command -v rtk` succeeds: a raw diff is the largest thing this skill
 reads.
 
-Then invoke every skill on Step 1's `passes` line against the same scope. They
-hunt a different axis (over-engineering, dead flexibility, reinvented
-stdlib/native code) and complement thermo-nuclear; the debt pass appears there
-for a directory, harvesting the `ponytail:` shortcut comments already in that
-code so the deferrals become findings the user can triage. Their findings go
-through Step 3's filter like every other.
+Then invoke every skill on Step 1's `passes` line against the same scope.
+Their findings go through Step 3's filter like every other. They hunt a
+different axis from thermo-nuclear: over-engineering, dead flexibility,
+reinvented stdlib/native code. A directory scope adds the debt pass, which
+harvests the `ponytail:` shortcut comments already in that code so the
+deferrals become triageable findings.
 
 Name the exact scope in each invocation and restate the scope discipline
 above. It narrows what both rubrics look at, never how hard they look.
@@ -138,11 +138,9 @@ logging?
 **Yes**: invoke `/mattpocock-skills:grilling` over the selected findings, one
 finding at a time, in order. Name the finding and what is open about it
 (scope too wide, remedy wrong, priority off, a constraint the review cannot
-see). Grilling asks the actual questions one at a time and won't finalize
-until the answer is settled — don't restate a finding's problem back to the
-user as a yes/no, and don't batch findings into one pass. Fold each settled
-answer into that finding's category, title, and body before moving to the
-next finding. Drop a finding the user argues away, and say so.
+see). Fold each settled answer into that finding's category, title, and body
+before moving to the next finding. Drop a finding the user argues away, and
+say so.
 
 ## Step 5: Log the agreed findings to backlog
 
