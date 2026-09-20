@@ -23,36 +23,86 @@ that needs more is two systems. A system with one bullet nobody would name in a
 review belongs in the repo's `Maintenance` bullet.
 
 Name the system, never its layers. `AI Enrichment reliability`, `AI Enrichment
-caching` and `AI Enrichment monitoring` are three views of one pipeline, and a
-manager who reads all three still cannot say what AI Enrichment is. One heading
+caching` and `AI Enrichment monitoring` are three views of one pipeline, and
+splitting them buries one large contribution under three small ones. One heading
 per system, with the layers as bullets under it.
 
-## Open with what the thing is
+## Open with the user's part, not the product
 
-Each subsection opens with two or three sentences, before any bullet. Name the
-system, say what it does, say what it runs on and what it talks to, then name
-the user's part. Write it from the heavy PR bodies, not from the bullets.
+The manager already knows what AI Enrichment is. They read this note to find
+out what this person did to it. So the opening's subject is the user, in every
+sentence: the decisions they made, the parts they built, and how far the system
+moved while they held it.
+
+Each subsection opens with two or three sentences, before any bullet. Write them
+from the heavy PR bodies, in this order:
+
+1. **Role and scope.** What the user led, designed or contributed to, named for
+   this system.
+2. **The arc.** Where the system was when they started and where it is now - POC
+   to production, pre-beta to paged, one region to three. The arc is what makes
+   a year of PRs one achievement, so look for it in the oldest and newest PR in
+   the theme.
+3. **The parts.** Two or three things they built inside it, named concretely.
 
 ```markdown
 ### AI Enrichment
 
-I am a core contributor of AI Enrichment, the asynchronous pipeline that enriches customer records with OpenAI before they reach an index. Jobs commit to a write-ahead log in Postgres, workers pull the oldest first, and every job reports into a perpetual run keyed to its app and index. I built the run lifecycle, the OpenAI client, the caching layer, and the on-call setup.
+I led the technical decisions and the core implementation of AI Enrichment, from its POC to production. I designed the run lifecycle customers read their enrichment history from, built the OpenAI client the pipeline depends on, and set up the alerting and on-call rotation the team now runs it by.
 
-- I added perpetual runs, keyed by a deterministic UUID on the appID and index pair, so every enrichment event lands on one run instead of a new run per request.
-- OpenAI's error surface is wide, so I wrote a custom retry client that covers the 400s, the 5xx, and the rate-limit headers the default client ignored.
-- `POST /enrichments/taxonomies` OOM'd at the 200MB limit, so I streamed the embedding inserts with `CopyFrom` instead of building one `pgx.Batch`.
+- I made enrichment history readable: every event for an app and index now lands on one run, instead of a new run per request that left customers with a list they could not scan.
+- Enrichment used to stall whenever OpenAI returned anything unusual, so I rewrote the client to survive the whole error surface, and customer jobs stopped failing on transient upstream errors.
+- Taxonomy uploads over roughly 200MB used to fail outright, which blocked our largest catalogs; they complete now.
 ```
 
-The opening states architecture no single bullet mentions - the queue, the
-storage, the third-party API. Delete the bullets and it should still teach a
-reader something. Two openings that read the same way mean the two systems
-should merge. It carries no links, and it claims only the scope the PRs show:
-describe the system in full, then name the user's part of it in the same breath.
+Name the product only where the claim needs it to land - an appositive at most,
+never a sentence of its own. Three sentences explaining who the customers are
+and what they get is the product marketing page: the manager skips it, and the
+user's year is what gets skipped with it.
 
-A manager who reads only the headings and the openings can explain each system
-to someone else, and say what this person built inside it.
+The reader is an engineering manager. They do not care that the queue is
+Postgres, that a cache sits in Redis, or that a retry loop reads rate-limit
+headers. They care what the user decided, what shipped, and who stopped being
+blocked. Architecture nouns belong in a bullet only when the choice is the
+outcome - a rewrite that cut the bill, a limit that stopped losing customer
+data. Otherwise cut them.
+
+**Be proud, not boastful.** The line between them is evidence: a big claim with
+the work named under it reads as confidence, and the same claim with nothing
+under it reads as a brag. "I led the technical decisions and the core
+implementation, from POC to production" is a strong claim, and the three parts
+named after it are what make it land. Never hedge a claim the PRs support -
+"helped with", "was involved in", "contributed to some of" cost the user credit
+they earned. Never inflate one they do not - see the scope rules below.
+
+Delete the bullets and the opening should still tell a manager what this person
+did for the system. Two openings that read the same way mean the two systems
+should merge.
 
 `Maintenance` takes no opening. It is already one line.
+
+## Scope claims
+
+Three claim shapes, in descending order of what they need behind them:
+
+- `I led the technical decisions on X` - the PRs cannot prove this, and it is
+  often the truest and most valuable line in the note. Write it where the user's
+  PRs introduced the designs others then built on, then flag it for them:
+
+  ```markdown
+  > [!check] Confirm before pasting
+  > "I led the technical decisions on AI Enrichment" - your PRs show you introduced the run lifecycle, the settings schema and the retry client, but not that the team's decisions were yours. Keep it if that is true, otherwise cut to "I designed".
+  ```
+
+  One callout per unprovable claim, directly under the opening that carries it.
+  The user deletes the callout and keeps the line, or fixes the line. Never
+  silently drop the claim to stay safe, and never assert it without the flag.
+- `I designed X` / `I introduced X` - the PR that first built X is the user's.
+  Check the theme's oldest PR before writing it.
+- `I am a core contributor of X` - the PR count in X carries it. A manager can
+  check that number.
+
+Everything below those is a build claim, and the bullets carry it.
 
 ## The bullets
 
@@ -66,31 +116,30 @@ failed.
 word and slides past the claim behind it. Let no two consecutive bullets open
 the same way, with three shapes mixed:
 
-- Plain: `I bounded the forwarding scans at the sentinel.`
-- Outcome first, the user's hand named inside: `Existing BYOC sources run on the extractor now, because I shipped the algoliaIndex source end to end.`
-- Condition or reason first: `Replication only failed under load, so I heartbeat the long Temporal activities.`
+- Plain: `I stopped duplicate records reaching customer indices.`
+- Outcome first, the user's hand named inside: `Existing BYOC customers can point at an Algolia index directly now, because I shipped the algoliaIndex source end to end.`
+- Condition or reason first: `Replication only failed for the biggest accounts, so I fixed the long-running jobs that dropped their data.`
 
 Four bullets opening "X is mine" is the same tic wearing a different word. A
 passive line ("the source was shipped") loses who did the work, which is the one
 thing a self review exists to say. Keep the user as the actor in every line, and
 change the sentence around them.
 
-**Name the work, not the position.** Ownership words - own, owned, mine, my area
-- name a seat on a team, skip what the user built, and claim a scope no PR
-proves. Replace the position with the work, and keep the scope checkable:
+**Scope belongs in the opening, work belongs in the bullets.** A bullet says what
+the user built, so a bullet that claims a seat instead - own, owned, mine, my
+area - spends a line without naming anything:
 
-- `I own AI Enrichment's run lifecycle.` becomes `I am a core contributor of the AI Enrichment pipeline, and I built its run lifecycle: perpetual runs, cold-start pickup, and run timeouts.`
-- `The Datadog monitors and PagerDuty schedules are mine.` becomes `I wrote the Datadog monitors and the PagerDuty schedules for this service, then tuned them until they stopped paging on noise.`
+- `I own AI Enrichment's run lifecycle.` becomes `I built the run lifecycle customers read their enrichment history from.`
+- `The Datadog monitors and PagerDuty schedules are mine.` becomes `I set up this service's alerting and on-call rotation, then tuned it until the team stopped being paged on noise.`
 
-When the user's scope across a repo really is broad, write `I am a core
-contributor of X`. A manager can check that against the PR count.
+The role and the arc go in the opening, once, under the rules above.
 
 **Receipts live in Sources.** A trail of `([#7959](url), [#8012](url))` inside a
 bullet lands the reader's eye on the numbers instead of the claim, which is what
 turns a note into a changelog. Keep the bullets prose:
 
 ```markdown
-- I split the ingestion pipeline into per-source workers, removing the global lock that capped throughput.
+- I split the ingestion pipeline per source, so one slow customer no longer holds up everybody else's ingestion.
 ```
 
 **A bullet is a claim, not a PR.** `fix: retry 400 errors` is evidence. It
@@ -103,7 +152,8 @@ Two rules keep the bullets defensible, because the manager may ask about any
 line:
 
 - **Claim only what the PRs show.** "Reduced p99 by 40%" needs a number from a
-  PR body, a dashboard, or a benchmark. Without one, say what changed.
+  PR body, a dashboard, or a benchmark. Without one, say who stopped being
+  blocked, and by what.
 - **Keep a fix a fix.** A bullet the user cannot defend costs them more than a
   bullet they never wrote.
 
@@ -162,14 +212,14 @@ tags:
 
 ### <system>
 
-<two or three sentences: what the system is, what it runs on and talks to, what the user built in it>
+<two or three sentences: the user's role, the arc of the system under them, the parts they built>
 
 - <bullet, no links>
 - ...
 
 ### <system>
 
-<two or three sentences, same shape>
+<same shape: role, arc, parts>
 
 - ...
 

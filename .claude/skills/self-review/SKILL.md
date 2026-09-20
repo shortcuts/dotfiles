@@ -60,12 +60,12 @@ twenty headings learns less than one reading four.
 
 ### Weigh the PRs, then read the heavy ones
 
-A title says a PR happened. The body says what was built.
+A title says a PR happened. The body says what the user decided.
 `fix(ai-enrichment): retry 400 errors` and `feat(ai-enrichment): add perpetual
 runs` are one line each in the search results, and nowhere near the same work.
-The second body carries what a manager needs: what the system is, what stores
-its state, what it calls. A note written from titles alone lists changes to a
-service without ever saying what the service does.
+The second body carries what a manager needs: the design the user chose, what it
+replaced, and what it unblocked. A note written from titles alone lists changes
+to a service without ever saying who drove them.
 
 So weigh before you read. Diff size is the cheapest proxy, and it comes per
 repository:
@@ -83,17 +83,26 @@ Read the PR that introduced each theme too, even when its diff is small:
 gh pr view <number> --repo <owner/repo> --json title,body,additions,deletions
 ```
 
-Read them for the system, not for the change. Four questions:
+Read them for the user's hand in the work, not for how the code works. Four
+questions:
 
-- What is this thing, in one sentence a manager would understand?
-- What does it integrate with?
-- What stores its state, and what moves work through it?
-- Why was it built this way?
+- What did the user decide here, and what did the decision replace?
+- What part of the system is theirs - did they introduce it, or extend someone
+  else's?
+- What did this let people do that they could not do before?
+- Where was this system when they started, and where is it now?
 
-A `feat:` body usually answers all four in its first paragraph. Those answers
-are what a changelog-shaped note is missing. The repo's README or CHANGELOG is
-the other cheap source, because it already names the system the way the team
-names it.
+A `feat:` body usually answers the first three in its motivation section, and
+the fourth comes from reading the theme's oldest and newest PR together - a
+service that went from POC to paged production is the claim the note is for.
+The implementation nouns in the body - Redis, the retry loop, the cache - are
+not the answers. They are the evidence a claim rests on, so note them and move
+on.
+
+The manager already knows what the product does, so do not spend the reading
+budget on collecting product descriptions. Spend it on the two things they
+cannot get anywhere else: which decisions were the user's, and how far the
+system moved under them.
 
 Keep the budget at ten to twenty bodies per carrying repository, not two
 hundred. The long tail of `chore:` and `fix:` titles is already Maintenance.
@@ -152,15 +161,53 @@ Answer its audience question up front so it does not stall: the user's own
 manager, reading the user's self review in Lattice to decide what this person
 owned.
 
-It catches this note's failure mode - bullets that would read identically on
-someone else's review. "Improved system reliability" says nothing. "Made the
-retry loop idempotent so a failed build no longer double-charges" says what
-happened. Leave the Sources links alone; they are identifiers, not prose.
+It catches this note's failure modes. One is a bullet that would read
+identically on someone else's review: "improved system reliability" says
+nothing, while "made the retry loop idempotent so a failed build no longer
+double-charges" says what happened. The other is an opening that explains the
+product back to the manager who owns it - if the first sentence of a subsection
+has the system as its subject rather than the user, rewrite it. Leave the Sources links alone; they are identifiers, not prose.
 
-## After the note
+## Grill the claims
 
-Open the note and stop.
+Open the note, then invoke the `grilling` skill on it. The note is a draft of
+how the user describes their own year to their manager, and only the user knows
+which claims are true. A note written from PRs alone cannot know who led a
+decision, which theme they want to be remembered for, or how hard they are
+willing to push.
 
-The user may push back on one theme - "that wasn't the point of that work", "you
-missed the migration". Fix that theme in the file, and leave the rest of the
-note as it stands.
+Grilling finds facts itself, so bring the PR evidence to each question instead
+of asking the user to supply it. The first round's frontier is the three things
+the note cannot settle:
+
+- **Every `[!check]` callout, one question each.** Quote the claim, say which
+  PRs stand behind it, and name what they do not show. Recommend keeping it.
+- **The lead.** Name the theme you put first and why - weight, not PR count -
+  and ask whether that is what they want their manager to read first.
+- **The ceiling.** Ask how far up they want the claims pitched, with the same
+  theme written at two heights so they pick against real sentences rather than
+  an adjective:
+
+  ```
+  ➡️ "I led the technical decisions and the core implementation of AI Enrichment"
+     "I designed and built the core of AI Enrichment"
+  ```
+
+Later rounds come from what their answers reshape, and nothing else. An answer
+that raises one claim usually raises its neighbours - a user who led AI
+Enrichment's decisions probably led the indexing extension's too - so ask about
+the neighbours in the next round instead of assuming either way. An answer that
+cuts a claim may collapse the theme into another, or drop it to `Maintenance`.
+
+Stop when the frontier is empty. Do not rewrite the note mid-grill: collect the
+answers, apply them in one pass, then run the changed subsections back through
+the `no-ai-slop` skill, because a claim pitched higher often arrives with the
+hedges and the puffery the first pass removed.
+
+## After the grill
+
+Save, reopen the note, and stop.
+
+The user may still push back on one theme - "that wasn't the point of that
+work", "you missed the migration". Fix that theme in the file, and leave the
+rest of the note as it stands.

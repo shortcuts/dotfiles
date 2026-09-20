@@ -52,32 +52,67 @@ short note.
 
 ### The ladder
 
-Order the note as rungs, not as topics. Each rung is one step, and it stands on the rung
-below it. The ladder runs from no knowledge to peer knowledge:
+Order the note as rungs, not as topics. The ladder is causal, not thematic: rung one is
+the simplest model that is still true, and each rung above it reveals the mechanism
+underneath the rung below. The ladder runs from no knowledge to peer knowledge.
 
-- **Rung one uses no term from the subject.** It states the problem in plain words, or
-  shows the thing that breaks. Anchor it outside the subject: an everyday object, a
-  problem the reader has hit.
-- **The top rung reads as if written for someone who already knows the subject.** No
-  anchoring, no analogy, exact names and numbers. A reader who arrives there has been
-  walked up to it.
-- **Each middle rung adds at most one new idea**, and uses only terms the note already
-  defined. Five to eight rungs carry most subjects. More than that means the topic is too
-  big - narrow it.
+- **Seven rungs, one per experience level below.** A subject that will not fit seven
+  rungs is too big - narrow it.
+- **Every rung answers what causes what, and why that works.** Name the cause, the
+  effect, and the property that makes the link hold. A rung that only names a part, a
+  file, or a term states no causality - it is a glossary entry, not a rung.
+- **Each rung adds at most one new idea**, and uses only terms the note already defined.
+- **Introduce a concept only when the next rung needs it.** Each rung ends by naming what
+  it plants for the rung above (`Plants: shard ownership - rung 4 needs it`). A concept no
+  higher rung consumes does not go on the note.
 - Define every term at first use, in one clause, inline. An idea a rung needs goes lower
   on the ladder, or off the note.
 - Test a rung by deleting the rungs below it. If it still reads on its own, it is an
   aside, not a rung. Cut it or move it.
+- Number the rungs in their headings, say how many there are, and name the one idea each
+  adds (`## Rung 3 of 7 - who owns which index`). A reader mid-climb needs to see how far
+  is left.
 
-**Every rung carries one concrete example**, worked by hand with small real values,
-matched to that rung's altitude: a physical analogy low down, one traced call or one
-computed result high up. A reader who follows one case owns the mechanism. A reader who
-only reads the general rule does not. A rung with no example is a rung the reader cannot
-check.
+#### The seven rungs
 
-Number the rungs in their headings, say how many there are, and name the one idea each
-adds (`## Rung 3 of 7 - who owns which index`). A reader mid-climb needs to see how far
-is left.
+Each rung is written for a reader one experience level further in. The level sets how
+deep the rung goes, not how it sounds - the tone holds flat from bottom to top: plain,
+terse, never condescending. What climbs is what the rung may assume, what it may name,
+and how specific its example gets.
+
+| Rung | Written for | Assumes | Names | Example shape |
+|---|---|---|---|---|
+| 1 | Beginner | Nothing. No term from the subject appears | The problem, in everyday words | An everyday object, or the thing that breaks |
+| 2 | Novice | Rung one's problem | The subject and its one job | One input and its output, no internals |
+| 3 | Hobbyist | The subject exists, and why | The moving parts by name, happy path only | One request walked end to end, in words |
+| 4 | Intermediate | The parts and their split | Exact files, functions, config keys, the branches | One traced call with real values |
+| 5 | Advanced | The happy path, whole | The tradeoff, the rejected alternative, the knob that tunes it | Two settings side by side, and what each changes |
+| 6 | Expert | The tradeoffs | The failure modes, the limits, the numbers | The case that breaks, and the number that proves it |
+| 7 | Principal | All of it | Where the design leaks, and what it would cost to change | One decision the reader can now argue either way |
+
+The level is the author's label, not the reader's. Keep it out of the heading.
+
+Rungs one and two may trade accuracy for a foothold - an analogy a higher rung later
+corrects. Mark it on the line where you use it, and name the rung that corrects it
+(`Close enough until rung 4`). From rung three up, every claim obeys
+[Precision](#precision).
+
+#### The shape of a rung
+
+Every rung is four parts, in this order:
+
+1. **One bolded line of summary**, before anything else - the whole rung in one sentence,
+   at that rung's level. Write it as cause and effect, not as a topic: "The router hashes
+   the key, so the same key always lands on one shard." A reader who skims only these
+   lines still climbs the ladder.
+2. **The detail**: the mechanism, the visual form that carries it, and a line of prose.
+   Say why the mechanism works - the invariant, the guarantee, or the constraint the cause
+   relies on. State where the rung below was incomplete, and what this rung corrects.
+3. **An `Example` block**, last, worked by hand with small real values, in that rung's
+   shape. A reader who follows one case owns the mechanism. A reader who only reads the
+   general rule does not. A rung with no example is a rung the reader cannot check.
+4. **One `Plants:` line**, naming the concept this rung introduces and the rung that
+   consumes it. The top rung plants nothing.
 
 ### Precision
 
@@ -168,21 +203,24 @@ Structure:
 - **TL;DR**: one or two sentences - why the subject exists and how it works - then the
   reader's win on its own line. The first sentence defines the subject in plain words,
   and uses no term the reader must already know. Two sentences is the cap, not the target.
+- **Summary**: the whole explanation, compressed - one line per rung, in rung order, each
+  the rung's cause-and-effect line. A reader who reads only this section knows the chain
+  of mechanisms and can pick the rung to start at.
 - **Why**: the motivation and the decisions, in plain present tense - the problem the
   subject solves, and what it would cost to not have it. The receipts for those claims
   live in **How it got here**, and so do the rejected alternatives.
 - **How**: the shape first - the one tree, table, or diagram that holds the whole
-  subject. For a change, the file tree or the `--stat`. Then the rungs, lowest first.
-  Each gets its example, its visual form, and a line of prose. Call out the non-obvious
-  parts, and how repo conventions shaped them.
+  subject. For a change, the file tree or the `--stat`. Then the rungs, lowest first, each
+  in the four-part shape above. Call out the non-obvious parts, and how repo conventions
+  shaped them.
 - **Sharp edges**, at most: the traps a reader hits that the rungs could not hold - a
   stale test, a lock order, a "quick fix" still in place. One line each.
 - **How it got here**: the history, in one place. See [Receipts](#receipts).
 - **Sources**: every link worth opening next. See [Receipts](#receipts).
 
-The top rung ends the explanation. Only those three sections follow it. Reference
-material - full config tables, metric lists, sizing charts - is not a rung and does not
-earn a section; link it in **Sources** instead. That appendix is where the format bloats.
+The top rung ends the explanation. Only **Sharp edges**, **How it got here**, and
+**Sources** follow it. Reference material - full config tables, metric lists, sizing
+charts - is not a rung and does not earn a section; link it in **Sources** instead. That appendix is where the format bloats.
 
 Every mechanism gets a heading. Obsidian builds the outline pane from them, so the note
 needs no jump list of its own.
