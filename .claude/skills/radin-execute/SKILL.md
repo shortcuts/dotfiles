@@ -58,7 +58,7 @@ you.
   worktree and never call `radin-state.sh prepare`, whatever Phase 0.5
   recorded. N of them to send is N `Task` calls in one message, however large
   the wave. The bullet below governs execution sub-agents, and only them.
-- **Concurrency allowed, and only under these conditions.** Several execution sub-agents may run in the same turn when they share no `depends_on` chain and no files, and only when Phase 0.5 recorded the worktree answer as yes -- parallel agents in one worktree corrupt each other commits. Worktree answer is no, or file overlap is at all unclear: dispatch strictly one at a time. Launch parallel ones in one message. Per-task steps stay unchanged, and each targets that task own tree, resolved for you by `radin-state.sh dirty-recover` -- its own dirty check, its own commit, its own `task-done`. Never check the shared checkout while another agent is in flight: you would stash a sibling task work out from under it.
+- **One execution sub-agent at a time.** Dispatch one task, wait for its `STATUS:` line, finish its bookkeeping, then dispatch the next. Never put two `Task` calls in one message, however independent the tasks look. Batching other tool calls stays fine -- this rule is about `Task` only, and about execution sub-agents only: read-only dispatches stay parallel per Core Constraints.
 
 ## Clarifying Ambiguity
 
@@ -68,7 +68,7 @@ so the sub-agent gets the user's answer instead of your guess at what the entry
 meant.
 
 A sub-agent's `STATUS: BLOCKED` routes through
-`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-clarify.md`: read it and follow it — it holds
+`/Users/k/.claude/.radin/lib/radin-execute-clarify.md`: read it and follow it — it holds
 the routing for both tags, the fact-finder handoff, the research arm for a
 fact that lives outside this repo, and the `backlog append` labels that put a
 settled answer where planning and execution sub-agents read it.
@@ -121,7 +121,7 @@ already answered, so ask nothing and change nothing. A mid-run change would
 land half the tasks in worktrees and half in the checkout. Exit 1
 means no answer
 is recorded yet — only the first run in a repo — so read
-`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-session.md` and follow it to ask and
+`/Users/k/.claude/.radin/lib/radin-execute-session.md` and follow it to ask and
 persist them.
 
 ## Phase 1: Read and Prioritize
@@ -147,7 +147,7 @@ persist them.
    Exit 1: nothing to recover, continue to step 4. Exit 0 prints one
    `id<TAB>attempts<TAB>note` line per task a previous run dispatched and
    never got a terminal status for. Never re-dispatch one blind: read
-   `/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-recovery.md` and follow it for
+   `/Users/k/.claude/.radin/lib/radin-execute-recovery.md` and follow it for
    each id. Most runs skip this file entirely.
 4. Ask the CLI whether a ranking pass is needed at all:
 
@@ -158,7 +158,7 @@ persist them.
    Exit 1: every entry carries a priority. No task body read, no criteria
    pass, no dependency inference — go to Phase 2. Exit 0: it printed the ids
    whose `priority` is unset. Read
-   `/Users/clement.vannicatte/.claude/.radin/lib/radin-prioritization.md` and apply its weighted
+   `/Users/k/.claude/.radin/lib/radin-prioritization.md` and apply its weighted
    criteria to those ids alone. It produces two things: the unset group in
    your order, as one `--rank <csv-of-ids>` flag, and one
    `--infer-deps <id>=<csv>` flag per entry you inferred a dependency for.
@@ -229,7 +229,7 @@ task keeps the `order` number the user just confirmed.
 
 Every task the user just confirmed gets its plan written before the first
 execution sub-agent is dispatched, and they are all dispatched together. Read
-`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-prompts.md` once now — it holds every
+`/Users/k/.claude/.radin/lib/radin-execute-prompts.md` once now — it holds every
 verbatim sub-agent prompt this run sends, and this is the first phase that
 sends one.
 
@@ -430,7 +430,7 @@ radin state report "$NAMESPACE_DIR" "<one dropped-skill line per skill Step 4b d
 ```
 
 Print its output verbatim. Read
-`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-reporting.md` for the two things it
+`/Users/k/.claude/.radin/lib/radin-execute-reporting.md` for the two things it
 cannot do.
 
 ## Phase 6: Review
@@ -442,7 +442,7 @@ cannot do.
   session's work, run /radin-review with scope: <commit hashes recorded in
   Phase 4>.`
 
-Reviewer sub-agent (`model: "opus"`). The
+Reviewer sub-agent (`model: "sonnet"`). The
 `radin-review` skill already owns the review-and-log flow, so send exactly:
 
 ```
@@ -458,7 +458,7 @@ from the invoking prompt: <instructions, or "none">.
 
 - **Resume, and recovery after a compaction**: `BACKLOG_STEPS.json` already
   exists at startup, or earlier turns got summarized away. Either way, read
-  `/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-resume.md` and follow it: it holds
+  `/Users/k/.claude/.radin/lib/radin-execute-resume.md` and follow it: it holds
   the resume triage, the `MAX_ATTEMPTS` exception, and the state-persistence
   contract that lets you continue from disk rather than memory. A run that
   starts clean and stays in context never loads it.

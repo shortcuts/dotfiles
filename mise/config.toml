@@ -15,7 +15,7 @@ cargo-binstall = "1.23.0"
 # 0.19.0 dropped x86_64-apple-darwin; 0.18.2 is the last release with an Intel Mac binary.
 delta = "0.18.2"
 fastfetch = "2.68.1"
-fd = "10.5.0"
+fd = "10.3.0"
 fzf = "0.74.4"
 gh = "2.101.0"
 # Absent from mise's own registry, so pull it straight from aqua.
