@@ -36,12 +36,14 @@ It prints `id`/`title`/`task_file`/`plan_file` lines, plus one
   EOF
   ```
 
-  Non-interactive: the scope always came from an existing entry, so no match
-  means backlog drift. Report and stop instead of writing a duplicate.
 - **2**: several entries match; it prints them as `candidate` lines on stderr.
-  Ask which one. Non-interactive: report the candidates and stop.
+  Ask which one.
 - **3**: already planned; the `plan` lines are the existing paths. Show them and
   ask whether to re-plan (overwrite) or stop. Stop unless confirmed.
+
+Non-interactive, for all three: report what `plan-target` printed and stop. The
+scope came from an existing entry, so no match means backlog drift — the run
+adds no entry, picks no candidate among several, and overwrites no plan.
 
 ## Step 2: Judge whether the scope should split
 
@@ -64,7 +66,10 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
 
 1. Read the entry's file. A sub-task from a split has only its one-line
    Step 2 description as scope, so plan just that part.
-2. Explore the codebase: structure, affected files, patterns, constraints.
+2. Explore the repo to understand the current state of the codebase, if you
+   haven't already: structure, affected files, patterns, constraints. Carry the
+   project's own vocabulary into the plan — its glossary or domain-model doc
+   where it has one — and respect any ADR covering the area you're touching.
 
    - Use `codebase-memory-mcp`'s MCP tools before Grep/Glob/Read:
      `get_architecture` for the shape of an unfamiliar area, `search_graph` to
@@ -76,41 +81,145 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
      `headroom loc` for the shape of a repo you have not seen before, when
      `command -v headroom` succeeds.
    - A plan hinging on third-party API or library behavior that local code
-     cannot confirm goes to `/mattpocock-skills:research` against primary
-     sources first. Non-interactive: that skill spawns its own agent whose
-     result may not come back, so report the unconfirmed behavior and stop.
-3. Invoke `/ponytail:ponytail` and apply its ladder to produce the plan. When
+     cannot confirm: read the entry's `**Fact:**` lines and its `**Facts:**`
+     file first, because an earlier invocation may already have answered it.
+     - **Running in the user's own thread**: hand the question to the research
+       companion, so its reading happens in the background while you plan the
+       parts that do not hinge on the answer. Gate it:
+
+       ```bash
+       source <(radin backlog env --export)
+       command -v claude >/dev/null 2>&1 &&
+         claude plugin list 2>/dev/null |
+         grep -q mattpocock-skills@claude-plugins-official
+       ```
+
+       Exit 0: invoke `/mattpocock-skills:research` with the question, naming
+       `$NAMESPACE_DIR/state/facts/<task-id>.md` as the file to write its
+       findings to. When it reports, record the answer so the next invocation
+       reads it instead of re-researching:
+
+       ```bash
+       radin backlog append "<id>" <<'EOF'
+       **Fact:** <the answer in one sentence, naming the source that owns it>
+       **Facts:** <the state/facts path above>
+       EOF
+       ```
+
+       Non-zero exit, or the skill asks you anything: drop it, never wait on
+       it, and treat the question as unsettled from here — name it in the
+       report and stop.
+     - **Non-interactive**: the answer lies outside this repo, so report the
+       question and stop. `radin-execute`'s router owns the research arm for it
+       (`radin-execute-clarify.md`) and appends the answer to this task's file,
+       so the next planning wave reads it and this stop is a pause, not a loss.
+3. Sketch the seams at which the change will be tested. Prefer an existing seam
+   to a new one, and use the highest seam available. If new seams are needed,
+   propose them at the highest point you can. The fewer seams across the
+   codebase, the better — the ideal number is one.
+
+   Interactive: check with the user that these seams match their expectations,
+   before anything is written.
+   Non-interactive: record the seam you chose in the plan's `## Testing`
+   section and write on.
+4. Invoke `/ponytail:ponytail` and apply its ladder to produce the plan. When
    the plan has to place a new module boundary or reshape an interface, invoke
    `/mattpocock-skills:codebase-design` for that part instead of inventing
-   your own vocabulary for it. The plan states:
-   - The minimum files to touch.
-   - The concrete change in each file.
-   - Order of operations, where it matters.
-   - How to verify (tests/checks to run), because lazy code without its
-     check is unfinished.
+   your own vocabulary for it. Write it to the template below, section by
+   section — the template is the output contract, and every plan radin writes
+   has that shape.
 
-   Surface every open question the plan raised. The plan you hand off must
-   leave zero decisions to whoever executes it. Non-interactive: an
-   unresolvable question stops the run, so report it rather than plan around
-   it.
-4. Save the plan at the `plan_file` path Step 1 printed. For a sub-task from a
+   Non-interactive: synthesize the plan from the entry, the repo, and what this
+   conversation already holds. A question none of those three answers is the
+   report line that ends the run, not a decision to leave open in the plan.
+5. Save the plan at the `plan_file` path Step 1 printed. For a sub-task from a
    split, re-run `plan-target "<id>" "<sub-slug>"` with the sub-task's short
    title in lowercase-hyphen form and use the `plan_file` it prints.
-5. Insert the pointer via the CLI (appends `**Plan:** <path>` to the task's
+6. Insert the pointer via the CLI (appends `**Plan:** <path>` to the task's
    file, after any earlier `**Plan:**` lines):
 
    ```bash
    radin backlog add-plan "<id>" "<the plan_file path>"
    ```
 
-6. Report: `✅ <id> planned. Plan: <path>. Review findings: <n or none>.` The
+7. Report: `✅ <id> planned. Plan: <path>. Review findings: <n or none>.` The
    count comes from Step 4, so write this line after that sub-task's review
    pass, not before it.
 
-Planning and executing are separate tools: edit no source file, run no
-build/test, create no commit anywhere in this skill. Never touch the scoped
-task's file beyond the appended `**Plan:**` line(s), and never touch any
-other task's file.
+Planning and executing are separate tools, so this skill's whole output is the
+plan file(s) it writes plus the one `**Plan:**` line the CLI appends to the
+scoped task's file. Everything else in the tree stays exactly as you found it:
+no source file edited, no build or test run, no commit, and no other task's
+file touched. The one addition to the scoped task's file beyond that `**Plan:**`
+line is the `**Fact:**`/`**Facts:**` pointer, when research ran.
+
+### The plan template
+
+Write a section only when it carries content a downstream agent acts on; a
+label with nothing under it goes nowhere.
+
+<plan-template>
+
+```markdown
+# Plan: <task title>
+
+**Task:** `<task id>` — <the `task_file` path Step 1 printed>
+**Reading this:** the entry holds the problem, the acceptance criteria and
+every `**Decision:**` line; this plan holds the how and restates none of it.
+
+## Outcome
+
+<One or two lines: what is true of the codebase once this plan is implemented.>
+
+## Decisions
+
+<A numbered list: every choice the executor would otherwise have to make, each
+one settled here. Each entry in the format:>
+
+1. <The question> → <the settled answer>. Why: <one line>.
+
+<Every claim about the current code carries its source inline — `path:line`, or
+the read-only command that produced it. Every claim about third-party behavior
+names the source that owns it — official docs, source code, a spec, or a
+first-party API. A claim with no such source is an open question, so it ends
+the run per Step 3's step 4 rather than entering a plan step.>
+
+<A decision the executor has to invent is a defect in this plan.>
+
+## Changes
+
+<One entry per file to touch — the minimum set, no more:>
+
+- `<path>` — <the concrete change, in prose: the symbols to touch and what
+  becomes of each. No line numbers, and no pasted code.>
+
+<Exception for code: a snippet that encodes a decision more precisely than
+prose can — a schema, a type shape, a state machine, the exact string a test
+asserts on. Inline it in the entry it belongs to, trimmed to the
+decision-rich part.>
+
+## Order
+
+<The steps that must happen in a given order, numbered, each with the one line
+saying why it gates the next — or "Any order." when nothing does.>
+
+## Testing
+
+**Seam:** <the seam from the Step 3 sketch, and why it's the highest available.>
+**Prior art:** <an existing test in this repo whose shape the new test copies.>
+**What to test:** <external behavior only — what a caller observes, never an
+implementation detail.>
+
+- [ ] <one line per check to run, as the command that runs it>
+
+## Out of scope
+
+<What a reader might expect here and this plan deliberately does not do, each
+with where it does belong — or "Nothing — the entry's scope is covered in full
+above.">
+```
+
+</plan-template>
 
 ## Step 4: Review each plan before handing it off
 
@@ -124,10 +233,9 @@ each plan file just written:
    flexibility, reinvented stdlib, single-caller layers?
 3. Fix each finding by editing the plan file in place. The fix belongs in
    the plan itself, and nothing goes to the backlog.
-4. Zero findings: leave the file untouched.
 
 ## Step 5: Report back
 
-One line per plan, as Step 3's step 6 already printed it, then:
+One line per plan, as Step 3's step 7 already printed it, then:
 
 `Next: radin-execute (or a human) can implement from the plan(s) above.`

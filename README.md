@@ -27,3 +27,14 @@ Here you'll find what I use on a daily basis, located in my `~/.config` folder
   rm -f ~/.cargo/bin/{tree-sitter,stylua,bob} ~/go/bin/golangci-lint \
         ~/.local/bin/{pipx,poetry}
 
+
+brew uninstall rtk
+pipx uninstall headroom-ai
+rm -f ~/.local/bin/headroom   # pipx report symlink broken, so remove leftover by hand
+
+mise use -g aqua:rtk-ai/rtk@latest
+mise use -g pipx:headroom-ai@latest
+
+hash -r 2>/dev/null; command -v rtk headroom   # confirm both resolve under mise
+
+Both paths must show ~/.local/share/mise/installs/... or a mise shim. If command -v rtk still print /opt/homebrew/bin/rtk, brew copy remain — re-check brew list rtk.

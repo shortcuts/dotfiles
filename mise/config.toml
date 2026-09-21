@@ -46,3 +46,5 @@ yarn = "4.9.4"
 yq = "4.53.6"
 
 "npm:ccstatusline" = "2.2.29"
+"aqua:rtk-ai/rtk" = "latest"
+"pipx:headroom-ai" = "latest"
