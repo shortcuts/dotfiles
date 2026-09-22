@@ -97,6 +97,8 @@ STL/.DS_Store
 !.claude/output-styles/
 !.claude/output-styles/**
 !.claude/skills/
+!.claude/skills/documentation/
+!.claude/skills/documentation/**
 !.claude/skills/branch-auditor-pgpemu/
 !.claude/skills/branch-auditor-pgpemu/**
 !.claude/skills/radin-*/
