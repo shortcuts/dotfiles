@@ -17,3 +17,4 @@ defaults:
     open: true
     width: 70
   prsLimit: 50
+  refetchIntervalMinutes: 1
