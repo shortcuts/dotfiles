@@ -62,152 +62,102 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "sonnet",
+  "model": "opus",
   "hooks": {
     "PreToolUse": [
-    {
+      {
         "matcher": "Bash",
         "hooks": [
-            {
-                "type": "command",
-                "command": "rtk hook claude"
-            }
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
         ]
-    },
-    {
+      },
+      {
         "hooks": [
-            {
-                "type": "command",
-                "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
-            }
+          {
+            "type": "command",
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
+          }
         ]
-    },
-    {
-        "matcher": "Grep|Glob",
-        "hooks": [
-            {
-                "type": "command",
-                "command": "sh /Users/k/.claude/hooks/cbm-code-discovery-gate",
-                "timeout": 5
-            }
-        ]
-    },
-    {
+      },
+      {
         "matcher": "Grep|Glob|Bash",
         "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/k/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    }
-],
+      }
+    ],
     "SessionStart": [
-    {
+      {
         "hooks": [
-            {
-                "type": "command",
-                "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh start"
-            }
+          {
+            "type": "command",
+            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh start"
+          }
         ]
-    },
-    {
+      },
+      {
         "matcher": "startup",
         "hooks": [
-            {
-                "type": "command",
-                "command": "sh /Users/k/.claude/hooks/cbm-session-reminder",
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
+      },
+      {
         "matcher": "resume",
         "hooks": [
-            {
-                "type": "command",
-                "command": "sh /Users/k/.claude/hooks/cbm-session-reminder",
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
+      },
+      {
         "matcher": "clear",
         "hooks": [
-            {
-                "type": "command",
-                "command": "sh /Users/k/.claude/hooks/cbm-session-reminder",
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
+      },
+      {
         "matcher": "compact",
         "hooks": [
-            {
-                "type": "command",
-                "command": "sh /Users/k/.claude/hooks/cbm-session-reminder",
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
-        "matcher": "startup",
-        "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/k/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
-        ]
-    },
-    {
-        "matcher": "resume",
-        "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/k/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
-        ]
-    },
-    {
-        "matcher": "clear",
-        "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/k/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
-        ]
-    },
-    {
-        "matcher": "compact",
-        "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/k/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
-        ]
-    }
-],
+      }
+    ],
     "Notification": [
       {
         "hooks": [
@@ -249,30 +199,20 @@
       }
     ],
     "PostToolUse": [
-    {
+      {
         "matcher": "Read",
         "hooks": [
-            {
-                "type": "command",
-                "command": "sh /Users/k/.claude/hooks/cbm-code-discovery-gate",
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
-        "matcher": "Read",
-        "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/k/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
-        ]
-    }
-],
+      }
+    ],
     "PermissionRequest": [
       {
         "hooks": [
@@ -284,30 +224,20 @@
       }
     ],
     "SubagentStart": [
-    {
+      {
         "matcher": "*",
         "hooks": [
-            {
-                "type": "command",
-                "command": "sh /Users/k/.claude/hooks/cbm-subagent-reminder",
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
-        "matcher": "*",
-        "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/k/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
-        ]
-    }
-]
+      }
+    ]
   },
   "statusLine": {
     "type": "command",

@@ -27,10 +27,10 @@ or MCP wiring.
 
 **Never run `codebase-memory-mcp install` yourself.** Its write replaces whole
 hook arrays in `~/.claude`, deleting other tools' hooks. Only
-`radin cbm-config install` may run it, because it snapshots first and
-restores after. When the user wants the full wiring, run that and report its
-`RESTORED`/`INTACT` lines as-is; it exits non-zero naming
-`radin cbm-hooks all` as the fallback when it cannot. Otherwise use the
+`bash ~/.claude/.radin/lib/radin-cbm-config.sh install` may run it, because it
+snapshots first and restores after. When the user wants the full wiring, run
+that and report its `RESTORED`/`INTACT` lines as-is; it exits non-zero naming
+`radin hooks all` as the fallback when it cannot. Otherwise use the
 merge-only path below.
 
 ## Steps
@@ -44,7 +44,7 @@ merge-only path below.
 3. On yes:
 
    ```bash
-   radin cbm-hooks all
+   radin hooks all
    ```
 
 4. On no: stop, write nothing.

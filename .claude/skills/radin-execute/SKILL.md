@@ -58,7 +58,7 @@ you.
   worktree and never call `radin-state.sh prepare`, whatever Phase 0.5
   recorded. N of them to send is N `Task` calls in one message, however large
   the wave. The bullet below governs execution sub-agents, and only them.
-- **One execution sub-agent at a time.** Dispatch one task, wait for its `STATUS:` line, finish its bookkeeping, then dispatch the next. Never put two `Task` calls in one message, however independent the tasks look. Batching other tool calls stays fine -- this rule is about `Task` only, and about execution sub-agents only: read-only dispatches stay parallel per Core Constraints.
+- **Concurrency allowed, and only under these conditions.** Several execution sub-agents may run in the same turn when they share no `depends_on` chain and no files, and only when Phase 0.5 recorded the worktree answer as yes -- parallel agents in one worktree corrupt each other commits. Worktree answer is no, or file overlap is at all unclear: dispatch strictly one at a time. Launch parallel ones in one message. Per-task steps stay unchanged, and each targets that task own tree, resolved for you by `radin-state.sh dirty-recover` -- its own dirty check, its own commit, its own `task-done`. Never check the shared checkout while another agent is in flight: you would stash a sibling task work out from under it.
 
 ## Clarifying Ambiguity
 
@@ -68,7 +68,7 @@ so the sub-agent gets the user's answer instead of your guess at what the entry
 meant.
 
 A sub-agent's `STATUS: BLOCKED` routes through
-`/Users/k/.claude/.radin/lib/radin-execute-clarify.md`: read it and follow it — it holds
+`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-clarify.md`: read it and follow it — it holds
 the routing for both tags, the fact-finder handoff, the research arm for a
 fact that lives outside this repo, and the `backlog append` labels that put a
 settled answer where planning and execution sub-agents read it.
@@ -121,7 +121,7 @@ already answered, so ask nothing and change nothing. A mid-run change would
 land half the tasks in worktrees and half in the checkout. Exit 1
 means no answer
 is recorded yet — only the first run in a repo — so read
-`/Users/k/.claude/.radin/lib/radin-execute-session.md` and follow it to ask and
+`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-session.md` and follow it to ask and
 persist them.
 
 ## Phase 1: Read and Prioritize
@@ -147,7 +147,7 @@ persist them.
    Exit 1: nothing to recover, continue to step 4. Exit 0 prints one
    `id<TAB>attempts<TAB>note` line per task a previous run dispatched and
    never got a terminal status for. Never re-dispatch one blind: read
-   `/Users/k/.claude/.radin/lib/radin-execute-recovery.md` and follow it for
+   `/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-recovery.md` and follow it for
    each id. Most runs skip this file entirely.
 4. Ask the CLI whether a ranking pass is needed at all:
 
@@ -158,7 +158,7 @@ persist them.
    Exit 1: every entry carries a priority. No task body read, no criteria
    pass, no dependency inference — go to Phase 2. Exit 0: it printed the ids
    whose `priority` is unset. Read
-   `/Users/k/.claude/.radin/lib/radin-prioritization.md` and apply its weighted
+   `/Users/clement.vannicatte/.claude/.radin/lib/radin-prioritization.md` and apply its weighted
    criteria to those ids alone. It produces two things: the unset group in
    your order, as one `--rank <csv-of-ids>` flag, and one
    `--infer-deps <id>=<csv>` flag per entry you inferred a dependency for.
@@ -225,33 +225,6 @@ is deferred. Resolving that free text to ids is yours;
 filtering, renumbering and the `depends_on` precedence are not — every listed
 task keeps the `order` number the user just confirmed.
 
-## Phase 3.5: Plan Wave
-
-Every task the user just confirmed gets its plan written before the first
-execution sub-agent is dispatched, and they are all dispatched together. Read
-`/Users/k/.claude/.radin/lib/radin-execute-prompts.md` once now — it holds every
-verbatim sub-agent prompt this run sends, and this is the first phase that
-sends one.
-
-```bash
-radin state plan-wave "$NAMESPACE_DIR"
-```
-
-Exit 1: every pending task already carries a `**Plan:**` pointer, so go to
-Phase 4. Exit 0 prints one `plan<TAB><id>` line per task that needs one, lowest
-order first. Send the **Planning prompt** from `radin-execute-prompts.md` once
-per printed id, replacing `TASK_ID`, and put every one of those `Task` calls in
-one message, per Core Constraints. Substitute nothing else into them: a
-planning sub-agent gets no tree and no dependency list.
-
-Then route the whole wave, once all of its reports are in:
-
-- `STATUS: PLANNED`: nothing to record. Phase 4 reads the pointer off disk.
-- `STATUS: BLOCKED (FACT)` / `BLOCKED (DECISION)`: route every blocked task
-  through Clarifying Ambiguity, then re-run `plan-wave` and send the second
-  wave the same way. Run this phase at most twice per invocation: a task still
-  unplanned after the second wave belongs to Step 4a, not here.
-
 ## Phase 4: Task Execution Loop
 
 `radin state task-next` computes the **frontier** — the pending, unblocked
@@ -286,14 +259,17 @@ radin backlog field "<task id>" PLAN_PATHS
 backlog may have moved since Phase 3): mark the task `blocked` with that
 call's output as its `note` and continue to the next task.
 
-Phase 3.5's wave normally already satisfied this, so exit 1 here is the
-residual case: a task the wave could not plan, or one re-entering Step 4a
-after a settled block. `PLAN_PATHS` exit 0: a plan exists, skip to Step 4b.
-Exit 1: no plan, so delegate planning — unconditionally, with no judgment of
-the task's size or shape. The planning sub-agent owns `/radin-plan` (your
-context is the session's budget), and the plan file it leaves on disk is the
-whole handoff. Send the **Planning prompt** from
-`radin-execute-prompts.md`, replacing `TASK_ID`.
+`PLAN_PATHS` exit 0: a plan exists — `/radin-plan` wrote it, or an earlier
+Step 4a did — so skip to Step 4b. Exit 1: no plan, so delegate planning —
+unconditionally, with no judgment of the task's size or shape. Planning
+happens here, one task before its own execution dispatch, so the plan is
+written against the tree the previous tasks' commits already left behind.
+The planning sub-agent owns `/radin-plan` (your context is the session's
+budget), and the plan file it leaves on disk is the whole handoff. Read
+`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-prompts.md` now if this run has not yet — it holds
+every verbatim sub-agent prompt — and send its **Planning prompt**, replacing
+`TASK_ID`. Substitute nothing else: a planning sub-agent gets no tree and no
+dependency list.
 
 - `STATUS: PLANNED`: proceed to Step 4b.
 - `STATUS: BLOCKED (FACT|DECISION)`: route per Clarifying Ambiguity, then
@@ -430,7 +406,7 @@ radin state report "$NAMESPACE_DIR" "<one dropped-skill line per skill Step 4b d
 ```
 
 Print its output verbatim. Read
-`/Users/k/.claude/.radin/lib/radin-execute-reporting.md` for the two things it
+`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-reporting.md` for the two things it
 cannot do.
 
 ## Phase 6: Review
@@ -442,7 +418,7 @@ cannot do.
   session's work, run /radin-review with scope: <commit hashes recorded in
   Phase 4>.`
 
-Reviewer sub-agent (`model: "sonnet"`). The
+Reviewer sub-agent (`model: "opus"`). The
 `radin-review` skill already owns the review-and-log flow, so send exactly:
 
 ```
@@ -458,7 +434,7 @@ from the invoking prompt: <instructions, or "none">.
 
 - **Resume, and recovery after a compaction**: `BACKLOG_STEPS.json` already
   exists at startup, or earlier turns got summarized away. Either way, read
-  `/Users/k/.claude/.radin/lib/radin-execute-resume.md` and follow it: it holds
+  `/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-resume.md` and follow it: it holds
   the resume triage, the `MAX_ATTEMPTS` exception, and the state-persistence
   contract that lets you continue from disk rather than memory. A run that
   starts clean and stays in context never loads it.
