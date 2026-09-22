@@ -29,9 +29,9 @@ set -q HOMEBREW_PREFIX; or brew shellenv | source
 
 # Real tool paths, not shims: a shim execs the 150MB mise binary, and Falcon
 # rescans it every time (~280ms per command). This pays that once per shell.
-# Stamped on config.toml's mtime, so a long-lived parent (tmux server, Ghostty)
-# cannot pin children to a PATH that predates a tool being added.
-set -l mise_stamp (path mtime ~/.config/mise/config.toml)
+# Stamped on every config that feeds this PATH, so a long-lived parent (tmux
+# server, Ghostty) cannot pin children to a PATH that predates a tool bump.
+set -l mise_stamp (path mtime ~/.config/mise/config.toml (path filter -f mise.toml mise.local.toml .mise.toml) | string join -)
 if test "$__MISE_STAMP" != "$mise_stamp"
     mise env -s fish | source
     set -gx __MISE_STAMP $mise_stamp
