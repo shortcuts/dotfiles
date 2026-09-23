@@ -99,14 +99,10 @@ STL/.DS_Store
 !.claude/skills/
 !.claude/skills/documentation/
 !.claude/skills/documentation/**
-!.claude/skills/branch-auditor-pgpemu/
-!.claude/skills/branch-auditor-pgpemu/**
 !.claude/skills/radin-*/
 !.claude/skills/radin-*/**
 !.claude/skills/explain/
 !.claude/skills/explain/**
-!.claude/skills/new-rules-of-context-engineering-claude-5/
-!.claude/skills/new-rules-of-context-engineering-claude-5/**
 !.claude/skills/no-ai-slop/
 !.claude/skills/no-ai-slop/**
 !.claude/skills/release-candidate/

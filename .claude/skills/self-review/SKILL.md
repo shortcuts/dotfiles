@@ -71,7 +71,8 @@ So weigh before you read. Diff size is the cheapest proxy, and it comes per
 repository:
 
 ```bash
-gh pr list --author "@me" --repo <owner/repo> --state merged --limit 300 \
+gh pr list --author "@me" --repo <owner/repo> --state merged --limit 1000 \
+  --search "merged:<since>..<until>" \
   --json number,title,additions,deletions \
   --jq 'sort_by(-(.additions + .deletions))[] | "\(.additions + .deletions)\t#\(.number)\t\(.title)"'
 ```

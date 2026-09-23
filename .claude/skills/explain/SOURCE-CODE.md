@@ -23,8 +23,9 @@ commit subjects (`PROJ-1234` for Jira, `ENG-456` for Linear) -
 docs, runbooks, dashboards, and earlier PRs the discussion names.
 
 For code as it stands, read the code, then recover what it cannot state.
-`git log --follow <path>` gives the commits that shaped it. `gh pr list --search <path>`
-gives the discussions behind it.
+`git log --follow <path>` gives the commits that shaped it. Map the commits that matter
+to their PRs with the `commits/SHA/pulls` call above: PR search matches text, not the
+files a PR changed.
 
 ## Repository conventions
 

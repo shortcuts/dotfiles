@@ -11,8 +11,9 @@ first. A product URL means web search for the product and its audience.
 
 Lead every entry with the **benefit**, not the change:
 
-- "Implemented Redis caching layer for dashboard API endpoints" → "Dashboards now load up
-  to 3× faster, so you spend less time waiting and more time analyzing."
+- "Implemented Redis caching layer for dashboard API endpoints" → "Dashboards now load
+  faster, so you spend less time waiting and more time analyzing." Quote a speedup only
+  when the source gives the number.
 - "Fixed race condition in concurrent checkout flow" → "Fixed an issue where some orders
   could fail during high-traffic periods."
 

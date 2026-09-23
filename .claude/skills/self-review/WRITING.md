@@ -45,6 +45,9 @@ from the heavy PR bodies, in this order:
    the theme.
 3. **The parts.** Two or three things they built inside it, named concretely.
 
+Illustrative only: take the shape, not the wording. Each opening sounds like its own
+system.
+
 ```markdown
 ### AI Enrichment
 

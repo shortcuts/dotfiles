@@ -68,7 +68,7 @@ response carries no new-or-duplicate flag.
 1. Ask the user for a fresh cURL command, copied from the browser's network
    tab (right-click a request → Copy as cURL).
 2. Copy every `Cookie:` value from that cURL into the `cookie` variable in
-   `inv.sh`. The site now requires three cookies: `remember_web`,
+   `inv.sh`. The site requires three cookies: `remember_web`,
    `adonis-session`, `kv39z1y2gb1c10y49ory5hms`. One cookie alone returns
    `Unauthorized access`.
 3. Test `fetch_gold` (the `farm-sync` call) directly with `curl`, using the
