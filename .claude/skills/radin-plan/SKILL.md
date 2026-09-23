@@ -21,7 +21,8 @@ settle is reported and stops the run.
 radin backlog plan-target "<scope id/title/keyword>"
 ```
 
-It prints `id`/`title`/`task_file`/`plan_file` lines, plus one
+It prints `id`/`title`/`task_file`/`plan_file` lines, plus a
+`facts<TAB><path>` line when the entry carries one, plus one
 `plan<TAB><path>` line per plan the entry already has. Route on its exit code:
 
 - **0**: resolved and unplanned. Use it.
@@ -71,57 +72,34 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
    project's own vocabulary into the plan — its glossary or domain-model doc
    where it has one — and respect any ADR covering the area you're touching.
 
-   - Use `codebase-memory-mcp`'s MCP tools before Grep/Glob/Read:
-     `get_architecture` for the shape of an unfamiliar area, `search_graph` to
-     find the symbols in scope, `trace_path` for every caller and callee the
-     plan will touch, `get_code_snippet` to read one function, `query_graph`
-     (after `get_graph_schema`) for anything Cypher-shaped. Run
-     `index_repository` first when `list_projects` doesn't list this repo — a graph hit is a pointer: read the file before you cite or edit it, and never conclude something is absent from an empty result.
-   - Prefer `rtk`-wrapped commands when `command -v rtk` succeeds. Add
-     `headroom loc` for the shape of a repo you have not seen before, when
-     `command -v headroom` succeeds.
+   - Ask `codebase-memory-mcp`'s MCP tools before Grep/Glob/Read: its own
+     skill names the verbs, and its hooks route the search either way.
    - A plan hinging on third-party API or library behavior that local code
-     cannot confirm: read the entry's `**Fact:**` lines and its `**Facts:**`
-     file first, because an earlier invocation may already have answered it.
-     - **Running in the user's own thread**: hand the question to the research
-       companion, so its reading happens in the background while you plan the
-       parts that do not hinge on the answer. Gate it:
+     cannot confirm: read the entry's `**Fact:**` lines and the `facts` file
+     Step 1 printed first, because an earlier invocation may already have
+     answered it.
+     Still open, and running in the user's own thread: hand the question to
+     `/mattpocock-skills:research` naming
+     `$NAMESPACE_DIR/state/facts/<task-id>.md` as the file to write to, plan
+     the parts that do not hinge on the answer meanwhile, and record what it
+     reports so the next invocation reads it instead of re-researching:
 
-       ```bash
-       source <(radin backlog env --export)
-       command -v claude >/dev/null 2>&1 &&
-         claude plugin list 2>/dev/null |
-         grep -q mattpocock-skills@claude-plugins-official
-       ```
+     ```bash
+     source <(radin backlog env --export)
+     radin backlog append "<id>" <<'EOF'
+     **Fact:** <the answer in one sentence, naming the source that owns it>
+     EOF
+     radin backlog set-meta "<id>" facts "<the state/facts path above>"
+     ```
 
-       Exit 0: invoke `/mattpocock-skills:research` with the question, naming
-       `$NAMESPACE_DIR/state/facts/<task-id>.md` as the file to write its
-       findings to. When it reports, record the answer so the next invocation
-       reads it instead of re-researching:
-
-       ```bash
-       radin backlog append "<id>" <<'EOF'
-       **Fact:** <the answer in one sentence, naming the source that owns it>
-       **Facts:** <the state/facts path above>
-       EOF
-       ```
-
-       Non-zero exit, or the skill asks you anything: drop it, never wait on
-       it, and treat the question as unsettled from here — name it in the
-       report and stop.
-     - **Non-interactive**: the answer lies outside this repo, so report the
-       question and stop. `radin-execute`'s router owns the research arm for it
-       (`radin-execute-clarify.md`) and appends the answer to this task's file,
-       so the next planning wave reads it and this stop is a pause, not a loss.
-3. Sketch the seams at which the change will be tested. Prefer an existing seam
-   to a new one, and use the highest seam available. If new seams are needed,
-   propose them at the highest point you can. The fewer seams across the
-   codebase, the better — the ideal number is one.
-
-   Interactive: check with the user that these seams match their expectations,
-   before anything is written.
-   Non-interactive: record the seam you chose in the plan's `## Testing`
-   section and write on.
+     No plugin, or the skill asks you anything: drop it, never wait on it, and
+     name the question in the report. Non-interactive: name it and stop —
+     `radin-execute`'s router owns the research arm
+     (`lib/radin-execute-clarify.md`) and appends the answer to this task's
+     file, so the next planning wave reads it.
+3. Sketch the seam the change will be tested at: the highest existing one, and
+   a new one only at the highest point available. Interactive: confirm it with
+   the user before anything is written. Non-interactive: write on.
 4. Invoke `/ponytail:ponytail` and apply its ladder to produce the plan. When
    the plan has to place a new module boundary or reshape an interface, invoke
    `/mattpocock-skills:codebase-design` for that part instead of inventing
@@ -135,23 +113,21 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
 5. Save the plan at the `plan_file` path Step 1 printed. For a sub-task from a
    split, re-run `plan-target "<id>" "<sub-slug>"` with the sub-task's short
    title in lowercase-hyphen form and use the `plan_file` it prints.
-6. Insert the pointer via the CLI (appends `**Plan:** <path>` to the task's
-   file, after any earlier `**Plan:**` lines):
+6. Insert the pointer via the CLI (adds the path to the entry, after any
+   earlier plan pointer):
 
    ```bash
    radin backlog add-plan "<id>" "<the plan_file path>"
    ```
 
-7. Report: `✅ <id> planned. Plan: <path>. Review findings: <n or none>.` The
-   count comes from Step 4, so write this line after that sub-task's review
-   pass, not before it.
+7. Report: `✅ <id> planned. Plan: <path>. Review findings: <n> standards,
+   <n> spec.` The counts come from Step 4, so write this line after that
+   sub-task's review pass, not before it.
 
-Planning and executing are separate tools, so this skill's whole output is the
-plan file(s) it writes plus the one `**Plan:**` line the CLI appends to the
-scoped task's file. Everything else in the tree stays exactly as you found it:
-no source file edited, no build or test run, no commit, and no other task's
-file touched. The one addition to the scoped task's file beyond that `**Plan:**`
-line is the `**Fact:**`/`**Facts:**` pointer, when research ran.
+This skill's whole output is the plan file(s) it writes, plus the plan
+pointer — and the `**Fact:**` line and `facts` pointer, when research ran —
+that the CLI records against the scoped task. Nothing else in the tree
+changes: no source file edited, no build or test run, no commit.
 
 ### The plan template
 
@@ -164,8 +140,6 @@ label with nothing under it goes nowhere.
 # Plan: <task title>
 
 **Task:** `<task id>` — <the `task_file` path Step 1 printed>
-**Reading this:** the entry holds the problem, the acceptance criteria and
-every `**Decision:**` line; this plan holds the how and restates none of it.
 
 ## Outcome
 
@@ -178,13 +152,11 @@ one settled here. Each entry in the format:>
 
 1. <The question> → <the settled answer>. Why: <one line>.
 
-<Every claim about the current code carries its source inline — `path:line`, or
-the read-only command that produced it. Every claim about third-party behavior
-names the source that owns it — official docs, source code, a spec, or a
-first-party API. A claim with no such source is an open question, so it ends
-the run per Step 3's step 4 rather than entering a plan step.>
-
-<A decision the executor has to invent is a defect in this plan.>
+<Every claim carries its source inline: `path:line` or the read-only command
+that produced it for current code, the owning docs/spec/API for third-party
+behavior. A claim with no source is an open question, which ends the run per
+Step 3's step 4 rather than entering a plan step, and a decision the executor
+has to invent is a defect in this plan.>
 
 ## Changes
 
@@ -221,18 +193,46 @@ above.">
 
 </plan-template>
 
-## Step 4: Review each plan before handing it off
+## Step 4: Review each plan on both axes
 
-A plan is a proposal, so review it before `radin-execute` builds on it. For
-each plan file just written:
+The plan is the cheapest place to correct the work. Review it on the two axes
+`skills/radin-review/SKILL.md` runs over code — Standards against this repo's
+rubrics, Spec against the entry — kept separate for the same reason.
 
-1. Invoke `/thermo-nuclear` against the plan file's content (not the
-   codebase): does the proposed approach itself carry a structural issue
-   the rubric flags?
-2. Invoke `/ponytail:ponytail-review` against the same file: speculative
-   flexibility, reinvented stdlib, single-caller layers?
-3. Fix each finding by editing the plan file in place. The fix belongs in
-   the plan itself, and nothing goes to the backlog.
+Per plan file, dispatch both axes in one message as two parallel sub-agents.
+Each brief names two absolute paths — the plan file, and the `task_file` Step 1
+printed — and says "read both in full before reviewing". The plan file is the
+whole review surface: every finding cites one section and entry inside it, and
+the repo supplies context only.
+
+Non-interactive: run both briefs inline, Standards first. A non-interactive
+`radin-plan` is itself a sub-agent and cannot rely on getting a spawned agent's
+result (`docs/technical-constraints.md`).
+
+**Standards brief.** Invoke `/thermo-nuclear` against the plan's content, then
+`/ponytail:ponytail-review` against the same content. Report every structural
+issue the rubric flags in the approach, and every place the plan breaks its own
+template contract — a speculative abstraction in `## Changes`, a `## Decisions`
+claim carrying no source. Under 400 words.
+
+**Spec brief.** The entry is the spec. Report (a) every acceptance criterion no
+`## Changes` entry implements and no `## Testing` box checks; (b) every
+`## Changes` entry no criterion asks for, and where `## Out of scope` would put
+it; (c) every `**Decision:**` line the plan contradicts. Quote the entry's line
+for each finding. Under 400 words.
+
+Relay both reports under `## Standards` and `## Spec` headings before editing
+anything, each axis in its own order and neither reranked against the other.
+
+Then fix each finding by editing the plan file in place. The fix lands in the
+plan, and the backlog gains nothing: `radin-review` logs findings against code
+that exists, and nobody has written this code yet.
+
+One class of finding outruns an edit — a finding that the approach itself is
+wrong, or that leaves a decision for the executor to invent. Invoke
+`/mattpocock-skills:grilling` over those findings, one at a time, and fold each
+settled answer into the plan's `## Decisions` before starting the next one.
+Non-interactive: report the finding and stop, on Step 3's step 4 bound.
 
 ## Step 5: Report back
 

@@ -13,8 +13,8 @@ You are a **router**: you prioritize the backlog, dispatch every
 implementation step to a sub-agent, and record status. The pull to just fix it
 yourself is the signal you are about to read something a sub-agent should be
 reading — dispatch instead. Absent a dispatch, produce status, not code. You
-never implement, and `/radin-plan` is the planner: a task carrying a
-`**Plan:**` pointer goes to the sub-agent as-is, its approach already settled.
+never implement, and `/radin-plan` is the planner: a task whose entry carries
+a plan pointer goes to the sub-agent as-is, its approach already settled.
 
 Your context is the session's budget. Hold the backlog at low resolution —
 ids, titles, order, exit codes — and leave every zoom to a sub-agent: a task
@@ -26,17 +26,13 @@ you.
 
 ## Core Constraints
 
-- **Every sub-agent you dispatch is a leaf.** A sub-agent cannot rely on
-  getting a spawned agent's result, so one that sub-delegates ends its turn
-  with no terminal status; `radin-execute-prompts.md` states that inside each
-  prompt.
 - **Claude Code decides foreground or background**, so send every `Task` call
   with no `run_in_background`. A backgrounded leaf's result reaches you as a
   completion notification in a later turn: wait for it, then report that task's
-  outcome. A task reaches its **terminal status** only when you record one on
-  disk — `task-done`, `task-fail` or `dirty-recover`, per Step 4b — so a
-  dispatch that hands back no `STATUS:` line leaves it unfinished: its
-  `attempts` is already bumped, and Phase 1's stuck-recovery owns it next run.
+  outcome. A task reaches its **terminal status** only when `state task-report`
+  records one on disk, so a dispatch that hands back nothing leaves it
+  unfinished: its `attempts` is already bumped, and Phase 1's stuck-recovery
+  owns it next run.
 - **The user's answers are binding.** Carry each one forward exactly as given:
   the execution order, the worktree and branch preferences, and the
   concurrency rule below are decisions, not hints. A `no` especially — nothing
@@ -58,7 +54,7 @@ you.
   worktree and never call `radin-state.sh prepare`, whatever Phase 0.5
   recorded. N of them to send is N `Task` calls in one message, however large
   the wave. The bullet below governs execution sub-agents, and only them.
-- **Concurrency allowed, and only under these conditions.** Several execution sub-agents may run in the same turn when they share no `depends_on` chain and no files, and only when Phase 0.5 recorded the worktree answer as yes -- parallel agents in one worktree corrupt each other commits. Worktree answer is no, or file overlap is at all unclear: dispatch strictly one at a time. Launch parallel ones in one message. Per-task steps stay unchanged, and each targets that task own tree, resolved for you by `radin-state.sh dirty-recover` -- its own dirty check, its own commit, its own `task-done`. Never check the shared checkout while another agent is in flight: you would stash a sibling task work out from under it.
+- **One execution sub-agent at a time.** Dispatch one task, wait for its `STATUS:` line, finish its bookkeeping, then dispatch the next. Never put two `Task` calls in one message, however independent the tasks look. Batching other tool calls stays fine -- this rule is about `Task` only, and about execution sub-agents only: read-only dispatches stay parallel per Core Constraints.
 
 ## Clarifying Ambiguity
 
@@ -68,7 +64,7 @@ so the sub-agent gets the user's answer instead of your guess at what the entry
 meant.
 
 A sub-agent's `STATUS: BLOCKED` routes through
-`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-clarify.md`: read it and follow it — it holds
+`/Users/k/.claude/.radin/lib/radin-execute-clarify.md`: read it and follow it — it holds
 the routing for both tags, the fact-finder handoff, the research arm for a
 fact that lives outside this repo, and the `backlog append` labels that put a
 settled answer where planning and execution sub-agents read it.
@@ -121,7 +117,7 @@ already answered, so ask nothing and change nothing. A mid-run change would
 land half the tasks in worktrees and half in the checkout. Exit 1
 means no answer
 is recorded yet — only the first run in a repo — so read
-`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-session.md` and follow it to ask and
+`/Users/k/.claude/.radin/lib/radin-execute-session.md` and follow it to ask and
 persist them.
 
 ## Phase 1: Read and Prioritize
@@ -147,7 +143,7 @@ persist them.
    Exit 1: nothing to recover, continue to step 4. Exit 0 prints one
    `id<TAB>attempts<TAB>note` line per task a previous run dispatched and
    never got a terminal status for. Never re-dispatch one blind: read
-   `/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-recovery.md` and follow it for
+   `/Users/k/.claude/.radin/lib/radin-execute-recovery.md` and follow it for
    each id. Most runs skip this file entirely.
 4. Ask the CLI whether a ranking pass is needed at all:
 
@@ -158,7 +154,7 @@ persist them.
    Exit 1: every entry carries a priority. No task body read, no criteria
    pass, no dependency inference — go to Phase 2. Exit 0: it printed the ids
    whose `priority` is unset. Read
-   `/Users/clement.vannicatte/.claude/.radin/lib/radin-prioritization.md` and apply its weighted
+   `/Users/k/.claude/.radin/lib/radin-prioritization.md` and apply its weighted
    criteria to those ids alone. It produces two things: the unset group in
    your order, as one `--rank <csv-of-ids>` flag, and one
    `--infer-deps <id>=<csv>` flag per entry you inferred a dependency for.
@@ -263,13 +259,16 @@ call's output as its `note` and continue to the next task.
 Step 4a did — so skip to Step 4b. Exit 1: no plan, so delegate planning —
 unconditionally, with no judgment of the task's size or shape. Planning
 happens here, one task before its own execution dispatch, so the plan is
-written against the tree the previous tasks' commits already left behind.
-The planning sub-agent owns `/radin-plan` (your context is the session's
-budget), and the plan file it leaves on disk is the whole handoff. Read
-`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-prompts.md` now if this run has not yet — it holds
-every verbatim sub-agent prompt — and send its **Planning prompt**, replacing
-`TASK_ID`. Substitute nothing else: a planning sub-agent gets no tree and no
-dependency list.
+written against the tree the previous tasks' commits already left behind, and
+the plan file it leaves on disk is the whole handoff:
+
+```bash
+radin prompt planning "<task id>"
+```
+
+It prints `model<TAB><name>`, a `--- prompt ---` line, then the prompt. Send
+everything after that line as one `Task` call with exactly that model.
+Substitute nothing and add nothing: the CLI assembled it.
 
 - `STATUS: PLANNED`: proceed to Step 4b.
 - `STATUS: BLOCKED (FACT|DECISION)`: route per Clarifying Ambiguity, then
@@ -289,113 +288,66 @@ Exit 0 prints `attempts<TAB><n>`. Exit 2 means the task has been dispatched
 `MAX_ATTEMPTS` times without ever reaching a terminal status; the CLI already
 marked it `blocked`. Report it and continue to the next task. Do not retry.
 
-Dispatch under the concurrency rule in Core Constraints: it decides whether
-this task's `Task` call may share a message with another's. Send the
-**Execution prompt** from `radin-execute-prompts.md` and substitute exactly the
-placeholders its own substitution note names — one call per placeholder, right
-before substituting, each value that call's stdout verbatim:
+Then take the prompt from the CLI, and dispatch it under the concurrency rule
+in Core Constraints — it decides whether this task's `Task` call may share a
+message with another's:
 
 ```bash
-radin backlog field "<task id>" <TASK_FILE|TASK_ID|CATEGORY|PLAN_PATHS|SKILLS|ACCEPTANCE>
-```
-
-`NAMESPACE_DIR` is `$NAMESPACE_DIR`, and `DEPENDS_ON` is the `dep` pairs
-`task-next` printed as `<id>: <commit hash>`, or "none". Pass the CLI's read of
-the task through untouched: `CATEGORY` picks the discipline skill and `SKILLS`
-carries the user's standing instructions, both already filtered by the CLI's
-deny-list, so your own read of the task's shape or of whether a skill fits
-never enters the prompt.
-
-Then name every dropped skill in the Phase 5 summary so the user can run it
-themselves:
-
-```bash
+radin prompt execution "<task id>"
 radin backlog field "<task id>" SKILLS_DROPPED
 ```
 
-Exit 0 prints the instructions `SKILLS` filtered out; exit 1 means none were
-dropped, the common case.
+`prompt` prints `model<TAB><name>`, a `--- prompt ---` line, then the prompt:
+send everything after that line verbatim, with that model. It resolved the
+task's text, plan, skills, acceptance criteria, dependency commits and
+category itself, and left out every step this task has no input for — so your
+own read of the task's shape never enters the prompt, and there is no
+placeholder to substitute. `SKILLS_DROPPED` exit 0 prints the standing
+instructions the CLI filtered out as unrunnable by a leaf; name each in the
+Phase 5 summary so the user can run it themselves. Exit 1 — the common case —
+means none were dropped.
 
-Step 4b is done for a task when one of `task-done`, `task-fail` or
-`dirty-recover` has recorded its outcome on disk — nothing earlier counts as
-done, whatever the sub-agent's prose says.
-
-When the sub-agent reports, its `STATUS:` line drives what happens next,
-never your own read of the surrounding prose. But first, verify the tree the
-sub-agent actually worked in — the CLI resolves it, stashes it and fails the
-task if it is dirty, whatever the `STATUS:` said:
+When the sub-agent reports, hand its last line to one call. It verifies the
+tree first (a dirty tree fails the task, whatever the `STATUS:` claimed), then
+records the terminal state and prints the report line:
 
 ```bash
-radin state dirty-recover "$NAMESPACE_DIR" "<task id>" "<STATUS value>"
+radin state task-report "$NAMESPACE_DIR" "<task id>" "<the sub-agent's STATUS: line>"
 ```
 
-Exit 0: it printed the finished report line, so print that and continue to
-the next task. Exit 1: the tree is clean, so route on `STATUS:`:
+Two dispatches hand back no such line. A last line that is not a `STATUS:`
+line — it asked something, hit an interactive skill, or died mid-turn — goes
+in as `--no-status "<its final line>"` instead. A sub-agent with no content at
+all is still working, whatever the elapsed time suggests: wait, and if your
+turn ends first, leave the entry `in_progress` for Phase 1's stuck-recovery.
 
-- **`SUCCESS`**: note the commit hash (or the pre-existing hash it cites),
-  then run the bookkeeping command now, not deferred to Phase 5, since a stop
-  can prevent Phase 5 from running. It validates the hash, records it in
-  `completed.json`, removes the backlog entry, and removes the
-  `BACKLOG_STEPS.json` line, in crash-safe order:
+Print what the call printed, then route on its final `next` line and nothing
+else:
 
-  ```bash
-  radin state task-done "$NAMESPACE_DIR" "<task id>" "<commit hash>"
-  ```
+| `next` | Do |
+| --- | --- |
+| `continue` | Recorded on disk. Go to Step 4c. |
+| `debug` | This task still has its one debug pass. Dispatch `radin prompt debug "<task id>" "<the reason from the STATUS: line>"`. `STATUS: DIAGNOSED`: record it, then re-run this task from Step 4b — `start` bumps `attempts`, so the cap still ends it. `STATUS: NOT DIAGNOSED`: re-run `task-report` with the same line, which routes to `continue` this time. |
+| `clarify FACT` / `clarify DECISION` | Route per Clarifying Ambiguity. Once settled, re-run this task from Step 4a. |
 
-  Report: `✅ Task <order> '<title>' complete. <STATUS detail>. Remaining: <count>.`
-  Exit 3 means the hash is not a commit reachable from the task's branch, so
-  the `SUCCESS` is unsupported: treat it as `FAILED` below, with the CLI's
-  message as the reason.
+```bash
+radin state task-diagnosis "$NAMESPACE_DIR" "<task id>" <<'EOF'
+<the diagnosis>
+EOF
+```
 
-  Take the `STATUS:` line as the outcome and move to the next frontier task.
-  Never verify a `SUCCESS` yourself: no verification sub-agent, and no
-  re-reading the diff — that read is the cost Phase 6's `/radin-review` pass
-  exists to avoid.
-- **`BLOCKED (FACT)` / `BLOCKED (DECISION)`**: route per Clarifying
-  Ambiguity. Once settled, re-run this task from Step 4a.
-- **`FAILED`**: hand the reason to the CLI, which decides whether this task
-  still has a debug pass left:
-
-  ```bash
-  radin state task-fail "$NAMESPACE_DIR" "<task id>" "<reason from the STATUS: line>"
-  ```
-
-  Exit 3 means diagnose first — a retry carrying no new information fails the
-  same way and burns another attempt — so send the **Debug prompt** from
-  `radin-execute-prompts.md`, substituting `FAILURE` with the reason.
-  - `STATUS: DIAGNOSED`: record it, then re-run this task from Step 4b.
-    `start` bumps `attempts` again, so the cap still ends it.
-
-    ```bash
-    radin state task-diagnosis "$NAMESPACE_DIR" "<task id>" <<'EOF'
-    <the diagnosis>
-    EOF
-    ```
-
-  - `STATUS: NOT DIAGNOSED`, or the task fails again after a diagnosis: run
-    `task-fail` again with the reason. It exits 0 this time, having marked
-    the entry `failed` with the note, and prints the report line.
-- **Content whose last line is not a `STATUS:` line** (it asked something, hit
-  an interactive skill, or died mid-turn): no debug pass, straight to failed —
-  `radin state task-fail "$NAMESPACE_DIR" "<task id>" --no-status "<its
-  final line>"`, then print its line. Its bumped `attempts` stands, so the cap
-  still applies; re-dispatch belongs to the next invocation, not this turn.
-- **No content at all**: the sub-agent is still working, whatever the elapsed
-  time suggests, so wait. If your turn ends first, leave the entry
-  `in_progress` and stop; Phase 1's stuck-recovery picks it up next
-  invocation.
+Never verify a `SUCCESS` yourself: no verification sub-agent, and no
+re-reading the diff — that read is the cost Phase 6's `/radin-review` pass
+exists to avoid. A task is finished when `task-report` has recorded it,
+whatever the sub-agent's prose said.
 
 ### Step 4c: Repeat
 
 Re-run `task-next` for the next frontier task. Exit 0: process that task.
 Exit 1: go to Phase 5.
 Failed, blocked and deferred entries stay in the file for the user to retry
-or decide later. They are not retried within this session, and never block the loop
-from reaching Phase 5.
-
-Every task's state is durable the moment it lands (Step 4b's
-`task-done`/`task-fail`/`dirty-recover` calls), so the user can stop you at any
-point and re-invoke to resume, and completed tasks are never redone.
+or decide later. They are not retried within this session, and never block the
+loop from reaching Phase 5.
 
 ## Phase 5: Final Summary
 
@@ -406,7 +358,7 @@ radin state report "$NAMESPACE_DIR" "<one dropped-skill line per skill Step 4b d
 ```
 
 Print its output verbatim. Read
-`/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-reporting.md` for the two things it
+`/Users/k/.claude/.radin/lib/radin-execute-reporting.md` for the two things it
 cannot do.
 
 ## Phase 6: Review
@@ -418,7 +370,7 @@ cannot do.
   session's work, run /radin-review with scope: <commit hashes recorded in
   Phase 4>.`
 
-Reviewer sub-agent (`model: "opus"`). The
+Reviewer sub-agent (`model: "sonnet"`). The
 `radin-review` skill already owns the review-and-log flow, so send exactly:
 
 ```
@@ -434,7 +386,7 @@ from the invoking prompt: <instructions, or "none">.
 
 - **Resume, and recovery after a compaction**: `BACKLOG_STEPS.json` already
   exists at startup, or earlier turns got summarized away. Either way, read
-  `/Users/clement.vannicatte/.claude/.radin/lib/radin-execute-resume.md` and follow it: it holds
+  `/Users/k/.claude/.radin/lib/radin-execute-resume.md` and follow it: it holds
   the resume triage, the `MAX_ATTEMPTS` exception, and the state-persistence
   contract that lets you continue from disk rather than memory. A run that
   starts clean and stays in context never loads it.
