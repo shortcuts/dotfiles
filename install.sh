@@ -61,13 +61,6 @@ brew install coreutils tmux wget fswatch btop \
     luarocks mac-cleanup-py mole \
     dmtrKovalenko/fff/fff-mcp
 
-# fff MCP server for Claude Code (user scope, stored in ~/.claude.json)
-if command -v claude >/dev/null 2>&1; then
-    claude mcp get fff >/dev/null 2>&1 || claude mcp add --scope user fff -- fff-mcp
-else
-    echo "claude CLI not found, skipping fff MCP registration"
-fi
-
 brew install --cask font-lilex-nerd-font font-jetbrains-mono-nerd-font
 
 # fish as default shell
@@ -83,6 +76,14 @@ fish_update_completions
 # languages and CLIs: versions live in mise/config.toml
 mise install
 mise prune --yes
+
+# fff MCP server for Claude Code (user scope, stored in ~/.claude.json)
+if command -v claude >/dev/null 2>&1; then
+    claude mcp get fff >/dev/null 2>&1 || claude mcp add --scope user fff -- fff-mcp
+else
+    echo "claude CLI not found, skipping fff MCP registration"
+fi
+
 
 brew install lua
 poetry completions fish > ~/.config/fish/completions/poetry.fish
