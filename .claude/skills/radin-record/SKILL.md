@@ -3,9 +3,8 @@ name: radin-record
 description: |
   Log feedback, bugs, follow-ups, or ideas raised mid-session as structured
   backlog entries, so they survive past the conversation. Use for
-  /radin-record, "log this to the backlog", "add as follow-up/bug/idea",
-  "record what we just found", "note this for later", "add findings to
-  backlog". Triggers even on vague asks ("add the findings"): scan the
+  /radin-record or any request to save something from this session for
+  later (a bug, follow-up, idea, or finding). Triggers even on vague asks ("add the findings"): scan the
   whole session, not just the literal text.
 ---
 # Record to Backlog
@@ -56,7 +55,7 @@ A ticket key or a Jira/Confluence URL: fetch it through the Atlassian MCP and
 treat the ticket as more of the user's prompt. No Atlassian MCP, or a failed
 fetch: log from the ask alone, and continue.
 
-## Step 2: Chart each item's open decisions (MANDATORY GATE)
+## Step 2: Chart each item's open decisions
 
 The user is at the keyboard now, and `radin-execute` may later run with nobody
 behind it: settle judgment calls here and execution never has to.

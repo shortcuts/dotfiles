@@ -49,8 +49,8 @@ adds no entry, picks no candidate among several, and overwrites no plan.
 ## Step 2: Judge whether the scope should split
 
 Invoke `/ponytail:ponytail` and apply its ladder: does this entry need more than one
-plan? Lean toward NOT splitting. Split only when the entry genuinely
-bundles multiple unrelated, independently plannable changes.
+plan? Split only when the entry bundles unrelated changes that can each be
+planned on its own.
 
 Interactive: state your read (split or not, and why) and confirm it.
 Non-interactive: take the default (no split) without asking.
@@ -67,8 +67,7 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
 
 1. Read the entry's file. A sub-task from a split has only its one-line
    Step 2 description as scope, so plan just that part.
-2. Explore the repo to understand the current state of the codebase, if you
-   haven't already: structure, affected files, patterns, constraints. Carry the
+2. Explore the repo as far as the plan needs. Carry the
    project's own vocabulary into the plan — its glossary or domain-model doc
    where it has one — and respect any ADR covering the area you're touching.
 
@@ -80,12 +79,11 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
      answered it.
      Still open, and running in the user's own thread: hand the question to
      `/mattpocock-skills:research` naming
-     `$NAMESPACE_DIR/state/facts/<task-id>.md` as the file to write to, plan
+     `<repo root>/.claude/.radin/state/facts/<task-id>.md` as the file to write to, plan
      the parts that do not hinge on the answer meanwhile, and record what it
      reports so the next invocation reads it instead of re-researching:
 
      ```bash
-     source <(radin backlog env --export)
      radin backlog append "<id>" <<'EOF'
      **Fact:** <the answer in one sentence, naming the source that owns it>
      EOF
@@ -207,19 +205,19 @@ the repo supplies context only.
 
 Non-interactive: run both briefs inline, Standards first. A non-interactive
 `radin-plan` is itself a sub-agent and cannot rely on getting a spawned agent's
-result (`docs/technical-constraints.md`).
+result.
 
 **Standards brief.** Invoke `/thermo-nuclear` against the plan's content, then
 `/ponytail:ponytail-review` against the same content. Report every structural
 issue the rubric flags in the approach, and every place the plan breaks its own
 template contract — a speculative abstraction in `## Changes`, a `## Decisions`
-claim carrying no source. Under 400 words.
+claim carrying no source. Report findings only, each as its claim and citation.
 
 **Spec brief.** The entry is the spec. Report (a) every acceptance criterion no
 `## Changes` entry implements and no `## Testing` box checks; (b) every
 `## Changes` entry no criterion asks for, and where `## Out of scope` would put
 it; (c) every `**Decision:**` line the plan contradicts. Quote the entry's line
-for each finding. Under 400 words.
+for each finding. Report findings only, each as its claim and citation.
 
 Relay both reports under `## Standards` and `## Spec` headings before editing
 anything, each axis in its own order and neither reranked against the other.

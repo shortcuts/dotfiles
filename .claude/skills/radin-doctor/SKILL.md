@@ -2,9 +2,8 @@
 name: radin-doctor
 description: |
   Check that radin's own install under ~/.claude is complete and its
-  companion tools are reachable. Use for /radin-doctor, "check my
-  radin install", "is radin installed correctly", "radin doctor", "verify
-  radin install".
+  companion tools are reachable. Use for /radin-doctor or any request to
+  verify or diagnose the radin install.
 ---
 # Doctor
 

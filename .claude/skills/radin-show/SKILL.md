@@ -13,7 +13,7 @@ radin backlog show
 ```
 
 Pass a category when the user narrows the scope ("show me fix items"):
-`backlog show fix`. Otherwise pass none.
+`radin backlog show fix`. Otherwise pass none.
 
 It exits 1 with "no backlog" when the project has none. Tell the user that,
 point them at `radin-record` or `radin-review` to start one, and create no

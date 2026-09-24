@@ -24,8 +24,8 @@ the spec that skill has to hunt for: the backlog entry, or the plan
 `radin-plan` wrote from it.
 
 **Sub-agent caller** — `radin-execute`'s Phase 6 dispatches this skill that
-way, and a sub-agent reaches neither the user nor a spawned agent's result
-(`docs/technical-constraints.md`): run every step inline, Standards axis
+way, and a sub-agent reaches neither the user nor a spawned agent's result:
+run every step inline, Standards axis
 first, skip each `AskUserQuestion`, log every in-scope finding, and say in
 Step 6's report that no triage happened.
 
@@ -76,17 +76,16 @@ these rungs in order and stop at the first that yields a spec:
    plan survives under `plans/`:
 
    ```bash
-   source <(radin backlog env --export)
    radin scope --tasks [<the same scope arg as Step 1>]
    ```
 
    It prints one matched task id per line, and nothing when no commit in scope
    came from a task — a `dir` scope always. For each matched id,
-   `radin state completed-show "$NAMESPACE_DIR/state/completed.json" "<id>"`
+   `radin state completed-show "<id>"`
    names the plan the task ran against and the branch it ran on: its `plan`
    line carries the recorded paths, comma-separated, and those files are the
    spec. Empty `plan` line (a completion recorded before provenance existed):
-   `$NAMESPACE_DIR/plans/<id>.md` when that file exists — an id slug alone is
+   `<repo root>/.claude/.radin/plans/<id>.md` when that file exists — an id slug alone is
    too thin to review a diff against. Several matched ids: every one of their
    plan files is the spec, and the axis covers all of them.
 3. **Ask.** One `AskUserQuestion` offering the top entries from
@@ -120,14 +119,13 @@ rubric, file and rule; and (b) every structural finding the passes raise: name
 it and quote the hunk. A documented repo rubric overrides a pass's generic
 judgement, and a pass finding stays a labelled judgement call
 ("possible <name>") — the label reaches the backlog entry an agent later acts
-on without the review in front of it. Under 400 words.
+on without the review in front of it. Report findings only, each as its claim and citation.
 
 **Spec brief.** Skipped entirely when Step 2 reached rung 4. Report: (a)
 requirements the spec asked for that are missing or only partly implemented;
 (b) behaviour in the scope that the spec never asked for (scope creep); (c)
 requirements that look implemented but whose implementation looks wrong. Quote
-the spec line for each finding, and cite the `path:line` it lands on. Under
-400 words.
+the spec line for each finding, and cite the `path:line` it lands on. Report findings only, each as its claim and citation.
 
 Relay both reports under `## Standards` and `## Spec` headings before any
 triage, each axis in its own order and neither reranked against the other.
