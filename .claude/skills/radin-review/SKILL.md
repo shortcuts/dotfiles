@@ -84,9 +84,7 @@ these rungs in order and stop at the first that yields a spec:
    `radin state completed-show "<id>"`
    names the plan the task ran against and the branch it ran on: its `plan`
    line carries the recorded paths, comma-separated, and those files are the
-   spec. Empty `plan` line (a completion recorded before provenance existed):
-   `<repo root>/.claude/.radin/plans/<id>.md` when that file exists — an id slug alone is
-   too thin to review a diff against. Several matched ids: every one of their
+   spec. Several matched ids: every one of their
    plan files is the spec, and the axis covers all of them.
 3. **Ask.** One `AskUserQuestion` offering the top entries from
    `radin backlog list` as options, with the tool's free-text field

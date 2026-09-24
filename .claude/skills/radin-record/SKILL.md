@@ -160,8 +160,7 @@ radin backlog set-meta <id> acceptance "<criterion>" "<criterion>"
 ```
 
 Once every approved item is added -- each `add` prints its id -- record Step 4's
-dependencies, one call per dependent entry, always after all the adds and never as
-`--depends-on` on `add`:
+dependencies, one call per dependent entry, always after all the adds:
 
 ```bash
 radin backlog set-deps <dependent-id> <csv-of-ids-it-depends-on>

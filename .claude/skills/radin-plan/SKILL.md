@@ -90,8 +90,8 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
      radin backlog set-meta "<id>" facts "<the state/facts path above>"
      ```
 
-     No plugin, or the skill asks you anything: drop it, never wait on it, and
-     name the question in the report. Non-interactive: name it and stop —
+     The skill asks you anything: drop it, never wait on it, and name the
+     question in the report. Non-interactive: name it and stop —
      `radin-execute`'s router owns the research arm
      (`lib/radin-execute-clarify.md`) and appends the answer to this task's
      file, so the next planning wave reads it.
@@ -117,10 +117,6 @@ neither is re-resolved between sub-tasks. For each sub-task, in order:
    ```bash
    radin backlog add-plan "<id>" "<the plan_file path>"
    ```
-
-7. Report: `✅ <id> planned. Plan: <path>. Review findings: <n> standards,
-   <n> spec.` The counts come from Step 4, so write this line after that
-   sub-task's review pass, not before it.
 
 This skill's whole output is the plan file(s) it writes, plus the plan
 pointer — and the `**Fact:**` line and `facts` pointer, when research ran —
@@ -234,6 +230,10 @@ Non-interactive: report the finding and stop, on Step 3's step 4 bound.
 
 ## Step 5: Report back
 
-One line per plan, as Step 3's step 7 already printed it, then:
+One line per plan, with the counts from Step 4's review:
+
+`✅ <id> planned. Plan: <path>. Review findings: <n> standards, <n> spec.`
+
+Then:
 
 `Next: radin-execute (or a human) can implement from the plan(s) above.`
