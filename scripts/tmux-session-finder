@@ -7,7 +7,7 @@ if [[ $# -eq 1 ]]; then
 else
     selected=$(
       {
-        find ~/Documents -mindepth 1 -maxdepth 1 -type d
+        for d in ~/Documents/*/; do printf '%s\n' "${d%/}"; done
         printf '%s\n' \
           "$HOME/.config" \
           "$HOME/Downloads" \
