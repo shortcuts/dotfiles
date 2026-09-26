@@ -20,18 +20,20 @@ if [[ -z $selected ]]; then
     exit 0
 fi
 
-selected_name=$(basename "$selected" | tr . _)
+# parameter expansion, not basename/tr/pgrep/head: every exec pays the endpoint scanner
+selected_name=${selected##*/}
+selected_name=${selected_name//./_}
 selected_path=$(cd "$selected" && pwd -P)
-tmux_running=$(pgrep tmux)
 
-if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
+if [[ -z $TMUX ]] && ! pgrep -q tmux; then
     tmux new-session -s "$selected_name" -c "$selected_path"
     exit 0
 fi
 
 # sessions get renamed on the fly, so match on cwd instead of name
 existing=$(tmux list-sessions -f "#{==:#{session_path},$selected_path}" \
-    -F '#{session_name}' 2>/dev/null | head -1)
+    -F '#{session_name}' 2>/dev/null)
+existing=${existing%%$'\n'*}
 
 if [[ -z $existing ]]; then
     existing=$selected_name

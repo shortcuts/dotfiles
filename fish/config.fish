@@ -1,6 +1,6 @@
 # The following lines were added by Docker Desktop to add commands to your PATH.
-export PATH="$PATH:/Users/clement.vannicatte/.docker/bin"
-export PATH="$PATH:/Users/k/.docker/bin"
+# fish_add_path: export appended a copy per nested shell (tmux, popups)
+fish_add_path -a $HOME/.docker/bin
 # End of Docker Desktop section.
 
 source ~/.config/fish/alias.fish
@@ -55,16 +55,12 @@ if status is-interactive
 
     # Right prompt in pure fish: a second starship exec costs ~32ms per prompt
     # under Falcon's scanner, and $CMD_DURATION already holds what it printed.
-    function __stamp_cmd_start --on-event fish_preexec
-        set -g __cmd_start (date +%H:%M:%S)
-    end
-
     function fish_right_prompt
-        set -q __cmd_start; or return
         set -l d $CMD_DURATION
+        test "$d" -gt 0 2>/dev/null; or return
         set -l dur "$d"ms
         test $d -ge 1000; and set dur (math -s2 $d / 1000)s
-        echo -n (set_color -d white)"in "(set_color -o -d yellow)$dur(set_color -d white)" at $__cmd_start"(set_color normal)
+        echo -n (set_color -d white)"in "(set_color -o -d yellow)$dur(set_color normal)
     end
 
     # Auto-attach tmux, skip if already in tmux
