@@ -1,8 +1,8 @@
 ---
 name: radin-show
 description: |
-  Print the current project's backlog to the terminal. Use for
-  /radin-show, "show me the backlog", "what's in the backlog".
+  Print the current project's backlog to the terminal.
+disable-model-invocation: true
 ---
 # Show Backlog
 

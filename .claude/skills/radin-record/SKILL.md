@@ -1,11 +1,10 @@
 ---
 name: radin-record
 description: |
-  Log feedback, bugs, follow-ups, or ideas raised mid-session as structured
-  backlog entries, so they survive past the conversation. Use for
-  /radin-record or any request to save something from this session for
-  later (a bug, follow-up, idea, or finding). Triggers even on vague asks ("add the findings"): scan the
-  whole session, not just the literal text.
+  Log bugs, follow-ups, ideas or feedback raised this session as backlog
+  entries that outlive the conversation. Use for /radin-record or any ask to
+  save something for later, even a vague one ("add the findings"): scan the
+  whole session.
 ---
 # Record to Backlog
 

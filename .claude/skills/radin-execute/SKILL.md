@@ -1,11 +1,10 @@
 ---
 name: radin-execute
 description: |
-  Work through a project's whole backlog: prioritize every task, execute each
-  via a sub-agent, commit after each. Use when the user wants the entire
-  backlog processed ("work through my backlog"), not one named task.
-  Delegates all implementation to sub-agents; clarifies ambiguity by asking
-  the user rather than guessing.
+  Work through the whole backlog with a planning pass: prioritize every task,
+  plan and execute each via a sub-agent, commit after each. Use for "work
+  through my backlog", not one named task. Asks the user when an entry is
+  ambiguous.
 ---
 # Backlog Execution
 

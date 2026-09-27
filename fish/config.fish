@@ -28,14 +28,30 @@ set -gx EDITOR nvim
 set -q HOMEBREW_PREFIX; or brew shellenv | source
 
 # Real tool paths, not shims: a shim execs the 150MB mise binary, and Falcon
-# rescans it every time (~280ms per command). This pays that once per shell.
+# rescans it every time (~280ms per command). This pays that once per config change.
 # Stamped on every config that feeds this PATH, so a long-lived parent (tmux
 # server, Ghostty) cannot pin children to a PATH that predates a tool bump.
-set -l mise_stamp (path mtime ~/.config/mise/config.toml (path filter -f mise.toml mise.local.toml .mise.toml) | string join -)
-if test "$__MISE_STAMP" != "$mise_stamp"
+# Re-runs on cd so a repo's mise.toml pins apply; mise itself only runs when the
+# stamp moves. Stamp covers parent dirs (mise walks up) and installs, so a new
+# "latest" install is picked up without a config edit.
+function __mise_sync --on-variable PWD
+    set -l files ~/.config/mise/config.toml
+    set -l d $PWD
+    while true
+        set -a files (path filter -f $d/mise.toml $d/mise.local.toml $d/.mise.toml)
+        test $d = /; and break
+        set d (path dirname $d)
+    end
+    set -l stamp $files (path mtime $files ~/.local/share/mise/installs/*)
+    set stamp (string join - $stamp)
+    test "$__MISE_STAMP" = "$stamp"; and return
+    # mise env appends the current PATH, so strip the old tool paths first or a
+    # repo's versions outlive leaving the repo.
+    set -gx PATH (string match -v -- "$HOME/.local/share/mise/installs/*" $PATH)
     mise env -s fish | source
-    set -gx __MISE_STAMP $mise_stamp
+    set -gx __MISE_STAMP $stamp
 end
+__mise_sync
 
 if test -f ~/google-cloud-sdk/path.fish.inc
     source ~/google-cloud-sdk/path.fish.inc

@@ -1,9 +1,9 @@
 ---
 name: radin-doctor
 description: |
-  Check that radin's own install under ~/.claude is complete and its
-  companion tools are reachable. Use for /radin-doctor or any request to
-  verify or diagnose the radin install.
+  Check that radin's install under ~/.claude is complete and its companion
+  tools are reachable.
+disable-model-invocation: true
 ---
 # Doctor
 

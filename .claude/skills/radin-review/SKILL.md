@@ -1,12 +1,10 @@
 ---
 name: radin-review
 description: |
-  Review a scope (commit, PR, directory, or a range like "since yesterday") on
-  two axes — Standards (does the code follow this repo's rubrics?) and Spec
-  (does it do what the originating backlog entry asked for?) — triage the
-  findings with the user, and log the ones they keep as backlog entries.
-  Use for /radin-review, "review and log to backlog", "audit this
-  commit/PR/directory and file backlog entries".
+  Review a commit, PR, directory or range on two axes, Standards (repo
+  rubrics) and Spec (the originating backlog entry), triage findings with
+  the user, and log the kept ones as backlog entries. Use for /radin-review,
+  "review and log to backlog".
 ---
 # Review to Backlog
 
@@ -109,6 +107,11 @@ sub-agent's `Read` is the access that paste-in-full rule exists to provide.
 > predates the scope qualifies only when a changed line is what makes it wrong,
 > and that changed line is the citation. Skip anything a formatter or linter
 > already enforces.
+>
+> Give each finding a severity (`critical`, `warning` or `nit`) and its
+> evidence: the rung it reached — `cited` (you pointed at the line), `traced`
+> (you followed a caller or data path and showed the bad case happens) or
+> `ran` (you executed it and saw it fail) — then the reasoning or output.
 
 **Standards brief.** Invoke `/thermo-nuclear` against the scope, then every
 skill Step 1's `passes` line names. Report — per file/hunk where relevant —
@@ -117,13 +120,13 @@ rubric, file and rule; and (b) every structural finding the passes raise: name
 it and quote the hunk. A documented repo rubric overrides a pass's generic
 judgement, and a pass finding stays a labelled judgement call
 ("possible <name>") — the label reaches the backlog entry an agent later acts
-on without the review in front of it. Report findings only, each as its claim and citation.
+on without the review in front of it. Report findings only, each as its claim, citation, severity and evidence.
 
 **Spec brief.** Skipped entirely when Step 2 reached rung 4. Report: (a)
 requirements the spec asked for that are missing or only partly implemented;
 (b) behaviour in the scope that the spec never asked for (scope creep); (c)
 requirements that look implemented but whose implementation looks wrong. Quote
-the spec line for each finding, and cite the `path:line` it lands on. Report findings only, each as its claim and citation.
+the spec line for each finding, and cite the `path:line` it lands on. Report findings only, each as its claim, citation, severity and evidence.
 
 Relay both reports under `## Standards` and `## Spec` headings before any
 triage, each axis in its own order and neither reranked against the other.
@@ -145,13 +148,18 @@ requirement should have landed on — the hunk with the partial behaviour, or th
 one nearest where it belongs. A finding with genuinely no in-scope line stays
 in Step 3's relay, and Step 6 names it as unlogged.
 
+Then test each `cited` finding that depends on an input or a state ("what if
+this is null"): it survives only when you find a call site or data path that
+produces that input. Read the callers to settle it, and dismiss the finding
+when none does. A `traced` or `ran` finding already carries that proof.
+
 Then classify each survivor. This is a rule, not a judgment: **fix** for
 incorrect behavior — on the Spec axis, a missing, partial or wrongly
 implemented requirement — and **refactor** for everything else, scope creep
 included.
 
-Print the survivors as a numbered list — number, axis, category, location, the
-finding in a clause — every Standards finding first, then every Spec finding,
+Print the survivors as a numbered list — number, axis, category, severity,
+location, the finding in a clause — every Standards finding first, then every Spec finding,
 each in its own axis's order. It is the triage handle for what Step 3 already
 printed, so it carries no further detail. Mark the ones you recommend
 tackling, on severity and effort rather than count; recommending all of them
@@ -176,6 +184,8 @@ radin backlog add <fix|refactor> "<short title>" <<'EOF'
 **Finding:**
 <the problem as the review stated it: direct, specific. A Spec-axis finding
 opens with the spec line the brief quoted.>
+**Severity:** <critical|warning|nit>
+**Evidence:** <rung: cited|traced|ran> — <the reasoning or output the brief gave>
 **Preferred remedy:**
 <the concrete restructuring suggested>
 EOF
@@ -191,6 +201,8 @@ user discarded.
 - The entries logged, one line each — these are the `add` calls you just made.
 - Findings the user discarded, findings dropped as out of scope, and Spec
   findings dropped for having no in-scope line: three counts, no detail.
+- Findings dismissed by Step 4's call-site test: one line each, the finding
+  and the reason, so the user can overrule a dismissal.
 - The backlog index path.
 - Zero findings: say the review passed both axes. Every finding discarded:
   report that. Either way, write no entry to prove the skill ran.

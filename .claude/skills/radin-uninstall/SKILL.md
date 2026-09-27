@@ -1,9 +1,9 @@
 ---
 name: radin-uninstall
 description: |
-  Remove everything install.sh copied into ~/.claude -- radin's skills
-  and lib scripts. Use for /radin-uninstall or any request to remove radin
-  from this machine.
+  Remove everything install.sh copied into ~/.claude: radin's skills and lib
+  scripts.
+disable-model-invocation: true
 ---
 # Uninstall
 
