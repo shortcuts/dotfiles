@@ -99,8 +99,6 @@ STL/.DS_Store
 !.claude/skills/
 !.claude/skills/documentation/
 !.claude/skills/documentation/**
-!.claude/skills/radin-*/
-!.claude/skills/radin-*/**
 !.claude/skills/explain/
 !.claude/skills/explain/**
 !.claude/skills/no-ai-slop/

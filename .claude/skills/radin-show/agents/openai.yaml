@@ -1,3 +1,0 @@
-interface:
-  display_name: "radin: Show Backlog"
-  short_description: "Print the current project's BACKLOG.md to the terminal"
