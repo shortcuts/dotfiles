@@ -1,326 +1,179 @@
 ---
 name: explain
-description: Explain any topic as one terse note in the user's Obsidian vault - from zero knowledge to the subject itself.
+description: Explain any topic as one illustrated Obsidian note in the spirit of The Way Things Work - the principle, the machine opened up, and trusted sources to go further.
 disable-model-invocation: true
 argument-hint: "A topic, concept, commit hash, PR/commit URL, file, or directory"
 ---
 
-Produce one Markdown note in the user's Obsidian vault. Assume the reader knows nothing
-about the subject. They read it in a few minutes and come out with:
+Write one Markdown note in the user's Obsidian vault. It explains one subject the way
+David Macaulay's *The Way Things Work* explains a machine. Macaulay starts from the
+**principle**: the one physical idea that makes the machine possible. Then he draws the
+**machine** opened up, with every part numbered. Then he shows the other machines that
+use the same principle.
 
-- **Why** it exists: the motivation and the decisions.
-- **How** it works: the architecture, the key mechanisms, the non-obvious parts.
+The reader is the user: a software engineer and a tinkerer. They know their own field
+and nothing about this subject. They read the note on their phone, away from a keyboard.
+They want the **idea**. The implementation is someone else's problem.
 
-The note is done when every rung carries a worked example, every mechanism you cut
-carries a link in **Sources**, and every number on the note traces to something you ran
-or quoted.
+The note is done when:
 
-## What the note is for
+- The reader can draw the principle from memory and say why it works.
+- The reader can predict what the machine does with an input the note never showed.
+- The reader can name where the machine strains, and which trusted source to open next.
+- `python3 check.py <note>` in this skill's folder prints `ok`.
 
-Three ideas decide everything else.
+## The order of the note
 
-**It serves a mission.** The user asked for a reason - to review a change in that area,
-to debug something, to stop nodding along in a meeting. Infer the reason from how they
-asked. The mission decides what goes on the note, and what stays off it. Without a
-mission the note drifts into a generic overview, which is this skill's main failure mode.
+A Diátaxis *explanation*: it serves understanding, so it holds no setup steps and no
+reference tables. Use these `##` sections in this order. The heading names are fixed,
+because `check.py` reads them.
 
-**It builds fluency, not retention.** The reader needs to hold the subject now. One read
-cannot build long-term recall, so spend every line on the subject itself.
+1. **Title and one line.** `# <Subject>`, then one sentence in plain words: what the
+   subject is and what it is for. Positive: say what it *is*.
+2. **The problem.** The thing that breaks, or the job nobody can do, before this subject
+   exists. Use an everyday scene. No term from the subject appears yet.
+3. **The principle.** One to three principles, each under its own `###` heading. Each
+   principle gets:
+   - one bold sentence: cause, effect, and the property that makes the link hold;
+   - its **mammoth** (see [The mammoth](#the-mammoth));
+   - a plate that shows the principle alone, before any machine uses it;
+   - one sentence on what the principle costs.
+4. **The machine.** The subject itself, drawn as a cutaway plate with numbered callouts
+   and a key. Then **One trip through**: follow one real input part by part, citing
+   the callout numbers, with small real values. A reader who follows one case owns the
+   mechanism.
+5. **Same principle, elsewhere.** Two to four other machines built on the same principle,
+   one line each: the machine, and which part of it plays which role. This section
+   turns one idea into a pattern the reader recognizes everywhere.
+6. **Where it strains.** The limits and tradeoffs, each with a number or a named case:
+   the input that breaks it, the size where it slows, the alternative that wins there.
+7. **Where it came from.** Who proposed it, when, what it replaced, and what problem
+   forced it. Three to five lines, taken from the papers.
+8. **Words.** The glossary. Each term the note introduced, with a one-line definition.
+9. **Check yourself.** Three questions that make the reader predict or explain, never
+   recall a word. Keep each question under 15 words. Put each answer in a folded callout, so the phone shows the question
+   alone:
 
-**It starts from zero.** Assume no prior knowledge of the subject, and none of its
-prerequisites. The reader is sharp and knows their own field. They may have never heard
-the word in the title. Every step anchors to a step already on the note. Five unanchored
-concepts explain nothing.
+   ```markdown
+   > [!question]- What happens if two keys hash to one slot?
+   > The second key goes to the next free slot (plate 2, callout 4).
+   ```
 
-## Depth
+10. **Go further.** Three open questions the note did not answer. Each one points to
+    the section of a source in **Sources** that answers it.
+11. **Sources.** See [Sources](#sources).
 
-ELI5 at the entry point and in tone. Far past ELI5 in substance. Deliberately short of
-exhaustive.
+## Words that carry meaning
 
-Calibrate to this: the reader can hold the subject, follow a conversation about it, and
-ask a sharp question. Not this: the reader can implement or maintain it.
+Every sentence carries one claim the reader can check or picture. A sentence that would
+read the same in a note about another subject carries nothing: cut it.
 
-Give one concrete win the reader gets immediately. They can review a change here, name
-the moving parts, or know where to look when it breaks. Name that win in the TL;DR.
+- **Physical verbs.** Write the action a reader can picture: *copies*, *sorts*, *waits*,
+  *counts*, *hashes*, *drops*, *splits*. A verb earns its place when the reader could
+  draw it. *Handles*, *manages*, *orchestrates*, and *leverages* draw nothing: replace
+  each one with the action it hides.
+- **One idea per sentence, under 20 words.** Short common words beat long exact-sounding
+  ones.
+- **Earn every term.** A term appears only after the note needs it. Define it in one
+  clause at first use, add it to **Words**, and reuse the same word to the end. A
+  synonym reads as a second concept.
+- **Concrete units.** "Every 100 ms", "4 KB pages", "1 in 10⁶ keys" — never
+  "often", "large", "most". Take each number from a source, or mark it as your own
+  arithmetic on the same line.
+- **Keep a claim as strong as its source.** When the sources disagree, say so on the
+  line and name both.
 
-The cut is the point. Name what you left out instead of covering it. Each skipped
-mechanism becomes a linked line in **Sources**.
+Then run the drafted prose through the `no-ai-slop` skill in Edit mode. Give it the
+audience up front: a software engineer new to this subject, reading on a phone to learn
+the idea. Cut rather than smooth. Keep quotes from papers verbatim, and keep the note's
+fixed formats as they are: key entries, captions, source entries, and `Breaks down at:`.
+Skip the pass over plates, code, and identifiers.
 
-One note is the cap, not the target. Too big a topic means you narrow the topic and say
-which parts you dropped. A second note defeats the format. A small topic still deserves a
-short note.
+## The mammoth
 
-### The ladder
+In Macaulay's book, a woolly mammoth shows each principle. A lever lifts it, a pulley
+hoists it, a wedge splits its ice. The reader remembers the principle because they saw it
+act on something large and physical.
 
-Order the note as rungs, not as topics. The ladder is causal, not thematic: rung one is
-the simplest model that is still true, and each rung above it reveals the mechanism
-underneath the rung below. The ladder runs from no knowledge to peer knowledge.
+Each principle gets one mammoth: a physical scene that obeys the same principle. One scene
+can serve several principles, with a new mapping for each. A
+mammoth is more than a loose likeness. It must map part to part:
 
-- **Seven rungs, one per experience level below.** A subject that will not fit seven
-  rungs is too big - narrow it.
-- **Every rung answers what causes what, and why that works.** Name the cause, the
-  effect, and the property that makes the link hold. A rung that only names a part, a
-  file, or a term states no causality - it is a glossary entry, not a rung.
-- **Each rung adds at most one new idea**, and uses only terms the note already defined.
-- **Introduce a concept only when the next rung needs it.** Each rung ends by naming what
-  it plants for the rung above (`Plants: shard ownership - rung 4 needs it`). A concept no
-  higher rung consumes does not go on the note.
-- Define every term at first use, in one clause, inline. An idea a rung needs goes lower
-  on the ladder, or off the note.
-- Test a rung by deleting the rungs below it. If it still reads on its own, it is an
-  aside, not a rung. Cut it or move it.
-- Number the rungs in their headings, say how many there are, and name the one idea each
-  adds (`## Rung 3 of 7 - who owns which index`). A reader mid-climb needs to see how far
-  is left.
+| In the scene | In the subject |
+|---|---|
+| The coat-check ticket | The hash |
+| The numbered hook | The bucket |
 
-#### The seven rungs
+Give the mapping, then one line on where the scene stops matching:
+`Breaks down at: two coats never share a hook, but two keys can share a bucket.` That
+line is often the most useful sentence in the section.
 
-Each rung is written for a reader one experience level further in. The level sets how
-deep the rung goes, not how it sounds - the tone holds flat from bottom to top: plain,
-terse, never condescending. What climbs is what the rung may assume, what it may name,
-and how specific its example gets.
+## Plates
 
-| Rung | Written for | Assumes | Names | Example shape |
-|---|---|---|---|---|
-| 1 | Beginner | Nothing. No term from the subject appears | The problem, in everyday words | An everyday object, or the thing that breaks |
-| 2 | Novice | Rung one's problem | The subject and its one job | One input and its output, no internals |
-| 3 | Hobbyist | The subject exists, and why | The moving parts by name, happy path only | One request walked end to end, in words |
-| 4 | Intermediate | The parts and their split | Exact files, functions, config keys, the branches | One traced call with real values |
-| 5 | Advanced | The happy path, whole | The tradeoff, the rejected alternative, the knob that tunes it | Two settings side by side, and what each changes |
-| 6 | Expert | The tradeoffs | The failure modes, the limits, the numbers | The case that breaks, and the number that proves it |
-| 7 | Principal | All of it | Where the design leaks, and what it would cost to change | One decision the reader can now argue either way |
+Plates carry the idea. Prose supports them. Each principle gets a plate, and the machine
+gets a cutaway. Pick the form that shows the idea fastest:
 
-The level is the author's label, not the reader's. Keep it out of the heading.
+| Idea to show | Plate |
+|---|---|
+| The parts of one thing and how they fit | Cutaway with numbered callouts |
+| Layers, or a format read from byte 0 | Exploded view, stacked in reading order |
+| One small part that matters | Enlargement: a circle zooming out of the cutaway |
+| An input moving through the machine | Strip of numbered frames, left to right, wrapping down |
+| Before and after, or two options | Side-by-side pair with one difference marked |
 
-Rungs one and two may trade accuracy for a foothold - an analogy a higher rung later
-corrects. Mark it on the line where you use it, and name the rung that corrects it
-(`Close enough until rung 4`). From rung three up, every claim obeys
-[Precision](#precision).
+Draw plates as inline SVG. Use a Mermaid diagram for boxes-and-arrows flow, and a small
+table for a finite set of cases. [`PLATES.md`](PLATES.md) holds the SVG rules that keep a
+plate legible on a phone in both themes, plus a template. Read it before you draw the
+first plate.
 
-#### The shape of a rung
+Show only the parts the idea needs. A plate that shows everything shows nothing.
 
-Every rung is four parts, in this order:
+## Sources
 
-1. **One bolded line of summary**, before anything else - the whole rung in one sentence,
-   at that rung's level. Write it as cause and effect, not as a topic: "The router hashes
-   the key, so the same key always lands on one shard." A reader who skims only these
-   lines still climbs the ladder.
-2. **The detail**: the mechanism, the visual form that carries it, and a line of prose.
-   Say why the mechanism works - the invariant, the guarantee, or the constraint the cause
-   relies on. State where the rung below was incomplete, and what this rung corrects.
-3. **An `Example` block**, last, worked by hand with small real values, in that rung's
-   shape. A reader who follows one case owns the mechanism. A reader who only reads the
-   general rule does not. A rung with no example is a rung the reader cannot check.
-4. **One `Plants:` line**, naming the concept this rung introduces and the rung that
-   consumes it. The top rung plants nothing.
+The note is a starting point. **Sources** is where the reader continues alone, so each
+entry must be worth the tap. Every claim on the note traces to one of them. A note
+written from memory sounds sure and can be wrong, and the reader cannot tell.
 
-### Precision
+Take sources only from these kinds:
 
-The note is worthless if the reader cannot trust a number.
+- The primary source: the paper that introduced the idea, the RFC, or the specification.
+- Peer-reviewed papers, and preprints on arXiv.
+- Wikipedia, for general concepts and history. Follow its references to the papers.
+- Articles written by the inventors, the maintainers, or recognized practitioners.
 
-- **Run the function, read the test, or quote the config** for every value you present as
-  the system's output. When a number is your own arithmetic, say so on the line.
-- **Keep a rule exactly as strong as its source.** "Today one shard per plan" and "one
-  shard per plan" are different claims. Keep the hedge the source earns; cut the hedge
-  you added yourself.
-- **Separate what the code does from what the deployment does.** Code defaults and chart
-  values drift apart. Say which one you read.
-- **One term per concept.** Pick the source's word and reuse it. A synonym reads as a
-  second concept.
-- Unknown stays unknown. Name who would know.
+Search with `WebSearch`, read each page with `WebFetch`, and open every link before you
+cite it. `WebFetch` returns a PDF as raw bytes: download it with `curl -L` into the
+scratchpad and read it with `Read`. When a publisher blocks the fetch, cite the authors'
+own copy or a university mirror. For a general idea that no single source owns, read two independent sources.
+
+Format each entry as a link followed by one line: what it covers and when to open it.
+Put **the one best read** first, and say why it is the one. That link also goes into the
+`source:` frontmatter.
+
+```markdown
+- [Karger et al., 1997 — Consistent Hashing and Random Trees](https://…) The paper that
+  names the idea. Read sections 1–2 for the ring; skip the proofs.
+```
 
 ## Resolving the input
 
 | Input | Meaning |
 |---|---|
-| Anything not listed below | A concept, subsystem, tool, protocol, practice, event, or idea |
+| Anything not listed below | A concept, tool, protocol, format, practice, or idea |
 | Bare commit hash | A commit of the repo in the current directory |
-| GitHub commit URL | A commit of that remote repo |
-| GitHub PR URL | The full PR: commits, body, review discussion |
-| A path | That code as it stands, not a change to it |
+| GitHub commit or PR URL | That change, in that repo |
+| A path | That code as it stands |
 
-A bare word can be a concept or a directory. Ask which. Keep questions to that one - the
-user wants a note, not an interview.
+A bare word can be a concept or a directory. Ask which, and ask nothing else.
 
-## Gathering the source material
-
-Find the primary source first, whatever the subject is: the spec, the RFC, the reference
-implementation, the maintainers' own docs, the standard reference work for a general
-idea.
-
-When one source owns the subject, quote it. When none does - a math idea, a practice, a
-piece of history - read two independent sources, and say on the note where they disagree.
-
-Every claim traces to something you read: the code, the commit messages, the discussion,
-the primary source, or the conventions files. A note written from memory is confident,
-plausible, and wrong, and the reader cannot tell.
-
-**Code, a commit, a PR, or a path**: read
-[`SOURCE-CODE.md`](SOURCE-CODE.md) - the `git` and `gh` commands that recover the
-decisions, the conventions files to read, and how to handle a change the user's own agent
-wrote. When the subject also lives in the current repo, explain the general shape from
-the primary source and the local shape from the local code. Mark which is which.
-
-### Motivation first
-
-Establish the motivation before you walk the mechanism - a mechanism without its why is
-noise. Rank the sources for it: for a concept, the spec rationale, the design notes, what
-people did before it; for a change, the linked issue, then the PR body, then the commit
-messages, then the review discussion, which often records the rejected alternatives, the
-sharpest form of why.
-
-When the sources hold no motivation, say so on the note and name who would know: a
-reviewer, the owning team, the spec authors. An admitted gap beats an invented reason.
-
-## Carrying the idea visually
-
-Prose is the slowest way to convey a shape. Per mechanism, pick the form that carries it
-fastest:
-
-- **Pseudocode** for logic and algorithms - the decision, not the syntax.
-- **A call tree** for runtime control flow.
-- **A shallow file tree** for responsibility and layering, one comment per entry.
-- **A component tree** for UI structure, with the state and module boundaries that matter.
-- **A Mermaid sequence or flow diagram** for interaction across components or services.
-- **A diff, or a before-and-after pair** when the point is what changed and the
-  surrounding shape exists already. Match it to the topic: diff the file tree for a layout
-  change, the call tree for a flow change, the pseudocode for a logic change.
-- **A real code block** when most of it is new, or when the missing context would hide
-  ownership or order.
-- **A small table** for a finite set of cases, states, or side-by-side options.
-
-Keep only the calls, files, props, states, and boundaries that answer the question at
-hand. A complete diagram is a failed diagram. Put each visual next to the short text it
-supports. One or two forms carry most notes.
-
-## The note
-
-Structure:
-
-- **Header**: title, linked ref (primary source, commit, PR, or path). For a change, add
-  author, date, merge state. Say what the subject is, positively - a reader with no model
-  of it cannot use "this is not a queue".
-- **TL;DR**: one or two sentences - why the subject exists and how it works - then the
-  reader's win on its own line. The first sentence defines the subject in plain words,
-  and uses no term the reader must already know. Two sentences is the cap, not the target.
-- **Summary**: the whole explanation, compressed - one line per rung, in rung order, each
-  the rung's cause-and-effect line. A reader who reads only this section knows the chain
-  of mechanisms and can pick the rung to start at.
-- **Why**: the motivation and the decisions, in plain present tense - the problem the
-  subject solves, and what it would cost to not have it. The receipts for those claims
-  live in **How it got here**, and so do the rejected alternatives.
-- **How**: the shape first - the one tree, table, or diagram that holds the whole
-  subject. For a change, the file tree or the `--stat`. Then the rungs, lowest first, each
-  in the four-part shape above. Call out the non-obvious parts, and how repo conventions
-  shaped them.
-- **Sharp edges**, at most: the traps a reader hits that the rungs could not hold - a
-  stale test, a lock order, a "quick fix" still in place. One line each.
-- **How it got here**: the history, in one place. See [Receipts](#receipts).
-- **Sources**: every link worth opening next. See [Receipts](#receipts).
-
-The top rung ends the explanation. Only **Sharp edges**, **How it got here**, and
-**Sources** follow it. Reference material - full config tables, metric lists, sizing
-charts - is not a rung and does not earn a section; link it in **Sources** instead. That appendix is where the format bloats.
-
-Every mechanism gets a heading. Obsidian builds the outline pane from them, so the note
-needs no jump list of its own.
-
-### Shaping it for a reader who skims
-
-A reader opens this note mid-task, with a browser full of tabs. The note competes with
-those tabs. Shape it to survive a distracted read:
-
-- **Open every section with its substance.** The first line after a heading is the
-  mechanism, the command, the number, or the path. Cut "This section explains", "Let's
-  look at", "Before we dive in".
-- **Cap a list or table at five rows.** More than five and the reader stops reading rows
-  and starts scanning for the end. Rank them, show the five that matter, and link the
-  rest. This cap is on the note - it does not apply to prose, to code blocks, or to a
-  table whose whole point is being exhaustive (a state machine's states, a fixed enum).
-- **One bounded idea per list item.** No item that hides a second step behind "and then".
-- **Concrete units, never vague quantifiers.** "Every 100 ms", "4 GB", "99% of indices" -
-  not "frequently", "a lot of memory", "most". A vague quantifier is a claim you did not
-  check.
-- **Close with one thing the reader can do in two minutes**: open this file, run this
-  query, look at this dashboard panel. Then the line inviting them back with questions -
-  you answer faster than the note, and the note cannot answer at all.
-
-The reader asked for an explanation, so length is not the enemy. Preamble, recap, and
-restatement are.
-
-## Receipts
-
-History is not explanation. A reader meeting the subject for the first time cannot use a
-ticket key, a PR number, a commit hash, or a date - those are receipts for a claim they
-have no reason to doubt yet. Dropped mid-sentence they break the ladder: the reader stops
-following the mechanism and starts wondering whether they were supposed to recognise that
-number.
-
-So the explanation states what is true now, and **How it got here** holds why it became
-that way. The split decides where each link goes:
-
-- **In the rungs**: plain words and present tense, and only sources that read as
-  documentation - the file and line, the spec section, the function name, the config path.
-  "Two codebases, because Classic has no read API a migration can use." Every claim
-  carries its source right where the claim sits, so a reader checking a fact never has to
-  search for it.
-- **Quote a source in a rung only when its wording is the explanation** - a comment
-  naming the incident a guard prevents, a spec sentence no paraphrase improves. Attribute
-  it to the file or the spec, not to the PR it landed in.
-- **In How it got here**: the tickets, the PRs, the commits, the dates, the rejected
-  alternatives, the order things happened. One line per event, newest or oldest first,
-  consistently. A quoted PR excerpt or review thread belongs here. Keep only the history
-  that still changes a reader's decisions: why the split exists, which default was
-  flipped and when, which fix is still called temporary. A chronology of every PR is not
-  history, it is `git log`.
-- A subject with no recorded history gets no section. Say so once in **Sources**.
-
-The same split applies off code. For a concept: the rungs explain the idea, the history
-names who proposed it, what it replaced, and what the field rejected.
-
-### Sources
-
-Links are half the value of the note. The reader closes it knowing the subject, and
-knowing exactly where to go for the parts you cut. Give each link one line on why the
-reader would open it - a bare URL list is a dead end. Order:
-
-- **The one best read**, first, and why it is the one: the spec section, the RFC, the
-  reference implementation, the design doc, the Wikipedia article for a general concept.
-  This is also the note's `source:` frontmatter.
-- **The operational context**: the runbook, the dashboard, the alert, the postmortem the
-  change came out of.
-- **The parts this note skipped**, each with the link that covers it.
-- **The open questions**, each with who to ask.
-
-The change trail and the tracker are already in **How it got here**. Skip a category you
-found nothing for - a padded link list costs the reader more than a short one.
-
-## The slop pass
-
-Run the drafted prose through the `no-ai-slop` skill in Edit mode before you write the
-file. It will ask who the piece is for - answer up front so it does not stall: a sharp
-reader new to this subject, who should close the note able to reason about it.
-
-It catches what this note leaks most: throat-clearing, hedges, abstraction standing where
-a mechanism belongs, sentences that would survive unchanged on a note about something
-else. Cut rather than smooth. A shorter note is the right outcome.
-
-Keep quoted commit messages, review comments, and spec passages verbatim - the voice to
-preserve is the sources'. Skip the pass over code, diffs, diagrams, and identifiers.
+For code, a commit, a PR, or a path, the code is evidence. The subject is the idea the
+code embodies. Read [`SOURCE-CODE.md`](SOURCE-CODE.md) to find that idea.
 
 ## Writing the file
 
-[`VAULT.md`](VAULT.md) holds the vault path, the frontmatter convention, the tag
-taxonomy, where the note goes, and how to open it. Read it once the prose is drafted.
+Read [`VAULT.md`](VAULT.md) for the vault path, frontmatter, tags, and where the note
+goes. Write the note, then run `python3 check.py <note>` from this skill's folder. Fix
+every line it prints until it prints `ok`. Then open the note and stop.
 
-## After the note
-
-The note is the deliverable. Open it and stop.
-
-A follow-up question about one mechanism - "how does the retry loop work?", "what calls
-this?" - gets answered in the conversation, with the visual forms above. Regenerating the
-note for one question wastes both of you.
-
-Some users need to own a topic rather than understand it once, because they will review,
-debug, and extend it for months. One note cannot build that. Say so plainly, and name
-what would: repeated sessions on the real code.
+A follow-up question about one part gets its answer in the conversation, with a plate or
+a Mermaid diagram. Regenerate the note only when the user asks.

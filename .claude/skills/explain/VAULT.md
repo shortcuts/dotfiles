@@ -4,8 +4,8 @@
 vault="$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/notes"
 ```
 
-Markdown carries the note. The vault theme styles it, so the note needs no CSS. Reach for
-inline HTML only for a shape Markdown cannot express - Obsidian strips `<script>`, and a
+Markdown carries the note, and inline SVG carries the plates ([`PLATES.md`](PLATES.md)).
+The vault theme styles both, so the note needs no CSS. Obsidian strips `<script>`, and a
 `<style>` block fights the user's theme and dark mode.
 
 ## Frontmatter
@@ -16,29 +16,27 @@ no other note shares.
 
 ```yaml
 ---
-title: Fair build scheduling in the index builder
-description: One sentence - the TL;DR's first line. Obsidian shows it in hover previews and search results.
-source: https://algolia.atlassian.net/wiki/spaces/.../RFC+-+Fair+build+scheduling
-author: indexing-scale team
+title: Consistent hashing
+description: One sentence - the note's opening line. Obsidian shows it in hover previews and search results.
+source: https://dl.acm.org/doi/10.1145/258533.258660
+author: Karger et al.
 created: 2026-09-11
 aliases:
-  - c2m
-  - orchestrator
+  - hash ring
 tags:
   - explain
   - engineering-distributed-systems
-  - metis
 ---
 ```
 
 | Key | What goes in it |
 |---|---|
 | `title` | The note title, same as the `#` heading |
-| `description` | The TL;DR's first sentence. This is what the reader sees before opening the note |
-| `source` | The **one best read** only - the primary source. The rest stay in **Sources** |
+| `description` | The note's opening line. This is what the reader sees before opening the note |
+| `source` | The **one best read** only: the paper, RFC, or article. The rest stay in **Sources** |
 | `tags` | `explain`, then the field, then the repo or product if there is one |
 | `created` | `date +%F`. Never type today's date from memory |
-| `author`, `published`, `aliases` | Only when they apply: the owning team or spec author, the source's own date, the acronyms and alternate names a reader would search for |
+| `author`, `published`, `aliases` | Only when they apply: the inventors or spec authors, the date of the `source:` entry as `YYYY` or `YYYY-MM-DD`, the acronyms and alternate names a reader would search for |
 
 ## Tags
 

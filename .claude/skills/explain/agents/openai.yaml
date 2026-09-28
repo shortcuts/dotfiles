@@ -1,5 +1,5 @@
 interface:
   display_name: "Explain"
-  short_description: "Terse Obsidian note explaining why a thing exists and how it works"
+  short_description: "Illustrated Obsidian note: the principle, the machine opened up, trusted sources"
 policy:
   allow_implicit_invocation: false
