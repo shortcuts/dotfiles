@@ -83,3 +83,6 @@ zoxide = "0.10.0"
 "npm:ccstatusline" = "2.2.29"
 "aqua:rtk-ai/rtk" = "latest"
 "pipx:headroom-ai" = "latest"
+# Private repo, no releases, and its v7.x tags date from 2018, so track the branch.
+# The first install needs `GITHUB_TOKEN=$(gh auth token)`: mise reads the repo through the GitHub API.
+"pipx:git+https://github.com/algolia/infra-cli.git" = "develop"
