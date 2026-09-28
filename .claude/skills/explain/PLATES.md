@@ -1,8 +1,7 @@
 # Drawing plates for Obsidian
 
-A plate is an inline SVG inside the Markdown note. Obsidian renders it in reading view on
-desktop and on the phone. The look to aim for is a technical manual: thin ink lines, one
-accent color, circled numbers, and a key under the drawing.
+A plate is an inline SVG in the note. Obsidian renders it on desktop and phone. Draw it
+like a technical manual: thin ink lines, one accent color, circled numbers, a key below.
 
 ## Rules that keep a plate rendering
 
@@ -29,12 +28,11 @@ accent color, circled numbers, and a key under the drawing.
 
 ## Callouts and key
 
-Put a circled number on each part the key explains. Draw a short leader line to the part.
-Number top to bottom, then left to right, so the eye follows the reading order. Seven
-callouts fit well; twelve is the ceiling.
-
-Under the plate, write one italic caption, then the key as a numbered Markdown list. Each
-list number matches its callout:
+- Put a circled number on each part the key explains, with a short leader line.
+- Number top to bottom, then left to right.
+- Use up to seven callouts. Twelve is the maximum.
+- Under the plate, write one italic caption, then the key as a numbered list. Each list
+  number matches its callout:
 
 ```markdown
 *Plate 2 — one column chunk, enlarged*
@@ -45,7 +43,7 @@ list number matches its callout:
 
 ## Template: cutaway with an enlargement
 
-Copy it, then replace the parts. The left block is the machine. The circle enlarges part 2.
+Copy it and replace the parts. The left block is the machine. The circle enlarges part 2.
 
 ```html
 <svg viewBox="0 0 360 230" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:560px;font-size:12px">
@@ -87,5 +85,5 @@ Copy it, then replace the parts. The left block is the machine. The circle enlar
   corner. The moving input is the accent-filled shape, so the eye follows it across frames.
 - **Byte strip**: a row of 16-unit cells in a monospace font, with the field names
   below. Use one accent per field.
-- **Mermaid**: a flowchart or sequence of up to about eight nodes. Keep node labels short,
-  because Mermaid shrinks the whole diagram to fit a phone.
+- **Mermaid**: a flowchart or sequence of up to eight nodes. Keep labels short: Mermaid
+  shrinks the whole diagram to fit a phone.
