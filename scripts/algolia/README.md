@@ -64,3 +64,18 @@ run. `--batch` sets records per `saveObjects` call.
 Samples each cluster machine twice to report entry counts, write activity, and
 whether the clusters are in sync. `--gap` is the milliseconds between the two
 samples (default 4000). Raise it when writes are slow.
+
+## compare-api-keys-on-clusters.mjs
+
+```sh
+ALGOLIA_APP_ID=S8101COPJX ./compare-api-keys-on-clusters.mjs --clusters=m1351-eu,r10-usw --match='^replication-probe-'
+./compare-api-keys-on-clusters.mjs --clusters=m1351-eu,r10-usw --samples=20 --gap=500
+```
+
+Lists the keys on each cluster `--samples` times (default 5), `--gap`
+milliseconds apart (default 1000). Prints only keys that some sample misses,
+with a hit count per cluster. `--match` filters on the key description.
+
+- A key that is `0/N` on the source and `N/N` on a replica never got its
+  delete forwarded.
+- A key below `N/N` on one cluster means that cluster's pods disagree.
