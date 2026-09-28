@@ -11,7 +11,7 @@ const match = new RegExp(opts.match ?? '');
 
 if (clusters.length < 2) {
   console.error(
-    'usage: compare-api-keys-on-clusters.mjs --clusters=m1351-eu,r10-usw [--samples=5] [--gap=1000] [--match=^replication-probe-]',
+    'usage: compare-api-keys-on-clusters.mjs --clusters=<source>,<replica>[,...] e.g. m1351-eu,r10-usw [--samples=5] [--gap=1000] [--match=^replication-probe-]',
   );
   process.exit(1);
 }
@@ -47,4 +47,15 @@ for (const [value, key] of [...all].sort((a, b) => a[1].createdAt - b[1].created
   // Only a prefix: the full value is a live credential.
   console.log(`  ${value.slice(0, 8)}… age=${age}s ${where} "${key.description ?? ''}"`);
 }
-console.log(diffs ? `  => ${diffs} of ${all.size} keys differ` : `  => in sync (${all.size} keys on every sample)`);
+// The union counts a key once even when only one cluster holds it, so it is
+// larger than any single cluster's listing.
+console.log(diffs ? `  => ${diffs} of ${all.size} keys (union of all clusters) differ` : `  => in sync (${all.size} keys on every sample)`);
+
+// The first cluster is the source: a replica key it lacks is a lost delete.
+const [source, ...replicas] = clusters;
+console.log(`  ${source}: ${seen[source].size} keys (source)`);
+for (const c of replicas) {
+  const extra = [...seen[c].keys()].filter((v) => !seen[source].has(v)).length;
+  const missing = [...seen[source].keys()].filter((v) => !seen[c].has(v)).length;
+  console.log(`  ${c}: ${seen[c].size} keys, ${extra} not on ${source}, ${missing} missing`);
+}
