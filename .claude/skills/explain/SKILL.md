@@ -30,11 +30,11 @@ sections in this order. `check.py` reads the heading names, so keep them exact.
 1. **Title and one line.** `# <Subject>`, then one sentence: what the subject is and
    what it is for.
 2. **The problem.** What breaks before the subject exists. Show it as a scene from the
-   field (see [Examples stay in the field](#examples-stay-in-the-field)). Use no term
+   field (see [Examples stay in the field](../_shared/STYLE.md#examples-stay-in-the-field)). Use no term
    from the subject yet.
 3. **The principle.** One to three principles, each under a `###` heading. Each gets:
    - one bold sentence: the cause, the effect, and why the link holds;
-   - its [mammoth](#the-mammoth);
+   - its [mammoth](../_shared/STYLE.md#the-mammoth);
    - a plate that shows the principle before any machine uses it;
    - one sentence on what the principle costs.
 4. **The machine.** A cutaway plate with numbered callouts and a key. Then **One trip
@@ -62,50 +62,12 @@ sections in this order. `check.py` reads the heading names, so keep them exact.
 
 ## Writing style
 
-Write the note in Simplified Technical English, per
-[`../../output-styles/ste.md`](../../output-styles/ste.md). Add these rules:
+Follow [`../_shared/STYLE.md`](../_shared/STYLE.md): the writing rules, the mammoth,
+examples that stay in the field, and the two review passes. The word list is **Words**.
+The medium is a phone. The fixed formats are key entries, captions, source entries, and
+`Breaks down at:`. Skip plates.
 
-- **Each sentence carries one claim** the reader can check or picture. A sentence that
-  fits a note on another subject carries nothing: cut it.
-- **Physical verbs.** *Copies*, *sorts*, *waits*, *drops*, *splits*. Replace *handles*,
-  *manages*, *orchestrates*, *leverages* with the action they hide.
-- **Earn every term.** Introduce a term only when the note needs it. Define it in one
-  clause, add it to **Words**, and never use a synonym.
-- **Concrete units.** "Every 100 ms", "4 KB pages", never "often" or "large". Take each
-  number from a source, or mark it as your own arithmetic.
-- **Keep a claim as strong as its source.** When sources disagree, name both on the line.
-
-Then run the prose through the `no-ai-slop` skill in Edit mode. Tell it the audience: an
-engineer new to the subject, reading on a phone. Keep verbatim quotes and the fixed
-formats: key entries, captions, source entries, `Breaks down at:`. Skip plates, code,
-and identifiers.
-
-## The mammoth
-
-Macaulay shows each principle acting on a woolly mammoth, so the reader remembers it.
-Here, each principle gets one mammoth: a concrete scene that obeys the principle. One
-scene can serve several principles, with a new mapping for each.
-
-Map the scene part to part:
-
-| In the scene | In the subject |
-|---|---|
-| The job ID | The hash |
-| The worker shard the job lands on | The bucket |
-
-Then write one line on where the scene stops matching. It is often the most useful line:
-
-`Breaks down at: a job has one fixed shard, but two keys can share a bucket.`
-
-### Examples stay in the field
-
-Every scene, mammoth, example, and **One trip through** input comes from the subject's
-field. Never use shops, restaurants, coat checks, or other everyday stand-ins.
-
-- **Code, a commit, a PR, or a path:** use the repository's domain objects. In a job
-  scheduler: jobs, runs, workers, queues.
-- **A concept:** use a system from the same field. Explain a hash table with a DNS
-  cache, not a coat check.
+A **One trip through** input also stays in the field.
 
 ## Plates
 

@@ -1,0 +1,23 @@
+{
+  "skill_name": "onboard",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/onboard (run from ~/.config, no argument: onboard me on this whole dotfiles repo)",
+      "expected_output": "Repo-scope note: root explains what the repo does and the stack; children are the tracked top-level dirs (nvim, fish, .claude, scripts...) zooming down to packages like nvim/lua; links pin to HEAD on GitHub.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/onboard report builder (run from ~/Documents/harbor-worktree-2): how the report-builder interacts with the other components, how data flows in and out, what is async, where we pull from the db",
+      "expected_output": "Feature-scope note: root has the data lifecycle and a flow graph labeled grpc/async/reads DB; children are the packages involved in lifecycle order; entry points link to GitHub at a pinned SHA.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "/onboard RenderReportFromJob (run from ~/Documents/harbor)",
+      "expected_output": "Function-scope note: root has io inputs/outputs/goes; children are packages the call path crosses; flow graph shows callers and callees.",
+      "files": []
+    }
+  ]
+}
