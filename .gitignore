@@ -101,6 +101,16 @@ STL/.DS_Store
 !.claude/skills/documentation/**
 !.claude/skills/explain/
 !.claude/skills/explain/**
+!.claude/skills/onboard/
+!.claude/skills/onboard/**
+!.claude/skills/_shared/
+!.claude/skills/_shared/**
+!.claude/.onboard/
+!.claude/.onboard/index.html
+!.claude/.onboard/CLAUDE.md
+!.claude/.onboard/app.css
+!.claude/.onboard/app.js
+!.claude/.onboard/bundle.py
 !.claude/skills/no-ai-slop/
 !.claude/skills/no-ai-slop/**
 !.claude/skills/release-candidate/
@@ -109,6 +119,8 @@ STL/.DS_Store
 !.claude/skills/release-notes/**
 !.claude/skills/self-review/
 !.claude/skills/self-review/**
+!.claude/skills/test-audit/
+!.claude/skills/test-audit/**
 !.claude/hooks/
 !.claude/hooks/tmux-claude-code-status.sh
 
@@ -119,3 +131,6 @@ STL/.DS_Store
 # tmux-claude-code-status installer (public one-liner)
 !tmux-claude-code-status/
 !tmux-claude-code-status/**
+
+# Un-ignored skill folders would track Python bytecode.
+__pycache__/
