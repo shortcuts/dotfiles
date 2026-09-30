@@ -30,7 +30,7 @@ if [[ -z $TMUX ]] && ! pgrep -q tmux; then
     exit 0
 fi
 
-# sessions get renamed on the fly, so match on cwd instead of name
+# match on cwd, not name: the name swaps dots for _ and can be renamed by hand
 existing=$(tmux list-sessions -f "#{==:#{session_path},$selected_path}" \
     -F '#{session_name}' 2>/dev/null)
 existing=${existing%%$'\n'*}

@@ -93,6 +93,7 @@ response carries no new-or-duplicate flag.
 ## tmux-session-finder
 
 `fzf` over `~/Documents/*`, `~/.config`, `~/Downloads`, and the Obsidian vault.
-It then attaches or creates a tmux session for the chosen directory. It matches
-an existing session on `session_path`, not on name, because sessions get
-renamed on the fly. Add new roots to the `printf` list inside the script.
+It then attaches or creates a tmux session named after the chosen directory. It
+matches an existing session on `session_path`, not on name, because the name
+swaps `.` for `_` and can be renamed by hand. Add new roots to the `printf` list
+inside the script.

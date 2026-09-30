@@ -1,29 +1,4 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# setup commands
-command_timeout = 2000
-
-# dispaly
-format = """$git_branch$git_status$git_metrics$git_state [❯](dimmed white) """
-
-# configs
-## ____ LEFT
-[git_branch]
-format = " [on](bright-black) [$branch]($style)"
-style = "bright-blue"
-
-[git_status]
-format = '([\[$all_status$ahead_behind\]]($style))'
-style = "dimmed white"
-
-# disabled: runs a full diff on every prompt, laggy in big repos
-[git_metrics]
-disabled = true
-format = '([ +$added]($added_style))([ -$deleted]($deleted_style))'
-added_style = "bold dimmed green"
-deleted_style = "bold dimmed red"
-
-
-[git_state]
-format = '\([$state( $progress_current/$progress_total)]($style)\)'
-style = "bold bright-blue"
+# git state lives in the tmux status-right (scripts/tmux-git-status)
+format = """[❯](dimmed white) """

@@ -1,0 +1,22 @@
+#!/bin/sh
+# status-right: repo directory, branch and lines added/deleted since it left the default branch, for $1.
+# Compares against the local origin/* refs; fetching every status-interval is too slow.
+
+cd "$1" 2>/dev/null || exit 0
+branch=$(git branch --show-current 2>/dev/null) || exit 0
+[ -n "$branch" ] || branch=$(git rev-parse --short HEAD 2>/dev/null) || exit 0
+
+base=$(git symbolic-ref -q --short refs/remotes/origin/HEAD 2>/dev/null)
+fork=$(git merge-base "${base:-origin/main}" HEAD 2>/dev/null) || fork=HEAD
+
+# " 1 file changed, 3 insertions(+), 2 deletions(-)"; either count may be missing
+stat=$(git diff --shortstat "$fork" 2>/dev/null)
+added=$(printf '%s' "$stat" | sed -n 's/.* \([0-9]*\) insertion.*/\1/p')
+deleted=$(printf '%s' "$stat" | sed -n 's/.* \([0-9]*\) deletion.*/\1/p')
+
+root=$(git rev-parse --show-toplevel)
+out="#[fg=#768390]${root##*/} - $branch"
+[ -n "$added$deleted" ] && out="$out -"
+[ -n "$added" ] && out="$out #[fg=#57ab5a]+$added"
+[ -n "$deleted" ] && out="$out #[fg=#f47067]-$deleted"
+printf '%s' "$out"
