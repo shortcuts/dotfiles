@@ -44,8 +44,9 @@ public.
   view. A panel link to a visible node centers it instead.
 - **Links land on the deepest visible box.** Each link lifts to the first folded node on
   the path to each end, so one link written on a leaf shows at every fold. The links that
-  cross the selected node's border are accent-colored, and so are the boxes at their far
-  end. Inside a selected frame, every link would light up otherwise.
+  cross the selected node's border light up: purple for a link into the selection, orange
+  for a link out of it. A legend in the canvas corner names the two. The boxes at their far
+  end get an accent border. Inside a selected frame, every link would light up otherwise.
 - **ELK lays out the canvas.** It is built for nested graphs and routes links around
   boxes. A frame with no link inside packs its children
   with `rectpacking`, because layered layout stacks unlinked siblings in one tall column.
@@ -56,7 +57,10 @@ public.
   A leaf has neither. The chevron turns, so the state change reads as one motion.
 - **Drag pans, pinch zooms.** A plain wheel or two-finger swipe pans, and a pinch or
   Ctrl/⌘+wheel zooms at the pointer. A drag of 4 px or more is a pan, not a click.
-  **Fit**, **Expand all**, and **Collapse** sit in the canvas corner.
+  **Fit**, **Expand all**, **Collapse**, and **Full screen** sit in the canvas corner. A
+  flow with a stepper goes full screen with its banner, so the step text stays in view.
+- **One title in the bar.** With more than one note, the switcher shows the title on the
+  right, and the `h1` stays for screen readers only. A visible `h1` repeated the select.
 - **The hash holds the view state:** the note, the selected node, and the unfolded nodes.
 - **One Obsidian page per note.** The page holds the root's summary, problem, principles,
   parts, and words, so vault search finds a term, plus a `file://` link that opens the
@@ -97,7 +101,8 @@ public.
 
 GitHub Dark Dimmed in dark mode, GitHub Light in light mode. Muted text is scale gray
 `#909dab`, because the theme's own `#768390` measures 3.9:1 on the canvas. The accent marks
-only what a click reaches, so the links away from the selection stay muted. One face for everything:
+only what a click reaches, so the links away from the selection stay muted. The link
+directions use purple and orange, which stay apart under red-green color blindness. One face for everything:
 JetBrainsMono Nerd Font Mono, with the web JetBrains Mono as fallback for a shared file.
 Ligatures are off, so code reads as typed. No shadows, blur, or background texture. Tokens
 sit on `:root`. Dark mode redefines them under `prefers-color-scheme` and

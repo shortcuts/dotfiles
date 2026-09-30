@@ -1,6 +1,8 @@
 :root {
   --paper: #ffffff; --raised: #f6f8fa; --ink: #1f2328; --muted: #59636e;
   --rule: #d1d9e0; --accent: #0969da; --accent-soft: #ddf4ff;
+  /* Purple and orange stay apart under red-green color blindness; blue stays the selection. */
+  --in: #8250df; --out: #bc4c00;
   /* The local Nerd Font first; the web JetBrains Mono covers a shared file on another machine. */
   --font: "JetBrainsMono Nerd Font Mono", "JetBrains Mono", ui-monospace, monospace;
   --t-small: .75rem; --t-ui: .8125rem; --t-body: .9375rem; --t-lead: 1.0625rem;
@@ -12,11 +14,13 @@
   :root:not([data-theme="light"]) {
     --paper: #22272e; --raised: #2d333b; --ink: #adbac7; --muted: #909dab;
     --rule: #444c56; --accent: #539bf5; --accent-soft: #27354a;
+    --in: #b083f0; --out: #e0823d;
   }
 }
 :root[data-theme="dark"] {
   --paper: #22272e; --raised: #2d333b; --ink: #adbac7; --muted: #909dab;
   --rule: #444c56; --accent: #539bf5; --accent-soft: #27354a;
+    --in: #b083f0; --out: #e0823d;
 }
 * { box-sizing: border-box; }
 /* A scrollbar that appears on a long note would shift the whole page sideways. */
@@ -42,10 +46,13 @@ h1, h2, h3, .claim { text-wrap: balance; }
   background: var(--paper); border-bottom: 1px solid var(--rule);
 }
 .bar h1 { font-size: var(--t-body); margin: 0; font-weight: 700; flex: 1 1 16rem; min-width: 0; }
+/* With the heading hidden, the meta takes the free space and pushes the switcher right. */
+.bar .sr + .meta { flex: 1 1 auto; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .bar .meta { color: var(--muted); font-size: var(--t-ui); }
 .bar select, .bar .share {
   font-size: var(--t-ui); height: 32px; padding: 0 12px; border: 1px solid var(--rule);
-  background: var(--raised); border-radius: 6px; cursor: pointer; max-width: 18rem;
+  background: var(--raised); border-radius: 6px; cursor: pointer; max-width: min(36rem, 100%);
 }
 .bar .share { display: inline-flex; align-items: center; color: inherit; text-decoration: none; }
 @media (hover: hover) { .bar select:hover, .bar .share:hover { border-color: var(--muted); } }
@@ -113,9 +120,27 @@ main { max-width: 1168px; margin: 0 auto; padding: 20px 24px 120px; }
 }
 .box.open .sum { -webkit-line-clamp: 1; line-clamp: 1; }
 .edge { fill: none; stroke: var(--muted); stroke-opacity: .5; stroke-width: 1.3; stroke-linejoin: round; }
-.edge.hot { stroke: var(--accent); stroke-opacity: 1; stroke-width: 1.8; }
+.edge.hot, .edge.in, .edge.out { stroke: var(--accent); stroke-opacity: 1; stroke-width: 1.8; }
+.edge.in { stroke: var(--in); }
+.edge.out { stroke: var(--out); }
 .elabel { font: 11px var(--font); fill: var(--muted); text-anchor: middle; paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
 .elabel.hot { fill: var(--accent); }
+.elabel.in { fill: var(--in); }
+.elabel.out { fill: var(--out); }
+.legend {
+  position: absolute; inset-block-start: 10px; inset-inline-start: 12px; z-index: 1;
+  display: flex; gap: 16px; font-size: var(--t-small); color: var(--muted); pointer-events: none;
+}
+.legend span::before {
+  content: ""; display: inline-block; width: 16px; height: 2px; margin-inline-end: 6px;
+  vertical-align: middle; background: currentColor;
+}
+.legend .in::before { background: var(--in); }
+.legend .out::before { background: var(--out); }
+.map:fullscreen, .full:fullscreen .map.flow { width: 100vw; height: 100vh; margin: 0; border: 0; border-radius: 0; }
+.full:fullscreen { display: flex; flex-direction: column; background: var(--paper); }
+.full:fullscreen .stepper { width: 100%; margin: 0; border-radius: 0; }
+.full:fullscreen .map.flow { flex: 1; height: auto; }
 .tools { position: absolute; inset-block-end: 12px; inset-inline-end: 12px; display: flex; gap: 6px; z-index: 1; }
 .tools button, .stepper button {
   height: 32px; min-width: 32px; padding: 0 10px; font-size: var(--t-ui); cursor: pointer;

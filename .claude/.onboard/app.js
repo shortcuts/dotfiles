@@ -140,7 +140,7 @@ function flow(f, steps) {
   };
   cv.map.classList.add("stepping");
   show(0);
-  return [h("div", { class: "stepper" }, prev, count, text, next), cv.map];
+  return h("div", { class: "full" }, h("div", { class: "stepper" }, prev, count, text, next), cv.map);
 }
 
 const chevron = () => {
@@ -348,7 +348,10 @@ async function draw() {
 
   const sel = c.idx.byId.get(c.sel);
   // Only links that cross the selection's border light up: inside a frame, everything would.
-  const hot = (e) => e.raw.some((l) => c.idx.within(sel, l.from) !== c.idx.within(sel, l.to));
+  // One drawn edge joins two boxes, so its links all cross the border the same way.
+  const crosses = (l) => c.idx.within(sel, l.from) !== c.idx.within(sel, l.to);
+  const hot = (e) => e.raw.some(crosses);
+  const dir = (e) => { const l = e.raw.find(crosses); return !l ? "" : c.idx.within(sel, l.from) ? " out" : " in"; };
   const near = new Set(list.filter(hot).flatMap((e) => [e.a.id, e.b.id]));
   for (const [id, el] of c.boxes) if (!pos.has(id)) { el.remove(); c.boxes.delete(id); }
   for (const [id, r] of pos) {
@@ -373,7 +376,7 @@ async function draw() {
   }
 
   const parts = [TIP, ...res.edges.map((e, i) =>
-    marks(e, hot(list[i]) ? " hot" : "", list[i].raw.map((l) => l.label).join("\n")))];
+    marks(e, dir(list[i]), list[i].raw.map((l) => l.label).join("\n")))];
   c.svg?.remove();
   c.svg = h("svg", { width: res.width, height: res.height, "aria-hidden": "true", style: "z-index:999" });
   c.svg.innerHTML = parts.join("");
@@ -460,10 +463,29 @@ function canvas(get, cls, label, ...extra) {
   const tools = h("div", { class: "tools" },
     h("button", { "aria-label": "Zoom out", onclick: () => zoom(get(), 1 / 1.25) }, "−"),
     h("button", { "aria-label": "Zoom in", onclick: () => zoom(get(), 1.25) }, "+"),
-    h("button", { onclick: () => fit(get(), true) }, "Fit"), ...extra);
-  const map = h("section", { class: `map ${cls}`, "aria-label": label }, world, tools);
+    h("button", { onclick: () => fit(get(), true) }, "Fit"), ...extra,
+    h("button", { onclick: (e) => full(get(), e.currentTarget) }, "Full screen"));
+  const map = h("section", { class: `map ${cls}`, "aria-label": label }, world, tools,
+    cls === "tree" && h("div", { class: "legend", "aria-hidden": "true" },
+      h("span", { class: "in" }, "input"), h("span", { class: "out" }, "output")));
   pan(map, get);
+  // The canvas resizes more than once on its way in or out of full screen, so each resize
+  // fits again for a second. A plain window resize keeps the reader's pan.
+  let isFull = false, until = 0;
+  new ResizeObserver(() => {
+    const f = !!document.fullscreenElement?.contains(map);
+    if (f !== isFull) { isFull = f; until = Date.now() + 1000; }
+    if (f || Date.now() < until) fit(get(), false);
+  }).observe(map);
   return { map, world };
+}
+
+// A flow with a stepper goes full screen with its banner, so the arrows still say which step shows.
+function full(cv, btn) {
+  const el = cv.map.closest(".full") || cv.map;
+  if (document.fullscreenElement) return document.exitFullscreen();
+  el.onfullscreenchange = () => (btn.textContent = document.fullscreenElement === el ? "Exit full screen" : "Full screen");
+  el.requestFullscreen();
 }
 
 const mapView = () => canvas(() => current, "tree", "Map. Drag to pan, pinch or Ctrl+scroll to zoom.",
@@ -480,13 +502,15 @@ async function open(slug, nodeId, openIds) {
   const note = await loadNote(slug);
   document.title = note.title;
   const r = note.repo;
+  // With a switcher, the select shows the title, so the heading stays for screen readers only.
+  const switcher = !standalone && O.list.length > 1;
   const bar = h("header", { class: "bar" },
-    h("h1", {}, note.title),
+    h("h1", { class: switcher ? "sr" : null }, note.title),
     h("span", { class: "meta" },
       r.web ? h("a", { href: `${r.web}/tree/${r.sha}`, target: "_blank", rel: "noopener" },
         `${r.name}@${r.sha.slice(0, 7)}`) : `${r.name}@${r.sha.slice(0, 7)}`,
       `, ${note.generated}`),
-    !standalone && O.list.length > 1 && h("select", {
+    switcher && h("select", {
       "aria-label": "Switch note",
       onchange: (e) => open(e.target.value).catch(fail),
     }, O.list.map((n) => h("option", { value: n.slug, selected: n.slug === slug }, n.title))),
@@ -496,8 +520,8 @@ async function open(slug, nodeId, openIds) {
   const main = h("main", {}, crumbs, map, art);
   app.replaceChildren(bar, main);
   const idx = index(note.root);
-  const open = new Set([note.root.id, ...(openIds || "").split(",").filter((id) => idx.byId.get(id)?.children?.length)]);
-  current = { note, main, idx, map, world, crumbs, art, open, boxes: new Map(), pos: new Map(), view: { x: 0, y: 0, k: 1 },
+  const unfolded = new Set([note.root.id, ...(openIds || "").split(",").filter((id) => idx.byId.get(id)?.children?.length)]);
+  current = { note, main, idx, map, world, crumbs, art, open: unfolded, boxes: new Map(), pos: new Map(), view: { x: 0, y: 0, k: 1 },
     bounds: () => current.pos.get(note.root.id) };
   await pick(idx.byId.has(nodeId) ? nodeId : note.root.id, false);
   fit(current, false);

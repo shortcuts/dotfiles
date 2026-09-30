@@ -65,7 +65,14 @@ has(broken(lambda n: n["root"].update(flow="flowchart LR\n  a -->|call| b")), "f
 has(broken(lambda n: n["root"]["flow"]["edges"][0].update(label="maybe")), "flow label")
 has(broken(lambda n: n["root"]["flow"]["edges"][0].update(to="c")), "unknown shape")
 has(broken(lambda n: n["root"]["flow"]["nodes"].extend(
-    {"id": f"x{i}", "name": "x"} for i in range(11))), "at most 12")
+    {"id": f"x{i}", "name": "x"} for i in range(6))), "at most 7")
+child_flow = copy.deepcopy(VALID["root"]["flow"])
+child_flow["nodes"] += [{"id": f"x{i}", "name": "x"} for i in range(8)]
+assert check(copy.deepcopy(VALID) | {"root": VALID["root"] | {"children": [
+    VALID["root"]["children"][0] | {"flow": child_flow}, VALID["root"]["children"][1]]}}) == []
+child_flow["nodes"] += [{"id": f"y{i}", "name": "y"} for i in range(3)]
+has(check(copy.deepcopy(VALID) | {"root": VALID["root"] | {"children": [
+    VALID["root"]["children"][0] | {"flow": child_flow}, VALID["root"]["children"][1]]}}), "at most 12")
 has(broken(lambda n: n["root"].update(role=["One.", "Two."])), "one paragraph")
 has(broken(lambda n: n["root"]["children"][0].update(role=["x" * 161])), "role over")
 has(broken(lambda n: n["root"].update(problem="x" * 241)), "problem over")
@@ -93,6 +100,7 @@ assert check(VALID | {"scope": {"kind": "feature", "query": "x"}}
              | {"root": VALID["root"] | {"kind": "feature", "path": None, "stack": None,
                                          "lifecycle": steps}}) == []
 has(broken(lambda n: n["root"].update(lifecycle=["A bare string."])), "text and at")
+has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["a"]}] * 7)), "at most 6 steps")
 has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["zz"]}])), "unknown shape")
 md = prose(VALID)
 assert "## nvim/lua" in md and "Lua modules." in md and "Two Macs drift apart." in md, md

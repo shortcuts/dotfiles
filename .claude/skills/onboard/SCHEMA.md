@@ -35,7 +35,7 @@ ignores the hints, and `--install` strips them.
 | `path` | string or null | Repo-relative. `""` is the repo root. `null` for `group`, `function`, `feature` |
 | `summary` | string | One sentence, at most 140 characters. The tree prints it beside the name |
 | `role` | string[] | One paragraph, at most 160 characters (two lines of the panel): why the node exists |
-| `flow` | Flow | 12 shapes at most. Required on the root, and on a node that touches a database, a queue, or an external service |
+| `flow` | Flow | 7 shapes at most on the root, 12 below it. Required on the root, and on a node that touches a database, a queue, or an external service |
 | `links` | Link[] | Optional. How this node talks to other nodes of the tree |
 | `entry` | Entry[] | Optional. Ordered by importance. The viewer shows 3 and folds the rest |
 | `external` | Service[] | Optional. Services outside the repo this node calls |
@@ -100,7 +100,7 @@ a bucket, and the viewer draws it as a pill. Each edge `label` follows
 | `problem` | always | string, at most 240 characters (three lines): what breaks without the subject |
 | `principles` | always | 1–3 of `{ "claim", "mammoth": { "rows": [[scene, subject], …], "breaks" }, "cost" }`, with 2 or 3 rows. No code identifier: no `snake_case`, no `table.column`, no backticks. The viewer prints `Breaks down at:` before `breaks` |
 | `stack` | `repo`, `path` | `[{ "name", "url", "role" }]`: language, runtime, main libraries |
-| `lifecycle` | `feature` | `[{ "text", "at": [shape id, …] }]`: one step per stage of the data, in order. `at` names the root `flow` shapes the step touches. The viewer steps through the graph and lights those shapes and the edges between them |
+| `lifecycle` | `feature` | `[{ "text", "at": [shape id, …] }]`: at most 6 steps, one per stage of the data, in order. `at` names the root `flow` shapes the step touches. The viewer steps through the graph and lights those shapes and the edges between them |
 | `io` | `function` | `{ "inputs": [..], "outputs": [..], "goes": "where the result goes" }` |
 
 ## Flow labels

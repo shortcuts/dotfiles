@@ -22,6 +22,9 @@ MAX_SUMMARY = 140
 MAX_ROLE = 160
 MAX_PROBLEM = 240
 MAX_SHAPES = 12
+# The root shows the outcome a newcomer can hold in their head; the mechanism lives one level down.
+MAX_ROOT_SHAPES = 7
+MAX_STEPS = 6
 # The principles explain behavior; a column, a variable, or a code span is implementation.
 IDENTIFIER = re.compile(r"`|\b\w+_\w+\b|\b[a-z]\w*\.[a-z_]\w+\b")
 MAX_CHILDREN = 12
@@ -37,13 +40,13 @@ def tracked(repo, sha):
     return files, dirs
 
 
-def check_flow(where, flow):
+def check_flow(where, flow, limit=MAX_SHAPES):
     if not (isinstance(flow, dict) and flow.get("nodes") and flow.get("edges")):
         return [f"{where}: flow needs nodes and edges"]
     errors = []
     ids = {n.get("id") for n in flow["nodes"]}
-    if len(flow["nodes"]) > MAX_SHAPES:
-        errors.append(f"{where}: flow has {len(flow['nodes'])} shapes, at most {MAX_SHAPES}")
+    if len(flow["nodes"]) > limit:
+        errors.append(f"{where}: flow has {len(flow['nodes'])} shapes, at most {limit}")
     for n in flow["nodes"]:
         if not (n.get("id") and n.get("name")):
             errors.append(f"{where}: flow shape without id or name: {n}")
@@ -90,6 +93,8 @@ def check_root(note, root):
     # Each step lights its shapes in the root flow, so the reader steps through the graph.
     flow = root.get("flow")
     shapes = {n.get("id") for n in flow.get("nodes", [])} if isinstance(flow, dict) else set()
+    if len(root.get("lifecycle") or []) > MAX_STEPS:
+        errors.append(f"root: lifecycle has at most {MAX_STEPS} steps")
     for i, step in enumerate(root.get("lifecycle") or [], 1):
         if not (isinstance(step, dict) and step.get("text") and step.get("at")):
             errors.append(f"root: lifecycle step {i} needs text and at")
@@ -180,7 +185,8 @@ def check(note):
             errors.append(f"{where}: {len(children)} children; group them, at most "
                           f"{MAX_CHILDREN}")
         if node.get("flow"):
-            errors.extend(check_flow(where, node["flow"]))
+            errors.extend(check_flow(where, node["flow"],
+                                     MAX_SHAPES if depth else MAX_ROOT_SHAPES))
         for e in node.get("entry", []):
             if e.get("path") not in files:
                 errors.append(f"{where}: entry {e.get('name')}: {e.get('path')!r} is "

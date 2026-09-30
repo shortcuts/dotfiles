@@ -25,6 +25,7 @@ You write every field it leaves as `TODO`: the prose, the flows, and the judgmen
 
 **The note is done when:**
 
+- The reader can say what the scope produces, who uses it, and what they get from it.
 - The reader can draw the scope's main parts and the arrows between them from memory.
 - For each package, the reader can say in one sentence why it exists.
 - Each arrow says how the data moves: a plain call, async, HTTP, gRPC, a queue, or the DB.
@@ -120,20 +121,26 @@ reader can follow the data from its entry to its last write without leaving the 
 Read [`SCHEMA.md`](SCHEMA.md) for each field. Follow
 [`../_shared/STYLE.md`](../_shared/STYLE.md). The word list is `words`.
 
-**The root** carries the scope's whole story:
+**The root** tells the outcome, not the mechanism. The reader first needs what the scope
+produces and who uses it. The children carry how it works.
 
-- `summary` and `role`: one line and two lines. The panel opens with them;
+- `summary` and `role`: one line and two lines. The panel opens with them. Name the
+  output, its consumer, and what the consumer gets: "builds the files that searches
+  read", not "streams jobs to the engine";
 - `words`: the terms the rest of the note needs, the five most important first. The
-  viewer shows five and folds the rest;
+  first term is the scope's own output or unit of work ("build", "index"), in words a
+  newcomer to the domain understands;
 - `title` and `problem`: what breaks without the subject, as a scene from its domain, in
-  two or three sentences;
+  two or three sentences. The scene ends at what a user sees;
 - one to three `principles`, each with its mammoth of two or three rows. A principle says
   how the system behaves and how its parts talk: "every hand-off is a table", not "the
   driver writes `last_job_id`";
 - for repo or path scope, the `stack`, each item linked to its official docs;
-- for feature scope, the `lifecycle` of the data: a walk through the `flow`, one step
-  per edge or run of edges, in the order the data moves. Each step's `at` names the flow
-  shapes it touches, and the viewer lights them as the reader steps;
+- for feature scope, the `lifecycle` of the data: at most six steps through the root
+  `flow`, in the order the data moves, from the input to the consumer of the result.
+  Each step's `at` names the flow shapes it touches, and the viewer lights them as the
+  reader steps. A step says what happens to the data, never which goroutine, batch
+  size, or table does it;
 - for function scope, the `io`: the inputs, the outputs, and where the result goes;
 - the scope's `flow`.
 
@@ -163,8 +170,11 @@ bucket `store`. Each edge label starts with a word from
             { "from": "builder", "to": "s3", "label": "async: upload" }] }
 ```
 
-Twelve shapes at most. When more parts touch the node, draw the ones the data passes
-through. The node's links still show the rest.
+Seven shapes at most on the root, twelve below it. The root flow draws the outcome: the
+input, the subject, what it produces, and who consumes it. Merge the stores of one
+database into one shape, and leave internal helpers to the child that owns them. When
+more parts touch a node, draw the ones the data passes through. The node's links still
+show the rest.
 
 **Fan-out.** More than 25 nodes to write: write the root and `words` first. Then spawn
 one subagent per top-level child. Pass each one:
