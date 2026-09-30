@@ -117,8 +117,18 @@ STL/.DS_Store
 !.claude/skills/release-notes/**
 !.claude/skills/self-review/
 !.claude/skills/self-review/**
+<<<<<<< HEAD
 !.claude/skills/test-audit/
 !.claude/skills/test-audit/**
+||||||| parent of 17aa6fa (feat: test-audit skill from openclaw)
+!.claude/hooks/
+!.claude/hooks/tmux-claude-code-status.sh
+=======
+!.claude/skills/test-audit/
+!.claude/skills/test-audit/**
+!.claude/hooks/
+!.claude/hooks/tmux-claude-code-status.sh
+>>>>>>> 17aa6fa (feat: test-audit skill from openclaw)
 
 # ccstatusline
 !ccstatusline/
