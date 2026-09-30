@@ -1,0 +1,25 @@
+#!/bin/sh
+# Keep the agent sidebar in every window on a wide client, drop it on a narrow one (phone).
+# $1 is the client width. Hooks without a client (new window/session) omit it and
+# reuse the last decision, since an empty width would read as narrow.
+# ponytail: one global decision from the last client; per-client layouts if laptop and phone attach at once
+
+MIN_WIDTH=120 # laptop is ~170 cols, a phone in portrait ~55
+
+bin=$(tmux show -gv @agent_sidebar_bin 2>/dev/null)
+[ -x "$bin" ] || exit 0
+
+if [ -n "${1:-}" ]; then
+    wide=$([ "$1" -ge "$MIN_WIDTH" ] && echo 1 || echo 0)
+    tmux set -g @sidebar_fit_wide "$wide"
+else
+    wide=$(tmux show -gv @sidebar_fit_wide 2>/dev/null || echo 1)
+fi
+
+if [ "$wide" = 1 ]; then
+    tmux list-panes -a -F '#{window_id} #{pane_current_path}' | awk '!seen[$1]++' |
+        while read -r window path; do "$bin" toggle --create-only "$window" "$path"; done
+else
+    tmux list-panes -a -F '#{pane_id} #{@pane_role}' | awk '$2 == "sidebar" { print $1 }' |
+        while read -r pane; do tmux kill-pane -t "$pane"; done
+fi

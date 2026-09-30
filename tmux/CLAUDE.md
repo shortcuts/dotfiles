@@ -2,20 +2,17 @@
 
 Prefix is `C-y`, not the default `C-b`. Every other binding lives in `tmux.conf`.
 
-## Agent notifications
+## Plugins
 
-`.claude/hooks/tmux-claude-code-status.sh` runs on the Claude Code `SessionStart`,
-`UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `Notification`, `Stop` and
-`SessionEnd` events, wired in `.claude/settings.json`. It sends a macOS toast and rings
-the pane bell. The bell sets an orange flag on the window (`window-status-bell-style`),
-cleared when the window gets focus. The hook stays silent when the pane is active in an
-attached session.
+TPM manages plugins in `~/.tmux/plugins/`, not the XDG default `~/.config/tmux/plugins/`.
+The Claude Code hook of `tmux-agent-sidebar` looks for its binary only in
+`~/.tmux/plugins/tmux-agent-sidebar/bin/`.
 
-The hook also writes the state to two user options:
+`tmux-agent-sidebar` shows every Claude Code pane across sessions, with its state, and
+sends the desktop notifications. `<prefix> e` toggles it in the current window,
+`<prefix> E` in every window. Its Claude Code side is the `tmux-agent-sidebar@hiroppy`
+plugin in `.claude/settings.json`.
 
-- `@agent_state` (session scope) — shown in the `<prefix> s` session tree
-- `@agent_win_state` (window scope) — shown as a colored dot after the window name in the
-  status bar
-
-States: `working` (orange), `stuck` (red), `idle` (green). `SessionEnd` clears both
-options.
+`scripts/tmux-sidebar-fit` replaces the plugin's auto-create. On attach, resize, and every
+new window or session, it opens the sidebar in every window when the client is at least
+120 columns wide. On a narrower client (a phone), it closes every sidebar.

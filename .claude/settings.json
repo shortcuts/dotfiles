@@ -65,179 +65,113 @@
   "model": "opus",
   "hooks": {
     "PreToolUse": [
-    {
+      {
         "matcher": "Bash",
         "hooks": [
-            {
-                "type": "command",
-                "command": "rtk hook claude"
-            }
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
         ]
-    },
-    {
-        "hooks": [
-            {
-                "type": "command",
-                "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
-            }
-        ]
-    },
-    {
+      },
+      {
         "matcher": "Grep|Glob|Bash",
         "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    }
-],
+      }
+    ],
     "SessionStart": [
-    {
-        "hooks": [
-            {
-                "type": "command",
-                "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh start"
-            }
-        ]
-    },
-    {
+      {
         "matcher": "startup",
         "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
+      },
+      {
         "matcher": "resume",
         "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
+      },
+      {
         "matcher": "clear",
         "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    },
-    {
+      },
+      {
         "matcher": "compact",
         "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
-        ]
-    }
-],
-    "Notification": [
-      {
-        "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh notification"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh end"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh stop"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh working"
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
           }
         ]
       }
     ],
     "PostToolUse": [
-    {
-        "matcher": "Read",
-        "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
-        ]
-    }
-],
-    "PermissionRequest": [
       {
+        "matcher": "Read",
         "hooks": [
           {
             "type": "command",
-            "command": "sh ~/.claude/hooks/tmux-claude-code-status.sh stuck"
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
           }
         ]
       }
     ],
     "SubagentStart": [
-    {
+      {
         "matcher": "*",
         "hooks": [
-            {
-                "type": "command",
-                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-                "args": [
-                    "hook-augment"
-                ],
-                "timeout": 5
-            }
+          {
+            "type": "command",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
         ]
-    }
-]
+      }
+    ]
   },
   "statusLine": {
     "type": "command",
@@ -254,7 +188,8 @@
     "gopls-lsp@claude-plugins-official": true,
     "mattpocock-skills@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
-    "interfaces@interfaces": true
+    "interfaces@interfaces": true,
+    "tmux-agent-sidebar@hiroppy": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -279,6 +214,12 @@
       "source": {
         "source": "github",
         "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "hiroppy": {
+      "source": {
+        "source": "github",
+        "repo": "hiroppy/tmux-agent-sidebar"
       }
     }
   },

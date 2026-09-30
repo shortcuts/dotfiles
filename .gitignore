@@ -73,7 +73,6 @@ fish/fish_variables*
 # tmux
 !tmux/
 !tmux/**
-tmux/tmux-claude-code-status.conf
 
 !scripts/
 !scripts/**
@@ -121,16 +120,11 @@ STL/.DS_Store
 !.claude/skills/self-review/**
 !.claude/skills/test-audit/
 !.claude/skills/test-audit/**
-!.claude/hooks/
-!.claude/hooks/tmux-claude-code-status.sh
 
 # ccstatusline
 !ccstatusline/
 !ccstatusline/settings.json
 
-# tmux-claude-code-status installer (public one-liner)
-!tmux-claude-code-status/
-!tmux-claude-code-status/**
 
 # Un-ignored skill folders would track Python bytecode.
 __pycache__/
