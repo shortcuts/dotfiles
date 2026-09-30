@@ -151,7 +151,7 @@ main { max-width: 1168px; margin: 0 auto; padding: 20px 24px 120px; }
 .conn li { padding: 4px 0; }
 .conn .how { color: var(--muted); }
 
-article { max-width: 76ch; }
+article { max-width: 76ch; margin-inline: auto; }
 article h2 { font-size: var(--t-h2); line-height: 1.25; margin: 0 0 10px; }
 article h3 { font-size: var(--t-h3); line-height: 1.35; margin: 48px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
 article p { margin: 0 0 14px; }
@@ -171,20 +171,22 @@ ol.steps li::marker { color: var(--muted); }
 }
 .expand svg { vertical-align: -2px; }
 .expand[aria-expanded="true"] svg { transform: rotate(180deg); }
-table.mammoth { border-collapse: collapse; width: 100%; font-size: var(--t-ui); margin: 12px 0; }
-table.mammoth th, table.mammoth td { text-align: start; padding: 8px 16px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
-table.mammoth th { font-weight: 700; color: var(--muted); }
+table.example { border-collapse: collapse; width: 100%; font-size: var(--t-ui); margin: 12px 0; }
+table.example th, table.example td { text-align: start; padding: 8px 16px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.example th { font-weight: 700; color: var(--muted); }
 .breaks { font-size: var(--t-ui); color: var(--muted); }
 .principle { margin-bottom: 32px; }
 .principle .claim { font-weight: 700; }
 /* A flow leaves the text measure, so a wide graph opens at a readable scale. */
-.map.flow { width: min(calc(100vw - 48px), 1120px); height: 380px; margin: 12px 0 4px; }
+/* The flow is wider than the centered article, so a negative margin centers it on the page. */
+.map.flow, .stepper { --wide: min(calc(100vw - 48px), 1120px); width: var(--wide); margin-inline: calc((100% - var(--wide)) / 2); }
+.map.flow { height: 380px; margin-block: 12px 4px; }
 /* A store (a database, a queue, a bucket) is a pill, so it reads apart from a service. */
 .box.shape { display: grid; place-items: center; padding: 0 12px; font-size: var(--t-ui); font-weight: 700; white-space: nowrap; }
 .box.store { border-radius: 999px; border-color: var(--muted); background: var(--raised); }
 /* The stepper banner sits on the graph's top edge; left and right arrows move it. */
 .stepper {
-  display: flex; align-items: center; gap: 12px; width: min(calc(100vw - 48px), 1120px);
+  display: flex; align-items: center; gap: 12px;
   margin-top: 12px; padding: 10px 12px; border: 1px solid var(--rule); border-bottom: 0;
   border-radius: 6px 6px 0 0; background: var(--raised);
 }

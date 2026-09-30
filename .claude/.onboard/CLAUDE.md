@@ -12,7 +12,7 @@ skill.
 | `index.html` | The page shell: markup and the `ONBOARD` registry | yes |
 | `app.css`, `app.js` | The viewer's style and code, shared by the page and every bundle | yes |
 | `bundle.py` | Fetches `vendor/`, and builds the one-file copy of a note | yes |
-| `vendor/` | ELK, pinned by version and sha256 | no |
+| `vendor/` | ELK and the JetBrains Mono woff2 files, pinned by version and sha256 | no |
 | `notes/<slug>.js` | One note, written by `check.py --install` | no |
 | `notes/<slug>.html` | The note's one-file copy, written by `bundle.py` on each install | no |
 | `notes/manifest.js` | The note list for the switcher, rebuilt on each install | no |
@@ -25,8 +25,9 @@ public.
 
 - **Shared files, bundled at install.** A `file://` page cannot `fetch()` its own
   `app.js` to inline it, so the browser cannot build a one-file copy. `bundle.py` builds
-  it at install instead: the page, the note, and ELK in one HTML file of about
-  1.6 MB. The file opens offline, and the download button links to it.
+  it at install instead: the page, the note, ELK, and the font in one HTML file of about
+  1.7 MB. The file references nothing outside itself, so "Save as" or a mail attachment
+  carries all of it. The download button links to it.
 - **Vendored libraries, fetched once.** `bundle.py` downloads ELK into
   `vendor/` and checks each file against its pinned sha256, because the page runs that
   code. The viewer loads `vendor/` first and falls back to jsDelivr. It fetches with
@@ -82,6 +83,9 @@ public.
   shows one step. **←** and **→**, on screen or on the keyboard, move it. The step's shapes
   and the edges between them light up, and the rest dims. A list beside the graph made the
   reader match each step to its shapes by eye. With no ELK, the steps show as a list.
+  A flow with no `lifecycle` gets one step per edge, in the order of `edges`, so every
+  flow steps alike without more prose in the note. Each step zooms to its shapes, with a
+  margin for their neighbours, so a big graph stays readable. **Fit** shows the whole graph.
 - **Links pin to `repo.sha`.** A branch link drifts as the code moves. With `repo.web`
   null, the links open `vscode://file/…`.
 - **Entry points show three, the rest fold behind "Show N more".**
@@ -95,7 +99,8 @@ public.
   panel and in the tooltip. The monospace face makes a link label's width a character
   count, so ELK gets exact label sizes without measuring the DOM.
 - **Flows leave the text measure.** A flow canvas spans `main` at a fixed 380 px height,
-  so a wide graph gets room and a fold never shifts the text below.
+  so a wide graph gets room and a fold never shifts the text below. The text column is
+  centered in `main`, and each flow is centered on the page.
 
 ## Design tokens
 
@@ -103,7 +108,8 @@ GitHub Dark Dimmed in dark mode, GitHub Light in light mode. Muted text is scale
 `#909dab`, because the theme's own `#768390` measures 3.9:1 on the canvas. The accent marks
 only what a click reaches, so the links away from the selection stay muted. The link
 directions use purple and orange, which stay apart under red-green color blindness. One face for everything:
-JetBrainsMono Nerd Font Mono, with the web JetBrains Mono as fallback for a shared file.
+JetBrainsMono Nerd Font Mono, with JetBrains Mono as fallback for a shared file. The page
+loads it from Google Fonts, and a bundle inlines its Latin subset.
 Ligatures are off, so code reads as typed. No shadows, blur, or background texture. Tokens
 sit on `:root`. Dark mode redefines them under `prefers-color-scheme` and
 `[data-theme="dark"]`.

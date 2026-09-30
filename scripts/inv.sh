@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 banners=(kanto johto hoenn sinnoh kalos alola galar paldea)
-cookie='remember_web=e%3ANLaO_KcgCTY6J9OW6GF9iUPrIHCIRxgb-l9SkXI5RNQIrfyidApGcg91YQhjyqTqClcwQu2aodqarnllMendWP_oqEWRMJFanp93TFdWTQSLuPf5zDsYGpgdz7LacxSQWw9BO5vXkG9MDE6GgocE5A.MUpwWk1NMFRWejZqT3diVw.iDain2OK-5aBBPIGEf6XUSN1Zo1STUGAVNWspA9gCQI; adonis-session=s%3AeyJtZXNzYWdlIjoicmw1cmNlNmc3dDZxemxsam50czkxYW8xIiwicHVycG9zZSI6ImFkb25pcy1zZXNzaW9uIn0.VwSTS4bxsuoML16iweG8MSLWj1d-zvfjd-7Qel2ok8s; rl5rce6g7t6qzlljnts91ao1=e%3A7SphC7bFp2RX4L1TsJkVwoUwFkrQ7Oz8MT8FO2zz81wou0YeUZ8IqnmA6n5pnAN1tu1_oooYEk6o46MQEx9mToAlOeP8g0DKThJ3_tgA_Sbw-JNKYGoUvZ1RtMaxYaDqmAy_eBzyKDN3UdbFpWF_t3afY-BYOfcjroL0LKE8OKvoL47m0Ny0eEt_hentANTxGx2QAkkLJD49K2Wf2edBYg.ZUhOUUNUWHppSm9LVExqUg.v7eWh6UwNoJ0MeYCq4FWqk2n3iwPqQpJYOBIHkIqxmY'
+cookie=''
 
 count=${1:-100}
 seen_file="$(dirname "$0")/.seen_shinies"

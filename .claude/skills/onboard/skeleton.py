@@ -360,8 +360,8 @@ def main():
         tree["lifecycle"] = [{"text": TODO, "at": [TODO]}]
     tree["id"] = tree["id"] or ""
     tree["problem"] = TODO
-    tree["principles"] = [{"claim": TODO, "cost": TODO,
-                           "mammoth": {"rows": [[TODO, TODO], [TODO, TODO]], "breaks": TODO}}]
+    tree["principles"] = [{"claim": TODO, "why": TODO, "cost": TODO,
+                           "example": [[TODO, TODO], [TODO, TODO]]}]
     tree["flow"] = {"nodes": [{"id": TODO, "name": TODO}],
                     "edges": [{"from": TODO, "to": TODO, "label": TODO}]}
 

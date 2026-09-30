@@ -4,7 +4,7 @@ import copy
 import subprocess
 from pathlib import Path
 
-from check import check, prose
+from check import check, prose, spelled
 
 REPO = subprocess.run(["git", "rev-parse", "--show-toplevel"], cwd=Path(__file__).parent,
                       capture_output=True, text=True, check=True).stdout.strip()
@@ -21,8 +21,8 @@ VALID = {
         "summary": "Shell, editor, and agent config for two Macs.",
         "role": ["One clone sets up both machines."],
         "problem": "Two Macs drift apart.",
-        "principles": [{"claim": "One repo is the source.", "cost": "A symlink step.",
-                        "mammoth": {"rows": [["a", "b"], ["c", "d"]], "breaks": "x"}}],
+        "principles": [{"claim": "One repo is the source.", "why": "Two Macs drift apart.",
+                        "cost": "A symlink step.", "example": [["a", "b"], ["c", "d"]]}],
         "stack": [{"name": "fish", "url": "https://fishshell.com", "role": "Shell."}],
         "flow": {"nodes": [{"id": "a", "name": "fish"}, {"id": "b", "name": "Git: index", "store": True}],
                  "edges": [{"from": "a", "to": "b", "label": "call: git add"}]},
@@ -76,7 +76,7 @@ has(check(copy.deepcopy(VALID) | {"root": VALID["root"] | {"children": [
 has(broken(lambda n: n["root"].update(role=["One.", "Two."])), "one paragraph")
 has(broken(lambda n: n["root"]["children"][0].update(role=["x" * 161])), "role over")
 has(broken(lambda n: n["root"].update(problem="x" * 241)), "problem over")
-has(broken(lambda n: n["root"]["principles"][0]["mammoth"]["rows"].extend([["e", "f"], ["g", "h"]])),
+has(broken(lambda n: n["root"]["principles"][0]["example"].extend([["e", "f"], ["g", "h"]])),
     "2 or 3 rows")
 has(broken(lambda n: n["root"]["principles"][0].update(claim="The row stores last_job_id.")),
     "identifier")
@@ -87,8 +87,15 @@ has(broken(lambda n: n["scope"].update(kind="function")), "io")
 has(broken(lambda n: n["root"].update(problem="TODO")), "unfilled")
 has(broken(lambda n: n["root"]["stack"][0].update(url="TODO")), "unfilled")
 assert check(VALID | {"_index": {}}) == [], "underscore keys are hints, not errors"
-has(broken(lambda n: n["root"]["principles"][0]["mammoth"].update(breaks="Breaks down at: x")),
-    "prefix")
+has(broken(lambda n: n["root"]["principles"][0].update(**{"except": "Except: x"})), "prefix")
+has(broken(lambda n: n["root"]["principles"][0].pop("why")), "needs claim, why")
+# A term the repo never spells is a coined synonym: the reader cannot grep for it.
+has(broken(lambda n: n["words"].append({"term": "config funnel", "def": "x"})), "config funnel")
+assert check(VALID | {"words": [{"term": "Whitelist", "def": "x"}]}) == []
+assert spelled(REPO, SHA, "fish function"), "fish/functions/ counts as fish function"
+assert check(VALID | {"words": [{"term": "Lua", "def": "x", "from": "design doc"}]}) == []
+# A defined term the prose never uses means the prose renamed it.
+has(broken(lambda n: n["words"].append({"term": "mise", "def": "x"})), "'mise' is defined")
 link = lambda n: n["root"]["children"][1]["links"][0]
 has(broken(lambda n: link(n).update(to="nope")), "unknown node")
 has(broken(lambda n: link(n).update(to=".gitignore")), "itself")
@@ -103,6 +110,7 @@ has(broken(lambda n: n["root"].update(lifecycle=["A bare string."])), "text and 
 has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["a"]}] * 7)), "at most 6 steps")
 has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["zz"]}])), "unknown shape")
 md = prose(VALID)
+assert "- a: b" in md, md
 assert "## nvim/lua" in md and "Lua modules." in md and "Two Macs drift apart." in md, md
 # --prose runs before the note is complete, so a half-written external must not crash it.
 half = copy.deepcopy(VALID)

@@ -21,6 +21,7 @@ ignores the hints, and `--install` strips them.
   },
   "scope": { "kind": "repo | path | function | feature", "query": "report builder" },
   "words": [{ "term": "render job", "def": "One clause." }],  // most important first; the viewer shows 5
+  // check.py greps each term in the repo. A term from a doc outside it adds "from": "<the doc>"
   "root": { /* Node */ }
 }
 ```
@@ -80,7 +81,9 @@ it to whichever level the reader is on, so `driver -> harbordb` also shows as
   "edges": [{ "from": "scheduler", "to": "pg", "label": "writes DB: jobs" }] }
 ```
 
-The viewer lays the flow out with ELK, like the map. `store` marks a database, a queue, or
+The viewer lays the flow out with ELK, like the map. List `nodes` from the entry point
+to the endpoint: in a loop, an edge from a later node to an earlier one draws backward, so
+the list order sets left to right. `store` marks a database, a queue, or
 a bucket, and the viewer draws it as a pill. Each edge `label` follows
 [Flow labels](#flow-labels).
 
@@ -97,8 +100,8 @@ a bucket, and the viewer draws it as a pill. Each edge `label` follows
 
 | Key | When | Shape |
 |---|---|---|
-| `problem` | always | string, at most 240 characters (three lines): what breaks without the subject |
-| `principles` | always | 1–3 of `{ "claim", "mammoth": { "rows": [[scene, subject], …], "breaks" }, "cost" }`, with 2 or 3 rows. No code identifier: no `snake_case`, no `table.column`, no backticks. The viewer prints `Breaks down at:` before `breaks` |
+| `problem` | always | string, at most 240 characters (three lines): why the subject exists |
+| `principles` | always | 1–3 of `{ "claim", "why", "example": [[case, what the system does], …], "except"?, "cost" }`, with 2 or 3 rows. No code identifier: no `snake_case`, no `table.column`, no backticks. The viewer prints `Except:` before `except` |
 | `stack` | `repo`, `path` | `[{ "name", "url", "role" }]`: language, runtime, main libraries |
 | `lifecycle` | `feature` | `[{ "text", "at": [shape id, …] }]`: at most 6 steps, one per stage of the data, in order. `at` names the root `flow` shapes the step touches. The viewer steps through the graph and lights those shapes and the edges between them |
 | `io` | `function` | `{ "inputs": [..], "outputs": [..], "goes": "where the result goes" }` |

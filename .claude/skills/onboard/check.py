@@ -40,6 +40,14 @@ def tracked(repo, sha):
     return files, dirs
 
 
+def spelled(repo, sha, term):
+    # "render job" also matches render_job, renderJob, and render-job.
+    words = re.findall(r"[A-Za-z0-9]+", term)
+    pattern = "[^[:alnum:]]?".join(words)
+    return subprocess.run(["git", "-C", repo, "grep", "-q", "-I", "-i", "-E", "-e", pattern, sha],
+                          capture_output=True).returncode == 0
+
+
 def check_flow(where, flow, limit=MAX_SHAPES):
     if not (isinstance(flow, dict) and flow.get("nodes") and flow.get("edges")):
         return [f"{where}: flow needs nodes and edges"]
@@ -72,17 +80,16 @@ def check_root(note, root):
     if not 1 <= len(principles) <= 3:
         errors.append("root: needs 1 to 3 principles")
     for i, p in enumerate(principles, 1):
-        m = p.get("mammoth") or {}
-        if not (p.get("claim") and p.get("cost") and m.get("breaks")
-                and len(m.get("rows", [])) >= 2
-                and all(len(r) == 2 for r in m["rows"])):
-            errors.append(f"root: principle {i} needs claim, cost, mammoth rows and breaks")
+        rows = p.get("example") or []
+        if not (p.get("claim") and p.get("why") and p.get("cost") and len(rows) >= 2
+                and all(isinstance(r, list) and len(r) == 2 for r in rows)):
+            errors.append(f"root: principle {i} needs claim, why, cost, and example rows")
             continue
-        if not 2 <= len(m["rows"]) <= 3:
-            errors.append(f"root: principle {i}: mammoth needs 2 or 3 rows")
-        if m["breaks"].lower().startswith("breaks down at"):
-            errors.append(f"root: principle {i}: breaks repeats the prefix the viewer prints")
-        text = [p["claim"], p["cost"], m["breaks"], *(c for r in m["rows"] for c in r)]
+        if not 2 <= len(rows) <= 3:
+            errors.append(f"root: principle {i}: example needs 2 or 3 rows")
+        if p.get("except", "").lower().startswith("except"):
+            errors.append(f"root: principle {i}: except repeats the prefix the viewer prints")
+        text = [p["claim"], p["why"], p["cost"], p.get("except", ""), *(c for r in rows for c in r)]
         if found := [x for t in text for x in IDENTIFIER.findall(t)]:
             errors.append(f"root: principle {i}: code identifier {found[0]!r}; name the behavior")
     kind = note["scope"]["kind"]
@@ -149,6 +156,15 @@ def check(note):
     files, dirs = tracked(repo.get("path", ""), repo.get("sha", ""))
     if files is None:
         return errors + [f"repo: git cannot list {repo.get('sha')} in {repo.get('path')}"]
+
+    text = json.dumps(note["root"]).lower()
+    for w in note["words"]:
+        if w.get("term") and w["term"].lower() not in text:
+            errors.append(f"words: {w['term']!r} is defined but the note never uses it; "
+                          "a synonym took its place")
+        if w.get("term") and not w.get("from") and not spelled(repo["path"], repo["sha"], w["term"]):
+            errors.append(f"words: {w['term']!r} appears nowhere in the repo; use the subject's "
+                          "own term, or name the doc it comes from in `from`")
 
     seen, lineage = set(), {}
 
@@ -232,8 +248,9 @@ def prose(note):
         if root.get(key):
             out += [f"## root.{key}", root[key], ""]
     for i, p in enumerate(root.get("principles", [])):
-        out += [f"## root.principles[{i}]", p["claim"], p["cost"],
-                f"Breaks down at: {p['mammoth']['breaks']}", ""]
+        out += [f"## root.principles[{i}]", p["claim"], p["why"],
+                *(f"- {case}: {does}" for case, does in p["example"]),
+                *([f"Except: {p['except']}"] if p.get("except") else []), p["cost"], ""]
     for i, step in enumerate(root.get("lifecycle", [])):
         out += [f"## root.lifecycle[{i}]", step["text"], ""]
 

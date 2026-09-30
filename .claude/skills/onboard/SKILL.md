@@ -29,6 +29,7 @@ You write every field it leaves as `TODO`: the prose, the flows, and the judgmen
 - The reader can draw the scope's main parts and the arrows between them from memory.
 - For each package, the reader can say in one sentence why it exists.
 - Each arrow says how the data moves: a plain call, async, HTTP, gRPC, a queue, or the DB.
+- The reader can find each term and each case of the note in the repo.
 - `python3 check.py <note.json> --install` in this skill's folder prints `ok`.
 
 ## 1. Resolve the scope
@@ -119,7 +120,29 @@ reader can follow the data from its entry to its last write without leaving the 
 ## 5. Write the content
 
 Read [`SCHEMA.md`](SCHEMA.md) for each field. Follow
-[`../_shared/STYLE.md`](../_shared/STYLE.md). The word list is `words`.
+[`../_shared/STYLE.md`](../_shared/STYLE.md), except its mammoth: the `example` of each
+principle replaces it. The word list is `words`.
+
+**Keep the subject's words.** The team already named its parts. The reader searches the
+code, the docs, and the chat for those names, so a renamed part is a part they cannot
+find.
+
+- Take each term, node name, and flow shape name as the code, the docs, or the user's
+  diagram spell it. The code says `judgement`: the note says "judgement", not
+  "tie-break".
+- A term that needs explaining keeps its name. Its `words` definition explains it.
+- A code name in prose reads as its words: `last_scanned_job_id` is "last scanned job
+  ID", in every field of the note, principles included.
+- `check.py` greps each term of `words` in the repo. A term from a doc outside the repo
+  names that doc in `from`.
+
+**Take the examples from the repo.** A reader pictures a case they can find again.
+
+- Take each case from the repository: a test fixture, a sample payload, a seed file, a
+  prompt, or a doc. Keep its real values: the ID, the field value, the count.
+- No repo case fits: invent one with the repo's data shape, and say so in the row.
+- Each case is an object of the subject itself: a job, a request, a row. A comparison
+  from daily life makes the reader map it back, and the map is where they get lost.
 
 **The root** tells the outcome, not the mechanism. The reader first needs what the scope
 produces and who uses it. The children carry how it works.
@@ -127,14 +150,23 @@ produces and who uses it. The children carry how it works.
 - `summary` and `role`: one line and two lines. The panel opens with them. Name the
   output, its consumer, and what the consumer gets: "builds the files that searches
   read", not "streams jobs to the engine";
-- `words`: the terms the rest of the note needs, the five most important first. The
-  first term is the scope's own output or unit of work ("build", "index"), in words a
-  newcomer to the domain understands;
-- `title` and `problem`: what breaks without the subject, as a scene from its domain, in
-  two or three sentences. The scene ends at what a user sees;
-- one to three `principles`, each with its mammoth of two or three rows. A principle says
-  how the system behaves and how its parts talk: "every hand-off is a table", not "the
-  driver writes `last_job_id`";
+- `words`: the subject's terms that the rest of the note needs, the five most important
+  first. The first term is the scope's own output or unit of work, as the code names it
+  ("build", "index"). The definition explains it to a newcomer to the domain;
+- `title` and `problem`: why the subject exists, in two or three sentences. Say what its
+  users need, why the obvious way fails, and what a user sees when it fails. Take the
+  case from the repo;
+- one to three `principles`. The reader who knows why a rule holds can guess how the
+  code follows it, so each principle gives the why before the case:
+  - `claim`: how the parts behave and talk: "every hand-off is a table", not "the driver
+    writes `last_job_id`";
+  - `why`: the constraint that forces the claim, in one or two sentences;
+  - `example`: two or three rows, each one real case and what the system does with it.
+    A row is an event the reader could find in a log line or a database row:
+    `["Job 8812 asks for the March sales report", "The scheduler writes a jobs row. The
+    builder picks it up on its next poll."]`;
+  - `except`: optional, the case where the claim does not hold;
+  - `cost`: what the claim costs;
 - for repo or path scope, the `stack`, each item linked to its official docs;
 - for feature scope, the `lifecycle` of the data: at most six steps through the root
   `flow`, in the order the data moves, from the input to the consumer of the result.
@@ -181,7 +213,7 @@ one subagent per top-level child. Pass each one:
 
 - the path to the skeleton, and its subtree's id;
 - `words`, the root's `principles`, and `STYLE.md`;
-- the order to add no new term without a definition.
+- the two rules above: keep the subject's words, and take the examples from the repo.
 
 Merge the subtrees back into the one note.
 
@@ -189,7 +221,8 @@ Merge the subtrees back into the one note.
 
 1. `python3 check.py "$work/<slug>.json" --prose > "$work/prose.md"`. Run the review
    passes of `STYLE.md` on `prose.md`. The medium is a browser. Each `##` heading names
-   the node that a paragraph belongs to. Copy each edit back into the note.
+   the node that a paragraph belongs to. Tell both passes to keep each term of `words`
+   as written. Copy each edit back into the note.
 2. `python3 check.py "$work/<slug>.json" --install`. Fix each line it prints, and run it
    again until it prints `ok`.
 3. Open the note:

@@ -86,7 +86,8 @@ function renderFlow(f) {
       children: f.nodes.map((n) => ({ id: n.id, width: n.name.length * SHAPE.ch + 32, height: SHAPE.h })),
       edges: f.edges.map((e, i) => ({ id: `f${i}`, sources: [e.from], targets: [e.to],
         labels: [{ text: e.label, width: e.label.length * CH + 8, height: 14 }] })),
-      layoutOptions: LAYERED,
+      // A loop (a sink the source also reads) would put the sink mid-graph; the node order breaks it.
+      layoutOptions: { ...LAYERED, "elk.layered.cycleBreaking.strategy": "MODEL_ORDER" },
     }))
     .then((res) => rendered.set(key, res), () => null));
   // ponytail: a CDN slower than 3 s shows the text list until the next visit to the node.
@@ -114,7 +115,9 @@ function flow(f, steps) {
   cv.world.append(svg);
   // The canvas has no size until the panel enters the page.
   requestAnimationFrame(() => fit(cv, false));
-  if (!steps?.length) return cv.map;
+  // A flow with no written lifecycle steps edge by edge, so every graph walks alike.
+  if (!steps?.length) steps = f.edges.map((e) => ({ text: e.label, at: [e.from, e.to] }));
+  if (!steps.length) return cv.map;
 
   // A step lights its shapes and the edges between them; the rest of the graph dims.
   let at = 0;
@@ -122,6 +125,12 @@ function flow(f, steps) {
   const show = (i) => {
     at = Math.max(0, Math.min(steps.length - 1, i));
     const on = new Set(steps[at].at);
+    // The margin keeps the step's neighbours in view, so the reader sees where it sits.
+    const lit = res.children.filter((n) => on.has(n.id));
+    const x = Math.min(...lit.map((n) => n.x)) - 120, y = Math.min(...lit.map((n) => n.y)) - 60;
+    cv.focus = { x, y, width: Math.max(...lit.map((n) => n.x + n.width)) + 120 - x,
+      height: Math.max(...lit.map((n) => n.y + n.height)) + 60 - y };
+    fit(cv, true);
     count.textContent = `${at + 1} / ${steps.length}`;
     text.textContent = steps[at].text;
     prev.disabled = at === 0; next.disabled = at === steps.length - 1;
@@ -189,10 +198,12 @@ function panel(note, node, isRoot, idx, go) {
   if (isRoot && node.principles) a.append(...sec("The principle",
     node.principles.map((p) => h("div", { class: "principle" },
       h("p", { class: "claim" }, p.claim),
-      h("table", { class: "mammoth" },
-        h("thead", {}, h("tr", {}, h("th", {}, "In the scene"), h("th", {}, "In the code"))),
-        h("tbody", {}, p.mammoth.rows.map(([s, c]) => h("tr", {}, h("td", {}, s), h("td", {}, c))))),
-      h("p", { class: "breaks" }, `Breaks down at: ${p.mammoth.breaks}`),
+      p.why && h("p", {}, p.why),
+      // Notes written before the worked example still carry the mammoth.
+      h("table", { class: "example" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Case"), h("th", {}, "What the system does"))),
+        h("tbody", {}, (p.example ?? p.mammoth.rows).map(([s, c]) => h("tr", {}, h("td", {}, s), h("td", {}, c))))),
+      (p.except ?? p.mammoth?.breaks) && h("p", { class: "breaks" }, `Except: ${p.except ?? p.mammoth.breaks}`),
       h("p", {}, p.cost)))));
   if (isRoot && node.io) a.append(...sec("In and out",
     h("ul", { class: "plain" },
@@ -310,8 +321,9 @@ function applyView(cv, anim) {
   world.style.transform = `translate(${v.x}px,${v.y}px) scale(${v.k})`;
 }
 
-function fit(cv, anim) {
-  const { map, view: v } = cv, r = cv.bounds();
+// A flow stepper sets cv.focus, so a resize keeps the step in view; Fit shows the whole graph.
+function fit(cv, anim, r = cv.focus || cv.bounds()) {
+  const { map, view: v } = cv;
   if (!r || !map.clientWidth) return;
   const W = map.clientWidth, H = map.clientHeight;
   v.k = Math.max(0.1, Math.min(1, (W - 48) / r.width, (H - 72) / r.height));
@@ -463,7 +475,7 @@ function canvas(get, cls, label, ...extra) {
   const tools = h("div", { class: "tools" },
     h("button", { "aria-label": "Zoom out", onclick: () => zoom(get(), 1 / 1.25) }, "−"),
     h("button", { "aria-label": "Zoom in", onclick: () => zoom(get(), 1.25) }, "+"),
-    h("button", { onclick: () => fit(get(), true) }, "Fit"), ...extra,
+    h("button", { onclick: () => fit(get(), true, get().bounds()) }, "Fit"), ...extra,
     h("button", { onclick: (e) => full(get(), e.currentTarget) }, "Full screen"));
   const map = h("section", { class: `map ${cls}`, "aria-label": label }, world, tools,
     cls === "tree" && h("div", { class: "legend", "aria-hidden": "true" },

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build a one-file viewer: python3 bundle.py [<slug> ...].
 
-Writes notes/<slug>.html with the page, the note, and ELK inlined, so the file
+Writes notes/<slug>.html with the page, the note, ELK, and the font inlined, so the file
 opens offline and travels as one attachment. With no slug, it only fetches vendor/, which
 the viewer itself also loads from. check.py --install runs it for each note it installs.
 
@@ -9,6 +9,7 @@ It also writes one Obsidian page per note into $ONBOARD_VAULT (default: the Know
 folder of the iCloud vault), with a link that opens the note in the viewer.
 """
 import os
+import base64
 import hashlib
 import json
 import re
@@ -23,7 +24,12 @@ VAULT = Path(os.environ.get("ONBOARD_VAULT", Path.home() / "Library/Mobile Docum
 VENDOR = {
     "elk.bundled.js": ("https://cdn.jsdelivr.net/npm/elkjs@0.10.2/lib/elk.bundled.js",
                        "88f7753e5b41af205d56ee4edaf6eea4fceabe0115b76c9495e5a2cee95c31d1"),
+    **{f"jetbrains-mono-latin-{w}-normal.woff2": (
+        f"https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.3.0/files/jetbrains-mono-latin-{w}-normal.woff2", sha)
+       for w, sha in [(400, "14425ba9c695763c1547f48a206b7aa60350a33ae23de09f0407877f3fcd89eb"),
+                      (700, "d0d4e818808f2a0ba39b2b09d1989366f63494e295f003c7ef436697378507e8")]},
 }
+FONT = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=optional">'
 
 
 def vendor():
@@ -39,7 +45,7 @@ def vendor():
                 sys.exit(f"{name}: the download from {url} does not match its pinned hash")
             path.parent.mkdir(exist_ok=True)
             path.write_bytes(data)
-        out[name] = data.decode()
+        out[name] = data
     return out
 
 
@@ -48,16 +54,26 @@ def script(js):
     return "<script>" + re.sub(r"</(script)", r"<\\/\1", js, flags=re.I) + "</script>"
 
 
+def fonts(libs):
+    # Inlined, so a saved or mailed copy needs no network and no side folder.
+    return "<style>" + "".join(
+        f'@font-face{{font-family:"JetBrains Mono";font-weight:{w};font-display:optional;'
+        f'src:url(data:font/woff2;base64,{base64.b64encode(libs[f"jetbrains-mono-latin-{w}-normal.woff2"]).decode()}) format("woff2")}}'
+        for w in (400, 700)) + "</style>"
+
+
 def bundle(slug, libs):
     note_js = (HERE / "notes" / f"{slug}.js").read_text()
     title = read(slug)["title"]
     page = (HERE / "index.html").read_text()
     swaps = {
+        '<link rel="preconnect" href="https://fonts.googleapis.com">\n': "",
+        FONT: fonts(libs),
         "<title>Onboard</title>": f"<title>{title.replace('&', '&amp;').replace('<', '&lt;')}</title>",
         '<link rel="stylesheet" href="app.css">': "<style>" + (HERE / "app.css").read_text() + "</style>",
         '<script src="notes/manifest.js" onerror="void 0"></script>':
             script("ONBOARD.standalone = true;\n" + note_js)
-            + "".join(script(js) for js in libs.values()),
+            + "".join(script(data.decode()) for name, data in libs.items() if name.endswith(".js")),
         '<script src="app.js"></script>': script((HERE / "app.js").read_text()),
     }
     for old, new in swaps.items():
