@@ -62,7 +62,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "opus",
+  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
@@ -77,6 +77,7 @@
       {
         "matcher": "Grep|Glob|Bash",
         "hooks": [
+<<<<<<< HEAD
           {
             "type": "command",
             "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
@@ -85,6 +86,25 @@
             ],
             "timeout": 5
           }
+||||||| parent of b007712 (chore: cleanup)
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+=======
+            {
+                "type": "command",
+                "command": "/Users/k/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+>>>>>>> b007712 (chore: cleanup)
         ]
       }
     ],
@@ -92,6 +112,7 @@
       {
         "matcher": "startup",
         "hooks": [
+<<<<<<< HEAD
           {
             "type": "command",
             "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
@@ -100,11 +121,31 @@
             ],
             "timeout": 5
           }
+||||||| parent of b007712 (chore: cleanup)
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+=======
+            {
+                "type": "command",
+                "command": "/Users/k/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+>>>>>>> b007712 (chore: cleanup)
         ]
       },
       {
         "matcher": "resume",
         "hooks": [
+<<<<<<< HEAD
           {
             "type": "command",
             "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
@@ -113,11 +154,31 @@
             ],
             "timeout": 5
           }
+||||||| parent of b007712 (chore: cleanup)
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+=======
+            {
+                "type": "command",
+                "command": "/Users/k/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+>>>>>>> b007712 (chore: cleanup)
         ]
       },
       {
         "matcher": "clear",
         "hooks": [
+<<<<<<< HEAD
           {
             "type": "command",
             "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
@@ -126,11 +187,62 @@
             ],
             "timeout": 5
           }
+||||||| parent of b007712 (chore: cleanup)
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+=======
+            {
+                "type": "command",
+                "command": "/Users/k/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+>>>>>>> b007712 (chore: cleanup)
         ]
       },
       {
         "matcher": "compact",
         "hooks": [
+<<<<<<< HEAD
+||||||| parent of b007712 (chore: cleanup)
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+        ]
+    }
+],
+    "Notification": [
+      {
+        "hooks": [
+=======
+            {
+                "type": "command",
+                "command": "/Users/k/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+        ]
+    }
+],
+    "Notification": [
+      {
+        "hooks": [
+>>>>>>> b007712 (chore: cleanup)
           {
             "type": "command",
             "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
@@ -143,6 +255,40 @@
       }
     ],
     "PostToolUse": [
+<<<<<<< HEAD
+||||||| parent of b007712 (chore: cleanup)
+    {
+        "matcher": "Read",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+        ]
+    }
+],
+    "PermissionRequest": [
+=======
+    {
+        "matcher": "Read",
+        "hooks": [
+            {
+                "type": "command",
+                "command": "/Users/k/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+        ]
+    }
+],
+    "PermissionRequest": [
+>>>>>>> b007712 (chore: cleanup)
       {
         "matcher": "Read",
         "hooks": [
@@ -161,6 +307,7 @@
       {
         "matcher": "*",
         "hooks": [
+<<<<<<< HEAD
           {
             "type": "command",
             "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
@@ -169,6 +316,25 @@
             ],
             "timeout": 5
           }
+||||||| parent of b007712 (chore: cleanup)
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+=======
+            {
+                "type": "command",
+                "command": "/Users/k/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
+>>>>>>> b007712 (chore: cleanup)
         ]
       }
     ]
