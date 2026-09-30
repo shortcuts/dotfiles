@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=optional">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app"></div>
+<script>
+window.ONBOARD = {
+  notes: {}, list: [],
+  register(note) { this.notes[note.slug] = note; },
+  manifest(list) { this.list = list; },
+};
+</script>
+<script src="notes/manifest.js" onerror="void 0"></script>
+<script src="app.js"></script>
+</body>
+</html>

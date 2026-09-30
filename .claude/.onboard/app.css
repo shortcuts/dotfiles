@@ -1,0 +1,193 @@
+:root {
+  --paper: #ffffff; --raised: #f6f8fa; --ink: #1f2328; --muted: #59636e;
+  --rule: #d1d9e0; --accent: #0969da; --accent-soft: #ddf4ff;
+  /* The local Nerd Font first; the web JetBrains Mono covers a shared file on another machine. */
+  --font: "JetBrainsMono Nerd Font Mono", "JetBrains Mono", ui-monospace, monospace;
+  --t-small: .75rem; --t-ui: .8125rem; --t-body: .9375rem; --t-lead: 1.0625rem;
+  --t-h3: 1.0625rem; --t-h2: 1.5rem;
+  color-scheme: light dark;
+}
+/* GitHub Dark Dimmed. Muted text is scale gray #909dab: the theme's #768390 is 3.9:1 on the canvas. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #22272e; --raised: #2d333b; --ink: #adbac7; --muted: #909dab;
+    --rule: #444c56; --accent: #539bf5; --accent-soft: #27354a;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #22272e; --raised: #2d333b; --ink: #adbac7; --muted: #909dab;
+  --rule: #444c56; --accent: #539bf5; --accent-soft: #27354a;
+}
+* { box-sizing: border-box; }
+/* A scrollbar that appears on a long note would shift the whole page sideways. */
+html { scrollbar-gutter: stable; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: var(--t-body)/1.65 var(--font);
+  font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+a { color: var(--accent); text-decoration-thickness: from-font; text-underline-offset: 3px; }
+button, select { font: inherit; color: inherit; font-feature-settings: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+code { font-size: .92em; background: var(--raised); padding: .1em .35em; border-radius: 4px; }
+.path { color: var(--muted); font-size: var(--t-ui); }
+p, li, dd { text-wrap: pretty; }
+h1, h2, h3, .claim { text-wrap: balance; }
+
+.bar {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; gap: 8px 16px; align-items: center; flex-wrap: wrap;
+  padding: 10px max(24px, calc((100vw - 1120px) / 2));
+  background: var(--paper); border-bottom: 1px solid var(--rule);
+}
+.bar h1 { font-size: var(--t-body); margin: 0; font-weight: 700; flex: 1 1 16rem; min-width: 0; }
+.bar .meta { color: var(--muted); font-size: var(--t-ui); }
+.bar select, .bar .share {
+  font-size: var(--t-ui); height: 32px; padding: 0 12px; border: 1px solid var(--rule);
+  background: var(--raised); border-radius: 6px; cursor: pointer; max-width: 18rem;
+}
+.bar .share { display: inline-flex; align-items: center; color: inherit; text-decoration: none; }
+@media (hover: hover) { .bar select:hover, .bar .share:hover { border-color: var(--muted); } }
+
+main { max-width: 1168px; margin: 0 auto; padding: 20px 24px 120px; }
+.crumbs { display: flex; flex-wrap: wrap; gap: 2px; align-items: center; margin-bottom: 10px; font-size: var(--t-ui); }
+.crumbs button {
+  border: 0; background: none; padding: 4px 6px; border-radius: 6px; cursor: pointer; color: var(--muted);
+}
+@media (hover: hover) { .crumbs button:hover { color: var(--ink); background: var(--raised); } }
+.crumbs button[aria-current] { color: var(--ink); font-weight: 700; cursor: default; background: none; }
+.crumbs span { color: var(--rule); }
+
+/* The whole note on one canvas: a frame is an unfolded node, and its children sit inside it. */
+.map {
+  position: relative; height: max(420px, 68vh); margin-bottom: 48px; overflow: hidden;
+  border: 1px solid var(--rule); border-radius: 6px; background: var(--paper);
+  touch-action: none; user-select: none; cursor: grab;
+}
+.map.drag { cursor: grabbing; }
+.map .msg { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: var(--t-ui); }
+.world { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+.world.anim, .world.anim .box { transition: transform .3s ease, left .3s ease, top .3s ease, width .3s ease, height .3s ease; }
+.world > svg { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; animation: fade .2s .25s both; }
+@keyframes fade { from { opacity: 0; } }
+.box {
+  position: absolute; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper);
+  animation: fade .2s both;
+}
+/* A translucent frame darkens with each level, so depth reads without a legend. */
+.box.open { background: color-mix(in srgb, var(--raised) 55%, transparent); border-style: dashed; }
+.box.rel { border-color: var(--accent); }
+.box[aria-current] { outline: 2px solid var(--accent); outline-offset: -1px; }
+.box:not(.open)[aria-current] { background: var(--accent-soft); }
+.head {
+  display: flex; flex-direction: column; width: 100%; height: 100%; text-align: start; overflow: hidden;
+  position: relative; padding: 8px 12px; border: 0; border-radius: 6px; background: none; cursor: pointer;
+}
+.box.open > .head { height: auto; }
+/* Fold state: an accent stripe and a chevron mark each box a click unfolds; the chevron
+   turns down and the header gets a band once the box is a frame a click folds. */
+.box.can:not(.open) { border-inline-start: 3px solid var(--accent); }
+.box.can .head .name { padding-inline-end: 28px; }
+.box.open > .head { border-radius: 5px 5px 0 0; background: color-mix(in srgb, var(--accent-soft) 70%, transparent); }
+/* Scoped under .head to outrank `.head > span`, which would reset the grid. */
+.head > .tog {
+  position: absolute; inset-inline-end: 8px; top: 8px; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center; border-radius: 50%;
+  color: var(--accent); background: var(--accent-soft);
+}
+.tog svg { transform: rotate(-90deg); transition: transform .2s ease; }
+.box.open .tog { color: var(--paper); background: var(--accent); }
+.box.open .tog svg { transform: none; }
+@media (hover: hover) {
+  .box:not(.open) > .head:hover .tog { color: var(--paper); background: var(--accent); }
+  .box.open > .head:hover .tog { color: var(--accent); background: var(--accent-soft); }
+}
+@media (hover: hover) { .box:not(.open) > .head:hover, .box.open > .head:hover .name { color: var(--accent); } }
+.head > span { display: block; flex: none; overflow: hidden; }
+.head .name { font-weight: 700; line-height: 1.5; white-space: nowrap; text-overflow: ellipsis; }
+.head .more { color: var(--muted); font-size: var(--t-small); margin-inline-start: 8px; font-weight: 400; }
+.head .sum {
+  color: var(--muted); font-size: var(--t-ui); line-height: 1.45; margin-top: 1px;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+}
+.box.open .sum { -webkit-line-clamp: 1; line-clamp: 1; }
+.edge { fill: none; stroke: var(--muted); stroke-opacity: .5; stroke-width: 1.3; stroke-linejoin: round; }
+.edge.hot { stroke: var(--accent); stroke-opacity: 1; stroke-width: 1.8; }
+.elabel { font: 11px var(--font); fill: var(--muted); text-anchor: middle; paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
+.elabel.hot { fill: var(--accent); }
+.tools { position: absolute; inset-block-end: 12px; inset-inline-end: 12px; display: flex; gap: 6px; z-index: 1; }
+.tools button, .stepper button {
+  height: 32px; min-width: 32px; padding: 0 10px; font-size: var(--t-ui); cursor: pointer;
+  border: 1px solid var(--rule); border-radius: 6px; background: var(--raised);
+}
+@media (hover: hover) { .tools button:hover { border-color: var(--muted); } }
+.conn { list-style: none; padding: 0; margin: 0; }
+.conn li { padding: 4px 0; }
+.conn .how { color: var(--muted); }
+
+article { max-width: 76ch; }
+article h2 { font-size: var(--t-h2); line-height: 1.25; margin: 0 0 10px; }
+article h3 { font-size: var(--t-h3); line-height: 1.35; margin: 48px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+article p { margin: 0 0 14px; }
+article .lead { font-size: var(--t-lead); line-height: 1.55; }
+.links-row { display: flex; gap: 6px 16px; flex-wrap: wrap; align-items: baseline; margin: 0 0 24px; font-size: var(--t-ui); }
+ul.plain, ol.steps { padding-inline-start: 2.5ch; margin: 0; }
+ul.plain li, ol.steps li { margin-bottom: 8px; padding-inline-start: 1ch; }
+ol.steps li::marker { color: var(--muted); }
+.entry { list-style: none; padding: 0; margin: 0; }
+.entry li { padding: 10px 0; border-top: 1px solid var(--rule); }
+.entry li:first-child { border-top: 0; padding-top: 0; }
+.entry .path { margin-inline-start: 8px; }
+.entry .note { color: var(--muted); font-size: var(--t-ui); display: block; margin-top: 2px; }
+.expand {
+  margin-top: 8px; border: 0; background: none; color: var(--accent); cursor: pointer;
+  padding: 4px 0; font-size: var(--t-ui);
+}
+.expand svg { vertical-align: -2px; }
+.expand[aria-expanded="true"] svg { transform: rotate(180deg); }
+table.mammoth { border-collapse: collapse; width: 100%; font-size: var(--t-ui); margin: 12px 0; }
+table.mammoth th, table.mammoth td { text-align: start; padding: 8px 16px 8px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+table.mammoth th { font-weight: 700; color: var(--muted); }
+.breaks { font-size: var(--t-ui); color: var(--muted); }
+.principle { margin-bottom: 32px; }
+.principle .claim { font-weight: 700; }
+/* A flow leaves the text measure, so a wide graph opens at a readable scale. */
+.map.flow { width: min(calc(100vw - 48px), 1120px); height: 380px; margin: 12px 0 4px; }
+/* A store (a database, a queue, a bucket) is a pill, so it reads apart from a service. */
+.box.shape { display: grid; place-items: center; padding: 0 12px; font-size: var(--t-ui); font-weight: 700; white-space: nowrap; }
+.box.store { border-radius: 999px; border-color: var(--muted); background: var(--raised); }
+/* The stepper banner sits on the graph's top edge; left and right arrows move it. */
+.stepper {
+  display: flex; align-items: center; gap: 12px; width: min(calc(100vw - 48px), 1120px);
+  margin-top: 12px; padding: 10px 12px; border: 1px solid var(--rule); border-bottom: 0;
+  border-radius: 6px 6px 0 0; background: var(--raised);
+}
+.stepper + .map.flow { margin-top: 0; border-radius: 0 0 6px 6px; }
+.stepper p { margin: 0; flex: 1; min-height: 3.3em; display: flex; align-items: center; }
+.stepper .count { color: var(--muted); font-size: var(--t-ui); min-width: 7ch; text-align: center; font-variant-numeric: tabular-nums; }
+.stepper button:disabled { opacity: .4; cursor: default; }
+.map.stepping .box.shape { transition: opacity .2s, border-color .2s, background .2s; }
+.map.stepping .box.shape:not(.step) { opacity: .45; }
+.map.stepping .box.shape.step { border-color: var(--accent); background: var(--accent-soft); }
+.flow-list { white-space: pre-wrap; font: var(--t-ui)/1.6 var(--font); }
+dl.words { margin: 0; display: grid; grid-template-columns: minmax(10ch, max-content) 1fr; gap: 10px 24px; }
+dl.words dt { font-weight: 700; }
+dl.words dd { margin: 0; color: var(--muted); }
+.empty { max-width: 60ch; margin: 96px auto; text-align: center; color: var(--muted); }
+.empty code { color: var(--ink); }
+
+@media (max-width: 720px) {
+  .bar { padding-inline: 16px; position: static; }
+  main { padding-inline: 16px; }
+  .map { height: 70vh; }
+  .map.flow, .stepper { width: auto; }
+  .map.flow { height: 320px; }
+  dl.words { grid-template-columns: 1fr; gap: 0; }
+  dl.words dd { margin-bottom: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .world.anim, .world.anim .box { transition: none; }
+  .box, .world > svg { animation: none; }
+  .tog svg { transition: none; }
+}
