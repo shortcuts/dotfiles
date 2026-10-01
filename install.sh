@@ -14,10 +14,6 @@ if [[ $MODE == "setup" ]]; then
     curl -fsSL https://bun.com/install | bash
     cp ~/.config/.gitconfig ~/.gitconfig
     make -C ~/.config symlink
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-    ~/.tmux/plugins/tpm/bin/install_plugins
-    # direct action skips the wizard menu; its reload of ~/.tmux.conf fails harmlessly
-    bash ~/.tmux/plugins/tmux-agent-sidebar/install-wizard.sh download-binary </dev/null || true
 fi
 
 # ssh-agent: load keychain keys for non-fish shells too (bash/zsh subprocesses,
@@ -66,6 +62,12 @@ brew install coreutils tmux wget fswatch btop \
     dmtrKovalenko/fff/fff-mcp
 
 brew install --cask font-lilex-nerd-font font-jetbrains-mono-nerd-font
+
+# tmux plugins: after brew, tpm needs tmux installed
+[[ -d ~/.tmux/plugins/tpm ]] || git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+~/.tmux/plugins/tpm/bin/install_plugins
+# direct action skips the wizard menu; its reload of ~/.tmux.conf fails harmlessly
+bash ~/.tmux/plugins/tmux-agent-sidebar/install-wizard.sh download-binary </dev/null || true
 
 # fish as default shell
 if [[ $MODE == "setup" ]]; then
