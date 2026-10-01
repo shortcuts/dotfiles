@@ -1,8 +1,7 @@
 #!/bin/sh
-# Agent status lines: repo name ($2=repo) or branch ($2=branch) for $1, cut to fit $3 columns.
-# A session with no agent passes its name as $4, which replaces the repo and drops the branch.
-# Both lines pad to the same width per agent, so the branch sits under its repo.
-
+# Session status lines: name ($2=repo) or branch ($2=branch) for $1, cut to fit a $3-wide client.
+# The session name $4 replaces the repo name when given.
+# Both lines pad to the same width per session, so the branch sits under its name.
 cd "$1" 2>/dev/null || exit 0
 # the common dir's parent names the main repo, so every worktree of metis shows "metis"
 if common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); then
@@ -13,10 +12,14 @@ else
     repo=${PWD##*/}
     branch=
 fi
-[ -n "$4" ] && repo=$4 branch=
+[ -n "$4" ] && repo=$4
 
+# each session box takes 3 columns of padding: 2 inside, 1 after
+# the format cannot count sessions itself: an S loop nested in its S loop clobbers tmux's shared list
+n=$(tmux list-sessions -F x | wc -l)
+cols=$(( ${3:-80} / (n > 0 ? n : 1) - 3 ))
 # "● ", one pad space and one separator space take 4 of the entry's columns
-max=$(( ${3:-16} - 4 ))
+max=$(( cols - 4 ))
 [ "$max" -lt 4 ] && max=4
 # cut prints the text and its length; a byte count of the multibyte "…" would break the padding
 cut() {

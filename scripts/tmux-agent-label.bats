@@ -7,41 +7,55 @@ setup() {
         GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
     git init -q -b main "$BATS_TEST_TMPDIR/metis"
     git -C "$BATS_TEST_TMPDIR/metis" commit -q --allow-empty -m base
+    # one session: its entry gets the client width minus 3
+    mkdir "$BATS_TEST_TMPDIR/bin"
+    printf '#!/bin/sh\necho "$TMUX_SESSIONS"\n' >"$BATS_TEST_TMPDIR/bin/tmux"
+    chmod +x "$BATS_TEST_TMPDIR/bin/tmux"
+    export PATH="$BATS_TEST_TMPDIR/bin:$PATH" TMUX_SESSIONS='$1'
 }
 
 label() { "$SCRIPT" "$@" | LC_ALL=C sed 's/#\[[^]]*\]//g'; }
 
 @test "a worktree shows the main repo name, not its directory" {
     git -C "$BATS_TEST_TMPDIR/metis" worktree add -q -b fix/x "$BATS_TEST_TMPDIR/metis-worktree-ai"
-    [ "$(label "$BATS_TEST_TMPDIR/metis-worktree-ai" repo 40)" = "metis " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis-worktree-ai" repo 43)" = "metis " ]
 }
 
 @test "repo and branch are padded to one width so the two lines align" {
     git -C "$BATS_TEST_TMPDIR/metis" switch -q -c feat/longer
-    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 40)" = "metis       " ]
-    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 40)" = "feat/longer " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 43)" = "metis       " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 43)" = "feat/longer " ]
 }
 
 # an entry adds 4 columns to its label: "● ", one pad space, one separator space
 @test "a long branch is cut to fit the columns each agent gets" {
     git -C "$BATS_TEST_TMPDIR/metis" switch -q -c feat/metishttp-buffer-request-body
-    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 16)" = "feat/metish… " ]
-    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 16)" = "metis        " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 19)" = "feat/metish… " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 19)" = "metis        " ]
 }
 
 @test "a long repo name is cut too" {
     git init -q -b main "$BATS_TEST_TMPDIR/infra-cli-tools"
-    [ "$(label "$BATS_TEST_TMPDIR/infra-cli-tools" repo 12)" = "infra-c… " ]
+    [ "$(label "$BATS_TEST_TMPDIR/infra-cli-tools" repo 15)" = "infra-c… " ]
 }
 
 @test "a directory outside git shows its name and no branch" {
     mkdir "$BATS_TEST_TMPDIR/notes"
-    [ "$(label "$BATS_TEST_TMPDIR/notes" repo 40)" = "notes " ]
-    [ "$(label "$BATS_TEST_TMPDIR/notes" branch 40)" = "      " ]
+    [ "$(label "$BATS_TEST_TMPDIR/notes" repo 43)" = "notes " ]
+    [ "$(label "$BATS_TEST_TMPDIR/notes" branch 43)" = "      " ]
 }
 
-@test "a name in place of the repo labels a session that has no agent" {
+@test "a session name replaces the repo and keeps the branch" {
     git -C "$BATS_TEST_TMPDIR/metis" switch -q -c feat/longer
-    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 40 _config)" = "_config " ]
-    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 40 _config)" = "        " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 43 _config)" = "_config     " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 43 _config)" = "feat/longer " ]
+}
+
+@test "the client width is shared by every session" {
+    # three sessions: 51 / 3 - 3 = 14 columns, 10 for text
+    export TMUX_SESSIONS='$1
+$2
+$3'
+    git -C "$BATS_TEST_TMPDIR/metis" switch -q -c feat/metishttp-buffer-request-body
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 51)" = "feat/meti… " ]
 }
