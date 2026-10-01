@@ -9,6 +9,18 @@ MIN_WIDTH=120 # laptop is ~170 cols, a phone in portrait ~55
 bin=$(tmux show -gv @agent_sidebar_bin 2>/dev/null)
 [ -x "$bin" ] || exit 0
 
+# Hooks run this script concurrently (run-shell -b), so a lock per tmux server serializes the runs.
+sock=${TMUX%%,*}
+lock="${sock:-${TMPDIR:-/tmp}/tmux}-sidebar-fit.lock"
+i=0
+until mkdir "$lock" 2>/dev/null; do
+    i=$((i + 1))
+    [ "$i" -eq 50 ] && rmdir "$lock" 2>/dev/null # ponytail: 5s stale-lock break; a holder slower than that gets a concurrent run
+    sleep 0.1
+done
+trap 'rmdir "$lock" 2>/dev/null' EXIT
+trap 'exit 1' INT TERM HUP
+
 if [ -n "${1:-}" ]; then
     wide=$([ "$1" -ge "$MIN_WIDTH" ] && echo 1 || echo 0)
     tmux set -g @sidebar_fit_wide "$wide"
