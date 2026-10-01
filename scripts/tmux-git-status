@@ -1,5 +1,5 @@
 #!/bin/sh
-# status-right: repo directory, branch and lines added/deleted since it left the default branch, for $1.
+# status-right: branch, commits ahead/behind its upstream, and lines added/deleted since it left the default branch, for $1.
 # Compares against the local origin/* refs; fetching every status-interval is too slow.
 
 cd "$1" 2>/dev/null || exit 0
@@ -14,8 +14,13 @@ stat=$(git diff --shortstat "$fork" 2>/dev/null)
 added=$(printf '%s' "$stat" | sed -n 's/.* \([0-9]*\) insertion.*/\1/p')
 deleted=$(printf '%s' "$stat" | sed -n 's/.* \([0-9]*\) deletion.*/\1/p')
 
-root=$(git rev-parse --show-toplevel)
-out="#[fg=#768390]${root##*/} - $branch"
+out="#[fg=#768390]$branch"
+# "<behind>\t<ahead>"; no upstream means nothing to compare
+if counts=$(git rev-list --left-right --count '@{upstream}...HEAD' 2>/dev/null); then
+	behind=${counts%%	*} ahead=${counts##*	}
+	[ "$ahead" -gt 0 ] && out="$out ↑$ahead"
+	[ "$behind" -gt 0 ] && out="$out ↓$behind"
+fi
 [ -n "$added$deleted" ] && out="$out -"
 [ -n "$added" ] && out="$out #[fg=#57ab5a]+$added"
 [ -n "$deleted" ] && out="$out #[fg=#f47067]-$deleted"
