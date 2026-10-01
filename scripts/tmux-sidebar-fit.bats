@@ -41,3 +41,11 @@ sidebars_per_window() {
     "$SCRIPT" 171
     [ "$(sidebars_per_window)" = "$(printf '1\n1')" ]
 }
+
+@test "a drifted sidebar is reset to @sidebar_width" {
+    "$SCRIPT" 171
+    pane=$(tmux list-panes -a -F '#{pane_id} #{@pane_role}' | awk '$2 == "sidebar" { print $1; exit }')
+    tmux resize-pane -t "$pane" -x 60
+    "$SCRIPT"
+    [ "$(tmux list-panes -a -F '#{@pane_role} #{pane_width}' | awk '$1 == "sidebar" { print $2 }' | sort -u)" = 26 ]
+}

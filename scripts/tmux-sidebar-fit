@@ -31,7 +31,7 @@ fi
 if [ "$wide" = 1 ]; then
     tmux list-panes -a -F '#{window_id} #{pane_current_path}' | awk '!seen[$1]++' |
         while read -r window path; do "$bin" toggle --create-only "$window" "$path"; done
-    # tmux spreads a terminal resize across panes, so sidebars drift off @sidebar_width
+    # kill-pane and full-height splits hand space to a sidebar with no window-resized; reset it here
     width=$(tmux show -gv @sidebar_width)
     tmux list-panes -a -F '#{pane_id} #{@pane_role}' | awk '$2 == "sidebar" { print $1 }' |
         while read -r pane; do tmux resize-pane -t "$pane" -x "$width"; done
