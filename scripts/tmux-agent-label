@@ -1,0 +1,31 @@
+#!/bin/sh
+# Agent status lines: repo name ($2=repo) or branch ($2=branch) for $1, cut to fit $3 columns.
+# Both lines pad to the same width per agent, so the branch sits under its repo.
+
+cd "$1" 2>/dev/null || exit 0
+# the common dir's parent names the main repo, so every worktree of metis shows "metis"
+if common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); then
+    repo=${common%/.git}
+    repo=${repo##*/}
+    branch=$(git branch --show-current) && [ -n "$branch" ] || branch=$(git rev-parse --short HEAD)
+else
+    repo=${PWD##*/}
+    branch=
+fi
+
+# "● ", one pad space and two separator spaces take 5 of the entry's columns
+max=$(( ${3:-17} - 5 ))
+[ "$max" -lt 4 ] && max=4
+# cut prints the text and its length; a byte count of the multibyte "…" would break the padding
+cut() {
+    if [ ${#1} -gt "$max" ]; then printf '%.*s… %s' $((max - 1)) "$1" "$max"; else printf '%s %s' "$1" ${#1}; fi
+}
+r=$(cut "$repo"); rlen=${r##* }; repo=${r% *}
+b=$(cut "$branch"); blen=${b##* }; branch=${b% *}
+width=$(( rlen > blen ? rlen : blen ))
+
+if [ "$2" = repo ]; then
+    printf '#[fg=#adbac7]%s%*s' "$repo" $((width - rlen + 1)) ''
+else
+    printf '#[fg=#768390]%s%*s' "$branch" $((width - blen + 1)) ''
+fi
