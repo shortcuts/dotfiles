@@ -30,3 +30,14 @@ macos-titlebar-style = hidden
 macos-window-shadow = false
 
 theme = GitHub Dark Dimmed
+
+# cmd+<n> switches tmux sessions instead of Ghostty tabs; tmux binds M-<n>
+keybind = cmd+digit_1=text:\x1b1
+keybind = cmd+digit_2=text:\x1b2
+keybind = cmd+digit_3=text:\x1b3
+keybind = cmd+digit_4=text:\x1b4
+keybind = cmd+digit_5=text:\x1b5
+keybind = cmd+digit_6=text:\x1b6
+keybind = cmd+digit_7=text:\x1b7
+keybind = cmd+digit_8=text:\x1b8
+keybind = cmd+digit_9=text:\x1b9
