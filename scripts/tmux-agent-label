@@ -1,5 +1,6 @@
 #!/bin/sh
 # Agent status lines: repo name ($2=repo) or branch ($2=branch) for $1, cut to fit $3 columns.
+# A session with no agent passes its name as $4, which replaces the repo and drops the branch.
 # Both lines pad to the same width per agent, so the branch sits under its repo.
 
 cd "$1" 2>/dev/null || exit 0
@@ -12,9 +13,10 @@ else
     repo=${PWD##*/}
     branch=
 fi
+[ -n "$4" ] && repo=$4 branch=
 
-# "● ", one pad space and two separator spaces take 5 of the entry's columns
-max=$(( ${3:-17} - 5 ))
+# "● ", one pad space and one separator space take 4 of the entry's columns
+max=$(( ${3:-16} - 4 ))
 [ "$max" -lt 4 ] && max=4
 # cut prints the text and its length; a byte count of the multibyte "…" would break the padding
 cut() {

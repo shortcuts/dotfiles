@@ -22,20 +22,26 @@ label() { "$SCRIPT" "$@" | LC_ALL=C sed 's/#\[[^]]*\]//g'; }
     [ "$(label "$BATS_TEST_TMPDIR/metis" branch 40)" = "feat/longer " ]
 }
 
-# an entry adds 5 columns to its label: "● ", one pad space, two separator spaces
+# an entry adds 4 columns to its label: "● ", one pad space, one separator space
 @test "a long branch is cut to fit the columns each agent gets" {
     git -C "$BATS_TEST_TMPDIR/metis" switch -q -c feat/metishttp-buffer-request-body
-    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 17)" = "feat/metish… " ]
-    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 17)" = "metis        " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 16)" = "feat/metish… " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 16)" = "metis        " ]
 }
 
 @test "a long repo name is cut too" {
     git init -q -b main "$BATS_TEST_TMPDIR/infra-cli-tools"
-    [ "$(label "$BATS_TEST_TMPDIR/infra-cli-tools" repo 13)" = "infra-c… " ]
+    [ "$(label "$BATS_TEST_TMPDIR/infra-cli-tools" repo 12)" = "infra-c… " ]
 }
 
 @test "a directory outside git shows its name and no branch" {
     mkdir "$BATS_TEST_TMPDIR/notes"
     [ "$(label "$BATS_TEST_TMPDIR/notes" repo 40)" = "notes " ]
     [ "$(label "$BATS_TEST_TMPDIR/notes" branch 40)" = "      " ]
+}
+
+@test "a name in place of the repo labels a session that has no agent" {
+    git -C "$BATS_TEST_TMPDIR/metis" switch -q -c feat/longer
+    [ "$(label "$BATS_TEST_TMPDIR/metis" repo 40 _config)" = "_config " ]
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 40 _config)" = "        " ]
 }

@@ -12,8 +12,10 @@ The Claude Code hook of `tmux-agent-sidebar` looks for its binary only in
 sends the desktop notifications. Its Claude Code side is the `tmux-agent-sidebar@hiroppy`
 plugin in `.claude/settings.json`.
 
-Status lines 1 and 2 (`status-format[1]` and `[2]`) read those options and show every
-agent across all sessions: line 1 a dot and the repo, line 2 the branch under it.
+Status lines 0 and 1 (`status-format[0]` and `[1]`), above the window list, read those options and show every
+agent across all sessions: line 0 a dot and the repo, line 1 the branch under it.
+A session with no agent gets one grey `○` entry with its name. Sessions keep the name
+order of `<prefix> s`, and the focused session sits on a lighter background.
 `scripts/tmux-agent-label` pads both to one width per agent, so the columns align. It cuts
 both labels to `@agent_cols`, the client width divided by the agent count, so every agent
 fits on screen. A click on an
