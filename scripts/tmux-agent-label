@@ -1,69 +1,63 @@
 #!/bin/sh
-# Session status lines: name ($2=repo) or branch and window pips ($2=branch) for $1, cut to fit a $3-wide client.
-# The session name $4 replaces the repo name when given. $5=1 marks the focused session.
+# Status line $1 for a $2-wide client focused on session $3: session names ($1=repo), or branches and window pips ($1=branch).
+# The focused session also shows tmux-git-status after its branch: commits ahead/behind and lines changed.
 # Both lines pad to the same width per session, so the branch sits under its name.
-cd "$1" 2>/dev/null || exit 0
-# only the focused session reads git: the others show the branch cached in @branch when last focused
-if [ -n "$4" ] && [ "$5" != 1 ] && branch=$(tmux show -qv -t "=$4:" @branch) && [ -n "$branch" ]; then
-    :
-# the common dir's parent names the main repo, so every worktree of metis shows "metis"
-elif common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); then
-    repo=${common%/.git}
-    repo=${repo##*/}
-    branch=$(git branch --show-current) && [ -n "$branch" ] || branch=$(git rev-parse --short HEAD)
-else
-    repo=${PWD##*/}
-    branch=
-fi
-[ -n "$4" ] && repo=$4 && tmux set -q -t "=$4:" @branch "$branch"
+# One job draws the whole line: a #() per session keys on its active pane, so a new pane blanked its entry until the first run.
+# tmux reruns a job as soon as its expanded command changes; further arguments only trigger that and are not read.
+line=$1 width=${2:-80} focused=$3
 
-# each entry takes 5 columns besides its text: 2 before, 1 pad, 1 separator, 1 after
-# the format cannot list sessions itself: an S loop nested in its S loop clobbers tmux's shared list
-# max-min fair share: sessions that need less than an even share keep their need, the rest split what is left
-max=$(tmux list-panes -a -f '#{&&:#{window_active},#{pane_active}}' -F '#{session_name}|#{session_windows}|#{@branch}' 2>/dev/null |
-    while IFS='|' read -r name windows b; do
-        b=$(( ${#b} + (windows > 0 ? windows + 1 : 0) ))
-        echo $(( ${#name} > b ? ${#name} : b ))
-    done | sort -n | awk -v w="${3:-80}" '
-        { need[NR] = $1 }
-        END {
-            budget = w - 5 * NR
-            for (i = 1; i <= NR; i++) {
-                share = int(budget / (NR - i + 1))
-                if (need[i] > share) { print share; exit }
-                budget -= need[i]
-            }
-            print NR ? need[NR] : w - 5
-        }')
-[ "${max:-0}" -lt 4 ] && max=4
-# cut prints the text and its length; a byte count of the multibyte "…" would break the padding
-cut() {
-    if [ ${#1} -gt "$2" ]; then printf '%.*s… %s' $(($2 - 1)) "$1" "$2"; else printf '%s %s' "$1" ${#1}; fi
-}
-
-# one pip per window, filled for the active one, colored by its most urgent agent:
-# red waits or failed, orange works, green idle, grey no agent
-pips= plen=0
-if [ -n "$4" ]; then
-    out=$(tmux list-panes -s -t "=$4" -F '#{window_index}|#{window_active}|#{@pane_agent}|#{@pane_status}' 2>/dev/null | awk -F'|' '
-        !($1 in rank) { order[++n] = $1; active[$1] = $2; rank[$1] = 0 }
-        $3 != "" { r = ($4 == "waiting" || $4 == "error") ? 3 : $4 != "idle" ? 2 : 1; if (r > rank[$1]) rank[$1] = r }
-        END {
-            split("#768390 #57ab5a #f69d50 #e5534b", color, " ")
-            printf "%d ", n
-            for (i = 1; i <= n; i++) printf "#[fg=%s]%s", color[rank[order[i]] + 1], (active[order[i]] == 1 ? "■" : "□")
-        }')
-    plen=${out%% *} pips=${out#* }
-    [ "${plen:-0}" -gt 0 ] && pips=" $pips" plen=$((plen + 1)) || pips= plen=0
-fi
-
-r=$(cut "$repo" "$max"); rlen=${r##* }; repo=${r% *}
-bmax=$((max - plen)); [ "$bmax" -lt 1 ] && bmax=1
-b=$(cut "$branch" "$bmax"); blen=$(( ${b##* } + plen )); branch=${b% *}
-width=$(( rlen > blen ? rlen : blen ))
-
-if [ "$2" = repo ]; then
-    printf '#[fg=#adbac7]%s%*s' "$repo" $((width - rlen + 1)) ''
-else
-    printf '#[fg=#768390]%s%s%*s' "$branch" "$pips" $((width - blen + 1)) ''
-fi
+{
+    tmux list-panes -a -F 'P|#{session_name}|#{window_index}|#{window_active}|#{@pane_agent}|#{@pane_status}'
+    # only the focused session reads git, and a session with nothing cached; the others keep @branch from when last focused
+    tmux list-panes -a -f '#{&&:#{window_active},#{pane_active}}' -F '#{session_name}|#{session_id}|#{pane_current_path}|#{@branch}' |
+        while IFS='|' read -r name id path branch; do
+            if [ "$name" = "$focused" ] || [ -z "$branch" ]; then
+                branch=$(git -C "$path" branch --show-current 2>/dev/null) && [ -z "$branch" ] && branch=$(git -C "$path" rev-parse --short HEAD)
+                tmux set -q -t "=$name:" @branch "$branch"
+            fi
+            detail=
+            [ "$name" = "$focused" ] && status=$("${0%/*}/tmux-git-status" "$path") && detail=${status#"#[fg=#768390]$branch"}
+            echo "S|$name|$id|$branch|$detail"
+        done
+} | awk -F'|' -v line="$line" -v w="$width" -v focused="$focused" '
+    # one pip per window, filled for the active one, colored by its most urgent agent:
+    # red waits or failed, orange works, green idle, grey no agent
+    $1 == "P" {
+        k = $2 SUBSEP $3
+        if (!(k in rank)) { win[$2, ++nwin[$2]] = $3; active[k] = $4; rank[k] = 0 }
+        if ($5 != "") { r = ($6 == "waiting" || $6 == "error") ? 3 : $6 != "idle" ? 2 : 1; if (r > rank[k]) rank[k] = r }
+        next
+    }
+    { n++; name[n] = $2; id[n] = $3; branch[n] = $4; detail[n] = $5 }
+    # lengths count bytes in macOS awk, so the multibyte pips and "…" add their widths by hand
+    function cut(s, m) { if (length(s) > m) { cutw = m; return substr(s, 1, m - 1) "…" } cutw = length(s); return s }
+    END {
+        split("#768390 #57ab5a #f69d50 #e5534b", color, " ")
+        for (i = 1; i <= n; i++) {
+            s = name[i]; pips[i] = ""
+            for (j = 1; j <= nwin[s]; j++) { k = s SUBSEP win[s, j]; pips[i] = pips[i] "#[fg=" color[rank[k] + 1] "]" (active[k] == 1 ? "■" : "□") }
+            d = detail[i]; gsub(/#\[[^]]*\]/, "", d); gsub(/↑|↓/, "x", d)
+            plen[i] = (nwin[s] ? nwin[s] + 1 : 0) + length(d)
+            need[i] = length(s) > length(branch[i]) + plen[i] ? length(s) : length(branch[i]) + plen[i]
+            sorted[i] = need[i]
+        }
+        for (i = 2; i <= n; i++) for (j = i; j > 1 && sorted[j - 1] > sorted[j]; j--) { t = sorted[j]; sorted[j] = sorted[j - 1]; sorted[j - 1] = t }
+        # max-min fair share: sessions that need less than an even share keep their need, the rest split what is left
+        # each entry takes 5 columns besides its text: 2 before, 1 pad, 1 separator, 1 after
+        budget = w - 5 * n; max = sorted[n]
+        for (i = 1; i <= n; i++) {
+            share = int(budget / (n - i + 1))
+            if (sorted[i] > share) { max = share; break }
+            budget -= sorted[i]
+        }
+        if (max < 4) max = 4
+        for (i = 1; i <= n; i++) {
+            r = cut(name[i], max); rw = cutw
+            bmax = max - plen[i]; if (bmax < 1) bmax = 1
+            b = cut(branch[i], bmax); bw = cutw + plen[i]
+            ew = rw > bw ? rw : bw
+            text = line == "repo" ? "#[fg=#adbac7]" r : "#[fg=#768390]" b detail[i] (nwin[name[i]] ? " " pips[i] : "")
+            tw = line == "repo" ? rw : bw
+            printf "%s  #[range=user|%s]%s%*s#[norange] #[bg=default] ", (name[i] == focused ? "#[bg=#2d333b]" : ""), id[i], text, ew - tw + 1, ""
+        }
+    }'
