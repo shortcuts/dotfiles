@@ -6,6 +6,14 @@
 # tmux reruns a job as soon as its expanded command changes; further arguments only trigger that and are not read.
 line=$1 width=${2:-80} focused=$3
 
+# reads git for session $1 at path $2 and caches it in the session options
+refresh() {
+    branch=$(git -C "$2" branch --show-current 2>/dev/null) && [ -z "$branch" ] && branch=$(git -C "$2" rev-parse --short HEAD)
+    detail=
+    [ "$1" = "$focused" ] && status=$("${0%/*}/tmux-git-status" "$2") && detail=${status#"#[fg=#768390]$branch"}
+    tmux set -q -t "=$1:" @branch "$branch" \; set -q -t "=$1:" @git_detail "$detail"
+}
+
 {
     tmux list-panes -a -F 'P|#{session_name}|#{window_index}|#{window_active}|#{@pane_agent}|#{@pane_status}'
     # only the focused session reads git, and a session with nothing cached; the others keep @branch from when last focused
@@ -13,13 +21,15 @@ line=$1 width=${2:-80} focused=$3
     now=$(date +%s)
     tmux list-panes -a -f '#{&&:#{window_active},#{pane_active}}' -F '#{session_name}|#{session_id}|#{pane_current_path}|#{@branch}|#{@git_at}|#{@git_detail}' |
         while IFS='|' read -r name id path branch at detail; do
-            if [ "$name" = "$focused" ] && [ $((now - ${at:-0})) -ge 5 ] || [ -z "$branch$at" ]; then
+            if [ -z "$branch$at" ]; then
+                # nothing cached yet: wait for git rather than draw a blank entry
+                tmux set -q -t "=$name:" @git_at "$now"
+                refresh "$name" "$path"
+            elif [ "$name" = "$focused" ] && [ $((now - ${at:-0})) -ge 5 ]; then
                 # claim the refresh first: the job for the other status line starts at the same time
                 tmux set -q -t "=$name:" @git_at "$now"
-                branch=$(git -C "$path" branch --show-current 2>/dev/null) && [ -z "$branch" ] && branch=$(git -C "$path" rev-parse --short HEAD)
-                detail=
-                [ "$name" = "$focused" ] && status=$("${0%/*}/tmux-git-status" "$path") && detail=${status#"#[fg=#768390]$branch"}
-                tmux set -q -t "=$name:" @branch "$branch" \; set -q -t "=$name:" @git_detail "$detail"
+                # draw the cached result now; -S reruns both jobs once git is done
+                (refresh "$name" "$path"; tmux refresh-client -S) >/dev/null 2>&1 &
             fi
             [ "$name" = "$focused" ] || detail=
             echo "S|$name|$id|$branch|$detail"

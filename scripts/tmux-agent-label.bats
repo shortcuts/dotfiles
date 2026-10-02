@@ -16,10 +16,11 @@ setup() {
 case "$1 $2 $3" in
 "list-panes -a -f") echo "$TMUX_SESSIONS" ;;
 "list-panes -a -F") echo "$TMUX_PANES" ;;
+*) echo "$*" >>"$TMUX_LOG" ;;
 esac
 MOCK
     chmod +x "$BATS_TEST_TMPDIR/bin/tmux"
-    export PATH="$BATS_TEST_TMPDIR/bin:$PATH" TMUX_SESSIONS="metis|\$1|$M|" TMUX_PANES='P|metis|1|1||'
+    export PATH="$BATS_TEST_TMPDIR/bin:$PATH" TMUX_LOG="$BATS_TEST_TMPDIR/tmux.log" TMUX_SESSIONS="metis|\$1|$M|" TMUX_PANES='P|metis|1|1||'
 }
 
 # each entry prints as "  <text><pad>  "; | marks the entry edges so the padding shows
@@ -52,9 +53,12 @@ label() { "$SCRIPT" "$@" | LC_ALL=C sed 's/#\[bg=default\] /&|/g; s/#\[[^]]*\]//
     [ "$(label branch 80 metis)" = "  feat/cached +9 ■   |" ]
 }
 
-@test "a git result older than status-interval is read again" {
+@test "a git result older than status-interval renders at once and refreshes in the background" {
     export TMUX_SESSIONS="metis|\$1|$M|feat/cached|1| #[fg=#57ab5a]+9"
-    [ "$(label branch 80 metis)" = "  main ■   |" ]
+    [ "$(label branch 80 metis)" = "  feat/cached +9 ■   |" ]
+    for _ in 1 2 3 4 5 6 7 8 9 10; do grep -q refresh-client "$TMUX_LOG" 2>/dev/null && break; sleep 0.2; done
+    grep -q '@branch main' "$TMUX_LOG"
+    grep -q refresh-client "$TMUX_LOG"
 }
 
 @test "a long branch is cut to the width of the client" {
