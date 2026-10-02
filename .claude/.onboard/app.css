@@ -13,7 +13,7 @@
 }
 * { box-sizing: border-box; }
 /* A scrollbar that appears on a long note would shift the whole page sideways. */
-html { scrollbar-gutter: stable; scroll-behavior: smooth; scroll-padding-top: 72px; }
+html { scrollbar-gutter: stable; scroll-behavior: smooth; scroll-padding-top: 53px; }
 body {
   margin: 0; background: var(--paper); color: var(--ink);
   font: var(--t-body)/1.7 var(--serif);
@@ -63,7 +63,7 @@ h1, h2, h3, h4 { text-wrap: balance; }
 }
 
 /* The map is the star: it and the panel fill the first screen, and the general content follows. */
-.stage { display: grid; grid-template-columns: 3fr minmax(20rem, 1fr); height: calc(100vh - 53px); border-bottom: 3px double var(--rule); }
+.stage { display: grid; grid-template-columns: 3fr minmax(20rem, 1fr); height: calc(100vh - 53px); border-block: 1px solid var(--rule); }
 .stage > .map { grid-area: 1 / 1; height: 100%; border: 0; border-right: 1px solid var(--rule); border-radius: 0; }
 .panel { grid-area: 1 / 2; }
 .over { grid-area: 1 / 1; z-index: 4; display: flex; flex-direction: column; background: var(--sheet); border-right: 1px solid var(--rule); }
@@ -90,6 +90,11 @@ ul.facts .how::before { content: ": "; }
 .bar-title { margin-right: auto; font-weight: 700; }
 
 .paper { max-width: 1120px; margin: 0 auto; padding: 56px 40px 160px; }
+.paper.intro { padding-bottom: 0; }
+.paper.map-head { padding: 80px 40px 20px; }
+.map-head h2 { font-size: 1.875rem; line-height: 1.2; margin: 0 0 12px; }
+.map-head .hint { margin: 0; }
+.paper.rest { padding-top: 0; }
 .paper p, .paper ul, .paper ol, .paper dl, .paper table, .paper h1, .paper h2, .paper h3, .paper h4 { max-width: var(--measure); }
 .paper p { margin: 0 0 1em; }
 .title { padding-bottom: 40px; border-bottom: 3px double var(--rule); }
@@ -203,12 +208,19 @@ figure { margin: 0; }
 .flow-slot:empty { border: 1px dashed var(--rule); border-radius: 4px; }
 .flow-slot .map { height: 100%; }
 .flow-slot:has(.flow-list) { height: auto; }
-/* A store (a database, a queue, a bucket) is a pill, so it reads apart from a service. */
-.box.shape { display: grid; place-items: center; padding: 0 12px; font-size: var(--t-ui); font-weight: 700; white-space: nowrap; }
-.box.store { border-radius: 999px; background: var(--code); }
-.map.stepping .box.shape { transition: opacity .2s, border-color .2s, background .2s; }
+/* Three box types: a package keeps the plain box, a service a heavy rounded frame, and a
+   store (a database, a queue, a bucket) a cylinder, so each reads apart at a glance. */
+.box.shape { display: grid; place-items: center; padding: 0 14px; font-size: var(--t-ui); font-weight: 700; white-space: nowrap; }
+.box.svc { border: 2px solid var(--ink); border-radius: 10px; background: #fffdf3; }
+.box.store { --lid: 18px; border: 1.5px solid var(--ink); border-radius: 50% / calc(var(--lid) / 2); background: var(--code); padding-top: calc(var(--lid) / 2); }
+.box.store::before {
+  content: ""; position: absolute; inset: -1.5px -1.5px auto; height: var(--lid);
+  border: 1.5px solid var(--ink); border-radius: 50%; background: color-mix(in srgb, var(--code) 55%, #fff);
+}
+.map.stepping .box.shape, .map.stepping .box.store::before { transition: opacity .2s, border-color .2s, background .2s; }
 .map.stepping .box.shape:not(.step) { opacity: .4; }
-.map.stepping .box.shape.step { border-color: var(--accent); background: var(--accent-soft); }
+.map.stepping .box.shape.step, .map.stepping .box.store.step::before { border-color: var(--accent); background: var(--accent-soft); }
+.map.stepping .box.store.step { background: color-mix(in srgb, var(--accent-soft) 70%, var(--accent) 12%); }
 /* Every step shows in full; a click lights it on the graph above. */
 ol.steps { margin: 20px 0 0; padding-left: 2em; max-width: var(--measure); }
 ol.steps li { margin: 0 0 4px; padding-left: 4px; }

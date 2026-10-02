@@ -75,14 +75,15 @@ function lib(name, file, cdn) {
 }
 
 // A flow is a second canvas: the map's boxes, edges, pan, and zoom, so both graphs read alike.
-const SHAPE = { h: 40, ch: 8 };
+// A store is taller: its cylinder lid takes the top of the box.
+const SHAPE = { h: 40, store: 56, ch: 8 };
 const rendering = new Map(), rendered = new Map();
 function renderFlow(f) {
   const key = JSON.stringify(f);
   if (!rendering.has(key)) rendering.set(key, elk()
     .then((E) => E.layout({
       id: "flow",
-      children: f.nodes.map((n) => ({ id: n.id, width: n.name.length * SHAPE.ch + 32, height: SHAPE.h })),
+      children: f.nodes.map((n) => ({ id: n.id, width: n.name.length * SHAPE.ch + 32, height: n.store ? SHAPE.store : SHAPE.h })),
       edges: f.edges.map((e, i) => ({ id: `f${i}`, sources: [e.from], targets: [e.to],
         labels: [{ text: e.label, width: e.label.length * CH + 8, height: 14 }] })),
       // A loop (a sink the source also reads) would put the sink mid-graph; the node order breaks it.
@@ -121,7 +122,7 @@ function drawFlow(f, steps, slot, items, fig) {
   const cv = { view: { x: 0, y: 0, k: 1 }, minK: 0.7, bounds: () => ({ x: 0, y: 0, width: res.width, height: res.height }) };
   Object.assign(cv, canvas(() => cv, "flow", "Data flow diagram. Drag to pan, pinch or Ctrl+scroll to zoom."));
   const boxes = new Map(res.children.map((n) => [n.id, h("div", {
-    class: shape.get(n.id).store ? "box shape store" : "box shape",
+    class: shape.get(n.id).store ? "box shape store" : "box shape svc",
     style: `left:${n.x}px;top:${n.y}px;width:${n.width}px;height:${n.height}px`,
   }, h("span", { class: "name" }, shape.get(n.id).name))]));
   cv.world.append(...boxes.values());
@@ -200,27 +201,32 @@ function panel(note, idx, node) {
     h("p", { class: "meta" }, node.kind, node.path != null && [" at ", src(link(note, node.path), node.path || "/")]),
     h("p", { class: "lead" }, node.summary),
     node.role.map((p) => h("p", {}, p)),
-    isRoot && h("p", { class: "hint" }, "Click a box to read about it here. Scroll down for the problem, the words, and the life of the data."),
+    isRoot && h("p", { class: "hint" }, "Scroll down for the principles and the life of the data."),
     node.children?.length > 0 && [h("h3", {}, "Inside"), h("ul", { class: "facts" }, node.children.map((c) =>
       h("li", {}, jump(idx, c), h("span", { class: "how" }, c.summary))))],
     !isRoot && node.flow && h("button", { class: "see", onclick: () => showFlow(node) }, "Show its data flow"),
     facts(note, idx, node));
 }
 
-// Below the map, the note's general content reads top to bottom.
-function general(note, idx) {
+// The page presents the idea before the solution: the problem and the words come above the
+// map, and the principles, the life of the data, and the code below it.
+function page(note, idx, stage) {
   const root = note.root, r = note.repo, at = `${r.name} at ${r.sha.slice(0, 7)}`;
   let n = 0;
-  const a = h("article", { class: "paper" },
+  const intro = h("article", { class: "paper intro" },
     h("header", { class: "title" },
       h("h1", {}, note.title),
       h("p", { class: "meta" }, r.web ? src(`${r.web}/tree/${r.sha}`, at) : at, `, written ${note.generated}`)));
-  const add = (title, ...body) => a.append(h("section", { class: "sec" },
-    h("h2", {}, h("span", { class: "no" }, String(++n)), title), ...body));
+  let a = intro;
+  const heading = (title) => h("h2", {}, h("span", { class: "no" }, String(++n)), title);
+  const add = (title, ...body) => a.append(h("section", { class: "sec" }, heading(title), ...body));
   // The why comes before the glossary: a reader new to the code needs the reason first.
   if (root.problem) add("The problem", h("p", {}, root.problem));
   if (note.words?.length) add("Words", h("dl", { class: "words" },
     note.words.map((w) => [h("dt", {}, w.term), h("dd", {}, w.def)])));
+  const mapHead = h("div", { class: "paper map-head" }, heading("The map"),
+    h("p", { class: "hint" }, "Click a box to read about it on the right. Click a box with an arrow to see the parts inside."));
+  a = h("article", { class: "paper rest" });
   if (root.principles) {
     const no = String(n + 1);
     add(root.principles.length > 1 ? "Principles" : "The principle", root.principles.map((p, i) => h("div", { class: "principle" },
@@ -246,7 +252,7 @@ function general(note, idx) {
   if (rest.length) add("Where to start reading", rest);
   if (root.stack?.length) add("Stack", h("ul", { class: "plain" }, root.stack.map((s) => h("li", {},
     h("strong", {}, s.name), ": ", s.role, " ", src(s.url, "docs")))));
-  return a;
+  return [intro, mapHead, stage, a];
 }
 
 // The word before the colon says how the data moves; the payload stays in the panel.
@@ -493,7 +499,7 @@ function showFlow(node) {
 }
 // From the panel: reveal the node. With no fold, bring it to the middle instead.
 function go(id) {
-  if (current.map.getBoundingClientRect().top < 0) scrollTo(0, 0);
+  current.map.scrollIntoView({ block: "nearest" });
   pick(id, false).then((moved) => moved || center(id));
 }
 
@@ -552,7 +558,7 @@ async function open(slug, nodeId, openIds) {
     !standalone && h("a", { class: "share", href: `notes/${slug}.html`, download: `${slug}.html` }, "Download as one file"));
   const { map, world } = mapView();
   const idx = index(note.root), side = h("aside");
-  app.replaceChildren(bar, h("main", {}, h("div", { class: "stage" }, map, side), general(note, idx)));
+  app.replaceChildren(bar, h("main", {}, page(note, idx, h("div", { class: "stage" }, map, side))));
   const unfolded = new Set([note.root.id, ...(openIds || "").split(",").filter((id) => idx.byId.get(id)?.children?.length)]);
   current = { note, idx, map, world, panel: side, open: unfolded, boxes: new Map(), pos: new Map(), view: { x: 0, y: 0, k: 1 },
     bounds: () => current.pos.get(note.root.id) };

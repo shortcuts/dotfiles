@@ -23,12 +23,15 @@ public.
 
 ## Decisions
 
-- **The map is the star.** The map and a side panel fill the first screen, at 3/4 and
+- **The idea, then the solution.** The title, the problem, and the words come first, so
+  the reader knows why the system exists and what its terms mean before the map shows it.
+  The map follows, then the principles, the life of the data, where to start reading, and
+  the stack.
+- **The map is the star.** The map and a side panel fill one screen height, at 3/4 and
   1/4 of its width. A box click selects the box and folds or unfolds it, and the panel
   shows that node: its path, summary, role, what is inside, who it talks to, where to
   start reading, and its outside services. A box shows only its name and kind, because
-  the panel carries the rest. The general content follows below the fold: the problem,
-  the words, the principles, the life of the data, where to start reading, and the stack.
+  the panel carries the rest.
   A linear paper with one section per node was tried first: it stacked the content and
   pushed the map down, but the map must carry the overview.
 - **A part's flow takes the stage.** The panel is too narrow to read a graph, so a part
@@ -76,8 +79,8 @@ public.
   **Fit**, **Expand all**, **Collapse**, and **Full screen** sit in the canvas corner. A
   flow with steps goes full screen with its step list, so the step text stays in view.
 - **One title in the bar.** With more than one note, the switcher shows the title. With
-  none, as in a one-file copy, the bar shows it, because the map fills the first screen.
-  The `h1` heads the general content below the map.
+  none, as in a one-file copy, the bar shows it, so the title stays in view on the map.
+  The `h1` opens the page.
 - **The hash holds the view state:** the note, the selected node, and the unfolded nodes.
 - **One Obsidian page per note.** The page holds the root's summary, problem, principles,
   parts, and words, so vault search finds a term, plus a `file://` link that opens the
@@ -88,12 +91,11 @@ public.
   iCloud is a personal account, and the notes summarize employer code.
 - **A flow is a second map.** A flow is shapes and edges as data. It gets its own canvas
   with the map's boxes, edges, pan, zoom, and **Fit**, so the two graphs read and move alike.
-  The canvas code takes the canvas it acts on, so the map and each flow share it. A store
-  (a database, a queue, a bucket) is a pill. Mermaid was dropped: a second layout engine
+  The canvas code takes the canvas it acts on, so the map and each flow share it. Mermaid was dropped: a second layout engine
   drew a second visual language, and it doubled the bundle. With no ELK, a flow shows as a
   list of edges.
-- **The general content reads top-down.** The problem comes before the words: a reader
-  new to the code needs the reason first. Nothing folds: every word and every entry point
+- **The text reads top-down.** The problem comes before the words: a reader new to the
+  code needs the reason first. Nothing folds: every word and every entry point
   shows.
 - **The life of the data is a step list under the flow.** Every step shows in full. A
   click on a step, or **←** and **→** on the keyboard, lights its shapes and the edges
@@ -103,6 +105,11 @@ public.
 - **A flow lays out near the viewport.** The lifecycle flow sits below the fold, so it
   waits for an IntersectionObserver 800 px ahead of the scroll. A wide flow opens at
   70 % zoom from its left end, because below that its labels stop reading.
+- **Three box types.** A package keeps the plain box. A service has a heavy rounded frame.
+  A store (a database, a queue, a bucket) is a cylinder. Only flow shapes carry the data
+  today: `store` marks the cylinder, and every other shape is a service. The map's boxes
+  stay package boxes until the note marks services and stores (backlog:
+  "onboard: runtime view so the map shows services first").
 - **Links pin to `repo.sha`.** A branch link drifts as the code moves. With `repo.web`
   null, the links open `vscode://file/…`.
 - **No layout shift.** The map and each flow slot have a fixed height, so a fold or a late
