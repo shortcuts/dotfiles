@@ -41,6 +41,8 @@ def test_word_marks_jump_to_the_words():
     # One mark per term per block: the panel lead, the role, and the problem.
     assert page.count('class="wref"') == 3, page.count('class="wref"')
     assert "Render Job<sup>" in page, "the mark sits right after the term, in any case"
+    assert "<h2>" not in page.split('class="notes"')[1].split("</footer>")[0], "the words are footnotes, not a section"
+    assert page.rindex('id="word-render-job"') > page.rindex('class="sec"'), "the words close the page"
 
 
 if __name__ == "__main__":

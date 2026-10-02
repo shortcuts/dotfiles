@@ -233,8 +233,8 @@ function panel(note, idx, node) {
     facts(note, idx, node));
 }
 
-// The page presents the idea before the solution: the problem and the words come above the
-// map, and the principles, the life of the data, and the code below it.
+// The page presents the idea before the solution: the problem comes above the map, and the
+// principles, the life of the data, and the code below it.
 function page(note, idx, stage) {
   const root = note.root, r = note.repo, at = `${r.name} at ${r.sha.slice(0, 7)}`;
   let n = 0;
@@ -245,10 +245,7 @@ function page(note, idx, stage) {
   let a = intro;
   const heading = (title) => h("h2", {}, h("span", { class: "no" }, String(++n)), title);
   const add = (title, ...body) => a.append(h("section", { class: "sec" }, heading(title), ...body));
-  // The why comes before the glossary: a reader new to the code needs the reason first.
   if (root.problem) add("The problem", h("p", {}, gloss(note, root.problem)));
-  if (note.words?.length) add("Words", h("dl", { class: "words" },
-    note.words.map((w) => [h("dt", { id: wordId(w.term) }, w.term), h("dd", {}, w.def)])));
   const mapHead = h("div", { class: "paper map-head" }, heading("The map"),
     h("p", { class: "hint" }, "Click a box to read about it on the right. Click a box with an arrow to see the parts inside."));
   a = h("article", { class: "paper rest" });
@@ -277,6 +274,9 @@ function page(note, idx, stage) {
   if (rest.length) add("Where to start reading", rest);
   if (root.stack?.length) add("Stack", h("ul", { class: "plain" }, root.stack.map((s) => h("li", {},
     h("strong", {}, s.name), ": ", s.role, " ", src(s.url, "docs")))));
+  // The words are optional reading, so they sit at the foot of the page, as in a book.
+  if (note.words?.length) a.append(h("footer", { class: "notes" }, h("dl", { class: "words" },
+    note.words.map((w) => [h("dt", { id: wordId(w.term) }, "* ", w.term), h("dd", {}, w.def)]))));
   return [intro, mapHead, stage, a];
 }
 

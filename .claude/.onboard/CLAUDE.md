@@ -23,10 +23,9 @@ public.
 
 ## Decisions
 
-- **The idea, then the solution.** The title, the problem, and the words come first, so
-  the reader knows why the system exists and what its terms mean before the map shows it.
-  The map follows, then the principles, the life of the data, where to start reading, and
-  the stack.
+- **The idea, then the solution.** The title and the problem come first, so the reader
+  knows why the system exists before the map shows it. The map follows, then the
+  principles, the life of the data, where to start reading, and the stack.
 - **The map is the star.** The map and a side panel fill one screen height, at 3/4 and
   1/4 of its width. A box click selects the box and folds or unfolds it, and the panel
   shows that node: its path, summary, role, what is inside, who it talks to, where to
@@ -94,12 +93,12 @@ public.
   The canvas code takes the canvas it acts on, so the map and each flow share it. Mermaid was dropped: a second layout engine
   drew a second visual language, and it doubled the bundle. With no ELK, a flow shows as a
   list of edges.
-- **A term gets a footnote mark.** The words are optional reading. The first use of a
-  term in a block of prose gets a small dim `*`, as in a paper, that scrolls to its
-  definition and shows it as a tooltip. A reader who knows the term reads on.
-- **The text reads top-down.** The problem comes before the words: a reader new to the
-  code needs the reason first. Nothing folds: every word and every entry point
-  shows.
+- **The words are footnotes.** The words are optional reading, so they sit at the foot of
+  the page in small muted text under a short rule, as in a book, with no section heading.
+  A full section above the map was too loud. The first use of a term in a block of prose
+  gets a small dim `*` that scrolls to its definition and shows it as a tooltip. A reader
+  who knows the term reads on.
+- **The text reads top-down.** Nothing folds: every word and every entry point shows.
 - **The life of the data is a step list under the flow.** Every step shows in full. A
   click on a step, or **←** and **→** on the keyboard, lights its shapes and the edges
   between them, and the rest dims. The arrows drive the flow the pointer last entered.

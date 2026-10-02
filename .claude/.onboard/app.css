@@ -108,8 +108,11 @@ ul.facts .how::before { content: ": "; }
 .no { color: var(--accent); font-size: .55em; font-weight: 400; margin-right: .9em; vertical-align: .25em; }
 .hint { color: var(--muted); font-style: italic; }
 
-dl.words { display: grid; grid-template-columns: max-content 1fr; gap: 14px 32px; margin: 0; }
-dl.words dt { font-weight: 700; scroll-margin-top: 80px; }
+/* A book's footnote rule: short, so it reads as a separator, not a section. */
+.notes { margin-top: 80px; color: var(--muted); font-size: var(--t-small); line-height: 1.5; }
+.notes::before { content: ""; display: block; width: 8rem; border-top: 1px solid var(--muted); margin-bottom: 14px; }
+dl.words { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; }
+dl.words dt { font-style: italic; scroll-margin-top: 80px; }
 dl.words dd { margin: 0; }
 /* A word mark is a footnote: small, dim, and skippable by a reader who knows the term. */
 .wref {
