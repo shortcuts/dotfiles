@@ -9,7 +9,7 @@ setup() {
     git init -q -b main "$M"
     git -C "$M" commit -q --allow-empty -m base
     mkdir "$BATS_TEST_TMPDIR/bin" "$BATS_TEST_TMPDIR/notes"
-    # list-panes -a -f prints "session_name|session_id|pane_current_path|@branch" per session,
+    # list-panes -a -f prints "session_name|session_id|pane_current_path|@branch|@git_at|@git_detail" per session,
     # list-panes -a "P|session_name|window_index|window_active|@pane_agent|@pane_status" per pane
     cat >"$BATS_TEST_TMPDIR/bin/tmux" <<'MOCK'
 #!/bin/sh
@@ -47,8 +47,13 @@ label() { "$SCRIPT" "$@" | LC_ALL=C sed 's/#\[bg=default\] /&|/g; s/#\[[^]]*\]//
     [ "$(label branch 80 other)" = "  feat/cached ■   |" ]
 }
 
-@test "the focused session reads git, not the cache" {
-    export TMUX_SESSIONS="metis|\$1|$M|feat/stale"
+@test "a window switch reuses the git result cached this status-interval" {
+    export TMUX_SESSIONS="metis|\$1|$M|feat/cached|$(date +%s)| #[fg=#57ab5a]+9"
+    [ "$(label branch 80 metis)" = "  feat/cached +9 ■   |" ]
+}
+
+@test "a git result older than status-interval is read again" {
+    export TMUX_SESSIONS="metis|\$1|$M|feat/cached|1| #[fg=#57ab5a]+9"
     [ "$(label branch 80 metis)" = "  main ■   |" ]
 }
 

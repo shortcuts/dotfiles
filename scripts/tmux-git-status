@@ -11,8 +11,9 @@ fork=$(git merge-base "${base:-origin/main}" HEAD 2>/dev/null) || fork=HEAD
 
 # " 1 file changed, 3 insertions(+), 2 deletions(-)"; either count may be missing
 stat=$(git diff --shortstat "$fork" 2>/dev/null)
-added=$(printf '%s' "$stat" | sed -n 's/.* \([0-9]*\) insertion.*/\1/p')
-deleted=$(printf '%s' "$stat" | sed -n 's/.* \([0-9]*\) deletion.*/\1/p')
+added= deleted=
+case $stat in *insertion*) added=${stat% insertion*} added=${added##* } ;; esac
+case $stat in *deletion*) deleted=${stat% deletion*} deleted=${deleted##* } ;; esac
 
 out="#[fg=#768390]$branch"
 # "<behind>\t<ahead>"; no upstream means nothing to compare

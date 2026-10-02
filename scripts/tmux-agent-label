@@ -9,14 +9,19 @@ line=$1 width=${2:-80} focused=$3
 {
     tmux list-panes -a -F 'P|#{session_name}|#{window_index}|#{window_active}|#{@pane_agent}|#{@pane_status}'
     # only the focused session reads git, and a session with nothing cached; the others keep @branch from when last focused
-    tmux list-panes -a -f '#{&&:#{window_active},#{pane_active}}' -F '#{session_name}|#{session_id}|#{pane_current_path}|#{@branch}' |
-        while IFS='|' read -r name id path branch; do
-            if [ "$name" = "$focused" ] || [ -z "$branch" ]; then
+    # a window switch reruns this job too, so git runs at most once per status-interval
+    now=$(date +%s)
+    tmux list-panes -a -f '#{&&:#{window_active},#{pane_active}}' -F '#{session_name}|#{session_id}|#{pane_current_path}|#{@branch}|#{@git_at}|#{@git_detail}' |
+        while IFS='|' read -r name id path branch at detail; do
+            if [ "$name" = "$focused" ] && [ $((now - ${at:-0})) -ge 5 ] || [ -z "$branch$at" ]; then
+                # claim the refresh first: the job for the other status line starts at the same time
+                tmux set -q -t "=$name:" @git_at "$now"
                 branch=$(git -C "$path" branch --show-current 2>/dev/null) && [ -z "$branch" ] && branch=$(git -C "$path" rev-parse --short HEAD)
-                tmux set -q -t "=$name:" @branch "$branch"
+                detail=
+                [ "$name" = "$focused" ] && status=$("${0%/*}/tmux-git-status" "$path") && detail=${status#"#[fg=#768390]$branch"}
+                tmux set -q -t "=$name:" @branch "$branch" \; set -q -t "=$name:" @git_detail "$detail"
             fi
-            detail=
-            [ "$name" = "$focused" ] && status=$("${0%/*}/tmux-git-status" "$path") && detail=${status#"#[fg=#768390]$branch"}
+            [ "$name" = "$focused" ] || detail=
             echo "S|$name|$id|$branch|$detail"
         done
 } | awk -F'|' -v line="$line" -v w="$width" -v focused="$focused" '
