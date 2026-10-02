@@ -94,6 +94,9 @@ public.
   The canvas code takes the canvas it acts on, so the map and each flow share it. Mermaid was dropped: a second layout engine
   drew a second visual language, and it doubled the bundle. With no ELK, a flow shows as a
   list of edges.
+- **A term gets a footnote mark.** The words are optional reading. The first use of a
+  term in a block of prose gets a small dim `*`, as in a paper, that scrolls to its
+  definition and shows it as a tooltip. A reader who knows the term reads on.
 - **The text reads top-down.** The problem comes before the words: a reader new to the
   code needs the reason first. Nothing folds: every word and every entry point
   shows.

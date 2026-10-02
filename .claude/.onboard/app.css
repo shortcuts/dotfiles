@@ -109,8 +109,14 @@ ul.facts .how::before { content: ": "; }
 .hint { color: var(--muted); font-style: italic; }
 
 dl.words { display: grid; grid-template-columns: max-content 1fr; gap: 14px 32px; margin: 0; }
-dl.words dt { font-weight: 700; }
+dl.words dt { font-weight: 700; scroll-margin-top: 80px; }
 dl.words dd { margin: 0; }
+/* A word mark is a footnote: small, dim, and skippable by a reader who knows the term. */
+.wref {
+  border: 0; background: none; padding: 0 1px; cursor: pointer;
+  color: var(--muted); font-size: .7em; line-height: 0;
+}
+@media (hover: hover) { .wref:hover { color: var(--accent); } }
 
 .principle { margin: 0 0 64px; }
 .principle h3 { font-size: 1.375rem; line-height: 1.35; margin: 0 0 16px; }

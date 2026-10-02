@@ -109,6 +109,7 @@ STL/.DS_Store
 !.claude/.onboard/app.css
 !.claude/.onboard/app.js
 !.claude/.onboard/bundle.py
+!.claude/.onboard/test_viewer.py
 !.claude/skills/no-ai-slop/
 !.claude/skills/no-ai-slop/**
 !.claude/skills/release-candidate/

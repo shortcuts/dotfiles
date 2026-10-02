@@ -177,6 +177,31 @@ const jump = (idx, n) => {
   return [h("button", { class: "jump", onclick: () => go(n.id) }, n.name), where && h("span", { class: "ref" }, ` in ${where}`)];
 };
 
+// A term from the words gets a small mark that jumps to its definition, like a paper's
+// footnote: a reader who knows the term reads on. One mark per term per block.
+const wordId = (term) => "word-" + term.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+function gloss(note, text) {
+  const ws = note.words || [];
+  if (!ws.length || !text) return text;
+  const alt = ws.map((w) => w.term).sort((a, b) => b.length - a.length)
+    .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const seen = new Set(), out = [];
+  let last = 0;
+  for (const m of text.matchAll(new RegExp(`(?<!\\w)(?:${alt})(?!\\w)`, "gi"))) {
+    const w = ws.find((w) => w.term.toLowerCase() === m[0].toLowerCase());
+    if (seen.has(w)) continue;
+    seen.add(w);
+    const end = m.index + m[0].length;
+    out.push(text.slice(last, end), h("sup", {}, h("button", {
+      class: "wref", title: w.def, "aria-label": `Definition of ${w.term}`,
+      onclick: () => document.getElementById(wordId(w.term))?.scrollIntoView({ behavior: "smooth" }),
+    }, "*")));
+    last = end;
+  }
+  out.push(text.slice(last));
+  return out;
+}
+
 // The facts on a node: who it talks to, where its code starts, what it calls outside.
 function facts(note, idx, node) {
   const cs = connections(idx, node), out = [];
@@ -199,8 +224,8 @@ function panel(note, idx, node) {
       up.map((n) => [h("button", { class: "jump", onclick: () => go(n.id) }, n.name), h("span", { "aria-hidden": "true" }, " / ")])),
     h("h2", {}, node.name),
     h("p", { class: "meta" }, node.kind, node.path != null && [" at ", src(link(note, node.path), node.path || "/")]),
-    h("p", { class: "lead" }, node.summary),
-    node.role.map((p) => h("p", {}, p)),
+    h("p", { class: "lead" }, gloss(note, node.summary)),
+    node.role.map((p) => h("p", {}, gloss(note, p))),
     isRoot && h("p", { class: "hint" }, "Scroll down for the principles and the life of the data."),
     node.children?.length > 0 && [h("h3", {}, "Inside"), h("ul", { class: "facts" }, node.children.map((c) =>
       h("li", {}, jump(idx, c), h("span", { class: "how" }, c.summary))))],
@@ -221,23 +246,23 @@ function page(note, idx, stage) {
   const heading = (title) => h("h2", {}, h("span", { class: "no" }, String(++n)), title);
   const add = (title, ...body) => a.append(h("section", { class: "sec" }, heading(title), ...body));
   // The why comes before the glossary: a reader new to the code needs the reason first.
-  if (root.problem) add("The problem", h("p", {}, root.problem));
+  if (root.problem) add("The problem", h("p", {}, gloss(note, root.problem)));
   if (note.words?.length) add("Words", h("dl", { class: "words" },
-    note.words.map((w) => [h("dt", {}, w.term), h("dd", {}, w.def)])));
+    note.words.map((w) => [h("dt", { id: wordId(w.term) }, w.term), h("dd", {}, w.def)])));
   const mapHead = h("div", { class: "paper map-head" }, heading("The map"),
     h("p", { class: "hint" }, "Click a box to read about it on the right. Click a box with an arrow to see the parts inside."));
   a = h("article", { class: "paper rest" });
   if (root.principles) {
     const no = String(n + 1);
     add(root.principles.length > 1 ? "Principles" : "The principle", root.principles.map((p, i) => h("div", { class: "principle" },
-      h("h3", {}, h("span", { class: "no" }, `${no}.${i + 1}`), p.claim),
-      p.why && h("p", {}, p.why),
+      h("h3", {}, h("span", { class: "no" }, `${no}.${i + 1}`), gloss(note, p.claim)),
+      p.why && h("p", {}, gloss(note, p.why)),
       // Notes written before the worked example still carry the mammoth.
       h("table", { class: "example" },
         h("thead", {}, h("tr", {}, h("th", {}, "Case"), h("th", {}, "What the system does"))),
-        h("tbody", {}, (p.example ?? p.mammoth.rows).map(([s, c]) => h("tr", {}, h("td", {}, s), h("td", {}, c))))),
-      (p.except ?? p.mammoth?.breaks) && h("p", { class: "aside" }, h("strong", {}, "Except: "), p.except ?? p.mammoth.breaks),
-      p.cost && h("p", { class: "aside" }, h("strong", {}, "The price: "), p.cost))));
+        h("tbody", {}, (p.example ?? p.mammoth.rows).map(([s, c]) => h("tr", {}, h("td", {}, gloss(note, s)), h("td", {}, gloss(note, c)))))),
+      (p.except ?? p.mammoth?.breaks) && h("p", { class: "aside" }, h("strong", {}, "Except: "), gloss(note, p.except ?? p.mammoth.breaks)),
+      p.cost && h("p", { class: "aside" }, h("strong", {}, "The price: "), gloss(note, p.cost)))));
   }
   if (root.io) add("In and out",
     h("ul", { class: "plain" },
