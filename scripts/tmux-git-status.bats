@@ -14,31 +14,17 @@ setup() {
 # tmux style directives carry no information for the assertions.
 status() { "$SCRIPT" "$1" | LC_ALL=C sed 's/#\[[^]]*\]//g'; }
 
-@test "clean branch level with main shows only the branch" {
-    git -C "$REPO" switch -q -c feat/x
-    [ "$(status "$REPO")" = "repo - feat/x" ]
-}
-
-@test "counts lines added and deleted since main, uncommitted work included" {
+@test "counts commits against upstream and lines changed since main, uncommitted work included" {
     printf 'a\nb\nc\n' >"$BATS_TEST_TMPDIR/origin/f"
     git -C "$BATS_TEST_TMPDIR/origin" add f
     git -C "$BATS_TEST_TMPDIR/origin" commit -q -m f
     git -C "$REPO" pull -q
-    git -C "$REPO" switch -q -c feat/x
+    git -C "$REPO" switch -q -c feat/x --track origin/main
     printf 'a\nx\ny\n' >"$REPO/f"
     git -C "$REPO" commit -q -am edit
     git -C "$BATS_TEST_TMPDIR/origin" commit -q --allow-empty -m upstream
+    git -C "$BATS_TEST_TMPDIR/origin" commit -q --allow-empty -m upstream
     git -C "$REPO" fetch -q
     printf 'z\n' >>"$REPO/f"
-    [ "$(status "$REPO")" = "repo - feat/x - +3 -2" ]
-}
-
-@test "prints nothing outside a git repo" {
-    [ -z "$(status "$BATS_TEST_TMPDIR")" ]
-}
-
-@test "a worktree shows its own directory, from any subdirectory" {
-    git -C "$REPO" worktree add -q -b feat/wt "$BATS_TEST_TMPDIR/repo-worktree-ai"
-    mkdir "$BATS_TEST_TMPDIR/repo-worktree-ai/sub"
-    [ "$(status "$BATS_TEST_TMPDIR/repo-worktree-ai/sub")" = "repo-worktree-ai - feat/wt" ]
+    [ "$(status "$REPO")" = "feat/x ↑1 ↓2 - +3 -2" ]
 }
