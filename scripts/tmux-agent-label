@@ -1,10 +1,13 @@
 #!/bin/sh
 # Session status lines: name ($2=repo) or branch and window pips ($2=branch) for $1, cut to fit a $3-wide client.
-# The session name $4 replaces the repo name when given.
+# The session name $4 replaces the repo name when given. $5=1 marks the focused session.
 # Both lines pad to the same width per session, so the branch sits under its name.
 cd "$1" 2>/dev/null || exit 0
+# only the focused session reads git: the others show the branch cached in @branch when last focused
+if [ -n "$4" ] && [ "$5" != 1 ] && branch=$(tmux show -qv -t "=$4:" @branch) && [ -n "$branch" ]; then
+    :
 # the common dir's parent names the main repo, so every worktree of metis shows "metis"
-if common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); then
+elif common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null); then
     repo=${common%/.git}
     repo=${repo##*/}
     branch=$(git branch --show-current) && [ -n "$branch" ] || branch=$(git rev-parse --short HEAD)
@@ -12,15 +15,27 @@ else
     repo=${PWD##*/}
     branch=
 fi
-[ -n "$4" ] && repo=$4
+[ -n "$4" ] && repo=$4 && tmux set -q -t "=$4:" @branch "$branch"
 
-# each session box takes 3 columns of padding: 2 inside, 1 after
-# the format cannot count sessions itself: an S loop nested in its S loop clobbers tmux's shared list
-n=$(tmux list-sessions -F x | wc -l)
-cols=$(( ${3:-80} / (n > 0 ? n : 1) - 3 ))
-# one pad space and one separator space take 2 of the entry's columns
-max=$(( cols - 2 ))
-[ "$max" -lt 4 ] && max=4
+# each entry takes 5 columns besides its text: 2 before, 1 pad, 1 separator, 1 after
+# the format cannot list sessions itself: an S loop nested in its S loop clobbers tmux's shared list
+# max-min fair share: sessions that need less than an even share keep their need, the rest split what is left
+max=$(tmux list-panes -a -f '#{&&:#{window_active},#{pane_active}}' -F '#{session_name}|#{session_windows}|#{@branch}' 2>/dev/null |
+    while IFS='|' read -r name windows b; do
+        b=$(( ${#b} + (windows > 0 ? windows + 1 : 0) ))
+        echo $(( ${#name} > b ? ${#name} : b ))
+    done | sort -n | awk -v w="${3:-80}" '
+        { need[NR] = $1 }
+        END {
+            budget = w - 5 * NR
+            for (i = 1; i <= NR; i++) {
+                share = int(budget / (NR - i + 1))
+                if (need[i] > share) { print share; exit }
+                budget -= need[i]
+            }
+            print NR ? need[NR] : w - 5
+        }')
+[ "${max:-0}" -lt 4 ] && max=4
 # cut prints the text and its length; a byte count of the multibyte "…" would break the padding
 cut() {
     if [ ${#1} -gt "$2" ]; then printf '%.*s… %s' $(($2 - 1)) "$1" "$2"; else printf '%s %s' "$1" ${#1}; fi

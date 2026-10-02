@@ -10,9 +10,17 @@ setup() {
     # one session: its entry gets the client width minus 3
     mkdir "$BATS_TEST_TMPDIR/bin"
     # list-panes prints "window_index|window_active|@pane_agent|@pane_status" per pane
-    printf '#!/bin/sh\n[ "$1" = list-panes ] && echo "$TMUX_PANES" || echo "$TMUX_SESSIONS"\n' >"$BATS_TEST_TMPDIR/bin/tmux"
+    # list-panes -a prints "session_name|session_windows|@branch" per session, show prints the cached @branch
+    cat >"$BATS_TEST_TMPDIR/bin/tmux" <<'MOCK'
+#!/bin/sh
+case "$1 $2" in
+"list-panes -a") [ -n "$TMUX_SESSIONS" ] && echo "$TMUX_SESSIONS" ;;
+list-panes*) echo "$TMUX_PANES" ;;
+show*) echo "$TMUX_BRANCH" ;;
+esac
+MOCK
     chmod +x "$BATS_TEST_TMPDIR/bin/tmux"
-    export PATH="$BATS_TEST_TMPDIR/bin:$PATH" TMUX_SESSIONS='$1' TMUX_PANES='1|1||'
+    export PATH="$BATS_TEST_TMPDIR/bin:$PATH" TMUX_SESSIONS= TMUX_PANES='1|1||' TMUX_BRANCH=
 }
 
 label() { "$SCRIPT" "$@" | LC_ALL=C sed 's/#\[[^]]*\]//g'; }
@@ -53,12 +61,31 @@ label() { "$SCRIPT" "$@" | LC_ALL=C sed 's/#\[[^]]*\]//g'; }
 }
 
 @test "the client width is shared by every session" {
-    # three sessions: 51 / 3 - 3 = 14 columns, 12 for text
-    export TMUX_SESSIONS='$1
-$2
-$3'
+    # three long sessions: 51 / 3 - 5 = 12 columns for text
     git -C "$BATS_TEST_TMPDIR/metis" switch -q -c feat/metishttp-buffer-request-body
+    export TMUX_SESSIONS="a|1|feat/metishttp-buffer-request-body
+b|1|feat/metishttp-buffer-request-body
+c|1|feat/metishttp-buffer-request-body"
     [ "$(label "$BATS_TEST_TMPDIR/metis" branch 51)" = "feat/metish… " ]
+}
+
+@test "short sessions take only what they need and leave the rest to long ones" {
+    # 51 - 3 * 5 = 36 columns for text; "a" and "b" need 2 each, so metis gets 32
+    git -C "$BATS_TEST_TMPDIR/metis" switch -q -c feat/metishttp-buffer-request-body
+    export TMUX_SESSIONS="a|1|
+b|1|
+metis|1|feat/metishttp-buffer-request-body"
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 51 metis)" = "feat/metishttp-buffer-request… ■ " ]
+}
+
+@test "an unfocused session shows its cached branch" {
+    export TMUX_BRANCH=feat/cached
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 43 metis 0)" = "feat/cached ■ " ]
+}
+
+@test "the focused session reads git, not the cache" {
+    export TMUX_BRANCH=feat/stale
+    [ "$(label "$BATS_TEST_TMPDIR/metis" branch 43 metis 1)" = "main ■ " ]
 }
 
 @test "a session shows one pip per window after its branch, the active one filled" {
