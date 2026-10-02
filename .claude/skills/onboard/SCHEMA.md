@@ -20,7 +20,7 @@ ignores the hints, and `--install` strips them.
     "web": "https://github.com/acme/harbor"  // null when no GitHub remote
   },
   "scope": { "kind": "repo | path | function | feature", "query": "report builder" },
-  "words": [{ "term": "render job", "def": "One clause." }],  // most important first; the viewer shows 5
+  "words": [{ "term": "render job", "def": "One clause." }],  // most important first
   // check.py greps each term in the repo. A term from a doc outside it adds "from": "<the doc>"
   "root": { /* Node */ }
 }
@@ -38,7 +38,7 @@ ignores the hints, and `--install` strips them.
 | `role` | string[] | One paragraph, at most 160 characters (two lines of the panel): why the node exists |
 | `flow` | Flow | 7 shapes at most on the root, 12 below it. Required on the root, and on a node that touches a database, a queue, or an external service |
 | `links` | Link[] | Optional. How this node talks to other nodes of the tree |
-| `entry` | Entry[] | Optional. Ordered by importance. The viewer shows 3 and folds the rest |
+| `entry` | Entry[] | Optional. Ordered by importance |
 | `external` | Service[] | Optional. Services outside the repo this node calls |
 | `children` | Node[] | Optional. Empty or absent on a leaf |
 

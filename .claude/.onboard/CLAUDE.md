@@ -23,6 +23,20 @@ public.
 
 ## Decisions
 
+- **The map is the star.** The map and a side panel fill the first screen, at 3/4 and
+  1/4 of its width. A box click selects the box and folds or unfolds it, and the panel
+  shows that node: its path, summary, role, what is inside, who it talks to, where to
+  start reading, and its outside services. A box shows only its name and kind, because
+  the panel carries the rest. The general content follows below the fold: the problem,
+  the words, the principles, the life of the data, where to start reading, and the stack.
+  A linear paper with one section per node was tried first: it stacked the content and
+  pushed the map down, but the map must carry the overview.
+- **A part's flow takes the stage.** The panel is too narrow to read a graph, so a part
+  with a flow gets **Show its data flow**. The flow covers the map at full size, and
+  **Back to the map** removes it. A pick from the panel removes it too.
+- **Source links stay quiet.** A link to GitHub or a vendor doc is small muted mono text
+  with a dotted underline, at the end of its line. A loud link pulled the reader out of
+  the page before they had the overview. A jump inside the page is a blue link.
 - **Shared files, bundled at install.** A `file://` page cannot `fetch()` its own
   `app.js` to inline it, so the browser cannot build a one-file copy. `bundle.py` builds
   it at install instead: the page, the note, ELK, and the font in one HTML file of about
@@ -51,17 +65,19 @@ public.
 - **ELK lays out the canvas.** It is built for nested graphs and routes links around
   boxes. A frame with no link inside packs its children
   with `rectpacking`, because layered layout stacks unlinked siblings in one tall column.
-  With neither `vendor/` nor a network, the map shows a message, and the panel still works.
+  With neither `vendor/` nor a network, the map shows a message, and the text still reads.
 - **The fold state shows on each box.** A box a click unfolds has an accent stripe on its
   leading edge and a chevron pointing right in a soft accent circle. An unfolded frame has
   an accent band on its header and a solid accent circle with the chevron pointing down.
   A leaf has neither. The chevron turns, so the state change reads as one motion.
-- **Drag pans, pinch zooms.** A plain wheel or two-finger swipe pans, and a pinch or
-  Ctrl/⌘+wheel zooms at the pointer. A drag of 4 px or more is a pan, not a click.
+- **Drag pans, pinch zooms.** A pinch or Ctrl/⌘+wheel zooms at the pointer. A plain
+  wheel scrolls the page: a canvas that took it trapped the reader at every figure. A
+  drag of 4 px or more is a pan, not a click.
   **Fit**, **Expand all**, **Collapse**, and **Full screen** sit in the canvas corner. A
-  flow with a stepper goes full screen with its banner, so the step text stays in view.
-- **One title in the bar.** With more than one note, the switcher shows the title on the
-  right, and the `h1` stays for screen readers only. A visible `h1` repeated the select.
+  flow with steps goes full screen with its step list, so the step text stays in view.
+- **One title in the bar.** With more than one note, the switcher shows the title. With
+  none, as in a one-file copy, the bar shows it, because the map fills the first screen.
+  The `h1` heads the general content below the map.
 - **The hash holds the view state:** the note, the selected node, and the unfolded nodes.
 - **One Obsidian page per note.** The page holds the root's summary, problem, principles,
   parts, and words, so vault search finds a term, plus a `file://` link that opens the
@@ -76,43 +92,47 @@ public.
   (a database, a queue, a bucket) is a pill. Mermaid was dropped: a second layout engine
   drew a second visual language, and it doubled the bundle. With no ELK, a flow shows as a
   list of edges.
-- **The root panel reads top-down.** Summary, then the words every section uses, then the
-  problem, the principles, and the flow graph. The words show five, the rest fold behind
-  "Show N more".
-- **The life of the data is a stepper on the flow.** A banner on the graph's top edge
-  shows one step. **←** and **→**, on screen or on the keyboard, move it. The step's shapes
-  and the edges between them light up, and the rest dims. A list beside the graph made the
-  reader match each step to its shapes by eye. With no ELK, the steps show as a list.
-  A flow with no `lifecycle` gets one step per edge, in the order of `edges`, so every
-  flow steps alike without more prose in the note. Each step zooms to its shapes, with a
-  margin for their neighbours, so a big graph stays readable. **Fit** shows the whole graph.
+- **The general content reads top-down.** The problem comes before the words: a reader
+  new to the code needs the reason first. Nothing folds: every word and every entry point
+  shows.
+- **The life of the data is a step list under the flow.** Every step shows in full. A
+  click on a step, or **←** and **→** on the keyboard, lights its shapes and the edges
+  between them, and the rest dims. The arrows drive the flow the pointer last entered.
+  Each step zooms to its shapes, with a margin for their neighbours. **Fit** shows the
+  whole graph. A flow with no `lifecycle` gets no steps: its labeled edges carry it.
+- **A flow lays out near the viewport.** The lifecycle flow sits below the fold, so it
+  waits for an IntersectionObserver 800 px ahead of the scroll. A wide flow opens at
+  70 % zoom from its left end, because below that its labels stop reading.
 - **Links pin to `repo.sha`.** A branch link drifts as the code moves. With `repo.web`
   null, the links open `vscode://file/…`.
-- **Entry points show three, the rest fold behind "Show N more".**
-- **No layout shift.** The canvas has a fixed height, so a fold never moves the panel. A
-  flow renders to SVG before its panel enters the page, and the SVG is cached per source.
+- **No layout shift.** The map and each flow slot have a fixed height, so a fold or a late
+  layout never moves the text. The flow layout is cached per source.
   The selected box gets an outline, never a new size. Fonts load with
   `display=optional`, and `scrollbar-gutter: stable` holds the width when a long note adds
   a scrollbar.
-- **One box geometry.** Every folded box has one fixed size: a one-line name and a
-  two-line summary. A frame header shows one summary line. The full summary sits in the
+- **One box geometry.** Every folded box has one fixed size: a name line and a kind line.
+  A frame header has the same two lines. The full summary sits in the
   panel and in the tooltip. The monospace face makes a link label's width a character
   count, so ELK gets exact label sizes without measuring the DOM.
-- **Flows leave the text measure.** A flow canvas spans `main` at a fixed 380 px height,
-  so a wide graph gets room and a fold never shifts the text below. The text column is
-  centered in `main`, and each flow is centered on the page.
+- **Figures leave the text measure.** Text stops at 68ch. The lifecycle flow spans the
+  content column, so a wide graph gets room.
+- **Laptop screens only.** The page targets an 11-inch screen or larger, so it has no
+  narrow layout.
 
 ## Design tokens
 
-GitHub Dark Dimmed in dark mode, GitHub Light in light mode. Muted text is scale gray
-`#909dab`, because the theme's own `#768390` measures 3.9:1 on the canvas. The accent marks
-only what a click reaches, so the links away from the selection stay muted. The link
-directions use purple and orange, which stay apart under red-green color blindness. One face for everything:
-JetBrainsMono Nerd Font Mono, with JetBrains Mono as fallback for a shared file. The page
-loads it from Google Fonts, and a bundle inlines its Latin subset.
-Ligatures are off, so code reads as typed. No shadows, blur, or background texture. Tokens
-sit on `:root`. Dark mode redefines them under `prefers-color-scheme` and
-`[data-theme="dark"]`.
+Light only: drafting paper. A yellow sheet `#f6f0d4`, graphite ink `#1c2430`, and a blue
+pencil `#1f5a96` for what a click reaches. A dark theme was dropped, so one palette gets
+all the contrast work. Muted text `#5c584b` measures over 6:1 on the paper. The map and
+the flows sit on a lighter sheet with an engineering grid, so the figures read apart from
+the text. The link directions use purple and orange, which stay apart under red-green
+color blindness.
+
+Two faces. Body text is Charter, a system serif on every Mac, so a bundle inlines no
+extra font: 18 px, line height 1.7, 68ch measure. Code, paths, section numbers, and the
+canvases use JetBrainsMono Nerd Font Mono, with JetBrains Mono as fallback for a shared
+file. The canvases stay mono, because a link label's width is a character count. Ligatures
+are off, so code reads as typed. No shadows or blur. Tokens sit on `:root`.
 
 ## Iterating on the design
 
@@ -126,3 +146,5 @@ open "file://$HOME/.claude/.onboard/index.html"
 
 Check a note with many links and one with none (`dotfiles`), each after **Expand all**.
 Headless Chrome keeps a 500 px minimum viewport, so a narrower screenshot crops the page.
+Take screenshots in real time, over the DevTools protocol: under `--virtual-time-budget`,
+an IntersectionObserver never fires on scroll, so the flows below the fold stay empty.

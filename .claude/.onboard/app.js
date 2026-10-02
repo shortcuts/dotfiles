@@ -75,7 +75,6 @@ function lib(name, file, cdn) {
 }
 
 // A flow is a second canvas: the map's boxes, edges, pan, and zoom, so both graphs read alike.
-// Each flow lays out before its panel enters the page, so the diagram never pushes text down.
 const SHAPE = { h: 40, ch: 8 };
 const rendering = new Map(), rendered = new Map();
 function renderFlow(f) {
@@ -90,19 +89,36 @@ function renderFlow(f) {
       layoutOptions: { ...LAYERED, "elk.layered.cycleBreaking.strategy": "MODEL_ORDER" },
     }))
     .then((res) => rendered.set(key, res), () => null));
-  // ponytail: a CDN slower than 3 s shows the text list until the next visit to the node.
+  // ponytail: a CDN slower than 3 s leaves the text list in place until a reload.
   return Promise.race([rendering.get(key), new Promise((ok) => setTimeout(ok, 3000))]);
 }
-// The arrow keys drive the stepper of the panel on screen; each panel sets its own.
+// The arrow keys drive the stepper the pointer last entered; the first stepper takes them on load.
 let stepKey = null;
 addEventListener("keydown", (e) => stepKey?.(e));
-function flow(f, steps) {
+// A flow lays out only near the viewport, so a panel switch never waits on one below the fold.
+// The step list renders at once, so the text never waits on ELK and never shifts.
+function flowFigure(f, steps) {
+  const items = (steps || []).map((s, i) => h("li", {}, h("button", { onclick: () => fig.show(i) }, s.text)));
+  const slot = h("div", { class: "flow-slot" });
+  const fig = h("figure", { class: "flow-fig", onpointerenter: () => fig.key && (stepKey = fig.key) },
+    slot, items.length > 0 && h("ol", { class: "steps" }, items));
+  fig.show = () => {};
+  near.set(slot, () => renderFlow(f).then(() => drawFlow(f, steps, slot, items, fig)));
+  nearby.observe(slot);
+  return fig;
+}
+const near = new WeakMap();
+const nearby = new IntersectionObserver((es) => es.forEach((e) => {
+  if (!e.isIntersecting) return;
+  nearby.unobserve(e.target);
+  near.get(e.target)();
+}), { rootMargin: "800px" });
+function drawFlow(f, steps, slot, items, fig) {
   const res = rendered.get(JSON.stringify(f));
   const shape = new Map(f.nodes.map((n) => [n.id, n]));
-  if (!res) return [h("pre", { class: "flow-list" },
-    f.edges.map((e) => `${shape.get(e.from).name} → ${shape.get(e.to).name}: ${e.label}`).join("\n")),
-    steps && h("ol", { class: "steps" }, steps.map((s) => h("li", {}, s.text)))];
-  const cv = { view: { x: 0, y: 0, k: 1 }, bounds: () => ({ x: 0, y: 0, width: res.width, height: res.height }) };
+  if (!res) return slot.replaceChildren(h("pre", { class: "flow-list" },
+    f.edges.map((e) => `${shape.get(e.from).name} → ${shape.get(e.to).name}: ${e.label}`).join("\n")));
+  const cv = { view: { x: 0, y: 0, k: 1 }, minK: 0.7, bounds: () => ({ x: 0, y: 0, width: res.width, height: res.height }) };
   Object.assign(cv, canvas(() => cv, "flow", "Data flow diagram. Drag to pan, pinch or Ctrl+scroll to zoom."));
   const boxes = new Map(res.children.map((n) => [n.id, h("div", {
     class: shape.get(n.id).store ? "box shape store" : "box shape",
@@ -113,16 +129,13 @@ function flow(f, steps) {
   svg.innerHTML = TIP + res.edges.map((e, i) =>
     `<g data-i="${i}">${marks(e, "", e.labels?.[0]?.text || "")}</g>`).join("");
   cv.world.append(svg);
-  // The canvas has no size until the panel enters the page.
-  requestAnimationFrame(() => fit(cv, false));
-  // A flow with no written lifecycle steps edge by edge, so every graph walks alike.
-  if (!steps?.length) steps = f.edges.map((e) => ({ text: e.label, at: [e.from, e.to] }));
-  if (!steps.length) return cv.map;
+  slot.replaceChildren(cv.map);
+  fit(cv, false);
+  if (!items.length) return;
 
   // A step lights its shapes and the edges between them; the rest of the graph dims.
-  let at = 0;
-  const count = h("span", { class: "count" }), text = h("p", { "aria-live": "polite" });
-  const show = (i) => {
+  let at = -1;
+  fig.show = (i) => {
     at = Math.max(0, Math.min(steps.length - 1, i));
     const on = new Set(steps[at].at);
     // The margin keeps the step's neighbours in view, so the reader sees where it sits.
@@ -131,25 +144,20 @@ function flow(f, steps) {
     cv.focus = { x, y, width: Math.max(...lit.map((n) => n.x + n.width)) + 120 - x,
       height: Math.max(...lit.map((n) => n.y + n.height)) + 60 - y };
     fit(cv, true);
-    count.textContent = `${at + 1} / ${steps.length}`;
-    text.textContent = steps[at].text;
-    prev.disabled = at === 0; next.disabled = at === steps.length - 1;
+    cv.map.classList.add("stepping");
+    items.forEach((li, j) => li.toggleAttribute("aria-current", j === at));
     for (const [id, el] of boxes) el.classList.toggle("step", on.has(id));
     for (const g of svg.querySelectorAll("g[data-i]")) {
       const e = f.edges[g.dataset.i], hot = on.has(e.from) && on.has(e.to);
       for (const el of g.children) el.classList.toggle("hot", hot);
     }
   };
-  const prev = h("button", { "aria-label": "Previous step", onclick: () => show(at - 1) }, "←");
-  const next = h("button", { "aria-label": "Next step", onclick: () => show(at + 1) }, "→");
-  stepKey = (e) => {
+  fig.key = (e) => {
     if (e.target.closest?.("input, select, textarea") || e.metaKey || e.ctrlKey || e.altKey) return;
     const d = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
-    if (d) { e.preventDefault(); show(at + d); }
+    if (d) { e.preventDefault(); fig.show(at + d); }
   };
-  cv.map.classList.add("stepping");
-  show(0);
-  return h("div", { class: "full" }, h("div", { class: "stepper" }, prev, count, text, next), cv.map);
+  stepKey ||= fig.key;
 }
 
 const chevron = () => {
@@ -159,73 +167,85 @@ const chevron = () => {
   return s;
 };
 
-// A long list shows its first items; the rest wait behind one button.
-function fold(list, shown, item, wrap) {
-  const box = wrap(list.slice(0, shown).map(item));
-  if (list.length <= shown) return [box];
-  const rest = list.slice(shown).map(item).flat();
-  const more = `Show ${list.length - shown} more `;
-  const btn = h("button", { class: "expand", "aria-expanded": "false", onclick: () => {
-    const open = btn.getAttribute("aria-expanded") === "true";
-    btn.setAttribute("aria-expanded", String(!open));
-    btn.firstChild.textContent = open ? more : "Show fewer ";
-    rest.forEach((el) => (open ? el.remove() : box.append(el)));
-  } }, more, chevron());
-  return [box, btn];
+// A source link is quiet: the reader finishes the overview before leaving for GitHub.
+const src = (href, text) => h("a", { class: "src", href, target: "_blank", rel: "noopener" }, text);
+// Siblings can share a name, so a jump to a twin also names its parent folder.
+const jump = (idx, n) => {
+  const twin = [...idx.byId.values()].some((m) => m !== n && m.name === n.name);
+  const where = twin && n.path && n.path.split("/").slice(-2, -1)[0];
+  return [h("button", { class: "jump", onclick: () => go(n.id) }, n.name), where && h("span", { class: "ref" }, ` in ${where}`)];
+};
+
+// The facts on a node: who it talks to, where its code starts, what it calls outside.
+function facts(note, idx, node) {
+  const cs = connections(idx, node), out = [];
+  const block = (title, items) => items.length && out.push(h("h3", {}, title), h("ul", { class: "facts" }, items));
+  for (const [dir, t] of [["out", "Sends to"], ["in", "Receives from"]])
+    block(t, cs.filter((c) => c.dir === dir).map((c) => h("li", {},
+      jump(idx, c.node), h("span", { class: "how" }, [...c.labels].join("; ")))));
+  block("Start reading", (node.entry || []).map((e) => h("li", {},
+    h("code", {}, e.name), " ", e.note, " ", src(link(note, e.path, e.lines), `${e.path}:${e.lines[0]}`))));
+  block("Outside services", (node.external || []).map((s) => h("li", {},
+    h("strong", {}, s.name), ": ", s.how, " ", src(s.url, "docs"))));
+  return out;
 }
 
-const entries = (note, list) => fold(list, 3, (e) => h("li", {},
-  h("a", { href: link(note, e.path, e.lines), target: "_blank", rel: "noopener" },
-    h("code", {}, e.name)),
-  " ", h("span", { class: "path" }, `${e.path}:${e.lines[0]}`),
-  h("span", { class: "note" }, e.note)), (xs) => h("ul", { class: "entry" }, xs));
-
-function panel(note, node, isRoot, idx, go) {
-  const sec = (title, ...body) => [h("h3", {}, title), ...body.flat(Infinity)];
-  const a = h("article", {},
+// The panel beside the map explains the selected box, so the boxes carry only their names.
+function panel(note, idx, node) {
+  const isRoot = node === note.root, up = idx.lineage(node.id).slice(0, -1);
+  return h("aside", { class: "panel", "aria-live": "polite" },
+    up.length > 0 && h("nav", { class: "crumbs", "aria-label": "Path" },
+      up.map((n) => [h("button", { class: "jump", onclick: () => go(n.id) }, n.name), h("span", { "aria-hidden": "true" }, " / ")])),
     h("h2", {}, node.name),
+    h("p", { class: "meta" }, node.kind, node.path != null && [" at ", src(link(note, node.path), node.path || "/")]),
     h("p", { class: "lead" }, node.summary),
-    node.path != null && h("div", { class: "links-row" },
-      h("a", { href: link(note, node.path || ""), target: "_blank", rel: "noopener" },
-        note.repo.web ? "Open on GitHub" : "Open in editor"),
-      h("span", { class: "path" }, node.path || "/")),
-    node.role.map((p) => h("p", {}, p)));
+    node.role.map((p) => h("p", {}, p)),
+    isRoot && h("p", { class: "hint" }, "Click a box to read about it here. Scroll down for the problem, the words, and the life of the data."),
+    node.children?.length > 0 && [h("h3", {}, "Inside"), h("ul", { class: "facts" }, node.children.map((c) =>
+      h("li", {}, jump(idx, c), h("span", { class: "how" }, c.summary))))],
+    !isRoot && node.flow && h("button", { class: "see", onclick: () => showFlow(node) }, "Show its data flow"),
+    facts(note, idx, node));
+}
 
-  // The words come first: every section below uses them.
-  if (isRoot && note.words?.length) a.append(...sec("Words", ...fold(note.words, 5,
-    (w) => [h("dt", {}, w.term), h("dd", {}, w.def)], (xs) => h("dl", { class: "words" }, xs))));
-  if (isRoot && node.problem) a.append(...sec("The problem", h("p", {}, node.problem)));
-  if (isRoot && node.principles) a.append(...sec("The principle",
-    node.principles.map((p) => h("div", { class: "principle" },
-      h("p", { class: "claim" }, p.claim),
+// Below the map, the note's general content reads top to bottom.
+function general(note, idx) {
+  const root = note.root, r = note.repo, at = `${r.name} at ${r.sha.slice(0, 7)}`;
+  let n = 0;
+  const a = h("article", { class: "paper" },
+    h("header", { class: "title" },
+      h("h1", {}, note.title),
+      h("p", { class: "meta" }, r.web ? src(`${r.web}/tree/${r.sha}`, at) : at, `, written ${note.generated}`)));
+  const add = (title, ...body) => a.append(h("section", { class: "sec" },
+    h("h2", {}, h("span", { class: "no" }, String(++n)), title), ...body));
+  // The why comes before the glossary: a reader new to the code needs the reason first.
+  if (root.problem) add("The problem", h("p", {}, root.problem));
+  if (note.words?.length) add("Words", h("dl", { class: "words" },
+    note.words.map((w) => [h("dt", {}, w.term), h("dd", {}, w.def)])));
+  if (root.principles) {
+    const no = String(n + 1);
+    add(root.principles.length > 1 ? "Principles" : "The principle", root.principles.map((p, i) => h("div", { class: "principle" },
+      h("h3", {}, h("span", { class: "no" }, `${no}.${i + 1}`), p.claim),
       p.why && h("p", {}, p.why),
       // Notes written before the worked example still carry the mammoth.
       h("table", { class: "example" },
         h("thead", {}, h("tr", {}, h("th", {}, "Case"), h("th", {}, "What the system does"))),
         h("tbody", {}, (p.example ?? p.mammoth.rows).map(([s, c]) => h("tr", {}, h("td", {}, s), h("td", {}, c))))),
-      (p.except ?? p.mammoth?.breaks) && h("p", { class: "breaks" }, `Except: ${p.except ?? p.mammoth.breaks}`),
-      h("p", {}, p.cost)))));
-  if (isRoot && node.io) a.append(...sec("In and out",
+      (p.except ?? p.mammoth?.breaks) && h("p", { class: "aside" }, h("strong", {}, "Except: "), p.except ?? p.mammoth.breaks),
+      p.cost && h("p", { class: "aside" }, h("strong", {}, "The price: "), p.cost))));
+  }
+  if (root.io) add("In and out",
     h("ul", { class: "plain" },
-      node.io.inputs.map((x) => h("li", {}, h("strong", {}, "In: "), x)),
-      node.io.outputs.map((x) => h("li", {}, h("strong", {}, "Out: "), x))),
-    h("p", {}, node.io.goes)));
-  // The life of the data steps through the graph, so the two share one section.
-  const steps = isRoot && node.lifecycle;
-  if (node.flow) a.append(...sec(steps ? "Life of the data" : "How the data moves", flow(node.flow, steps)));
-  const cs = connections(idx, node);
-  if (cs.length) a.append(...sec("Connections",
-    h("ul", { class: "conn" }, cs.map((c) => h("li", {},
-      c.dir === "out" ? "To " : "From ",
-      h("a", { href: "#", onclick: (e) => { e.preventDefault(); go(c.node.id); } }, c.node.name),
-      h("span", { class: "how" }, `: ${[...c.labels].join("; ")}`))))));
-  if (node.entry?.length) a.append(...sec("Where to start reading", ...entries(note, node.entry)));
-  if (node.external?.length) a.append(...sec("Services it talks to",
-    h("ul", { class: "plain" }, node.external.map((s) => h("li", {},
-      h("a", { href: s.url, target: "_blank", rel: "noopener" }, s.name), ": ", s.how)))));
-  if (isRoot && node.stack?.length) a.append(...sec("Stack",
-    h("ul", { class: "plain" }, node.stack.map((s) => h("li", {},
-      h("a", { href: s.url, target: "_blank", rel: "noopener" }, s.name), ": ", s.role)))));
+      root.io.inputs.map((x) => h("li", {}, h("strong", {}, "In: "), x)),
+      root.io.outputs.map((x) => h("li", {}, h("strong", {}, "Out: "), x))),
+    h("p", {}, root.io.goes));
+  const steps = root.lifecycle;
+  if (root.flow) add(steps?.length ? "Life of the data" : "How the data moves",
+    steps?.length && h("p", { class: "hint" }, "Click a step, or press ← and →, to light it on the graph."),
+    flowFigure(root.flow, steps));
+  const rest = facts(note, idx, root);
+  if (rest.length) add("Where to start reading", rest);
+  if (root.stack?.length) add("Stack", h("ul", { class: "plain" }, root.stack.map((s) => h("li", {},
+    h("strong", {}, s.name), ": ", s.role, " ", src(s.url, "docs")))));
   return a;
 }
 
@@ -257,7 +277,8 @@ function elk() {
 }
 
 // The monospace face makes a label's width a character count.
-const LEAF = { w: 232, h: 80 }, HEAD = 60, CH = 6.6;
+// A box holds its name and its kind; the panel holds the rest.
+const LEAF = { w: 232, h: 58 }, HEAD = 58, CH = 6.6;
 const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 const TIP = `<defs><marker id="tip" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L8,4L0,8z" style="fill:context-stroke"/></marker></defs>`;
 // One ELK edge as SVG: its path, then its label with the full text as a tooltip.
@@ -322,12 +343,14 @@ function applyView(cv, anim) {
 }
 
 // A flow stepper sets cv.focus, so a resize keeps the step in view; Fit shows the whole graph.
-function fit(cv, anim, r = cv.focus || cv.bounds()) {
+// A flow sets cv.minK: past that zoom its labels stop reading, so a wide flow starts at its
+// left end instead, and the reader drags. Fit passes 0.1 to show the whole graph anyway.
+function fit(cv, anim, r = cv.focus || cv.bounds(), minK = cv.minK || 0.1) {
   const { map, view: v } = cv;
   if (!r || !map.clientWidth) return;
   const W = map.clientWidth, H = map.clientHeight;
-  v.k = Math.max(0.1, Math.min(1, (W - 48) / r.width, (H - 72) / r.height));
-  v.x = (W - r.width * v.k) / 2 - r.x * v.k;
+  v.k = Math.max(minK, Math.min(1, (W - 48) / r.width, (H - 72) / r.height));
+  v.x = Math.max(24 - r.x * v.k, (W - r.width * v.k) / 2 - r.x * v.k);
   v.y = (H - 36 - r.height * v.k) / 2 - r.y * v.k;
   applyView(cv, anim);
 }
@@ -374,8 +397,8 @@ async function draw() {
       el = h("div", { class: count ? "box can" : "box", "data-id": id, style: `z-index:${c.idx.lineage(id).length}` },
         h("button", { class: "head", title: n.summary, "aria-expanded": count ? "false" : null,
           onclick: () => c.dragged || pick(id, true) },
-          h("span", { class: "name" }, n.name, h("span", { class: "more" }, count ? `${count} inside` : n.kind)),
-          h("span", { class: "sum" }, n.summary),
+          h("span", { class: "name" }, n.name),
+          h("span", { class: "more" }, count ? `${n.kind}, ${count} inside` : n.kind),
           count > 0 && h("span", { class: "tog", "aria-hidden": "true" }, chevron())));
       c.boxes.set(id, el);
       c.world.append(el);
@@ -418,15 +441,15 @@ function pan(map, get) {
   };
   map.addEventListener("pointerup", end);
   map.addEventListener("pointercancel", end);
-  // A pinch arrives as ctrl+wheel; a plain wheel or two-finger swipe pans.
+  // A pinch arrives as ctrl+wheel and zooms. A plain wheel scrolls the paper: a canvas that
+  // took it would trap the reader at every figure on the way down.
   map.addEventListener("wheel", (e) => {
+    if (!e.ctrlKey && !e.metaKey) return;
     e.preventDefault();
     const v = get().view;
-    if (e.ctrlKey || e.metaKey) {
-      const b = map.getBoundingClientRect(), mx = e.clientX - b.left, my = e.clientY - b.top;
-      const k = Math.min(2.5, Math.max(0.1, v.k * Math.exp(-e.deltaY * 0.01)));
-      v.x = mx - ((mx - v.x) * k) / v.k; v.y = my - ((my - v.y) * k) / v.k; v.k = k;
-    } else { v.x -= e.deltaX; v.y -= e.deltaY; }
+    const b = map.getBoundingClientRect(), mx = e.clientX - b.left, my = e.clientY - b.top;
+    const k = Math.min(2.5, Math.max(0.1, v.k * Math.exp(-e.deltaY * 0.01)));
+    v.x = mx - ((mx - v.x) * k) / v.k; v.y = my - ((my - v.y) * k) / v.k; v.k = k;
     applyView(get(), false);
   }, { passive: false });
 }
@@ -446,28 +469,32 @@ async function pick(id, toggle) {
   if (toggle && node.children?.length) c.open.has(id) ? c.open.delete(id) : c.open.add(id);
   for (const n of c.idx.lineage(id).slice(0, -1)) c.open.add(n.id);
   c.sel = id;
-  stepKey = null;
-  if (node.flow) await renderFlow(node.flow);
   writeHash(c.note.slug, id, c.open);
-  const crumbs = h("nav", { class: "crumbs", "aria-label": "Path" }, c.idx.lineage(id).map((n, i) => [
-    i > 0 && h("span", { "aria-hidden": "true" }, "/"),
-    h("button", { "aria-current": n === node ? "location" : null, onclick: () => n !== node && go(n.id) }, n.name),
-  ]));
-  const art = panel(c.note, node, node === c.note.root, c.idx, go);
-  c.crumbs.replaceWith(crumbs); c.art.replaceWith(art);
-  Object.assign(c, { crumbs, art });
+  c.over?.remove(); c.over = null;
+  const p = panel(c.note, c.idx, node);
+  c.panel.replaceWith(p);
+  c.panel = p;
   await draw();
   // Folds only add or only remove within one pick, so the size tells whether the layout moved.
   const moved = c.open.size !== was;
   if (moved) fit(current, true);
   return moved;
 }
-// From the panel or the path: reveal the node. With no fold, bring it to the middle instead.
+// A part's flow takes the map's place on the stage: the panel is too narrow to read a graph.
+function showFlow(node) {
+  const c = current, slot = h("div", { class: "flow-slot" });
+  c.over?.remove();
+  c.over = h("div", { class: "over" },
+    h("div", { class: "over-head" }, h("strong", {}, `How the data moves in ${node.name}`),
+      h("button", { class: "see", onclick: () => { c.over.remove(); c.over = null; } }, "Back to the map")),
+    slot);
+  c.map.after(c.over);
+  renderFlow(node.flow).then(() => c.over?.contains(slot) && drawFlow(node.flow, null, slot, [], {}));
+}
+// From the panel: reveal the node. With no fold, bring it to the middle instead.
 function go(id) {
-  pick(id, false).then((moved) => {
-    if (!moved) center(id);
-    if (current.map.getBoundingClientRect().top < 0) scrollTo(0, 0);
-  });
+  if (current.map.getBoundingClientRect().top < 0) scrollTo(0, 0);
+  pick(id, false).then((moved) => moved || center(id));
 }
 
 function canvas(get, cls, label, ...extra) {
@@ -475,7 +502,7 @@ function canvas(get, cls, label, ...extra) {
   const tools = h("div", { class: "tools" },
     h("button", { "aria-label": "Zoom out", onclick: () => zoom(get(), 1 / 1.25) }, "−"),
     h("button", { "aria-label": "Zoom in", onclick: () => zoom(get(), 1.25) }, "+"),
-    h("button", { onclick: () => fit(get(), true, get().bounds()) }, "Fit"), ...extra,
+    h("button", { onclick: () => fit(get(), true, get().bounds(), 0.1) }, "Fit"), ...extra,
     h("button", { onclick: (e) => full(get(), e.currentTarget) }, "Full screen"));
   const map = h("section", { class: `map ${cls}`, "aria-label": label }, world, tools,
     cls === "tree" && h("div", { class: "legend", "aria-hidden": "true" },
@@ -492,9 +519,9 @@ function canvas(get, cls, label, ...extra) {
   return { map, world };
 }
 
-// A flow with a stepper goes full screen with its banner, so the arrows still say which step shows.
+// A flow goes full screen with its step list, so the text still says which step shows.
 function full(cv, btn) {
-  const el = cv.map.closest(".full") || cv.map;
+  const el = cv.map.closest(".flow-fig") || cv.map;
   if (document.fullscreenElement) return document.exitFullscreen();
   el.onfullscreenchange = () => (btn.textContent = document.fullscreenElement === el ? "Exit full screen" : "Full screen");
   el.requestFullscreen();
@@ -513,27 +540,21 @@ const mapView = () => canvas(() => current, "tree", "Map. Drag to pan, pinch or 
 async function open(slug, nodeId, openIds) {
   const note = await loadNote(slug);
   document.title = note.title;
-  const r = note.repo;
-  // With a switcher, the select shows the title, so the heading stays for screen readers only.
+  stepKey = null;
   const switcher = !standalone && O.list.length > 1;
+  // The select shows the title; with no switcher, the bar names the note, since the map fills the first screen.
   const bar = h("header", { class: "bar" },
-    h("h1", { class: switcher ? "sr" : null }, note.title),
-    h("span", { class: "meta" },
-      r.web ? h("a", { href: `${r.web}/tree/${r.sha}`, target: "_blank", rel: "noopener" },
-        `${r.name}@${r.sha.slice(0, 7)}`) : `${r.name}@${r.sha.slice(0, 7)}`,
-      `, ${note.generated}`),
+    !switcher && h("span", { class: "bar-title" }, note.title),
     switcher && h("select", {
       "aria-label": "Switch note",
       onchange: (e) => open(e.target.value).catch(fail),
     }, O.list.map((n) => h("option", { value: n.slug, selected: n.slug === slug }, n.title))),
     !standalone && h("a", { class: "share", href: `notes/${slug}.html`, download: `${slug}.html` }, "Download as one file"));
   const { map, world } = mapView();
-  const crumbs = h("nav"), art = h("article");
-  const main = h("main", {}, crumbs, map, art);
-  app.replaceChildren(bar, main);
-  const idx = index(note.root);
+  const idx = index(note.root), side = h("aside");
+  app.replaceChildren(bar, h("main", {}, h("div", { class: "stage" }, map, side), general(note, idx)));
   const unfolded = new Set([note.root.id, ...(openIds || "").split(",").filter((id) => idx.byId.get(id)?.children?.length)]);
-  current = { note, main, idx, map, world, crumbs, art, open: unfolded, boxes: new Map(), pos: new Map(), view: { x: 0, y: 0, k: 1 },
+  current = { note, idx, map, world, panel: side, open: unfolded, boxes: new Map(), pos: new Map(), view: { x: 0, y: 0, k: 1 },
     bounds: () => current.pos.get(note.root.id) };
   await pick(idx.byId.has(nodeId) ? nodeId : note.root.id, false);
   fit(current, false);
