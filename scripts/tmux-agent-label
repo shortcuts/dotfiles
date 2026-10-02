@@ -1,5 +1,5 @@
 #!/bin/sh
-# Session status lines: name ($2=repo) or branch ($2=branch) for $1, cut to fit a $3-wide client.
+# Session status lines: name ($2=repo) or branch and window pips ($2=branch) for $1, cut to fit a $3-wide client.
 # The session name $4 replaces the repo name when given.
 # Both lines pad to the same width per session, so the branch sits under its name.
 cd "$1" 2>/dev/null || exit 0
@@ -18,19 +18,37 @@ fi
 # the format cannot count sessions itself: an S loop nested in its S loop clobbers tmux's shared list
 n=$(tmux list-sessions -F x | wc -l)
 cols=$(( ${3:-80} / (n > 0 ? n : 1) - 3 ))
-# "● ", one pad space and one separator space take 4 of the entry's columns
-max=$(( cols - 4 ))
+# one pad space and one separator space take 2 of the entry's columns
+max=$(( cols - 2 ))
 [ "$max" -lt 4 ] && max=4
 # cut prints the text and its length; a byte count of the multibyte "…" would break the padding
 cut() {
-    if [ ${#1} -gt "$max" ]; then printf '%.*s… %s' $((max - 1)) "$1" "$max"; else printf '%s %s' "$1" ${#1}; fi
+    if [ ${#1} -gt "$2" ]; then printf '%.*s… %s' $(($2 - 1)) "$1" "$2"; else printf '%s %s' "$1" ${#1}; fi
 }
-r=$(cut "$repo"); rlen=${r##* }; repo=${r% *}
-b=$(cut "$branch"); blen=${b##* }; branch=${b% *}
+
+# one pip per window, filled for the active one, colored by its most urgent agent:
+# red waits or failed, orange works, green idle, grey no agent
+pips= plen=0
+if [ -n "$4" ]; then
+    out=$(tmux list-panes -s -t "=$4" -F '#{window_index}|#{window_active}|#{@pane_agent}|#{@pane_status}' 2>/dev/null | awk -F'|' '
+        !($1 in rank) { order[++n] = $1; active[$1] = $2; rank[$1] = 0 }
+        $3 != "" { r = ($4 == "waiting" || $4 == "error") ? 3 : $4 != "idle" ? 2 : 1; if (r > rank[$1]) rank[$1] = r }
+        END {
+            split("#768390 #57ab5a #f69d50 #e5534b", color, " ")
+            printf "%d ", n
+            for (i = 1; i <= n; i++) printf "#[fg=%s]%s", color[rank[order[i]] + 1], (active[order[i]] == 1 ? "■" : "□")
+        }')
+    plen=${out%% *} pips=${out#* }
+    [ "${plen:-0}" -gt 0 ] && pips=" $pips" plen=$((plen + 1)) || pips= plen=0
+fi
+
+r=$(cut "$repo" "$max"); rlen=${r##* }; repo=${r% *}
+bmax=$((max - plen)); [ "$bmax" -lt 1 ] && bmax=1
+b=$(cut "$branch" "$bmax"); blen=$(( ${b##* } + plen )); branch=${b% *}
 width=$(( rlen > blen ? rlen : blen ))
 
 if [ "$2" = repo ]; then
     printf '#[fg=#adbac7]%s%*s' "$repo" $((width - rlen + 1)) ''
 else
-    printf '#[fg=#768390]%s%*s' "$branch" $((width - blen + 1)) ''
+    printf '#[fg=#768390]%s%s%*s' "$branch" "$pips" $((width - blen + 1)) ''
 fi
