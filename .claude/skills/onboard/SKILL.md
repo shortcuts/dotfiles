@@ -114,6 +114,19 @@ the links the graph cannot see:
 - a producer and a consumer of one queue or topic;
 - a process that starts another one, or reads a file the other one writes.
 
+**Trace the boundary.** The root flow is a high-level system view, not a package map. Find
+where the data enters and where it leaves, including systems outside the repo:
+
+- **Entry:** who or what starts the work: a user, a scheduler, an upstream service, or a
+  source store the scope reads from (`Route` nodes, topic subscribers, cron entries, the
+  clients in `_external`);
+- **Exit:** who consumes the result: a database, an index, a queue, or a downstream
+  service.
+
+Read each service's calls from its config and clients: the gRPC and HTTP client
+constructors, the queue and topic names, the table names. Those name the neighbours the
+graph misses.
+
 **Done when:** each node the data passes through has at least one link in or out, and a
 reader can follow the data from its entry to its last write without leaving the tree.
 
@@ -203,7 +216,16 @@ bucket `store`. Each edge label starts with a word from
 ```
 
 Seven shapes at most on the root, twelve below it. The root flow draws the outcome: the
-input, the subject, what it produces, and who consumes it. Merge the stores of one
+input, the subject, what it produces, and who consumes it.
+
+**The root flow reads in to out.** Mark the shape where the data starts `"end": "in"`, and
+the shape where the result lands `"end": "out"`. The viewer pins them to the far left and
+the far right. `check.py` requires both, and rejects an `in` shape with an incoming edge
+or an `out` shape with an outgoing edge. A system that is both (Algolia is the source
+index and the destination index) takes two shapes: `Algolia: source index` with `end: in`,
+`Algolia: enriched index` with `end: out`. One shape for both puts it mid-graph and hides
+the direction. Draw the services between them as services, and the databases and queues as
+`store`. Merge the stores of one
 database into one shape, and leave internal helpers to the child that owns them. When
 more parts touch a node, draw the ones the data passes through. The node's links still
 show the rest.

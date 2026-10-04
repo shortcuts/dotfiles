@@ -48,7 +48,7 @@ def spelled(repo, sha, term):
                           capture_output=True).returncode == 0
 
 
-def check_flow(where, flow, limit=MAX_SHAPES):
+def check_flow(where, flow, limit=MAX_SHAPES, ends=False):
     if not (isinstance(flow, dict) and flow.get("nodes") and flow.get("edges")):
         return [f"{where}: flow needs nodes and edges"]
     errors = []
@@ -65,6 +65,21 @@ def check_flow(where, flow, limit=MAX_SHAPES):
         if e.get("label", "").split(":")[0].strip() not in FLOW_WORDS:
             errors.append(f"{where}: flow label {e.get('label')!r} is not one of "
                           f"{sorted(FLOW_WORDS)}")
+    # The root flow reads in to out. A system that is both the source and the destination
+    # (Algolia) takes two shapes, or the layout puts it mid-graph.
+    for n in flow["nodes"]:
+        if n.get("end") not in (None, "in", "out"):
+            errors.append(f"{where}: flow shape {n.get('id')!r}: end is 'in' or 'out'")
+    if ends:
+        for end, word in (("in", "source"), ("out", "destination")):
+            marked = {n["id"] for n in flow["nodes"] if n.get("end") == end and n.get("id")}
+            if not marked:
+                errors.append(f"{where}: flow has no {word}: mark one shape end {end!r}")
+            for e in flow["edges"]:
+                if e.get("to" if end == "in" else "from") in marked:
+                    errors.append(f"{where}: flow {word} {e.get('to' if end == 'in' else 'from')!r}"
+                                  f" has no {'incoming' if end == 'in' else 'outgoing'} edge:"
+                                  " split it into two shapes")
     return errors
 
 
@@ -202,7 +217,7 @@ def check(note):
                           f"{MAX_CHILDREN}")
         if node.get("flow"):
             errors.extend(check_flow(where, node["flow"],
-                                     MAX_SHAPES if depth else MAX_ROOT_SHAPES))
+                                     MAX_SHAPES if depth else MAX_ROOT_SHAPES, ends=not depth))
         for e in node.get("entry", []):
             if e.get("path") not in files:
                 errors.append(f"{where}: entry {e.get('name')}: {e.get('path')!r} is "

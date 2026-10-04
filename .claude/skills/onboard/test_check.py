@@ -24,7 +24,8 @@ VALID = {
         "principles": [{"claim": "One repo is the source.", "why": "Two Macs drift apart.",
                         "cost": "A symlink step.", "example": [["a", "b"], ["c", "d"]]}],
         "stack": [{"name": "fish", "url": "https://fishshell.com", "role": "Shell."}],
-        "flow": {"nodes": [{"id": "a", "name": "fish"}, {"id": "b", "name": "Git: index", "store": True}],
+        "flow": {"nodes": [{"id": "a", "name": "fish", "end": "in"},
+                           {"id": "b", "name": "Git: index", "store": True, "end": "out"}],
                  "edges": [{"from": "a", "to": "b", "label": "call: git add"}]},
         "children": [
             {"id": "nvim", "name": "nvim", "kind": "dir", "path": "nvim",
@@ -102,6 +103,14 @@ has(broken(lambda n: link(n).update(to=".gitignore")), "itself")
 has(broken(lambda n: link(n).update(to="")), "ancestor")
 has(broken(lambda n: link(n).update(label="talks to")), "link label")
 has(broken(lambda n: n["root"].pop("flow")), "root: no flow")
+# The root flow reads in to out: a source with no way in, a destination with no way out.
+has(broken(lambda n: n["root"]["flow"]["nodes"][0].pop("end")), "source")
+has(broken(lambda n: n["root"]["flow"]["nodes"][1].pop("end")), "destination")
+has(broken(lambda n: n["root"]["flow"]["nodes"][0].update(end="middle")), "end")
+has(broken(lambda n: n["root"]["flow"]["edges"].append(
+    {"from": "b", "to": "a", "label": "call: loop"})), "no incoming")
+has(broken(lambda n: n["root"]["flow"]["edges"].append(
+    {"from": "a", "to": "a", "label": "call: loop"})), "no incoming")
 steps = [{"text": "fish stages a file.", "at": ["a", "b"]}]
 assert check(VALID | {"scope": {"kind": "feature", "query": "x"}}
              | {"root": VALID["root"] | {"kind": "feature", "path": None, "stack": None,

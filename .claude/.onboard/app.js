@@ -83,7 +83,9 @@ function renderFlow(f) {
   if (!rendering.has(key)) rendering.set(key, elk()
     .then((E) => E.layout({
       id: "flow",
-      children: f.nodes.map((n) => ({ id: n.id, width: n.name.length * SHAPE.ch + 32, height: n.store ? SHAPE.store : SHAPE.h })),
+      // `end` pins the source to the first layer and the destination to the last.
+      children: f.nodes.map((n) => ({ id: n.id, width: n.name.length * SHAPE.ch + 32, height: n.store ? SHAPE.store : SHAPE.h,
+        ...(n.end && { layoutOptions: { "elk.layered.layering.layerConstraint": n.end === "in" ? "FIRST" : "LAST" } }) })),
       edges: f.edges.map((e, i) => ({ id: `f${i}`, sources: [e.from], targets: [e.to],
         labels: [{ text: e.label, width: e.label.length * CH + 8, height: 14 }] })),
       // A loop (a sink the source also reads) would put the sink mid-graph; the node order breaks it.

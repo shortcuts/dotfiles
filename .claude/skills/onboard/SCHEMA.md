@@ -84,7 +84,9 @@ it to whichever level the reader is on, so `driver -> harbordb` also shows as
 The viewer lays the flow out with ELK, like the map. List `nodes` from the entry point
 to the endpoint: in a loop, an edge from a later node to an earlier one draws backward, so
 the list order sets left to right. `store` marks a database, a queue, or
-a bucket, and the viewer draws it as a pill. Each edge `label` follows
+a bucket, and the viewer draws it as a pill. `end` is `"in"` or `"out"`: it pins the
+shape to the first or the last column. The root flow needs at least one of each. An `in`
+shape has no incoming edge, and an `out` shape has no outgoing edge. Each edge `label` follows
 [Flow labels](#flow-labels).
 
 ### Service
