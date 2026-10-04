@@ -70,6 +70,8 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .over-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
 .over .flow-slot { flex: 1; height: auto; }
 .over .map { border: 0; border-radius: 0; }
+.over .flow-fig { flex: 1; min-height: 0; margin: 0; display: flex; flex-direction: column; }
+.over ol.steps { flex: none; max-height: 30vh; overflow-y: auto; margin: 0; padding-block: 12px; border-top: 1px solid var(--rule); }
 .see {
   border: 1px solid var(--accent); background: var(--sheet); color: var(--accent); border-radius: 4px;
   padding: 6px 12px; cursor: pointer; font: var(--t-ui) var(--mono); margin: 4px 0 8px;
@@ -154,7 +156,7 @@ figure { margin: 0; }
   animation: fade .2s both;
 }
 /* A translucent frame darkens with each level, so depth reads without a legend. */
-.box.open { background: color-mix(in srgb, var(--code) 40%, transparent); border-style: dashed; border-color: var(--rule); }
+.box.open { background: color-mix(in srgb, var(--code) 40%, transparent); border-color: var(--rule); }
 .box.rel { border-color: var(--accent); }
 .box[aria-current] { outline: 2px solid var(--accent); outline-offset: -1px; }
 .box:not(.open)[aria-current] { background: var(--accent-soft); }
@@ -226,6 +228,13 @@ figure { margin: 0; }
   content: ""; position: absolute; inset: -1.5px -1.5px auto; height: var(--lid);
   border: 1.5px solid var(--ink); border-radius: 50%; background: color-mix(in srgb, var(--code) 55%, #fff);
 }
+.box.svc.rel { border-color: var(--accent); }
+/* Dashed means outside this repo: another repo's service or a vendor. */
+.box.shape.outside, .box.store.outside::before { border-style: dashed; }
+.edge.outside { stroke-dasharray: 5 4; }
+/* A shape with a tree node is a button that selects the node on the map. */
+.box.shape.to { cursor: pointer; }
+@media (hover: hover) { .box.shape.to:hover { border-color: var(--accent); color: var(--accent); } }
 .map.stepping .box.shape, .map.stepping .box.store::before { transition: opacity .2s, border-color .2s, background .2s; }
 .map.stepping .box.shape:not(.step) { opacity: .4; }
 .map.stepping .box.shape.step, .map.stepping .box.store.step::before { border-color: var(--accent); background: var(--accent-soft); }

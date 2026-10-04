@@ -50,7 +50,9 @@ function index(root) {
     return out;
   };
   const within = (top, id) => lineage(id).includes(top);
-  return { byId, parent, links, lineage, within };
+  // A service never unfolds on the map: its flow shows how its packages work together.
+  const foldable = (n) => !!n.children?.length && !lineage(n.id).some((m) => m.kind === "service");
+  return { byId, parent, links, lineage, within, foldable };
 }
 
 function link(note, path, lines) {
@@ -77,6 +79,8 @@ function lib(name, file, cdn) {
 // A flow is a second canvas: the map's boxes, edges, pan, and zoom, so both graphs read alike.
 // A store is taller: its cylinder lid takes the top of the box.
 const SHAPE = { h: 40, store: 56, ch: 8 };
+// A shape outside this repo: a vendor (`node: null`) or another repo's service (`external`).
+const outside = (s) => s.node === null || !!s.external;
 const rendering = new Map(), rendered = new Map();
 function renderFlow(f) {
   const key = JSON.stringify(f);
@@ -100,14 +104,15 @@ let stepKey = null;
 addEventListener("keydown", (e) => stepKey?.(e));
 // A flow lays out only near the viewport, so a panel switch never waits on one below the fold.
 // The step list renders at once, so the text never waits on ELK and never shifts.
-function flowFigure(f, steps) {
+// An overlay flow is on screen already, so `now` draws it at once.
+function flowFigure(f, steps, now) {
   const items = (steps || []).map((s, i) => h("li", {}, h("button", { onclick: () => fig.show(i) }, s.text)));
   const slot = h("div", { class: "flow-slot" });
   const fig = h("figure", { class: "flow-fig", onpointerenter: () => fig.key && (stepKey = fig.key) },
     slot, items.length > 0 && h("ol", { class: "steps" }, items));
   fig.show = () => {};
-  near.set(slot, () => renderFlow(f).then(() => drawFlow(f, steps, slot, items, fig)));
-  nearby.observe(slot);
+  const load = () => renderFlow(f).then(() => drawFlow(f, steps, slot, items, fig));
+  if (now) load(); else { near.set(slot, load); nearby.observe(slot); }
   return fig;
 }
 const near = new WeakMap();
@@ -123,14 +128,19 @@ function drawFlow(f, steps, slot, items, fig) {
     f.edges.map((e) => `${shape.get(e.from).name} → ${shape.get(e.to).name}: ${e.label}`).join("\n")));
   const cv = { view: { x: 0, y: 0, k: 1 }, minK: 0.7, bounds: () => ({ x: 0, y: 0, width: res.width, height: res.height }) };
   Object.assign(cv, canvas(() => cv, "flow", "Data flow diagram. Drag to pan, pinch or Ctrl+scroll to zoom."));
-  const boxes = new Map(res.children.map((n) => [n.id, h("div", {
-    class: shape.get(n.id).store ? "box shape store" : "box shape svc",
-    style: `left:${n.x}px;top:${n.y}px;width:${n.width}px;height:${n.height}px`,
-  }, h("span", { class: "name" }, shape.get(n.id).name))]));
+  const boxes = new Map(res.children.map((n) => {
+    const s = shape.get(n.id), to = s.node != null && current.idx.byId.has(s.node);
+    // A shape with a tree node jumps to it: back on the map, with the panel on that node.
+    return [n.id, h(to ? "button" : "div", {
+      class: `box shape ${s.store ? "store" : "svc"}${outside(s) ? " outside" : ""}${to ? " to" : ""}`,
+      style: `left:${n.x}px;top:${n.y}px;width:${n.width}px;height:${n.height}px`,
+      ...(to && { title: `Open ${current.idx.byId.get(s.node).name} on the map`, onclick: () => cv.dragged || go(s.node) }),
+    }, h("span", { class: "name" }, s.name))];
+  }));
   cv.world.append(...boxes.values());
   const svg = h("svg", { width: res.width, height: res.height, "aria-hidden": "true" });
   svg.innerHTML = TIP + res.edges.map((e, i) =>
-    `<g data-i="${i}">${marks(e, "", e.labels?.[0]?.text || "")}</g>`).join("");
+    `<g data-i="${i}">${marks(e, outside(shape.get(f.edges[i].from)) || outside(shape.get(f.edges[i].to)) ? " outside" : "", e.labels?.[0]?.text || "")}</g>`).join("");
   cv.world.append(svg);
   slot.replaceChildren(cv.map);
   fit(cv, false);
@@ -156,7 +166,8 @@ function drawFlow(f, steps, slot, items, fig) {
     }
   };
   fig.key = (e) => {
-    if (e.target.closest?.("input, select, textarea") || e.metaKey || e.ctrlKey || e.altKey) return;
+    // A closed overlay's stepper keeps the key until the pointer enters another flow.
+    if (!fig.isConnected || e.target.closest?.("input, select, textarea") || e.metaKey || e.ctrlKey || e.altKey) return;
     const d = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
     if (d) { e.preventDefault(); fig.show(at + d); }
   };
@@ -332,7 +343,7 @@ const LAYERED = {
 };
 
 // The deepest node the reader can see on the path to `id`: the first folded one.
-const shown = (idx, open, id) => idx.lineage(id).find((n) => !open.has(n.id) || !n.children?.length);
+const shown = (idx, open, id) => idx.lineage(id).find((n) => !open.has(n.id) || !idx.foldable(n));
 
 function graph(idx, open) {
   const edges = new Map();
@@ -348,7 +359,7 @@ function graph(idx, open) {
   // inside packs its children instead.
   // ponytail: a frame with some links still stacks its unlinked children; pack those too if notes get wide.
   const linked = new Set([...edges.values()].flatMap((e) => [...idx.lineage(e.a.id), ...idx.lineage(e.b.id)]));
-  const box = (n) => open.has(n.id) && n.children?.length
+  const box = (n) => open.has(n.id) && idx.foldable(n)
     ? { id: n.id, children: n.children.map(box), layoutOptions: {
         "elk.padding": `[top=${HEAD + 12},left=16,bottom=16,right=16]`,
         "elk.nodeSize.constraints": "MINIMUM_SIZE", "elk.nodeSize.minimum": `(${LEAF.w}, ${LEAF.h})`,
@@ -390,7 +401,8 @@ function fit(cv, anim, r = cv.focus || cv.bounds(), minK = cv.minK || 0.1) {
 
 function center(id) {
   const { map, pos, view: v } = current;
-  const r = pos.get(id);
+  // A package inside a service has no box of its own: center the service.
+  const r = pos.get(id) || pos.get(shown(current.idx, current.open, id).id);
   v.x = map.clientWidth / 2 - (r.x + r.width / 2) * v.k;
   v.y = map.clientHeight / 2 - (r.y + r.height / 2) * v.k;
   applyView(current, true);
@@ -421,25 +433,27 @@ async function draw() {
   const hot = (e) => e.raw.some(crosses);
   const dir = (e) => { const l = e.raw.find(crosses); return !l ? "" : c.idx.within(sel, l.from) ? " out" : " in"; };
   const near = new Set(list.filter(hot).flatMap((e) => [e.a.id, e.b.id]));
+  // A selection with no box of its own, as a package inside a service, marks its box.
+  const mark = (shown(c.idx, c.open, c.sel) || sel).id;
   for (const [id, el] of c.boxes) if (!pos.has(id)) { el.remove(); c.boxes.delete(id); }
   for (const [id, r] of pos) {
     const n = c.idx.byId.get(id), isOpen = !!r.children?.length;
     let el = c.boxes.get(id);
     if (!el) {
-      const count = n.children?.length || 0;
-      el = h("div", { class: count ? "box can" : "box", "data-id": id, style: `z-index:${c.idx.lineage(id).length}` },
-        h("button", { class: "head", title: n.summary, "aria-expanded": count ? "false" : null,
+      const count = n.children?.length || 0, fold = c.idx.foldable(n);
+      el = h("div", { class: `box${fold ? " can" : ""}${n.kind === "service" ? " svc" : ""}`, "data-id": id, style: `z-index:${c.idx.lineage(id).length}` },
+        h("button", { class: "head", title: n.summary, "aria-expanded": fold ? "false" : null,
           onclick: () => c.dragged || pick(id, true) },
           h("span", { class: "name" }, n.name),
           h("span", { class: "more" }, count ? `${n.kind}, ${count} inside` : n.kind),
-          count > 0 && h("span", { class: "tog", "aria-hidden": "true" }, chevron())));
+          fold && h("span", { class: "tog", "aria-hidden": "true" }, chevron())));
       c.boxes.set(id, el);
       c.world.append(el);
     }
     el.classList.toggle("open", isOpen);
-    el.classList.toggle("rel", near.has(id) && id !== c.sel);
-    el.toggleAttribute("aria-current", id === c.sel);
-    if (n.children?.length) el.firstChild.setAttribute("aria-expanded", String(isOpen));
+    el.classList.toggle("rel", near.has(id) && id !== mark);
+    el.toggleAttribute("aria-current", id === mark);
+    if (c.idx.foldable(n)) el.firstChild.setAttribute("aria-expanded", String(isOpen));
     Object.assign(el.style, { left: `${r.x}px`, top: `${r.y}px`, width: `${r.width}px`, height: `${r.height}px` });
   }
 
@@ -499,8 +513,8 @@ let current;
 // A fold moves every box, so the map fits again and the reader sees the whole new layout.
 async function pick(id, toggle) {
   const c = current, node = c.idx.byId.get(id), was = c.open.size;
-  if (toggle && node.children?.length) c.open.has(id) ? c.open.delete(id) : c.open.add(id);
-  for (const n of c.idx.lineage(id).slice(0, -1)) c.open.add(n.id);
+  if (toggle && c.idx.foldable(node)) c.open.has(id) ? c.open.delete(id) : c.open.add(id);
+  for (const n of c.idx.lineage(id).slice(0, -1)) if (c.idx.foldable(n)) c.open.add(n.id);
   c.sel = id;
   writeHash(c.note.slug, id, c.open);
   c.over?.remove(); c.over = null;
@@ -514,15 +528,16 @@ async function pick(id, toggle) {
   return moved;
 }
 // A part's flow takes the map's place on the stage: the panel is too narrow to read a graph.
+// A service's lifecycle brings the same step list as the life of the data.
 function showFlow(node) {
-  const c = current, slot = h("div", { class: "flow-slot" });
+  const c = current;
   c.over?.remove();
   c.over = h("div", { class: "over" },
     h("div", { class: "over-head" }, h("strong", {}, `How the data moves in ${node.name}`),
+      node.lifecycle?.length > 0 && h("span", { class: "hint" }, "Click a step, or press ← and →, to light it on the graph."),
       h("button", { class: "see", onclick: () => { c.over.remove(); c.over = null; } }, "Back to the map")),
-    slot);
+    flowFigure(node.flow, node.lifecycle, true));
   c.map.after(c.over);
-  renderFlow(node.flow).then(() => c.over?.contains(slot) && drawFlow(node.flow, null, slot, [], {}));
 }
 // From the panel: reveal the node. With no fold, bring it to the middle instead.
 function go(id) {
@@ -562,7 +577,7 @@ function full(cv, btn) {
 
 const mapView = () => canvas(() => current, "tree", "Map. Drag to pan, pinch or Ctrl+scroll to zoom.",
   h("button", { onclick: () => {
-    current.idx.byId.forEach((n) => n.children?.length && current.open.add(n.id));
+    current.idx.byId.forEach((n) => current.idx.foldable(n) && current.open.add(n.id));
     draw().then(() => fit(current, true));
   } }, "Expand all"),
   h("button", { onclick: () => {
@@ -586,7 +601,7 @@ async function open(slug, nodeId, openIds) {
   const { map, world } = mapView();
   const idx = index(note.root), side = h("aside");
   app.replaceChildren(bar, h("main", {}, page(note, idx, h("div", { class: "stage" }, map, side))));
-  const unfolded = new Set([note.root.id, ...(openIds || "").split(",").filter((id) => idx.byId.get(id)?.children?.length)]);
+  const unfolded = new Set([note.root.id, ...(openIds || "").split(",").filter((id) => idx.byId.has(id) && idx.foldable(idx.byId.get(id)))]);
   current = { note, idx, map, world, panel: side, open: unfolded, boxes: new Map(), pos: new Map(), view: { x: 0, y: 0, k: 1 },
     bounds: () => current.pos.get(note.root.id) };
   await pick(idx.byId.has(nodeId) ? nodeId : note.root.id, false);

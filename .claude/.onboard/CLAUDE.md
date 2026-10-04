@@ -27,15 +27,22 @@ public.
   knows why the system exists before the map shows it. The map follows, then the
   principles, the life of the data, where to start reading, and the stack.
 - **The map is the star.** The map and a side panel fill one screen height, at 3/4 and
-  1/4 of its width. A box click selects the box and folds or unfolds it, and the panel
-  shows that node: its path, summary, role, what is inside, who it talks to, where to
+  1/4 of its width. A box click selects the box, and folds or unfolds it unless it is a
+  service. A service box never unfolds: the panel lists its packages, and its flow carries
+  how they work together. A package inside a service marks the service box. The panel
+  shows the selected node: its path, summary, role, what is inside, who it talks to, where to
   start reading, and its outside services. A box shows only its name and kind, because
   the panel carries the rest.
   A linear paper with one section per node was tried first: it stacked the content and
   pushed the map down, but the map must carry the overview.
 - **A part's flow takes the stage.** The panel is too narrow to read a graph, so a part
   with a flow gets **Show its data flow**. The flow covers the map at full size, and
-  **Back to the map** removes it. A pick from the panel removes it too.
+  **Back to the map** removes it. A pick from the panel removes it too. A service's flow
+  brings its `lifecycle` as the same step list as the life of the data. A shape whose
+  `node` names a tree node is a button: a click goes back to the map and selects that node.
+- **Dashed means outside this repo.** A shape with `node: null` or `external`, and each
+  edge that touches one, is dashed: another repo's service or a vendor. A frame on the map
+  has a solid border, so dashed keeps one meaning. Async shows in the label only.
 - **Source links stay quiet.** A link to GitHub or a vendor doc is small muted mono text
   with a dotted underline, at the end of its line. A loud link pulled the reader out of
   the page before they had the overview. A jump inside the page is a blue link.
@@ -87,12 +94,14 @@ public.
   `Knowledge`. With no such folder, as on a Mac with no vault, the export skips. The
   `onboard-slug` frontmatter key names the page's note, so a renamed title replaces the
   old page, and hand-written pages stay. Only links go to the vault, never the HTML:
-  iCloud is a personal account, and the notes summarize employer code.
+  iCloud is a personal account, and the notes summarize employer code. Flows, lifecycles,
+  and node pointers stay out of it: they read only as graphs.
 - **A flow is a second map.** A flow is shapes and edges as data. It gets its own canvas
   with the map's boxes, edges, pan, zoom, and **Fit**, so the two graphs read and move alike.
   The canvas code takes the canvas it acts on, so the map and each flow share it. Mermaid was dropped: a second layout engine
   drew a second visual language, and it doubled the bundle. With no ELK, a flow shows as a
-  list of edges.
+  list of edges. `end` pins a shape to the first or the last layer in every flow, the
+  root's and each service's.
 - **The words are footnotes.** The words are optional reading, so they sit at the foot of
   the page in small muted text under a short rule, as in a book, with no section heading.
   A full section above the map was too loud. The first use of a term in a block of prose
@@ -106,12 +115,12 @@ public.
   whole graph. A flow with no `lifecycle` gets no steps: its labeled edges carry it.
 - **A flow lays out near the viewport.** The lifecycle flow sits below the fold, so it
   waits for an IntersectionObserver 800 px ahead of the scroll. A wide flow opens at
-  70 % zoom from its left end, because below that its labels stop reading.
+  70 % zoom from its left end, because below that its labels stop reading. A flow on the
+  stage is on screen already, so it lays out at once.
 - **Three box types.** A package keeps the plain box. A service has a heavy rounded frame.
-  A store (a database, a queue, a bucket) is a cylinder. Only flow shapes carry the data
-  today: `store` marks the cylinder, and every other shape is a service. The map's boxes
-  stay package boxes until the note marks services and stores (backlog:
-  "onboard: runtime view so the map shows services first").
+  A store (a database, a queue, a bucket) is a cylinder. Flow shapes carry it as `store`. On
+  the map, a `service` node gets the service frame, and every other node keeps the package
+  box. The tree has no store node, so stores show only in flows.
 - **Links pin to `repo.sha`.** A branch link drifts as the code moves. With `repo.web`
   null, the links open `vscode://file/…`.
 - **No layout shift.** The map and each flow slot have a fixed height, so a fold or a late
