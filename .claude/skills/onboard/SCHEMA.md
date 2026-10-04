@@ -111,6 +111,14 @@ outside system, never a package, and each service takes exactly one root shape:
 { "id": "metis", "name": "metis", "external": { "repo": "metis", "url": "#note=metis" } }
 ```
 
+`check.py` greps the real name, the part after the colon, of each `store` shape that a
+`queue`, `reads DB`, or `writes DB` edge touches. `from` is optional on a store shape: it
+names the repo that owns the queue or table, and skips that grep:
+
+```json
+{ "id": "q", "name": "Pub/Sub: extractor topic", "store": true, "from": "metis" }
+```
+
 ### Lifecycle
 
 ```json
@@ -146,4 +154,4 @@ Label each edge with how the data moves, so the reader sees sync against async a
 glance. Start each label with one of these words: `call`, `async`, `http`, `grpc`,
 `reads DB`, `writes DB`, `queue`, `file`. Add the payload after a colon:
 `async: upload`, `reads DB: jobs`. Name a database or a queue by its real name in the
-shape: `PostgreSQL: indexes`.
+shape: `PostgreSQL: indexes`. `check.py` greps that name in the repo.

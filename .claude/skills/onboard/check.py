@@ -284,6 +284,21 @@ def check(note):
             errors.append(f"{node_id}: a service takes one root flow shape, found "
                           f"{on_root.get(node_id, 0)}")
 
+    # A queue or table drawn in a flow must be one the repo names, or one another repo owns.
+    for where, _, flow in flows:
+        if not isinstance(flow, dict):
+            continue
+        shapes = {n.get("id"): n for n in flow.get("nodes", [])}
+        stores = {e.get(end) for e in flow.get("edges", [])
+                  if e.get("label", "").split(":")[0].strip() in ("queue", "reads DB", "writes DB")
+                  for end in ("from", "to")
+                  if shapes.get(e.get(end), {}).get("store")}
+        for n in (shapes[s] for s in stores):
+            name = n.get("name", "").split(":", 1)[-1].strip()
+            if not n.get("from") and not spelled(repo["path"], repo["sha"], name):
+                errors.append(f"{where}: flow shape {n['id']!r}: {name!r} appears nowhere in the "
+                              "repo; use its real name, or name the other repo in `from`")
+
     def links(node):
         for link in node.get("links", []):
             yield node["id"], link

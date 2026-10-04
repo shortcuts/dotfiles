@@ -148,6 +148,8 @@ find.
   ID", in every field of the note, principles included.
 - `check.py` greps each term of `words` in the repo. A term from a doc outside the repo
   names that doc in `from`.
+- `check.py` also greps the name of each queue or table store in a flow. A store that
+  another repo owns names that repo in `from`.
 
 **Take the examples from the repo.** A reader pictures a case they can find again.
 

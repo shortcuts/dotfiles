@@ -191,6 +191,15 @@ has(with_service(ext(repo="metis", url="ftp://x")), "external")
 has(with_service(ext(url="https://github.com/o/metis")), "external")
 has(with_service(lambda n: shape(n).update(
     external={"repo": "metis", "url": "https://github.com/o/metis"})), "external and node")
+# Built at runtime: spelled() greps HEAD, so a committed literal would pass.
+ghost = "Kafka: " + "xq" * 3 + " ledger"
+db_edge = lambda n: n["root"]["flow"]["edges"][0].update(label="writes DB: staged files")
+ghost_store = lambda n: n["root"]["flow"]["nodes"][1].update(name=ghost)
+has(broken(lambda n: (db_edge(n), ghost_store(n))), "appears nowhere")
+assert broken(lambda n: (db_edge(n), ghost_store(n),
+                         n["root"]["flow"]["nodes"][1].update(**{"from": "billing"}))) == []
+assert broken(db_edge) == []
+assert broken(ghost_store) == []
 svc_note = copy.deepcopy(VALID)
 svc_note["root"]["children"].append(SERVICE | {"lifecycle": [{"text": "The note renders.",
                                                               "at": ["i"]}]})
