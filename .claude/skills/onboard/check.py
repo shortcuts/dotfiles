@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 ONBOARD = Path(__file__).resolve().parents[2] / ".onboard"
-KINDS = {"repo", "dir", "package", "file", "group", "function", "feature"}
+KINDS = {"repo", "dir", "service", "package", "file", "group", "function", "feature"}
 PATHLESS = {"group", "function", "feature"}
 SCOPES = {"repo", "path", "function", "feature"}
 FLOW_WORDS = {"call", "async", "http", "grpc", "reads DB", "writes DB", "queue", "file"}
@@ -22,12 +22,11 @@ MAX_SUMMARY = 140
 MAX_ROLE = 160
 MAX_PROBLEM = 240
 MAX_SHAPES = 12
-# The root shows the outcome a newcomer can hold in their head; the mechanism lives one level down.
-MAX_ROOT_SHAPES = 7
 MAX_STEPS = 6
 # The principles explain behavior; a column, a variable, or a code span is implementation.
 IDENTIFIER = re.compile(r"`|\b\w+_\w+\b|\b[a-z]\w*\.[a-z_]\w+\b")
 MAX_CHILDREN = 12
+SLUG = r"[a-z0-9]+(-[a-z0-9]+)*(--[a-z0-9]+(-[a-z0-9]+)*)?"
 
 
 def tracked(repo, sha):
@@ -53,11 +52,21 @@ def check_flow(where, flow, limit=MAX_SHAPES, ends=False):
         return [f"{where}: flow needs nodes and edges"]
     errors = []
     ids = {n.get("id") for n in flow["nodes"]}
-    if len(flow["nodes"]) > limit:
+    if limit is not None and len(flow["nodes"]) > limit:
         errors.append(f"{where}: flow has {len(flow['nodes'])} shapes, at most {limit}")
     for n in flow["nodes"]:
         if not (n.get("id") and n.get("name")):
             errors.append(f"{where}: flow shape without id or name: {n}")
+        if (ext := n.get("external")) is not None:
+            # https:// is the other repo's docs; #note=<slug> is its own onboard note.
+            url = ext.get("url", "") if isinstance(ext, dict) else ""
+            if not (isinstance(ext, dict) and ext.get("repo") and isinstance(url, str)
+                    and (url.startswith("https://") or re.fullmatch("#note=" + SLUG, url))):
+                errors.append(f"{where}: flow shape {n.get('id')!r}: external needs repo and an "
+                              "https:// or #note=<slug> url")
+            if n.get("node") is not None:
+                errors.append(f"{where}: flow shape {n.get('id')!r}: external and node both "
+                              "set; a shape is in the tree or outside it")
     for e in flow["edges"]:
         for end in ("from", "to"):
             if e.get(end) not in ids:
@@ -80,6 +89,21 @@ def check_flow(where, flow, limit=MAX_SHAPES, ends=False):
                     errors.append(f"{where}: flow {word} {e.get('to' if end == 'in' else 'from')!r}"
                                   f" has no {'incoming' if end == 'in' else 'outgoing'} edge:"
                                   " split it into two shapes")
+    return errors
+
+
+def check_lifecycle(where, steps, flow):
+    # Each step lights its shapes in the node's flow, so the reader steps through the graph.
+    errors = []
+    shapes = {n.get("id") for n in flow.get("nodes", [])} if isinstance(flow, dict) else set()
+    if len(steps) > MAX_STEPS:
+        errors.append(f"{where}: lifecycle has at most {MAX_STEPS} steps")
+    for i, step in enumerate(steps, 1):
+        if not (isinstance(step, dict) and step.get("text") and step.get("at")):
+            errors.append(f"{where}: lifecycle step {i} needs text and at")
+        elif bad := [a for a in step["at"] if a not in shapes]:
+            errors.append(f"{where}: lifecycle step {i}: unknown shape {bad[0]!r} in the "
+                          f"{where} flow")
     return errors
 
 
@@ -112,16 +136,7 @@ def check_root(note, root):
         errors.append("root: repo and path scopes need a stack")
     if kind == "feature" and not root.get("lifecycle"):
         errors.append("root: feature scope needs a lifecycle")
-    # Each step lights its shapes in the root flow, so the reader steps through the graph.
-    flow = root.get("flow")
-    shapes = {n.get("id") for n in flow.get("nodes", [])} if isinstance(flow, dict) else set()
-    if len(root.get("lifecycle") or []) > MAX_STEPS:
-        errors.append(f"root: lifecycle has at most {MAX_STEPS} steps")
-    for i, step in enumerate(root.get("lifecycle") or [], 1):
-        if not (isinstance(step, dict) and step.get("text") and step.get("at")):
-            errors.append(f"root: lifecycle step {i} needs text and at")
-        elif bad := [a for a in step["at"] if a not in shapes]:
-            errors.append(f"root: lifecycle step {i}: unknown shape {bad[0]!r} in the root flow")
+    errors += check_lifecycle("root", root.get("lifecycle") or [], root.get("flow"))
     if kind == "function":
         io = root.get("io") or {}
         if not (io.get("inputs") and io.get("outputs") and io.get("goes")):
@@ -156,7 +171,9 @@ def check(note):
                if k not in note]
     if missing:
         return errors + missing
-    if not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*(--[a-z0-9]+(-[a-z0-9]+)*)?", note["slug"]):
+    if note["schema"] != 2:
+        errors.append(f"schema: {note['schema']!r}; check.py reads schema 2 only, regenerate the note")
+    if not re.fullmatch(SLUG, note["slug"]):
         errors.append(f"slug {note['slug']!r}: use <repo> or <repo>--<scope>, [a-z0-9-]")
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", note["generated"]):
         errors.append("generated: not YYYY-MM-DD")
@@ -181,9 +198,9 @@ def check(note):
             errors.append(f"words: {w['term']!r} appears nowhere in the repo; use the subject's "
                           "own term, or name the doc it comes from in `from`")
 
-    seen, lineage = set(), {}
+    seen, lineage, kinds, flows = set(), {}, {}, []
 
-    def walk(node, depth, above=()):
+    def walk(node, depth, above=(), service=None):
         where = node.get("id", "?")
         for key in ("id", "name", "kind", "summary", "role"):
             if not node.get(key) and not (key == "id" and depth == 0):
@@ -192,7 +209,10 @@ def check(note):
             errors.append(f"{where}: duplicate id")
         seen.add(where)
         lineage[where] = above
-        kind = node.get("kind")
+        kind = kinds[where] = node.get("kind")
+        if service and kind not in ("package", "group"):
+            errors.append(f"{where}: a {kind} under service {service}; a service holds "
+                          f"packages, grouped past {MAX_CHILDREN}")
         if kind not in KINDS:
             errors.append(f"{where}: kind {kind!r} not one of {sorted(KINDS)}")
         if len(node.get("summary", "")) > MAX_SUMMARY:
@@ -216,8 +236,16 @@ def check(note):
             errors.append(f"{where}: {len(children)} children; group them, at most "
                           f"{MAX_CHILDREN}")
         if node.get("flow"):
-            errors.extend(check_flow(where, node["flow"],
-                                     MAX_SHAPES if depth else MAX_ROOT_SHAPES, ends=not depth))
+            flows.append((where, depth, node["flow"]))
+            errors.extend(check_flow(where, node["flow"], MAX_SHAPES if depth else None,
+                                     ends=not depth or kind == "service"))
+        elif kind == "service":
+            errors.append(f"{where}: a service needs a flow")
+        if depth and node.get("lifecycle"):
+            if kind == "service":
+                errors.extend(check_lifecycle(where, node["lifecycle"], node.get("flow")))
+            else:
+                errors.append(f"{where}: lifecycle sits on the root or a service")
         for e in node.get("entry", []):
             if e.get("path") not in files:
                 errors.append(f"{where}: entry {e.get('name')}: {e.get('path')!r} is "
@@ -231,9 +259,30 @@ def check(note):
                     and str(s.get("url", "")).startswith("https://")):
                 errors.append(f"{where}: external {s.get('name')}: needs name, how, https url")
         for child in children:
-            walk(child, depth + 1, above + (where,))
+            walk(child, depth + 1, above + (where,), where if kind == "service" else service)
 
     walk(note["root"], 0)
+
+    # A shape's node points into the tree; null is an outside system.
+    on_root = {}
+    for where, depth, flow in flows:
+        for n in flow.get("nodes", []) if isinstance(flow, dict) else []:
+            target = n.get("node")
+            if target is None:
+                continue
+            if target not in kinds or target == note["root"].get("id"):
+                errors.append(f"{where}: flow shape {n.get('id')!r}: node {target!r} is not a "
+                              "node of the tree")
+            elif not depth:
+                on_root[target] = on_root.get(target, 0) + 1
+                if kinds[target] == "package":
+                    errors.append(f"root: flow shape {n.get('id')!r} points at package "
+                                  f"{target!r}; the root draws services, stores, and outside "
+                                  "systems")
+    for node_id, kind in kinds.items():
+        if kind == "service" and node_id != note["root"].get("id") and on_root.get(node_id, 0) != 1:
+            errors.append(f"{node_id}: a service takes one root flow shape, found "
+                          f"{on_root.get(node_id, 0)}")
 
     def links(node):
         for link in node.get("links", []):
@@ -272,7 +321,9 @@ def prose(note):
     def walk(n):
         out.extend([f"## {n['id'] or '/'} ({n['name']})", n["summary"], *n["role"],
                     *(f"- {e['name']}: {e['note']}" for e in n.get("entry", [])),
-                    *(f"- {s['name']}: {s.get('how', 'TODO')}" for s in n.get("external", [])), ""])
+                    *(f"- {s['name']}: {s.get('how', 'TODO')}" for s in n.get("external", [])),
+                    *(f"- step {i}: {s['text']}" for i, s in enumerate(n.get("lifecycle") or [], 1)
+                      if n["id"]), ""])
         for c in n.get("children") or []:
             walk(c)
 

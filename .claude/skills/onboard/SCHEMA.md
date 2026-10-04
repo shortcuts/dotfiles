@@ -9,7 +9,7 @@ ignores the hints, and `--install` strips them.
 
 ```jsonc
 {
-  "schema": 1,
+  "schema": 2,
   "slug": "harbor--report-builder",        // <repo>, or <repo>--<scope>; [a-z0-9-]
   "title": "How harbor builds a report",   // the viewer header
   "generated": "2026-09-29",              // output of `date +%F`
@@ -32,11 +32,12 @@ ignores the hints, and `--install` strips them.
 |---|---|---|
 | `id` | string | Unique in the note. Use the path, or a slug for a group |
 | `name` | string | What the tree shows. The directory name, or a short noun |
-| `kind` | enum | `repo`, `dir`, `package`, `file`, `group`, `function`, `feature` |
+| `kind` | enum | `repo`, `dir`, `service`, `package`, `file`, `group`, `function`, `feature` |
 | `path` | string or null | Repo-relative. `""` is the repo root. `null` for `group`, `function`, `feature` |
 | `summary` | string | One sentence, at most 140 characters. The tree prints it beside the name |
 | `role` | string[] | One paragraph, at most 160 characters (two lines of the panel): why the node exists |
-| `flow` | Flow | 7 shapes at most on the root, 12 below it. Required on the root, and on a node that touches a database, a queue, or an external service |
+| `flow` | Flow | No cap on the root, 12 shapes at most below it. Required on the root, on every service, and on a node that touches a database, a queue, or an external service |
+| `lifecycle` | Step[] | Optional. On the root and on a `service` only: see [Lifecycle](#lifecycle) |
 | `links` | Link[] | Optional. How this node talks to other nodes of the tree |
 | `entry` | Entry[] | Optional. Ordered by importance |
 | `external` | Service[] | Optional. Services outside the repo this node calls |
@@ -44,12 +45,17 @@ ignores the hints, and `--install` strips them.
 
 Kind rules:
 
+- `service` is a deployable unit: it has its own main, Dockerfile, deploy entry, or cron
+  entry. Its subtree holds `package` nodes only, grouped past 12; no `dir` node sits under
+  it, and each package keeps its directory in `path`. `path` is the service's directory.
+  Its flow carries `end` markers, like the root flow.
 - `package` is the deepest code level. A `package` node has no children.
 - `file` is a leaf beside directories, for a tracked file that carries a decision
   (`install.sh`, `.gitignore`). It gets a summary and a role, never a file analysis.
 - `group` is a synthetic node that collects siblings when a directory has more than 12
   children. Its children keep their real paths.
-- `path` on `repo`, `dir`, `package`, and `file` must be tracked by git at `repo.sha`.
+- `path` on `repo`, `dir`, `service`, `package`, and `file` must be tracked by git at
+  `repo.sha`.
 
 ### Entry
 
@@ -85,9 +91,36 @@ The viewer lays the flow out with ELK, like the map. List `nodes` from the entry
 to the endpoint: in a loop, an edge from a later node to an earlier one draws backward, so
 the list order sets left to right. `store` marks a database, a queue, or
 a bucket, and the viewer draws it as a pill. `end` is `"in"` or `"out"`: it pins the
-shape to the first or the last column. The root flow needs at least one of each. An `in`
-shape has no incoming edge, and an `out` shape has no outgoing edge. Each edge `label` follows
-[Flow labels](#flow-labels).
+shape to the first or the last column. The root flow and every service flow need at least
+one of each; several `out` shapes are allowed. An `in` shape has no incoming edge, and an
+`out` shape has no outgoing edge. Each edge `label` follows [Flow labels](#flow-labels).
+
+`node` is optional. It is the `id` of the tree node the shape stands for, never the root.
+`null` marks an outside system. The root flow draws one shape per service, store, and
+outside system, never a package, and each service takes exactly one root shape:
+
+```json
+{ "id": "builder", "name": "report-builder", "node": "services/report-builder" }
+```
+
+`external` is optional, on a shape that stands for another repo. `repo` names it, and
+`url` is its docs (`https://...`) or its own onboard note (`#note=<slug>`). A shape with
+`external` has no `node`:
+
+```json
+{ "id": "metis", "name": "metis", "external": { "repo": "metis", "url": "#note=metis" } }
+```
+
+### Lifecycle
+
+```json
+[{ "text": "The scheduler queues one render job.", "at": ["scheduler", "pg"] }]
+```
+
+At most 6 steps, one per stage of the data, in order. `at` names the shapes of the same
+node's `flow` that the step touches. The viewer steps through the graph and lights those
+shapes and the edges between them. A lifecycle sits on the root or on a `service`. The
+root needs one for `feature` scope; it is optional everywhere else.
 
 ### Service
 
@@ -105,7 +138,6 @@ shape has no incoming edge, and an `out` shape has no outgoing edge. Each edge `
 | `problem` | always | string, at most 240 characters (three lines): why the subject exists |
 | `principles` | always | 1–3 of `{ "claim", "why", "example": [[case, what the system does], …], "except"?, "cost" }`, with 2 or 3 rows. No code identifier: no `snake_case`, no `table.column`, no backticks. The viewer prints `Except:` before `except` |
 | `stack` | `repo`, `path` | `[{ "name", "url", "role" }]`: language, runtime, main libraries |
-| `lifecycle` | `feature` | `[{ "text", "at": [shape id, …] }]`: at most 6 steps, one per stage of the data, in order. `at` names the root `flow` shapes the step touches. The viewer steps through the graph and lights those shapes and the edges between them |
 | `io` | `function` | `{ "inputs": [..], "outputs": [..], "goes": "where the result goes" }` |
 
 ## Flow labels

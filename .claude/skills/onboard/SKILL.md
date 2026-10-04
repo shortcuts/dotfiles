@@ -215,7 +215,8 @@ bucket `store`. Each edge label starts with a word from
             { "from": "builder", "to": "s3", "label": "async: upload" }] }
 ```
 
-Seven shapes at most on the root, twelve below it. The root flow draws the outcome: the
+The root has no shape cap: one shape per service, store, and outside system, never a
+package. Twelve shapes at most below it. The root flow draws the outcome: the
 input, the subject, what it produces, and who consumes it.
 
 **The root flow reads in to out.** Mark the shape where the data starts `"end": "in"`, and

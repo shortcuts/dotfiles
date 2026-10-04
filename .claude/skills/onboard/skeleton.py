@@ -380,7 +380,7 @@ def main():
 
     slug = name if a.scope == "repo" else f"{name}--{slugify(a.arg)}"
     note = {
-        "schema": 1, "slug": slug, "title": TODO,
+        "schema": 2, "slug": slug, "title": TODO,
         "generated": datetime.date.today().isoformat(),
         "repo": {"name": name, "path": root, "sha": sha, "web": web},
         "scope": {"kind": a.scope, "query": a.arg},

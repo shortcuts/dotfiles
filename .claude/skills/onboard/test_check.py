@@ -12,7 +12,7 @@ SHA = subprocess.run(["git", "-C", REPO, "rev-parse", "HEAD"],
                      capture_output=True, text=True, check=True).stdout.strip()
 
 VALID = {
-    "schema": 1, "slug": "config", "title": "Dotfiles", "generated": "2026-09-29",
+    "schema": 2, "slug": "config", "title": "Dotfiles", "generated": "2026-09-29",
     "repo": {"name": "config", "path": REPO, "sha": SHA, "web": "https://github.com/o/r"},
     "scope": {"kind": "repo", "query": ""},
     "words": [{"term": "whitelist", "def": "Ignore all, then un-ignore named paths."}],
@@ -65,8 +65,10 @@ has(broken(lambda n: n["root"].pop("stack")), "stack")
 has(broken(lambda n: n["root"].update(flow="flowchart LR\n  a -->|call| b")), "flow")
 has(broken(lambda n: n["root"]["flow"]["edges"][0].update(label="maybe")), "flow label")
 has(broken(lambda n: n["root"]["flow"]["edges"][0].update(to="c")), "unknown shape")
-has(broken(lambda n: n["root"]["flow"]["nodes"].extend(
-    {"id": f"x{i}", "name": "x"} for i in range(6))), "at most 7")
+has(broken(lambda n: n.update(schema=1)), "schema")
+# The root draws one shape per service, store, and outside system: no cap.
+assert broken(lambda n: n["root"]["flow"]["nodes"].extend(
+    {"id": f"x{i}", "name": "x"} for i in range(9))) == []
 child_flow = copy.deepcopy(VALID["root"]["flow"])
 child_flow["nodes"] += [{"id": f"x{i}", "name": "x"} for i in range(8)]
 assert check(copy.deepcopy(VALID) | {"root": VALID["root"] | {"children": [
@@ -125,4 +127,72 @@ assert "## nvim/lua" in md and "Lua modules." in md and "Two Macs drift apart." 
 half = copy.deepcopy(VALID)
 half["root"]["children"][0]["external"] = [{"name": "OpenAI API"}]
 assert "- OpenAI API: TODO" in prose(half)
+
+SERVICE = {
+    "id": "viewer", "name": "viewer", "kind": "service", "path": ".claude/.onboard",
+    "summary": "The onboard viewer.", "role": ["Draws the notes."],
+    "flow": {"nodes": [{"id": "i", "name": "note", "end": "in"},
+                       {"id": "o", "name": "page", "end": "out"}],
+             "edges": [{"from": "i", "to": "o", "label": "call: render"}]},
+    "children": [{"id": ".claude/skills/onboard", "name": "onboard", "kind": "package",
+                  "path": ".claude/skills/onboard", "summary": "The skill.",
+                  "role": ["Writes notes."]}],
+}
+
+
+def with_service(mutate=None):
+    note = copy.deepcopy(VALID)
+    note["root"]["children"].append(copy.deepcopy(SERVICE))
+    flow = note["root"]["flow"]
+    flow["nodes"].append({"id": "v", "name": "viewer", "node": "viewer"})
+    flow["edges"] += [{"from": "a", "to": "v", "label": "call: stage"},
+                      {"from": "v", "to": "b", "label": "call: stage"}]
+    if mutate:
+        mutate(note)
+    return check(note)
+
+
+svc = lambda n: n["root"]["children"][2]
+shape = lambda n: n["root"]["flow"]["nodes"][2]
+assert with_service() == [], with_service()
+has(with_service(lambda n: svc(n)["children"].append(
+    {"id": "nvim2", "name": "nvim", "kind": "dir", "path": "nvim", "summary": "x",
+     "role": ["x"]})), "under service")
+assert with_service(lambda n: svc(n).update(children=[
+    {"id": "pkgs", "name": "packages", "kind": "group", "path": None, "summary": "x",
+     "role": ["x"], "children": SERVICE["children"]}])) == []
+has(with_service(lambda n: svc(n).pop("flow")), "needs a flow")
+has(with_service(lambda n: svc(n)["flow"]["nodes"][1].pop("end")), "destination")
+assert with_service(lambda n: svc(n).update(
+    lifecycle=[{"text": "The note renders.", "at": ["i", "o"]}])) == []
+has(with_service(lambda n: svc(n).update(lifecycle=[{"text": "x", "at": ["a"]}])),
+    "unknown shape")
+has(with_service(lambda n: svc(n).update(lifecycle=[{"text": "x", "at": ["i"]}] * 7)),
+    "at most 6 steps")
+has(broken(lambda n: n["root"]["children"][0].update(
+    lifecycle=[{"text": "x", "at": ["a"]}])), "root or a service")
+has(with_service(lambda n: n["root"]["flow"].update(
+    nodes=n["root"]["flow"]["nodes"][:2], edges=n["root"]["flow"]["edges"][:1])),
+    "one root flow shape")
+has(with_service(lambda n: n["root"]["flow"]["nodes"].append(
+    {"id": "v2", "name": "viewer", "node": "viewer"})), "one root flow shape")
+assert with_service(lambda n: n["root"]["flow"]["nodes"].append(
+    {"id": "z", "name": "Algolia", "node": None})) == []
+has(with_service(lambda n: shape(n).update(node="nope")), "not a node of the tree")
+has(with_service(lambda n: n["root"]["flow"]["nodes"].append(
+    {"id": "z", "name": "x", "node": ""})), "not a node of the tree")
+has(with_service(lambda n: n["root"]["flow"]["nodes"].append(
+    {"id": "z", "name": "x", "node": "nvim/lua"})), "points at package")
+ext = lambda **e: lambda n: n["root"]["flow"]["nodes"].append(
+    {"id": "z", "name": "metis", "external": e})
+assert with_service(ext(repo="metis", url="https://github.com/o/metis")) == []
+assert with_service(ext(repo="metis", url="#note=metis--index-builder")) == []
+has(with_service(ext(repo="metis", url="ftp://x")), "external")
+has(with_service(ext(url="https://github.com/o/metis")), "external")
+has(with_service(lambda n: shape(n).update(
+    external={"repo": "metis", "url": "https://github.com/o/metis"})), "external and node")
+svc_note = copy.deepcopy(VALID)
+svc_note["root"]["children"].append(SERVICE | {"lifecycle": [{"text": "The note renders.",
+                                                              "at": ["i"]}]})
+assert "The note renders." in prose(svc_note)
 print("ok")
