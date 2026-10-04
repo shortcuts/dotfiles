@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """python3 test_skeleton.py: the parts of skeleton.py that need no git or graph."""
-from skeleton import annotate, build_tree, edge_rows, feature_tree, link_hints, slugify, web_url
+from skeleton import (annotate, build_tree, edge_rows, feature_tree, link_hints,
+                      service_candidates, service_dirs, service_tree, slugify, walk, web_url)
 
 assert web_url("git@github.com:acme/harbor.git") == "https://github.com/acme/harbor"
 assert web_url("https://github.com/shortcuts/dotfiles") == "https://github.com/shortcuts/dotfiles"
@@ -57,4 +58,35 @@ assert [c["id"] for c in feat["children"]] == ["nvim", "modules/services/api"]
 assert feat["children"][0]["kind"] == "dir", feat["children"][0]
 assert feat["children"][0]["children"][0]["id"] == "nvim/lua/plugins"
 assert feat["children"][1]["_leaf_reason"] == "package marker"
+
+# A Go binary is a service: its own packages sit under it, packages two binaries use go shared.
+assert service_dirs([("cmd/api/main.go", 3, 9), ("cmd/worker/main.go", 1, 5),
+                     ("scripts/tool.py", 1, 4)], "") == ["cmd/api", "cmd/worker"]
+assert service_dirs([("main.go", 1, 2), ("cmd/api/main.go", 1, 2)], "") == ["cmd/api"]
+files = ["README.md", "docs/guide.md", "cmd/api/main.go", "cmd/api/handlers/h.go",
+         "cmd/worker/main.go", "pkg/db/db.go", "pkg/log/log.go"]
+imports = [("cmd/api", "cmd/api/handlers"), ("cmd/api/handlers", "pkg/db"),
+           ("cmd/worker", "pkg/db"), ("cmd/worker", "pkg/log"), ("cmd/api", "vendor/x")]
+svc = service_tree(files, "", ["cmd/api", "cmd/worker"], imports, 3)
+kids = {c["id"]: c for c in svc["children"]}
+assert list(kids) == ["cmd/api", "cmd/worker", "shared-packages", "docs"], list(kids)
+assert svc["_files"] == ["README.md"], svc
+assert kids["cmd/api"]["kind"] == "service" and "flow" in kids["cmd/api"]
+assert [{k: c[k] for k in ("id", "name", "kind")} for c in kids["cmd/api"]["children"]] == [
+    {"id": "cmd/api/handlers", "name": "handlers", "kind": "package"}], kids["cmd/api"]
+assert [(c["id"], c["name"]) for c in kids["cmd/worker"]["children"]] == [("pkg/log", "pkg/log")]
+shared = kids["shared-packages"]
+assert shared["kind"] == "group" and shared["path"] is None
+assert [c["id"] for c in shared["children"]] == ["pkg/db"], shared
+assert "vendor/x" not in {n["id"] for n in walk(svc)}
+one = service_tree(files, "cmd/worker", ["cmd/worker"], imports, 3)
+assert one["kind"] == "service" and one["id"] == "cmd/worker", one
+assert [c["id"] for c in one["children"]] == ["pkg/db", "pkg/log"], one
+assert service_candidates(files + ["build/Dockerfile", "deploy/chart/Chart.yaml", "ops/crontab"],
+                          ["cmd/api"], [("k8s/worker.yaml", "CronJob")]) == [
+    {"path": "cmd/api", "evidence": "main"},
+    {"path": "build/Dockerfile", "evidence": "Dockerfile"},
+    {"path": "deploy/chart", "evidence": "helm chart"},
+    {"path": "k8s/worker.yaml", "evidence": "k8s CronJob"},
+    {"path": "ops/crontab", "evidence": "crontab"}]
 print("ok")

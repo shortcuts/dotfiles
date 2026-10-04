@@ -7,7 +7,7 @@
     python3 skeleton.py feature "<words>" --packages <dir> [<dir> ...] --out DIR
 
 Run it from inside the repository. It reindexes the graph, pins the commit, builds the
-tree, and adds graph facts as `_` keys. `check.py --install` strips those keys.
+tree (services first, when a Go main exists), and adds graph facts as `_` keys. `check.py --install` strips those keys.
 """
 import argparse
 import datetime
@@ -149,6 +149,114 @@ def folder(path):
 
 def under(path, prefix):
     return prefix == "" or path == prefix or path.startswith(prefix + "/")
+
+
+def dir_of(path):
+    parent = str(PurePosixPath(path).parent)
+    return "" if parent == "." else parent
+
+
+def service_dirs(mains, scope, drop_scope=True):
+    """Directories of Go mains under the scope: each is one deployable binary."""
+    dirs = sorted({dir_of(f) for f, _, _ in mains if f.endswith(".go") and
+                   under(dir_of(f), scope)})
+    # A main at the scope beside other services would share the root's id.
+    return [d for d in dirs if d != scope] if drop_scope and len(dirs) > 1 else dirs
+
+
+def service_tree(files, scope, services, imports, max_depth):
+    """Services first, each over the packages only it imports; the rest goes shared."""
+    tracked = {dir_of(f) for f in files}
+    adj = defaultdict(set)
+    for src, dst in imports:
+        adj[src].add(dst)
+    owners = defaultdict(list)
+    for s in services:
+        seen, stack = {s}, [s]
+        while stack:
+            for d in adj[stack.pop()] - seen:
+                seen.add(d)
+                stack.append(d)
+        for d in sorted(seen - {s} - set(services)):
+            if d in tracked:
+                owners[d].append(s)
+
+    def grouped(n, children):
+        n["children"] = children
+        if len(children) > MAX_CHILDREN:
+            n["_group"] = f"{len(children)} children: collect them into groups"
+        elif "_group" in n:
+            del n["_group"]
+        return n
+
+    def service(s):
+        n = placeholder(s, PurePosixPath(s).name, "service", s)
+        n["flow"] = {"nodes": [{"id": TODO, "name": TODO}],
+                     "edges": [{"from": TODO, "to": TODO, "label": TODO}]}
+        return grouped(n, [placeholder(d, d[len(s) + 1:] if s and under(d, s) else d,
+                                       "package", d)
+                           for d in sorted(owners) if owners[d] == [s]])
+
+    if services == [scope]:
+        return service(scope)
+    shared = sorted(d for d in owners if len(owners[d]) > 1)
+    head = [service(s) for s in services]
+    if shared:
+        head.append(grouped(placeholder("shared-packages", "shared", "group", None),
+                            [placeholder(d, d, "package", d) for d in shared]))
+    # ponytail: an unimported subdir of a placed package drops out of the tree; give
+    # leftovers their own nodes if a note misses one
+    placed = [*services, *owners]
+    leftover = [f for f in files if under(f, scope) and not any(under(f, p) for p in placed)]
+    root = build_tree(leftover, scope, max_depth)
+    return grouped(root, head + root.get("children", []))
+
+
+DOCKERFILE = re.compile(r"^(Dockerfile|Containerfile)(\..+)?$|\.Dockerfile$")
+
+
+def manifest_kinds(root, sha, scope):
+    """(path, kind) of each k8s workload manifest tracked at sha under the scope."""
+    out = git(root, "grep", "-I", "-E", "^kind: (Deployment|StatefulSet|DaemonSet|CronJob|Job)$",
+              sha, "--", scope or ".", check=False) or ""
+    found = set()
+    for line in out.splitlines():
+        _, path, text = line.split(":", 2)
+        if path.endswith((".yaml", ".yml")) and not TEST_PATH.search(path):
+            found.add((path, text.split(":", 1)[1].strip()))
+    return sorted(found)
+
+
+def service_candidates(files, services, manifests):
+    """Deployable leads for the model to confirm: mains, then the rest by path."""
+    rest = set()
+    for f in files:
+        if TEST_PATH.search(f):
+            continue
+        base = PurePosixPath(f).name
+        if DOCKERFILE.search(base):
+            rest.add((f, "Dockerfile"))
+        elif base == "Chart.yaml":
+            rest.add((dir_of(f), "helm chart"))
+        elif base == "crontab" or base.endswith(".cron"):
+            rest.add((f, "crontab"))
+    rest |= {(p, f"k8s {k}") for p, k in manifests}
+    return ([{"path": s, "evidence": "main"} for s in services] +
+            [{"path": p, "evidence": e} for p, e in sorted(rest)])
+
+
+def import_dirs(project):
+    """(importer dir, imported dir) pairs: a Go import lands on the package Folder."""
+    pairs = []
+    for a, b, labels in query_all(project, (
+            f"MATCH (a:File)-[:IMPORTS]->(b) WHERE NOT a.file_path =~ '{TEST_CYPHER}' "
+            "RETURN a.file_path, b.file_path, labels(b)")):
+        if not (a and b):
+            continue
+        src, dst = dir_of(a), (b if '"Folder"' in str(labels) else dir_of(b))
+        if src != dst:
+            pairs.append((src, dst))
+    return pairs
 
 
 def annotate(root_node, edges, grep_hits, graph_files, mains=()):
@@ -347,9 +455,23 @@ def main():
     if a.scope == "feature" and not a.packages:
         sys.exit("feature scope needs --packages: the directories the data visits, in order")
 
+    mains = [(f, int(s), int(e)) for f, s, e in query_all(project, (
+        "MATCH (f:Function) WHERE f.name = 'main' "
+        "RETURN f.file_path, f.start_line, f.end_line")) if f and s and not TEST_PATH.search(f)]
     if a.scope in ("repo", "path"):
-        tree = build_tree([f for f in files if under(f, scope)], scope, a.depth)
-        tree["kind"] = "repo" if a.scope == "repo" else "dir"
+        services = service_dirs(mains, scope)
+        tree = (service_tree(files, scope, services, import_dirs(project), a.depth) if services
+                else build_tree([f for f in files if under(f, scope)], scope, a.depth))
+        if a.scope == "repo" or tree["kind"] != "service":
+            tree["kind"] = "repo" if a.scope == "repo" else "dir"
+        found = service_candidates([f for f in files if under(f, scope)],
+                                   service_dirs(mains, scope, drop_scope=False),
+                                   manifest_kinds(root, sha, scope))
+        if len(found) > 60:
+            warnings.append(f"{len(found) - 60} service candidates beyond 60 not listed "
+                            "in _services")
+        if found:
+            tree["_services"] = found[:60]
         tree["name"] = name if a.scope == "repo" else tree["name"]
         tree["stack"] = [{"name": TODO, "url": TODO, "role": TODO}]
     elif a.scope == "function":
@@ -369,9 +491,6 @@ def main():
     edges = graph_edges(project, [scope] if a.scope in ("repo", "path") else paths)
     graph_files = [r[0] for r in query_all(project, "MATCH (f:File) RETURN f.file_path")
                    if r and r[0]]
-    mains = [(f, int(s), int(e)) for f, s, e in query_all(project, (
-        "MATCH (f:Function) WHERE f.name = 'main' "
-        "RETURN f.file_path, f.start_line, f.end_line")) if f and s and not TEST_PATH.search(f)]
     annotate(tree, edges, service_imports(root, sha, scope) if paths else [], graph_files,
              mains)
     link_hints(tree, edges)
