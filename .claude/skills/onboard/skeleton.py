@@ -479,12 +479,14 @@ def main():
     else:
         tree = feature_tree(files, a.packages, a.depth)
         tree["name"] = a.arg
-        tree["lifecycle"] = [{"text": TODO, "at": [TODO]}]
     tree["id"] = tree["id"] or ""
+    # The map steps through the root lifecycle in every scope; the panel shows each detail.
+    tree["lifecycle"] = [{"text": TODO, "at": [TODO], "detail": TODO}]
+    tree["overview"] = TODO
     tree["problem"] = TODO
     tree["principles"] = [{"claim": TODO, "why": TODO, "cost": TODO,
                            "example": [[TODO, TODO], [TODO, TODO]]}]
-    tree["flow"] = {"nodes": [{"id": TODO, "name": TODO}],
+    tree["flow"] = {"nodes": [{"id": TODO, "name": TODO, "about": TODO}],
                     "edges": [{"from": TODO, "to": TODO, "label": TODO}]}
 
     paths = [n["path"] for n in walk(tree) if n["path"] is not None]

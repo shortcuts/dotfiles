@@ -93,7 +93,9 @@ function renderFlow(f) {
       edges: f.edges.map((e, i) => ({ id: `f${i}`, sources: [e.from], targets: [e.to],
         labels: [{ text: e.label, width: e.label.length * CH + 8, height: 14 }] })),
       // A loop (a sink the source also reads) would put the sink mid-graph; the node order breaks it.
-      layoutOptions: { ...LAYERED, "elk.layered.cycleBreaking.strategy": "MODEL_ORDER" },
+      // A dense flow gets more vertical room between shapes, so its edges and labels stay apart.
+      layoutOptions: { ...LAYERED, "elk.layered.cycleBreaking.strategy": "MODEL_ORDER",
+        ...(f.nodes.length > 10 && { "elk.spacing.nodeNode": "64", "elk.spacing.edgeNode": "24", "elk.spacing.edgeEdge": "16" }) },
     }))
     .then((res) => rendered.set(key, res), () => null));
   // ponytail: a CDN slower than 3 s leaves the text list in place until a reload.
@@ -105,11 +107,17 @@ addEventListener("keydown", (e) => stepKey?.(e));
 // A flow lays out only near the viewport, so a panel switch never waits on one below the fold.
 // The step list renders at once, so the text never waits on ELK and never shifts.
 // An overlay flow is on screen already, so `now` draws it at once.
-function flowFigure(f, steps, now) {
+function flowFigure(f, steps, now, stage) {
   const items = (steps || []).map((s, i) => h("li", {}, h("button", { onclick: () => fig.show(i) }, s.text)));
   const slot = h("div", { class: "flow-slot" });
-  const fig = h("figure", { class: "flow-fig", onpointerenter: () => fig.key && (stepKey = fig.key) },
-    slot, items.length > 0 && h("ol", { class: "steps" }, items));
+  // On the stage, the steps sit in a header that shows only the current one; the list stays for the keyboard and screen readers.
+  const head = stage && items.length > 0 && h("div", { class: "step-head" },
+    h("button", { "aria-label": "Previous step", onclick: () => fig.show((fig.at ?? 0) - 1) }, "←"),
+    h("strong", { class: "count" }), h("button", { "aria-label": "Next step", onclick: () => fig.show((fig.at ?? 0) + 1) }, "→"),
+    h("span", { class: "text" }));
+  const fig = h("figure", { class: `flow-fig${stage ? " stage-flow" : ""}`, onpointerenter: () => fig.key && (stepKey = fig.key) },
+    head, slot, items.length > 0 && h("ol", { class: "steps" }, items));
+  fig.head = head;
   fig.show = () => {};
   const load = () => renderFlow(f).then(() => drawFlow(f, steps, slot, items, fig));
   if (now) load(); else { near.set(slot, load); nearby.observe(slot); }
@@ -122,19 +130,23 @@ const nearby = new IntersectionObserver((es) => es.forEach((e) => {
   near.get(e.target)();
 }), { rootMargin: "800px" });
 function drawFlow(f, steps, slot, items, fig) {
-  const res = rendered.get(JSON.stringify(f));
+  const res = rendered.get(JSON.stringify(f)), stage = fig.classList.contains("stage-flow");
   const shape = new Map(f.nodes.map((n) => [n.id, n]));
   if (!res) return slot.replaceChildren(h("pre", { class: "flow-list" },
     f.edges.map((e) => `${shape.get(e.from).name} → ${shape.get(e.to).name}: ${e.label}`).join("\n")));
-  const cv = { view: { x: 0, y: 0, k: 1 }, minK: 0.7, bounds: () => ({ x: 0, y: 0, width: res.width, height: res.height }) };
+  const cv = { view: { x: 0, y: 0, k: 1 }, minK: stage ? 0.5 : 0.7, bounds: () => ({ x: 0, y: 0, width: res.width, height: res.height }) };
   Object.assign(cv, canvas(() => cv, "flow", "Data flow diagram. Drag to pan, pinch or Ctrl+scroll to zoom."));
   const boxes = new Map(res.children.map((n) => {
     const s = shape.get(n.id), to = s.node != null && current.idx.byId.has(s.node);
     // A shape with a tree node jumps to it: back on the map, with the panel on that node.
-    return [n.id, h(to ? "button" : "div", {
-      class: `box shape ${s.store ? "store" : "svc"}${outside(s) ? " outside" : ""}${to ? " to" : ""}`,
+    // On the stage, a shape with no node shows its own `about` in the panel.
+    const own = !to && stage && !!s.about;
+    return [n.id, h(to || own ? "button" : "div", {
+      class: `box shape ${s.store ? "store" : "svc"}${outside(s) ? " outside" : ""}${to || own ? " to" : ""}`,
+      "data-node": to ? s.node : null, "data-shape": n.id,
       style: `left:${n.x}px;top:${n.y}px;width:${n.width}px;height:${n.height}px`,
-      ...(to && { title: `Open ${current.idx.byId.get(s.node).name} on the map`, onclick: () => cv.dragged || go(s.node) }),
+      ...(to && { title: `Read about ${current.idx.byId.get(s.node).name} in the panel`, onclick: () => cv.dragged || go(s.node) }),
+      ...(own && { title: `Read about ${s.name} in the panel`, onclick: () => cv.dragged || showShape(s) }),
     }, h("span", { class: "name" }, s.name))];
   }));
   cv.world.append(...boxes.values());
@@ -144,12 +156,18 @@ function drawFlow(f, steps, slot, items, fig) {
   cv.world.append(svg);
   slot.replaceChildren(cv.map);
   fit(cv, false);
+  if (current?.flowMap && current.map === fig) markShape(current);
   if (!items.length) return;
 
   // A step lights its shapes and the edges between them; the rest of the graph dims.
   let at = -1;
   fig.show = (i) => {
-    at = Math.max(0, Math.min(steps.length - 1, i));
+    at = fig.at = Math.max(0, Math.min(steps.length - 1, i));
+    if (fig.head) {
+      fig.head.querySelector(".count").textContent = `${at + 1} / ${steps.length}`;
+      fig.head.querySelector(".text").textContent = steps[at].text;
+    }
+    if (stage) showStep(at);
     const on = new Set(steps[at].at);
     // The margin keeps the step's neighbours in view, so the reader sees where it sits.
     const lit = res.children.filter((n) => on.has(n.id));
@@ -172,6 +190,9 @@ function drawFlow(f, steps, slot, items, fig) {
     if (d) { e.preventDefault(); fig.show(at + d); }
   };
   stepKey ||= fig.key;
+  // The map opens on its first step: the whole graph is too small to read at the width of the stage.
+  // A node named in the hash keeps the panel; the map still zooms to the first step.
+  if (stage) { const keep = current.sel; fig.show(0); if (keep && !keep.startsWith("shape:")) pick(keep, false); }
 }
 
 const chevron = () => {
@@ -192,7 +213,6 @@ const jump = (idx, n) => {
 
 // A term from the words gets a small mark that jumps to its definition, like a paper's
 // footnote: a reader who knows the term reads on. One mark per term per block.
-const wordId = (term) => "word-" + term.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 function gloss(note, text) {
   const ws = note.words || [];
   if (!ws.length || !text) return text;
@@ -205,113 +225,60 @@ function gloss(note, text) {
     if (seen.has(w)) continue;
     seen.add(w);
     const end = m.index + m[0].length;
-    out.push(text.slice(last, end), h("sup", {}, h("button", {
-      class: "wref", title: w.def, "aria-label": `Definition of ${w.term}`,
-      onclick: () => document.getElementById(wordId(w.term))?.scrollIntoView({ behavior: "smooth" }),
-    }, "*")));
+    out.push(text.slice(last, end), h("sup", { class: "wref", title: `${w.term}: ${w.def}` }, "*"));
     last = end;
   }
   out.push(text.slice(last));
   return out;
 }
 
-// The facts on a node: who it talks to, where its code starts, what it calls outside.
-function facts(note, idx, node) {
-  const cs = connections(idx, node), out = [];
-  const block = (title, items) => items.length && out.push(h("h3", {}, title), h("ul", { class: "facts" }, items));
-  for (const [dir, t] of [["out", "Sends to"], ["in", "Receives from"]])
-    block(t, cs.filter((c) => c.dir === dir).map((c) => h("li", {},
-      jump(idx, c.node), h("span", { class: "how" }, [...c.labels].join("; ")))));
-  block("Start reading", (node.entry || []).map((e) => h("li", {},
-    h("code", {}, e.name), " ", e.note, " ", src(link(note, e.path, e.lines), `${e.path}:${e.lines[0]}`))));
-  block("Outside services", (node.external || []).map((s) => h("li", {},
-    h("strong", {}, s.name), ": ", s.how, " ", src(s.url, "docs"))));
-  return out;
-}
-
-// The panel beside the map explains the selected box, so the boxes carry only their names.
+// The panel says what the reader is looking at, and nothing else: one node, one shape, or one step.
+const panelBox = (...kids) => h("aside", { class: "panel", "aria-live": "polite" }, ...kids);
 function panel(note, idx, node) {
-  const isRoot = node === note.root, up = idx.lineage(node.id).slice(0, -1);
-  return h("aside", { class: "panel", "aria-live": "polite" },
+  const up = idx.lineage(node.id).slice(1, -1);
+  return panelBox(
     up.length > 0 && h("nav", { class: "crumbs", "aria-label": "Path" },
       up.map((n) => [h("button", { class: "jump", onclick: () => go(n.id) }, n.name), h("span", { "aria-hidden": "true" }, " / ")])),
-    h("h2", {}, node.name),
     h("p", { class: "meta" }, node.kind, node.path != null && [" at ", src(link(note, node.path), node.path || "/")]),
+    h("h2", {}, node.name),
     h("p", { class: "lead" }, gloss(note, node.summary)),
     node.role.map((p) => h("p", {}, gloss(note, p))),
-    isRoot && h("p", { class: "hint" }, "Scroll down for the principles and the life of the data."),
-    node.children?.length > 0 && [h("h3", {}, "Inside"), h("ul", { class: "facts" }, node.children.map((c) =>
-      h("li", {}, jump(idx, c), h("span", { class: "how" }, c.summary))))],
-    !isRoot && node.flow && h("button", { class: "see", onclick: () => showFlow(node) }, "Show its data flow"),
-    facts(note, idx, node));
+    node !== note.root && node.flow && h("button", { class: "see", onclick: () => showFlow(node) }, "Show its data flow"),
+    node !== note.root && node.children?.length > 0 && [h("h3", {}, "Inside"), h("ul", { class: "facts" }, node.children.map((c) =>
+      h("li", {}, jump(idx, c), h("span", { class: "how" }, c.summary))))]);
+}
+function setPanel(p, sel) {
+  const c = current;
+  c.panel.replaceWith(p);
+  c.panel = p;
+  c.sel = sel;
+  if (c.flowMap) markShape(c);
+}
+function showStep(i) {
+  const c = current, steps = c.note.root.lifecycle;
+  setPanel(panelBox(h("p", { class: "meta" }, `step ${i + 1} of ${steps.length}`),
+    h("h2", { class: "step-title" }, steps[i].text),
+    steps[i].detail && h("p", {}, gloss(c.note, steps[i].detail))), null);
+}
+function showShape(s) {
+  setPanel(panelBox(h("p", { class: "meta" }, s.store ? "store" : outside(s) ? "outside this repo" : "service"),
+    h("h2", {}, s.name),
+    h("p", {}, gloss(current.note, s.about)),
+    s.external?.url?.startsWith("https://") && h("p", {}, src(s.external.url, "docs"))), "shape:" + s.id);
 }
 
-// The page presents the idea before the solution: the problem comes above the map, and the
-// principles, the life of the data, and the code below it.
-function page(note, idx, stage) {
-  const root = note.root, r = note.repo, at = `${r.name} at ${r.sha.slice(0, 7)}`;
-  let n = 0;
-  const intro = h("article", { class: "paper intro" },
+// The page opens on the title and the overview, then the map with its panel: nothing else.
+function page(note, stage) {
+  const r = note.repo, at = `${r.name} at ${r.sha.slice(0, 7)}`;
+  return [h("article", { class: "paper intro" },
     h("header", { class: "title" },
       h("h1", {}, note.title),
-      h("p", { class: "meta" }, r.web ? src(`${r.web}/tree/${r.sha}`, at) : at, `, written ${note.generated}`)));
-  let a = intro;
-  const heading = (title) => h("h2", {}, h("span", { class: "no" }, String(++n)), title);
-  const add = (title, ...body) => a.append(h("section", { class: "sec" }, heading(title), ...body));
-  if (root.problem) add("The problem", h("p", {}, gloss(note, root.problem)));
-  const mapHead = h("div", { class: "paper map-head" }, heading("The map"),
-    h("p", { class: "hint" }, "Click a box to read about it on the right. Click a box with an arrow to see the parts inside."));
-  a = h("article", { class: "paper rest" });
-  if (root.principles) {
-    const no = String(n + 1);
-    add(root.principles.length > 1 ? "Principles" : "The principle", root.principles.map((p, i) => h("div", { class: "principle" },
-      h("h3", {}, h("span", { class: "no" }, `${no}.${i + 1}`), gloss(note, p.claim)),
-      p.why && h("p", {}, gloss(note, p.why)),
-      // Notes written before the worked example still carry the mammoth.
-      h("table", { class: "example" },
-        h("thead", {}, h("tr", {}, h("th", {}, "Case"), h("th", {}, "What the system does"))),
-        h("tbody", {}, (p.example ?? p.mammoth.rows).map(([s, c]) => h("tr", {}, h("td", {}, gloss(note, s)), h("td", {}, gloss(note, c)))))),
-      (p.except ?? p.mammoth?.breaks) && h("p", { class: "aside" }, h("strong", {}, "Except: "), gloss(note, p.except ?? p.mammoth.breaks)),
-      p.cost && h("p", { class: "aside" }, h("strong", {}, "The price: "), gloss(note, p.cost)))));
-  }
-  if (root.io) add("In and out",
-    h("ul", { class: "plain" },
-      root.io.inputs.map((x) => h("li", {}, h("strong", {}, "In: "), x)),
-      root.io.outputs.map((x) => h("li", {}, h("strong", {}, "Out: "), x))),
-    h("p", {}, root.io.goes));
-  const steps = root.lifecycle;
-  if (root.flow) add(steps?.length ? "Life of the data" : "How the data moves",
-    steps?.length && h("p", { class: "hint" }, "Click a step, or press ← and →, to light it on the graph."),
-    flowFigure(root.flow, steps));
-  const rest = facts(note, idx, root);
-  if (rest.length) add("Where to start reading", rest);
-  if (root.stack?.length) add("Stack", h("ul", { class: "plain" }, root.stack.map((s) => h("li", {},
-    h("strong", {}, s.name), ": ", s.role, " ", src(s.url, "docs")))));
-  // The words are optional reading, so they sit at the foot of the page, as in a book.
-  if (note.words?.length) a.append(h("footer", { class: "notes" }, h("dl", { class: "words" },
-    note.words.map((w) => [h("dt", { id: wordId(w.term) }, "* ", w.term), h("dd", {}, w.def)]))));
-  return [intro, mapHead, stage, a];
+      h("p", { class: "meta" }, r.web ? src(`${r.web}/tree/${r.sha}`, at) : at, `, written ${note.generated}`),
+      h("p", { class: "lead" }, gloss(note, note.root.overview ?? note.root.summary)))), stage];
 }
 
 // The word before the colon says how the data moves; the payload stays in the panel.
 const word = (label) => label.split(":")[0].trim();
-
-// Links from or to a node's subtree, each lifted to the node the reader can click at this
-// level: the child of the two ends' common ancestor, on the far side.
-function connections(idx, node) {
-  const out = new Map();
-  for (const l of idx.links) {
-    const fromIn = idx.within(node, l.from), toIn = idx.within(node, l.to);
-    if (fromIn === toIn) continue;
-    const far = idx.lineage(fromIn ? l.to : l.from), near = idx.lineage(node.id);
-    const other = far.find((n, i) => near[i] !== n);
-    const key = (fromIn ? ">" : "<") + other.id;
-    const c = out.get(key) || { dir: fromIn ? "out" : "in", node: other, labels: new Set() };
-    c.labels.add(l.label);
-    out.set(key, c);
-  }
-  return [...out.values()];
-}
 
 let elkReady;
 function elk() {
@@ -513,6 +480,13 @@ let current;
 // A fold moves every box, so the map fits again and the reader sees the whole new layout.
 async function pick(id, toggle) {
   const c = current, node = c.idx.byId.get(id), was = c.open.size;
+  if (c.flowMap) {
+    // The flow is the map: a pick only moves the panel and the mark on the shapes.
+    writeHash(c.note.slug, id);
+    c.over?.remove(); c.over = null;
+    setPanel(panel(c.note, c.idx, node), id);
+    return true;
+  }
   if (toggle && c.idx.foldable(node)) c.open.has(id) ? c.open.delete(id) : c.open.add(id);
   for (const n of c.idx.lineage(id).slice(0, -1)) if (c.idx.foldable(n)) c.open.add(n.id);
   c.sel = id;
@@ -526,6 +500,13 @@ async function pick(id, toggle) {
   const moved = c.open.size !== was;
   if (moved) fit(current, true);
   return moved;
+}
+// The shape of the deepest node on the path to the selection gets the mark, so a package marks its service.
+function markShape(c) {
+  const els = [...c.map.querySelectorAll(".box.shape")];
+  const hit = c.sel?.startsWith("shape:") ? els.find((e) => e.dataset.shape === c.sel.slice(6))
+    : c.sel && c.idx.lineage(c.sel).reverse().map((n) => els.find((e) => e.dataset.node === n.id)).find(Boolean);
+  els.forEach((e) => e.toggleAttribute("aria-current", e === hit));
 }
 // A part's flow takes the map's place on the stage: the panel is too narrow to read a graph.
 // A service's lifecycle brings the same step list as the life of the data.
@@ -598,14 +579,18 @@ async function open(slug, nodeId, openIds) {
       onchange: (e) => open(e.target.value).catch(fail),
     }, O.list.map((n) => h("option", { value: n.slug, selected: n.slug === slug }, n.title))),
     !standalone && h("a", { class: "share", href: `notes/${slug}.html`, download: `${slug}.html` }, "Download as one file"));
-  const { map, world } = mapView();
+  // A note with a root flow draws that flow as the map; the box map stays for a note without one.
+  const flowMap = !!note.root.flow;
+  const { map, world } = flowMap ? {} : mapView();
   const idx = index(note.root), side = h("aside");
-  app.replaceChildren(bar, h("main", {}, page(note, idx, h("div", { class: "stage" }, map, side))));
+  const fig = flowMap && flowFigure(note.root.flow, note.root.lifecycle, true, true);
+  app.replaceChildren(bar, h("main", {}, page(note, h("div", { class: "stage" }, fig || map, side))));
   const unfolded = new Set([note.root.id, ...(openIds || "").split(",").filter((id) => idx.byId.has(id) && idx.foldable(idx.byId.get(id)))]);
-  current = { note, idx, map, world, panel: side, open: unfolded, boxes: new Map(), pos: new Map(), view: { x: 0, y: 0, k: 1 },
+  current = flowMap ? { note, idx, flowMap, map: fig, panel: side, open: new Set([note.root.id]), over: null } : { note, idx, map, world, panel: side, open: unfolded, boxes: new Map(), pos: new Map(), view: { x: 0, y: 0, k: 1 },
     bounds: () => current.pos.get(note.root.id) };
-  await pick(idx.byId.has(nodeId) ? nodeId : note.root.id, false);
-  fit(current, false);
+  // The flow map's panel starts on step one, once the flow draws, unless the hash names a node.
+  if (!flowMap || idx.byId.has(nodeId) || !note.root.lifecycle?.length) await pick(idx.byId.has(nodeId) ? nodeId : note.root.id, false);
+  if (!flowMap) fit(current, false);
 }
 
 function fail() {

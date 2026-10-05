@@ -6,12 +6,17 @@ argument-hint: "Nothing (whole repo), a path, a function name, or a feature in w
 ---
 
 Write one **note**: the data for a zoomable map of the subject. The viewer at
-`~/.claude/.onboard/index.html` draws it as nested boxes on one canvas. The first view is
-the scope. Its children come first: one box per service, then the `shared` group, then
-the leftover directories. A click on a directory or a group unfolds it in place. A service
-box never unfolds: the panel lists its packages, and **Show its data flow** opens the
-service's flow, with its lifecycle as the step list. A scope with no service shows the
-directory tree.
+`~/.claude/.onboard/index.html` opens on the title and the root `overview`, then the map
+with a panel at its right. The map is the root `flow`: the full loop of the data, from
+every system that sends the input to the index or store where the result lands. A header
+above it steps through the root `lifecycle`, one step at a time, and lights that step's
+shapes.
+
+The panel shows only the selection. It opens on the current step and its `detail`. A click
+on a shape with a `node` shows that node's summary and role; a click on any other shape
+shows its `about`. A node's panel lists what is inside it, so the reader walks the tree
+from the map: a service's panel lists its packages, and **Show its data flow** opens the
+service's flow, with its lifecycle as the step list.
 
 **The reader** is an engineer new to the codebase. They want the mental map: what each
 part is for, how the parts talk, and where the data goes. Leave out implementation
@@ -77,6 +82,17 @@ for its literal names, and `Route` nodes for its endpoints. Semantic search miss
 some repos. Then grep the SQL, protobuf, and config files for the feature's names. Pass
 the directories to `--packages` in the order the data visits them.
 
+The skeleton writes every feature directory as a flat `package` or `dir`, even a
+`cmd/<binary>` that a Dockerfile or a chart deploys. Shape the tree in step 3 as for a
+repo scope:
+
+- each deployable directory becomes a `service`, with a `flow` and a `lifecycle`;
+- a package that only one service imports moves under that service;
+- a package that several services import moves into the `shared` group (id
+  `shared-packages`, `kind: "group"`, `path: null`);
+- a `dir` whose children are only mocks, SQL files, or embedded assets becomes one
+  `package`: drop its children.
+
 ## 3. Confirm the services, then shape the tree
 
 The skeleton holds every tracked directory down to the package leaf. With a service, the
@@ -126,8 +142,9 @@ except the changes in *Confirm each service*.
 
 ## 4. Confirm the links
 
-The viewer draws the tree and, over it, the links between nodes. The links are the part
-that shows how the system talks, so a missing link is a wrong map. Three hints lead you
+The panel lists each node's links under **Sends to** and **Receives from**, and a note
+with no root flow draws them over the box map. The links are the part that shows how the
+system talks, so a missing link is a wrong map. Three hints lead you
 there:
 
 - `_links`: node-to-node edges from the graph, with the edge count `n`;
@@ -168,6 +185,22 @@ Read each service's calls from its config and clients: the gRPC and HTTP client
 constructors, the queue and topic names, the table names. Those name the neighbours the
 graph misses.
 
+**Trace the full loop, past the scope.** The root flow is the map, so it draws every path
+the data takes, not only the scope's own services:
+
+- **Every input path.** Each system that sends the input gets its own path. A live write
+  that another repo forwards (Metis and its indexing extension) is one path. A reindex
+  that an admin API or a scheduler queues for an extractor is another. Find the callers by
+  the client package of the scope's API (`grep` its import path across the repo), and read
+  the docs of the other repos the scope serves.
+- **The system that writes the result.** When another system writes the destination (the
+  scope sends a partial update that Metis indexes), draw that system between the scope
+  and the destination.
+- **Every outside call.** Draw each vendor and each download the services make: model
+  providers, image URLs, other APIs. One shape each, `node: null`.
+- A service of this repo that sits outside the scope's tree (an extractor, a scheduler)
+  is a shape with no `node`.
+
 Trace each service the same way. Its entry (a route, a topic subscriber, a cron entry from
 `_services`) is its flow's `end: "in"`, and its last write is its `end: "out"`.
 
@@ -206,7 +239,10 @@ find.
 **The root** tells the outcome, not the mechanism. The reader first needs what the scope
 produces and who uses it. The children carry how it works.
 
-- `summary` and `role`: one line and two lines. The panel opens with them. Name the
+- `overview`: two to five sentences above the map, the whole idea in plain words. Say
+  what the scope produces, for whom, the paths the input takes, and where the result
+  lands. The reader reads it before the map, so it names the parts the map draws;
+- `summary` and `role`: one line and two lines, for the root's own panel; Name the
   output, its consumer, and what the consumer gets: "builds the files that searches
   read", not "streams jobs to the engine";
 - `words`: the subject's terms that the rest of the note needs, the five most important
@@ -227,13 +263,23 @@ produces and who uses it. The children carry how it works.
   - `except`: optional, the case where the claim does not hold;
   - `cost`: what the claim costs;
 - for repo or path scope, the `stack`, each item linked to its official docs;
-- for feature scope, the `lifecycle` of the data: at most six steps through the root
-  `flow`, in the order the data moves, from the input to the consumer of the result.
-  Each step's `at` names the flow shapes it touches, and the viewer lights them as the
-  reader steps. A step says what happens to the data, never which goroutine, batch
+- the `lifecycle` of the data: at most six steps through the root `flow`, in the order the
+  data moves, from the input to the consumer of the result. It is required for feature
+  scope, and the map's step header needs it for every scope. Each step's `at` names the
+  flow shapes it touches, and the viewer lights them as the reader steps. Each root step
+  also takes a `detail`, two to four sentences that the panel shows beside the map: who
+  starts the stage, what happens to the record, and what the reader would see, with a
+  real case. "A customer adds a product. Before Metis writes it, the extension sends it
+  to the API", not "the middleware invokes the stream handler". A step says what happens to the data, never which goroutine, batch
   size, or table does it;
 - for function scope, the `io`: the inputs, the outputs, and where the result goes;
 - the scope's `flow`, with one shape per service, its `node` set to the service's id.
+  Every root shape with no tree `node` takes an `about`: one or two sentences on what that
+  system is and what it does in the loop. The panel shows it when the reader clicks the
+  shape;
+- `problem`, `principles`, `words`, and `stack` stay in the note: the Obsidian page holds
+  them, and each word gives its terms a tooltip. The viewer's panel does not show them, so
+  keep them short.
 
 **Every node below the root** gets:
 
@@ -283,10 +329,27 @@ the far right. `check.py` requires both, and rejects an `in` shape with an incom
 or an `out` shape with an outgoing edge. A system that is both (Algolia is the source
 index and the destination index) takes two shapes: `Algolia: source index` with `end: in`,
 `Algolia: enriched index` with `end: out`. One shape for both puts it mid-graph and hides
-the direction. Draw each service once, with its `node`. A system outside the repo gets `node: null`, or
+the direction. The same holds for a system that the data crosses twice, once on the way in
+and once on the way out: name each shape by its role, `Metis: live writes` and
+`Metis: write-back`. One shape draws an edge back from the far right to the left, and
+that edge tangles the layout. Draw each service once, with its `node`. A system outside the repo gets `node: null`, or
 `external` when it is another repo, which the viewer dashes. Draw the databases and queues
 as `store`. Merge the stores of one database into one shape. When more parts touch a
 node, draw the ones the data passes through. The service flows show the packages.
+
+**Keep the map readable.** The viewer lays the flow out left to right, so the shape order
+and the label lengths set its width:
+
+- Keep each edge label to its leading word and a payload of one to three words, about 24
+  characters: `grpc: EnrichStream`, `queue: run`, `http: partial update`. A long label
+  widens the gap between two columns. The lifecycle steps carry the detail.
+- List the shapes in the order the data moves: the inputs, then each path, then the
+  scope's services, then the outside calls and the writers, then the destination.
+- Draw a response edge (`grpc: merged record`) only between two neighbouring shapes. A
+  short loop stays readable; a long one crosses the map.
+- Write the root `lifecycle` for every scope, because the map steps through it. With
+  several input paths, give each path its own step and name it first: "Live path: ...",
+  "Reindex path: ...".
 
 **Fan-out.** More than 25 nodes to write: write the root and `words` first. Then spawn
 one subagent per top-level child. Pass each one:

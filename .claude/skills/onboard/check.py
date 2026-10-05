@@ -21,6 +21,12 @@ MAX_SUMMARY = 140
 # The panel measure is 76ch: two lines of role, three of problem.
 MAX_ROLE = 160
 MAX_PROBLEM = 240
+# The overview sits above the map: two to five sentences that give the whole idea.
+MAX_OVERVIEW = 600
+# A step's detail and a shape's about fill the panel beside the map.
+MAX_DETAIL = 480
+MAX_ABOUT = 300
+SENTENCE = re.compile(r"[.!?](\s|$)")
 MAX_SHAPES = 12
 MAX_STEPS = 6
 # The principles explain behavior; a column, a variable, or a code span is implementation.
@@ -92,7 +98,7 @@ def check_flow(where, flow, limit=MAX_SHAPES, ends=False):
     return errors
 
 
-def check_lifecycle(where, steps, flow):
+def check_lifecycle(where, steps, flow, detail=False):
     # Each step lights its shapes in the node's flow, so the reader steps through the graph.
     errors = []
     shapes = {n.get("id") for n in flow.get("nodes", [])} if isinstance(flow, dict) else set()
@@ -104,6 +110,12 @@ def check_lifecycle(where, steps, flow):
         elif bad := [a for a in step["at"] if a not in shapes]:
             errors.append(f"{where}: lifecycle step {i}: unknown shape {bad[0]!r} in the "
                           f"{where} flow")
+        # The root's steps fill the panel beside the map, so each one explains its stage.
+        if detail and isinstance(step, dict):
+            if not step.get("detail"):
+                errors.append(f"{where}: lifecycle step {i} needs a detail for the panel")
+            elif len(step["detail"]) > MAX_DETAIL:
+                errors.append(f"{where}: lifecycle step {i}: detail over {MAX_DETAIL} characters")
     return errors
 
 
@@ -113,8 +125,19 @@ def check_root(note, root):
         errors.append("root: no problem")
     elif len(root["problem"]) > MAX_PROBLEM:
         errors.append(f"root: problem over {MAX_PROBLEM} characters")
+    overview = root.get("overview") or ""
+    if not overview:
+        errors.append("root: no overview")
+    elif len(overview) > MAX_OVERVIEW or not 2 <= len(SENTENCE.findall(overview)) <= 5:
+        errors.append(f"root: overview is 2 to 5 sentences, at most {MAX_OVERVIEW} characters")
     if not root.get("flow"):
         errors.append("root: no flow")
+    # A root shape with no tree node has no panel of its own, so it carries its own text.
+    for n in (root.get("flow") or {}).get("nodes", []) if isinstance(root.get("flow"), dict) else []:
+        if n.get("node") is None and not n.get("about"):
+            errors.append(f"root: flow shape {n.get('id')!r} needs an about for the panel")
+        elif len(n.get("about") or "") > MAX_ABOUT:
+            errors.append(f"root: flow shape {n.get('id')!r}: about over {MAX_ABOUT} characters")
     principles = root.get("principles") or []
     if not 1 <= len(principles) <= 3:
         errors.append("root: needs 1 to 3 principles")
@@ -136,7 +159,7 @@ def check_root(note, root):
         errors.append("root: repo and path scopes need a stack")
     if kind == "feature" and not root.get("lifecycle"):
         errors.append("root: feature scope needs a lifecycle")
-    errors += check_lifecycle("root", root.get("lifecycle") or [], root.get("flow"))
+    errors += check_lifecycle("root", root.get("lifecycle") or [], root.get("flow"), detail=True)
     if kind == "function":
         io = root.get("io") or {}
         if not (io.get("inputs") and io.get("outputs") and io.get("goes")):
@@ -323,7 +346,7 @@ def check(note):
 def prose(note):
     """Every prose field as Markdown, for the review passes; the ids say where edits go."""
     out, root = [], note["root"]
-    for key in ("problem",):
+    for key in ("overview", "problem"):
         if root.get(key):
             out += [f"## root.{key}", root[key], ""]
     for i, p in enumerate(root.get("principles", [])):
@@ -331,7 +354,10 @@ def prose(note):
                 *(f"- {case}: {does}" for case, does in p["example"]),
                 *([f"Except: {p['except']}"] if p.get("except") else []), p["cost"], ""]
     for i, step in enumerate(root.get("lifecycle", [])):
-        out += [f"## root.lifecycle[{i}]", step["text"], ""]
+        out += [f"## root.lifecycle[{i}]", step["text"], *([step["detail"]] if step.get("detail") else []), ""]
+    for shape in (root.get("flow") or {}).get("nodes", []) if isinstance(root.get("flow"), dict) else []:
+        if shape.get("about"):
+            out += [f"## root.flow.{shape['id']} ({shape['name']})", shape["about"], ""]
 
     def walk(n):
         out.extend([f"## {n['id'] or '/'} ({n['name']})", n["summary"], *n["role"],

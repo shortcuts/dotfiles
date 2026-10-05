@@ -23,9 +23,18 @@ public.
 
 ## Decisions
 
-- **The idea, then the solution.** The title and the problem come first, so the reader
-  knows why the system exists before the map shows it. The map follows, then the
-  principles, the life of the data, where to start reading, and the stack.
+- **Overview, then the map, and nothing below.** The page opens on the title and the root
+  `overview`, two to five sentences that give the whole idea, then the stage: the map at
+  the left, the panel at the right. Numbered sections below the map were dropped: the
+  reader scrolled away from the map to read the content that explains it.
+- **The panel shows only the selection.** On the flow map, the panel shows the current
+  step: its number, its text, and its `detail`, a concrete explanation of that stage. A
+  click on a shape shows that shape instead: a tree node's summary and role, or a shape's
+  own `about`. A tree node's panel adds **Show its data flow** and its **Inside** list.
+  The principles, the problem, the entry points, the links, the stack, and the words were
+  dropped from the panel: next to the map they read as noise. They stay in the note and in
+  the Obsidian page, and each word still marks its terms with a `*` whose tooltip holds the
+  definition.
 - **The map is the star.** The map and a side panel fill one screen height, at 3/4 and
   1/4 of its width. A box click selects the box, and folds or unfolds it unless it is a
   service. A service box never unfolds: the panel lists its packages, and its flow carries
@@ -35,10 +44,22 @@ public.
   the panel carries the rest.
   A linear paper with one section per node was tried first: it stacked the content and
   pushed the map down, but the map must carry the overview.
+- **A root flow is the map.** A note with a root `flow` draws that flow on the stage, and
+  the panel stays at its right. The box map and a separate life-of-the-data figure were two
+  drawings of one system. A shape with a `node` selects that node in the panel and gets an
+  outline; the panel's Inside list is how the reader walks the tree. The map opens on step
+  one, because the whole graph is too small to read at the width of the stage. A note with
+  no root flow keeps the box map.
+- **The map's steps sit in a header.** A bar above the map shows **←**, the current step
+  number (`2 / 6`), **→**, and that step's text. A step change also moves the panel. A full list under the map took a third of
+  the stage height. The list stays in the page, visually hidden, for screen readers.
+- **A dense flow gets room.** A flow with more than 10 shapes doubles the space between
+  shapes, so its edges and their labels stay apart. A layered layout reads left to right,
+  so the width stays; short edge labels keep it down.
 - **A part's flow takes the stage.** The panel is too narrow to read a graph, so a part
   with a flow gets **Show its data flow**. The flow covers the map at full size, and
   **Back to the map** removes it. A pick from the panel removes it too. A service's flow
-  brings its `lifecycle` as the same step list as the life of the data. A shape whose
+  brings its `lifecycle` as a step list under its graph. A shape whose
   `node` names a tree node is a button: a click goes back to the map and selects that node.
 - **Dashed means outside this repo.** A shape with `node: null` or `external`, and each
   edge that touches one, is dashed: another repo's service or a vendor. A frame on the map
@@ -102,21 +123,19 @@ public.
   drew a second visual language, and it doubled the bundle. With no ELK, a flow shows as a
   list of edges. `end` pins a shape to the first or the last layer in every flow, the
   root's and each service's.
-- **The words are footnotes.** The words are optional reading, so they sit at the foot of
-  the page in small muted text under a short rule, as in a book, with no section heading.
-  A full section above the map was too loud. The first use of a term in a block of prose
-  gets a small dim `*` that scrolls to its definition and shows it as a tooltip. A reader
-  who knows the term reads on.
+- **The words are tooltips.** The first use of a term in a block of prose gets a small dim
+  `*` whose tooltip holds the definition. A reader who knows the term reads on. A words
+  section, first above the map and then at the foot of the page, was too loud.
 - **The text reads top-down.** Nothing folds: every word and every entry point shows.
-- **The life of the data is a step list under the flow.** Every step shows in full. A
+- **A step lights its part of the flow.** A
   click on a step, or **←** and **→** on the keyboard, lights its shapes and the edges
   between them, and the rest dims. The arrows drive the flow the pointer last entered.
   Each step zooms to its shapes, with a margin for their neighbours. **Fit** shows the
   whole graph. A flow with no `lifecycle` gets no steps: its labeled edges carry it.
-- **A flow lays out near the viewport.** The lifecycle flow sits below the fold, so it
-  waits for an IntersectionObserver 800 px ahead of the scroll. A wide flow opens at
-  70 % zoom from its left end, because below that its labels stop reading. A flow on the
-  stage is on screen already, so it lays out at once.
+- **A flow lays out near the viewport.** A flow below the fold waits for an
+  IntersectionObserver 800 px ahead of the scroll. A wide flow opens at 70 % zoom from its
+  left end, because below that its labels stop reading; the map's floor is 50 %. A flow on
+  the stage is on screen already, so it lays out at once.
 - **Three box types.** A package keeps the plain box. A service has a heavy rounded frame.
   A store (a database, a queue, a bucket) is a cylinder. Flow shapes carry it as `store`. On
   the map, a `service` node gets the service frame, and every other node keeps the package
@@ -132,8 +151,8 @@ public.
   A frame header has the same two lines. The full summary sits in the
   panel and in the tooltip. The monospace face makes a link label's width a character
   count, so ELK gets exact label sizes without measuring the DOM.
-- **Figures leave the text measure.** Text stops at 68ch. The lifecycle flow spans the
-  content column, so a wide graph gets room.
+- **Figures leave the text measure.** Text stops at 68ch. The stage spans the window, so
+  a wide graph gets room.
 - **Laptop screens only.** The page targets an 11-inch screen or larger, so it has no
   narrow layout.
 

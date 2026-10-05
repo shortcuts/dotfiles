@@ -21,11 +21,13 @@ VALID = {
         "summary": "Shell, editor, and agent config for two Macs.",
         "role": ["One clone sets up both machines."],
         "problem": "Two Macs drift apart.",
+        "overview": "One clone sets up both Macs. Fish and Git keep them alike.",
         "principles": [{"claim": "One repo is the source.", "why": "Two Macs drift apart.",
                         "cost": "A symlink step.", "example": [["a", "b"], ["c", "d"]]}],
         "stack": [{"name": "fish", "url": "https://fishshell.com", "role": "Shell."}],
-        "flow": {"nodes": [{"id": "a", "name": "fish", "end": "in"},
-                           {"id": "b", "name": "Git: index", "store": True, "end": "out"}],
+        "flow": {"nodes": [{"id": "a", "name": "fish", "end": "in", "about": "The shell."},
+                           {"id": "b", "name": "Git: index", "store": True, "end": "out",
+                            "about": "The staged files."}],
                  "edges": [{"from": "a", "to": "b", "label": "call: git add"}]},
         "children": [
             {"id": "nvim", "name": "nvim", "kind": "dir", "path": "nvim",
@@ -68,7 +70,7 @@ has(broken(lambda n: n["root"]["flow"]["edges"][0].update(to="c")), "unknown sha
 has(broken(lambda n: n.update(schema=1)), "schema")
 # The root draws one shape per service, store, and outside system: no cap.
 assert broken(lambda n: n["root"]["flow"]["nodes"].extend(
-    {"id": f"x{i}", "name": "x"} for i in range(9))) == []
+    {"id": f"x{i}", "name": "x", "about": "x"} for i in range(9))) == []
 child_flow = copy.deepcopy(VALID["root"]["flow"])
 child_flow["nodes"] += [{"id": f"x{i}", "name": "x"} for i in range(8)]
 assert check(copy.deepcopy(VALID) | {"root": VALID["root"] | {"children": [
@@ -113,13 +115,17 @@ has(broken(lambda n: n["root"]["flow"]["edges"].append(
     {"from": "b", "to": "a", "label": "call: loop"})), "no incoming")
 has(broken(lambda n: n["root"]["flow"]["edges"].append(
     {"from": "a", "to": "a", "label": "call: loop"})), "no incoming")
-steps = [{"text": "fish stages a file.", "at": ["a", "b"]}]
+steps = [{"text": "fish stages a file.", "at": ["a", "b"], "detail": "Git records it."}]
 assert check(VALID | {"scope": {"kind": "feature", "query": "x"}}
              | {"root": VALID["root"] | {"kind": "feature", "path": None, "stack": None,
                                          "lifecycle": steps}}) == []
 has(broken(lambda n: n["root"].update(lifecycle=["A bare string."])), "text and at")
 has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["a"]}] * 7)), "at most 6 steps")
 has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["zz"]}])), "unknown shape")
+has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["a"]}])), "needs a detail")
+has(broken(lambda n: n["root"].pop("overview")), "no overview")
+has(broken(lambda n: n["root"].update(overview="One sentence only.")), "2 to 5 sentences")
+has(broken(lambda n: n["root"]["flow"]["nodes"][0].pop("about")), "needs an about")
 md = prose(VALID)
 assert "- a: b" in md, md
 assert "## nvim/lua" in md and "Lua modules." in md and "Two Macs drift apart." in md, md
@@ -177,14 +183,14 @@ has(with_service(lambda n: n["root"]["flow"].update(
 has(with_service(lambda n: n["root"]["flow"]["nodes"].append(
     {"id": "v2", "name": "viewer", "node": "viewer"})), "one root flow shape")
 assert with_service(lambda n: n["root"]["flow"]["nodes"].append(
-    {"id": "z", "name": "Algolia", "node": None})) == []
+    {"id": "z", "name": "Algolia", "node": None, "about": "x"})) == []
 has(with_service(lambda n: shape(n).update(node="nope")), "not a node of the tree")
 has(with_service(lambda n: n["root"]["flow"]["nodes"].append(
     {"id": "z", "name": "x", "node": ""})), "not a node of the tree")
 has(with_service(lambda n: n["root"]["flow"]["nodes"].append(
     {"id": "z", "name": "x", "node": "nvim/lua"})), "points at package")
 ext = lambda **e: lambda n: n["root"]["flow"]["nodes"].append(
-    {"id": "z", "name": "metis", "external": e})
+    {"id": "z", "name": "metis", "external": e, "about": "x"})
 assert with_service(ext(repo="metis", url="https://github.com/o/metis")) == []
 assert with_service(ext(repo="metis", url="#note=metis--index-builder")) == []
 has(with_service(ext(repo="metis", url="ftp://x")), "external")

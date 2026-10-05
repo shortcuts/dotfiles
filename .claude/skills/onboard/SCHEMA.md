@@ -87,7 +87,8 @@ it to whichever level the reader is on, so `driver -> harbordb` also shows as
   "edges": [{ "from": "scheduler", "to": "pg", "label": "writes DB: jobs" }] }
 ```
 
-The viewer lays the flow out with ELK, like the map. List `nodes` from the entry point
+The viewer lays the flow out with ELK. The root flow is the map: the first graph the
+reader sees, beside the root's panel. List `nodes` from the entry point
 to the endpoint: in a loop, an edge from a later node to an earlier one draws backward, so
 the list order sets left to right. `store` marks a database, a queue, or
 a bucket, and the viewer draws it as a pill. `end` is `"in"` or `"out"`: it pins the
@@ -102,6 +103,10 @@ outside system, never a package, and each service takes exactly one root shape:
 ```json
 { "id": "builder", "name": "report-builder", "node": "services/report-builder" }
 ```
+
+`about` is required on each root shape with no tree `node`, at most 300 characters: one
+or two sentences on what the system is and what it does in the loop. The panel shows it
+when the reader clicks the shape. A shape with a `node` shows that node's summary and role.
 
 `external` is optional, on a shape that stands for another repo. `repo` names it, and
 `url` is its docs (`https://...`) or its own onboard note (`#note=<slug>`). A shape with
@@ -122,13 +127,18 @@ names the repo that owns the queue or table, and skips that grep:
 ### Lifecycle
 
 ```json
-[{ "text": "The scheduler queues one render job.", "at": ["scheduler", "pg"] }]
+[{ "text": "The scheduler queues one render job.", "at": ["scheduler", "pg"],
+   "detail": "Job 8812 asks for the March sales report. The scheduler writes a jobs row, and the builder picks it up on its next poll." }]
 ```
+
+`detail` is required on each root step, at most 480 characters: the panel beside the map
+shows it while the step is lit. A service step takes no `detail`.
 
 At most 6 steps, one per stage of the data, in order. `at` names the shapes of the same
 node's `flow` that the step touches. The viewer steps through the graph and lights those
 shapes and the edges between them. A lifecycle sits on the root or on a `service`. The
-root needs one for `feature` scope; it is optional everywhere else.
+root needs one for `feature` scope. Write one for every scope: the root flow is the map,
+and its header steps through the root lifecycle.
 
 ### Service
 
@@ -143,6 +153,7 @@ root needs one for `feature` scope; it is optional everywhere else.
 
 | Key | When | Shape |
 |---|---|---|
+| `overview` | always | string, two to five sentences, at most 600 characters: the whole idea, shown above the map |
 | `problem` | always | string, at most 240 characters (three lines): why the subject exists |
 | `principles` | always | 1–3 of `{ "claim", "why", "example": [[case, what the system does], …], "except"?, "cost" }`, with 2 or 3 rows. No code identifier: no `snake_case`, no `table.column`, no backticks. The viewer prints `Except:` before `except` |
 | `stack` | `repo`, `path` | `[{ "name", "url", "role" }]`: language, runtime, main libraries |
@@ -155,3 +166,7 @@ glance. Start each label with one of these words: `call`, `async`, `http`, `grpc
 `reads DB`, `writes DB`, `queue`, `file`. Add the payload after a colon:
 `async: upload`, `reads DB: jobs`. Name a database or a queue by its real name in the
 shape: `PostgreSQL: indexes`. `check.py` greps that name in the repo.
+
+Keep a label to its leading word and a payload of one to three words, about 24
+characters. The label width sets the gap between two columns of the layout, so a long
+label widens the whole map. The lifecycle steps carry the detail.
