@@ -357,6 +357,21 @@ that edge tangles the layout. Draw each service once, with its `node`. A system 
 as `store`. Merge the stores of one database into one shape. When more parts touch a
 node, draw the ones the data passes through. The service flows show the packages.
 
+**List the shapes in the order you want them placed.** With groups, the viewer reads the
+`nodes` list as the layout hint: ELK honors no placement hint on a frame. A shape listed
+earlier sits further left in its layer, and edges set the layers, so the groups stack
+top-down in the direction of the data:
+
+- Order the groups by band, top to bottom: the callers' project, then the middle projects,
+  then the scope's own project, then `External providers` last.
+- Within a band, list first what goes on the left. To put the Connectors frame at the right
+  of the Metis frame, list the Metis shapes before the Connectors shapes.
+- Put each outside sender just above the frame it feeds, as a shape with no group:
+  `Customer writes` above Metis, `Internal writes` above the admin API. Give a sender
+  `end: "in"` only when it must sit in the first row, like `Internal writes` at the top.
+  A sender with no `end` sits one layer above the shape it feeds, so `Customer writes`
+  stays next to Metis. At least one shape keeps `end: "in"`.
+
 **Keep the map readable.** The viewer lays the flow out left to right, so the shape order
 and the label lengths set its width:
 
