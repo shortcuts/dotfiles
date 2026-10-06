@@ -192,6 +192,31 @@ def test_flow_is_the_map():
     assert log["groups"] == ["GCP: ingest"] and log["inside"], f"a group draws a frame around its shapes: {log}"
 
 
+SIDES = {**FLOWMAP, "slug": "sd", "root": {**FLOWMAP["root"], "flow": {
+    "nodes": [{"id": "a", "name": "First", "node": None, "end": "in"},
+              {"id": "b", "name": "Second", "node": None, "end": "in"},
+              {"id": "w", "name": "worker", "node": "worker", "end": "out", "group": "GCP"}],
+    "edges": [{"from": "a", "to": "w", "label": "grpc: a"}, {"from": "b", "to": "w", "label": "grpc: b"}]},
+    "lifecycle": []}}
+
+SIDESDRIVER = """<script>
+(async () => {
+  const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
+  await wait(1500);
+  const at = (t) => [...document.querySelectorAll(".stage .box.shape")].find((b) => b.textContent === t).offsetLeft;
+  document.body.append(Object.assign(document.createElement("pre"), { id: "t", textContent: JSON.stringify({ first: at("First"), second: at("Second") }) }));
+})();
+</script>"""
+
+
+def test_flow_lists_left_to_right():
+    page = dom(SIDES, SIDESDRIVER)
+    m = re.search(r'<pre id="t">(.*?)</pre>', page, re.S)
+    assert m, "the driver ran to its end"
+    log = json.loads(html.unescape(m.group(1)))
+    assert log["first"] < log["second"], f"a flow with groups keeps the list order, so the first shape sits at the left: {log}"
+
+
 STORED = {**FLOWMAP, "slug": "st", "root": {**FLOWMAP["root"], "flow": {
     "nodes": [{"id": "src", "name": "Source", "node": None, "end": "in"},
               {"id": "q", "name": "Pub/Sub: runs", "store": True, "node": None},
@@ -270,6 +295,7 @@ if __name__ == "__main__":
     test_word_marks_carry_their_definition()
     test_service_graph()
     test_flow_is_the_map()
+    test_flow_lists_left_to_right()
     test_stores_toggle()
     test_decision_and_two_way_edge()
     print("ok")

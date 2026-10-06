@@ -136,7 +136,13 @@ function renderFlow(f) {
       // A dense flow gets more vertical room between shapes, so its edges and labels stay apart.
       // Top-down: an edge label sits across a layer, so it widens the layer instead of adding a column,
       // and a wide stage holds more shapes per row than columns.
-      layoutOptions: { ...LAYERED, "elk.direction": "DOWN", "elk.layered.cycleBreaking.strategy": "MODEL_ORDER",
+      // A flow with groups reads its list order left to right, and the groups stack top-down in that order:
+      // ELK ignores any placement hint on a frame, so the note's order is the only one it honors.
+      layoutOptions: { ...LAYERED, "elk.direction": "DOWN",
+        ...(f.nodes.some((n) => n.group)
+          ? { "elk.layered.cycleBreaking.strategy": "GREEDY_MODEL_ORDER", "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
+              "elk.layered.crossingMinimization.forceNodeModelOrder": "true" }
+          : { "elk.layered.cycleBreaking.strategy": "MODEL_ORDER" }),
         "elk.hierarchyHandling": "INCLUDE_CHILDREN", "elk.json.shapeCoords": "ROOT", "elk.json.edgeCoords": "ROOT",
         "elk.layered.spacing.nodeNodeBetweenLayers": "40",
         ...(f.nodes.length > 10 && { "elk.spacing.nodeNode": "40", "elk.spacing.edgeNode": "20", "elk.spacing.edgeEdge": "14" }) },

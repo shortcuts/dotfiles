@@ -60,7 +60,10 @@ public.
 - **A group is a frame.** Shapes with one `group` (the model providers, the services of
   another cloud project) sit in one tinted frame with the group name in its corner. The
   frame is solid, because dashed means outside this repo. Only the note can say who
-  owns what, so the viewer never infers a group.
+  owns what, so the viewer never infers a group. In a flow with groups, the list order of
+  the shapes is the layout hint, because ELK honors no placement hint on a frame. A shape
+  listed earlier sits further left in its layer. Edges still set the layers, so the groups
+  stack top-down by data direction.
 - **A part's flow takes the stage.** The panel is too narrow to read a graph, so a part
   with a flow gets **Show its data flow**. The flow covers the map at full size, and
   **Back to the map** removes it. A pick from the panel removes it too. A service's flow
