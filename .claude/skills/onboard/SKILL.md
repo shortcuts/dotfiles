@@ -185,6 +185,21 @@ Read each service's calls from its config and clients: the gRPC and HTTP client
 constructors, the queue and topic names, the table names. Those name the neighbours the
 graph misses.
 
+**Frame the deployments first, then the shapes inside.** List each deployment the loop
+crosses before you place a shape, and give each one a `group`. A reader sees who runs
+what from the frames, before they read one box:
+
+- the scope's own cloud project: its services, databases, and queues
+  (`AI enrichment GCP project`);
+- each other project the data passes through, with the topics and stores it owns
+  (`Connectors GCP project`, or `AZ/AWS project` for Metis and the Algolia index it
+  builds);
+- the vendors the services call (`External providers`).
+
+Read the deploy config (Terraform, Helm, the GCP project ID in the env files) for each
+project. Then put each shape in its frame. A shape stays out of every frame only when no
+deployment owns it, such as the customer who sends the writes.
+
 **Trace the full loop, past the scope.** The root flow is the map, so it draws every path
 the data takes, not only the scope's own services:
 
@@ -193,6 +208,11 @@ the data takes, not only the scope's own services:
   that an admin API or a scheduler queues for an extractor is another. Find the callers by
   the client package of the scope's API (`grep` its import path across the repo), and read
   the docs of the other repos the scope serves.
+- **Every setting that starts a flow.** A config write can start work in another system:
+  admin-api sets `aiEnrichment` on an index, and Metis runs an initial import through the
+  same extension. That is its own path, with its own shape for the flow it starts. Find
+  each client that writes settings (`SetSettings`, a config `PUT`), and read what the
+  other system does on that write.
 - **The system that writes the result.** When another system writes the destination (the
   scope sends a partial update that Metis indexes), draw that system between the scope
   and the destination.

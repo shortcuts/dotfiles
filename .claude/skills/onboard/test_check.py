@@ -115,6 +115,12 @@ has(broken(lambda n: n["root"]["flow"]["edges"].append(
     {"from": "b", "to": "a", "label": "call: loop"})), "no incoming")
 has(broken(lambda n: n["root"]["flow"]["edges"].append(
     {"from": "a", "to": "a", "label": "call: loop"})), "no incoming")
+# A two-way edge reads in both directions, so it never makes a source or a destination.
+assert broken(lambda n: n["root"]["flow"]["edges"].append(
+    {"from": "b", "to": "a", "label": "call: read", "both": True})) == [], "both edge on an end"
+has(broken(lambda n: n["root"]["flow"]["edges"].append(
+    {"from": "a", "to": "b", "label": "call: x", "both": "yes"})), "both")
+has(broken(lambda n: n["root"]["flow"]["nodes"][0].update(decision="yes")), "decision")
 steps = [{"text": "fish stages a file.", "at": ["a", "b"], "detail": "Git records it."}]
 assert check(VALID | {"scope": {"kind": "feature", "query": "x"}}
              | {"root": VALID["root"] | {"kind": "feature", "path": None, "stack": None,
@@ -197,6 +203,9 @@ has(with_service(ext(repo="metis", url="ftp://x")), "external")
 has(with_service(ext(url="https://github.com/o/metis")), "external")
 has(with_service(lambda n: shape(n).update(
     external={"repo": "metis", "url": "https://github.com/o/metis"})), "external and node")
+assert broken(lambda n: n["root"]["flow"]["nodes"][0].update(group="Model providers")) == []
+has(broken(lambda n: n["root"]["flow"]["nodes"][0].update(group="")), "group")
+has(broken(lambda n: n["root"]["flow"]["nodes"][0].update(group="x" * 40)), "group")
 # Built at runtime: spelled() greps HEAD, so a committed literal would pass.
 ghost = "Kafka: " + "xq" * 3 + " ledger"
 db_edge = lambda n: n["root"]["flow"]["edges"][0].update(label="writes DB: staged files")

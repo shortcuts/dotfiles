@@ -26,6 +26,8 @@ MAX_OVERVIEW = 600
 # A step's detail and a shape's about fill the panel beside the map.
 MAX_DETAIL = 480
 MAX_ABOUT = 300
+# A group name heads a frame on the graph, so it stays one short line.
+MAX_GROUP = 32
 SENTENCE = re.compile(r"[.!?](\s|$)")
 MAX_SHAPES = 12
 MAX_STEPS = 6
@@ -73,7 +75,14 @@ def check_flow(where, flow, limit=MAX_SHAPES, ends=False):
             if n.get("node") is not None:
                 errors.append(f"{where}: flow shape {n.get('id')!r}: external and node both "
                               "set; a shape is in the tree or outside it")
+        if not isinstance(n.get("decision", False), bool):
+            errors.append(f"{where}: flow shape {n.get('id')!r}: decision is true or false")
+        if "group" in n and not (isinstance(n["group"], str) and 0 < len(n["group"]) <= MAX_GROUP):
+            errors.append(f"{where}: flow shape {n.get('id')!r}: group is a name of 1 to "
+                          f"{MAX_GROUP} characters")
     for e in flow["edges"]:
+        if not isinstance(e.get("both", False), bool):
+            errors.append(f"{where}: flow edge {e.get('from')!r} to {e.get('to')!r}: both is true or false")
         for end in ("from", "to"):
             if e.get(end) not in ids:
                 errors.append(f"{where}: flow edge {end} unknown shape {e.get(end)!r}")
@@ -90,7 +99,8 @@ def check_flow(where, flow, limit=MAX_SHAPES, ends=False):
             marked = {n["id"] for n in flow["nodes"] if n.get("end") == end and n.get("id")}
             if not marked:
                 errors.append(f"{where}: flow has no {word}: mark one shape end {end!r}")
-            for e in flow["edges"]:
+            # A two-way edge leaves and enters both shapes, so it makes neither a source nor a sink.
+            for e in (e for e in flow["edges"] if not e.get("both")):
                 if e.get("to" if end == "in" else "from") in marked:
                     errors.append(f"{where}: flow {word} {e.get('to' if end == 'in' else 'from')!r}"
                                   f" has no {'incoming' if end == 'in' else 'outgoing'} edge:"

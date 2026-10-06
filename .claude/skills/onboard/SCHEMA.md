@@ -96,6 +96,11 @@ shape to the first or the last column. The root flow and every service flow need
 one of each; several `out` shapes are allowed. An `in` shape has no incoming edge, and an
 `out` shape has no outgoing edge. Each edge `label` follows [Flow labels](#flow-labels).
 
+`decision` is optional, `true` on a shape that branches, such as a cache hit or miss. The
+viewer draws it as a rhombus. Label each outgoing edge with its branch, and say both
+outcomes in `about`. `both` is optional, `true` on an edge for a call that answers: the
+viewer draws an arrow at each end. A `both` edge makes neither end a source or a destination.
+
 `node` is optional. It is the `id` of the tree node the shape stands for, never the root.
 `null` marks an outside system. The root flow draws one shape per service, store, and
 outside system, never a package, and each service takes exactly one root shape:
@@ -114,6 +119,15 @@ when the reader clicks the shape. A shape with a `node` shows that node's summar
 
 ```json
 { "id": "metis", "name": "metis", "external": { "repo": "metis", "url": "#note=metis" } }
+```
+
+`group` is optional, at most 32 characters: the name of a frame the viewer draws around
+every shape with that name. One group is one deployment: the scope's own cloud project,
+another project the data passes through, or the vendors a service calls. The frames let
+the reader see who owns what, so give every shape that a deployment owns its group:
+
+```json
+{ "id": "openai", "name": "OpenAI", "node": null, "group": "Model providers" }
 ```
 
 `check.py` greps the real name, the part after the colon, of each `store` shape that a

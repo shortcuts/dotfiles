@@ -19,10 +19,13 @@ const h = (tag, attrs = {}, ...kids) => {
 };
 
 const readHash = () => Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
+// The simple view hides the stores (databases, queues, buckets) in every flow; the hash keeps the choice.
+let stores = readHash().stores === "1";
 const writeHash = (note, node, open) => {
   const p = new URLSearchParams({ note });
   if (node) p.set("node", node);
   if (open?.size) p.set("open", [...open].join(","));
+  if (stores) p.set("stores", "1");
   history.replaceState(null, "", "#" + p);
 };
 
@@ -78,24 +81,65 @@ function lib(name, file, cdn) {
 
 // A flow is a second canvas: the map's boxes, edges, pan, and zoom, so both graphs read alike.
 // A store is taller: its cylinder lid takes the top of the box.
-const SHAPE = { h: 40, store: 56, ch: 8 };
+const SHAPE = { h: 40, store: 56, diamond: 72, ch: 8 };
 // A shape outside this repo: a vendor (`node: null`) or another repo's service (`external`).
 const outside = (s) => s.node === null || !!s.external;
+// The simple view drops each store and joins each shape that fed it to each shape that read it.
+// A store with only readers or only writers drops with its edges. `via` maps a hidden store to its
+// visible neighbours, so a step on a store still lights something. A flow with no store, or that
+// would keep no edge, stays as written.
+function simplify(f) {
+  const hide = new Set(f.nodes.filter((n) => n.store).map((n) => n.id));
+  if (!hide.size) return f;
+  let edges = f.edges;
+  const via = {};
+  for (const s of hide) {
+    const ins = edges.filter((e) => e.to === s), outs = edges.filter((e) => e.from === s);
+    via[s] = [...new Set([...ins.map((e) => e.from), ...outs.map((e) => e.to)])].filter((id) => !hide.has(id));
+    edges = [...edges.filter((e) => e.from !== s && e.to !== s),
+      ...ins.flatMap((i) => outs.filter((o) => o.to !== i.from).map((o) => ({ from: i.from, to: o.to, label: i.label })))];
+  }
+  const seen = new Set();
+  edges = edges.filter((e) => { const k = [e.from, e.to, e.label].join("\0"); return !seen.has(k) && seen.add(k); });
+  return edges.length ? { ...f, nodes: f.nodes.filter((n) => !hide.has(n.id)), edges, via } : f;
+}
+const figs = new Set();
 const rendering = new Map(), rendered = new Map();
+// A `group` (a vendor set, a cloud project) is a frame around its shapes; the first shape of a group places the frame.
+const GROUP = "\u0000g:";
+function flowChildren(f) {
+  const leaf = (n) => ({ id: n.id, width: n.name.length * SHAPE.ch * (n.decision ? 1.7 : 1) + 32,
+    height: n.store ? SHAPE.store : n.decision ? SHAPE.diamond : SHAPE.h,
+    // `end` pins the source to the first layer and the destination to the last.
+    ...(n.end && { layoutOptions: { "elk.layered.layering.layerConstraint": n.end === "in" ? "FIRST" : "LAST" } }) });
+  const out = [], frames = new Map();
+  for (const n of f.nodes) {
+    if (!n.group) { out.push(leaf(n)); continue; }
+    if (!frames.has(n.group)) {
+      frames.set(n.group, { id: GROUP + n.group, children: [],
+        layoutOptions: { "elk.padding": `[top=${SHAPE.h},left=16,bottom=16,right=16]` } });
+      out.push(frames.get(n.group));
+    }
+    frames.get(n.group).children.push(leaf(n));
+  }
+  return out;
+}
 function renderFlow(f) {
   const key = JSON.stringify(f);
   if (!rendering.has(key)) rendering.set(key, elk()
     .then((E) => E.layout({
       id: "flow",
-      // `end` pins the source to the first layer and the destination to the last.
-      children: f.nodes.map((n) => ({ id: n.id, width: n.name.length * SHAPE.ch + 32, height: n.store ? SHAPE.store : SHAPE.h,
-        ...(n.end && { layoutOptions: { "elk.layered.layering.layerConstraint": n.end === "in" ? "FIRST" : "LAST" } }) })),
+      children: flowChildren(f),
       edges: f.edges.map((e, i) => ({ id: `f${i}`, sources: [e.from], targets: [e.to],
         labels: [{ text: e.label, width: e.label.length * CH + 8, height: 14 }] })),
       // A loop (a sink the source also reads) would put the sink mid-graph; the node order breaks it.
       // A dense flow gets more vertical room between shapes, so its edges and labels stay apart.
-      layoutOptions: { ...LAYERED, "elk.layered.cycleBreaking.strategy": "MODEL_ORDER",
-        ...(f.nodes.length > 10 && { "elk.spacing.nodeNode": "64", "elk.spacing.edgeNode": "24", "elk.spacing.edgeEdge": "16" }) },
+      // Top-down: an edge label sits across a layer, so it widens the layer instead of adding a column,
+      // and a wide stage holds more shapes per row than columns.
+      layoutOptions: { ...LAYERED, "elk.direction": "DOWN", "elk.layered.cycleBreaking.strategy": "MODEL_ORDER",
+        "elk.hierarchyHandling": "INCLUDE_CHILDREN", "elk.json.shapeCoords": "ROOT", "elk.json.edgeCoords": "ROOT",
+        "elk.layered.spacing.nodeNodeBetweenLayers": "40",
+        ...(f.nodes.length > 10 && { "elk.spacing.nodeNode": "40", "elk.spacing.edgeNode": "20", "elk.spacing.edgeEdge": "14" }) },
     }))
     .then((res) => rendered.set(key, res), () => null));
   // ponytail: a CDN slower than 3 s leaves the text list in place until a reload.
@@ -110,16 +154,20 @@ addEventListener("keydown", (e) => stepKey?.(e));
 function flowFigure(f, steps, now, stage) {
   const items = (steps || []).map((s, i) => h("li", {}, h("button", { onclick: () => fig.show(i) }, s.text)));
   const slot = h("div", { class: "flow-slot" });
-  // On the stage, the steps sit in a header that shows only the current one; the list stays for the keyboard and screen readers.
-  const head = stage && items.length > 0 && h("div", { class: "step-head" },
+  // The steps sit in a header that shows only the current one; the list stays for screen readers.
+  // A list under the graph took a third of the height and scrolled on its own.
+  const head = items.length > 0 && h("div", { class: "step-head" },
     h("button", { "aria-label": "Previous step", onclick: () => fig.show((fig.at ?? 0) - 1) }, "←"),
-    h("strong", { class: "count" }), h("button", { "aria-label": "Next step", onclick: () => fig.show((fig.at ?? 0) + 1) }, "→"),
-    h("span", { class: "text" }));
+    h("strong", { class: "count" }, `– / ${items.length}`),
+    h("button", { "aria-label": "Next step", onclick: () => fig.show((fig.at ?? -1) + 1) }, "→"),
+    h("span", { class: "text" }, "Press → to step through the flow."));
   const fig = h("figure", { class: `flow-fig${stage ? " stage-flow" : ""}`, onpointerenter: () => fig.key && (stepKey = fig.key) },
     head, slot, items.length > 0 && h("ol", { class: "steps" }, items));
   fig.head = head;
   fig.show = () => {};
-  const load = () => renderFlow(f).then(() => drawFlow(f, steps, slot, items, fig));
+  const load = () => { const g = stores ? f : simplify(f); return renderFlow(g).then(() => drawFlow(g, steps, slot, items, fig, f)); };
+  fig.redraw = load;
+  figs.add(fig);
   if (now) load(); else { near.set(slot, load); nearby.observe(slot); }
   return fig;
 }
@@ -129,37 +177,76 @@ const nearby = new IntersectionObserver((es) => es.forEach((e) => {
   nearby.unobserve(e.target);
   near.get(e.target)();
 }), { rootMargin: "800px" });
-function drawFlow(f, steps, slot, items, fig) {
+// `all` is the flow as written: the toggle shows only when the simple view differs from it.
+function drawFlow(f, steps, slot, items, fig, all) {
   const res = rendered.get(JSON.stringify(f)), stage = fig.classList.contains("stage-flow");
   const shape = new Map(f.nodes.map((n) => [n.id, n]));
   if (!res) return slot.replaceChildren(h("pre", { class: "flow-list" },
     f.edges.map((e) => `${shape.get(e.from).name} → ${shape.get(e.to).name}: ${e.label}`).join("\n")));
+  const frames = res.children.filter((n) => n.id.startsWith(GROUP));
+  const placed = res.children.flatMap((n) => n.children || [n]);
   const cv = { view: { x: 0, y: 0, k: 1 }, minK: stage ? 0.5 : 0.7, bounds: () => ({ x: 0, y: 0, width: res.width, height: res.height }) };
-  Object.assign(cv, canvas(() => cv, "flow", "Data flow diagram. Drag to pan, pinch or Ctrl+scroll to zoom."));
-  const boxes = new Map(res.children.map((n) => {
+  const toggle = simplify(all) !== all && h("button", { "aria-pressed": String(stores), title: "Show databases, queues, and buckets",
+    onclick: () => {
+      stores = !stores;
+      writeHash(current.note.slug, current.flowMap && !current.sel?.startsWith("shape:") ? current.sel : null, current.flowMap ? null : current.open);
+      for (const g of figs) g.isConnected ? g.redraw() : figs.delete(g);
+    } }, "Stores");
+  Object.assign(cv, canvas(() => cv, "flow", "Data flow diagram. Drag to pan, pinch or Ctrl+scroll to zoom.", stage, toggle));
+  cv.world.append(...frames.map((g) => h("div", { class: "box grp", style: `left:${g.x}px;top:${g.y}px;width:${g.width}px;height:${g.height}px` },
+    h("span", { class: "name" }, g.id.slice(GROUP.length)))));
+  const boxes = new Map(placed.map((n) => {
     const s = shape.get(n.id), to = s.node != null && current.idx.byId.has(s.node);
     // A shape with a tree node jumps to it: back on the map, with the panel on that node.
     // On the stage, a shape with no node shows its own `about` in the panel.
     const own = !to && stage && !!s.about;
     return [n.id, h(to || own ? "button" : "div", {
-      class: `box shape ${s.store ? "store" : "svc"}${outside(s) ? " outside" : ""}${to || own ? " to" : ""}`,
+      class: `box shape ${s.store ? "store" : s.decision ? "decision" : "svc"}${outside(s) ? " outside" : ""}${to || own ? " to" : ""}`,
       "data-node": to ? s.node : null, "data-shape": n.id,
       style: `left:${n.x}px;top:${n.y}px;width:${n.width}px;height:${n.height}px`,
       ...(to && { title: `Read about ${current.idx.byId.get(s.node).name} in the panel`, onclick: () => cv.dragged || go(s.node) }),
       ...(own && { title: `Read about ${s.name} in the panel`, onclick: () => cv.dragged || showShape(s) }),
     }, h("span", { class: "name" }, s.name))];
   }));
+  // A decision is a rhombus: a stretched polygon behind the name, so the border stays one width.
+  for (const [id, el] of boxes) if (shape.get(id).decision)
+    el.insertAdjacentHTML("afterbegin", '<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="50,1 99,50 50,99 1,50"/></svg>');
   cv.world.append(...boxes.values());
   const svg = h("svg", { width: res.width, height: res.height, "aria-hidden": "true" });
   svg.innerHTML = TIP + res.edges.map((e, i) =>
-    `<g data-i="${i}">${marks(e, outside(shape.get(f.edges[i].from)) || outside(shape.get(f.edges[i].to)) ? " outside" : "", e.labels?.[0]?.text || "")}</g>`).join("");
+    `<g data-i="${i}">${marks(e, outside(shape.get(f.edges[i].from)) || outside(shape.get(f.edges[i].to)) ? " outside" : "", e.labels?.[0]?.text || "", f.edges[i].both)}</g>`).join("");
   cv.world.append(svg);
   slot.replaceChildren(cv.map);
   fit(cv, false);
   if (current?.flowMap && current.map === fig) markShape(current);
   if (!items.length) return;
 
-  // A step lights its shapes and the edges between them; the rest of the graph dims.
+  // Lights the shapes in `on` and gives each edge the class `cls(edge)`; the rest of the graph dims.
+  const light = (on, cls, self, refit) => {
+    // The margin keeps the neighbours in view, so the reader sees where the lit part sits.
+    const lit = placed.filter((n) => on.has(n.id) || n.id === self);
+    const x = Math.min(...lit.map((n) => n.x)) - 120, y = Math.min(...lit.map((n) => n.y)) - 60;
+    cv.focus = lit.length ? { x, y, width: Math.max(...lit.map((n) => n.x + n.width)) + 120 - x,
+      height: Math.max(...lit.map((n) => n.y + n.height)) + 60 - y } : null;
+    if (refit) fit(cv, true);
+    cv.map.classList.add("stepping");
+    for (const [id, el] of boxes) el.classList.toggle("step", on.has(id));
+    for (const g of svg.querySelectorAll("g[data-i]")) {
+      const c = cls(f.edges[g.dataset.i]);
+      for (const el of g.children) for (const k of ["hot", "in", "out"]) el.classList.toggle(k, k === c);
+    }
+  };
+  // A clicked shape lights its edges and the shapes at their far ends, so the step's own shapes go dark.
+  fig.lightShape = (id) => {
+    const near = new Set(f.edges.flatMap((e) => e.from === id ? [e.to] : e.to === id ? [e.from] : []));
+    light(near, (e) => e.to === id ? "in" : e.from === id ? "out" : "", id, false);
+    cv.map.classList.add("picked");
+    if (fig.head) {
+      fig.head.querySelector(".count").textContent = `– / ${steps.length}`;
+      fig.head.querySelector(".text").textContent = `${shape.get(id).name}: what goes in and out. Press → to step on.`;
+    }
+    items.forEach((li) => li.removeAttribute("aria-current"));
+  };
   let at = -1;
   fig.show = (i) => {
     at = fig.at = Math.max(0, Math.min(steps.length - 1, i));
@@ -167,21 +254,12 @@ function drawFlow(f, steps, slot, items, fig) {
       fig.head.querySelector(".count").textContent = `${at + 1} / ${steps.length}`;
       fig.head.querySelector(".text").textContent = steps[at].text;
     }
+    cv.map.classList.remove("picked");
     if (stage) showStep(at);
-    const on = new Set(steps[at].at);
-    // The margin keeps the step's neighbours in view, so the reader sees where it sits.
-    const lit = res.children.filter((n) => on.has(n.id));
-    const x = Math.min(...lit.map((n) => n.x)) - 120, y = Math.min(...lit.map((n) => n.y)) - 60;
-    cv.focus = { x, y, width: Math.max(...lit.map((n) => n.x + n.width)) + 120 - x,
-      height: Math.max(...lit.map((n) => n.y + n.height)) + 60 - y };
-    fit(cv, true);
-    cv.map.classList.add("stepping");
+    const seen = steps[at].at.filter((id) => shape.has(id));
+    const on = new Set(seen.length ? seen : steps[at].at.flatMap((id) => f.via?.[id] ?? []));
+    light(on, (e) => on.has(e.from) && on.has(e.to) ? "hot" : "", undefined, true);
     items.forEach((li, j) => li.toggleAttribute("aria-current", j === at));
-    for (const [id, el] of boxes) el.classList.toggle("step", on.has(id));
-    for (const g of svg.querySelectorAll("g[data-i]")) {
-      const e = f.edges[g.dataset.i], hot = on.has(e.from) && on.has(e.to);
-      for (const el of g.children) el.classList.toggle("hot", hot);
-    }
   };
   fig.key = (e) => {
     // A closed overlay's stepper keeps the key until the pointer enters another flow.
@@ -192,7 +270,9 @@ function drawFlow(f, steps, slot, items, fig) {
   stepKey ||= fig.key;
   // The map opens on its first step: the whole graph is too small to read at the width of the stage.
   // A node named in the hash keeps the panel; the map still zooms to the first step.
-  if (stage) { const keep = current.sel; fig.show(0); if (keep && !keep.startsWith("shape:")) pick(keep, false); }
+  // A redraw from the Stores toggle keeps the step.
+  if (stage) { const keep = current.sel; fig.show(fig.at ?? 0); if (keep && !keep.startsWith("shape:")) pick(keep, false); }
+  else if (fig.at != null) fig.show(fig.at);
 }
 
 const chevron = () => {
@@ -261,7 +341,7 @@ function showStep(i) {
     steps[i].detail && h("p", {}, gloss(c.note, steps[i].detail))), null);
 }
 function showShape(s) {
-  setPanel(panelBox(h("p", { class: "meta" }, s.store ? "store" : outside(s) ? "outside this repo" : "service"),
+  setPanel(panelBox(h("p", { class: "meta" }, s.store ? "store" : s.decision ? "decision" : outside(s) ? "outside this repo" : "service"),
     h("h2", {}, s.name),
     h("p", {}, gloss(current.note, s.about)),
     s.external?.url?.startsWith("https://") && h("p", {}, src(s.external.url, "docs"))), "shape:" + s.id);
@@ -291,12 +371,13 @@ function elk() {
 // A box holds its name and its kind; the panel holds the rest.
 const LEAF = { w: 232, h: 58 }, HEAD = 58, CH = 6.6;
 const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-const TIP = `<defs><marker id="tip" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L8,4L0,8z" style="fill:context-stroke"/></marker></defs>`;
+const TIP = `<defs><marker id="tip" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" style="fill:context-stroke"/></marker></defs>`;
 // One ELK edge as SVG: its path, then its label with the full text as a tooltip.
-function marks(e, on, title) {
+// `both` puts a second arrow at the start, for a call that answers.
+function marks(e, on, title, both) {
   const out = (e.sections || []).map((s) => {
     const pts = [s.startPoint, ...(s.bendPoints || []), s.endPoint];
-    return `<path class="edge${on}" marker-end="url(#tip)" d="M${pts.map((p) => `${p.x},${p.y}`).join(" L")}"/>`;
+    return `<path class="edge${on}"${both ? ' marker-start="url(#tip)"' : ""} marker-end="url(#tip)" d="M${pts.map((p) => `${p.x},${p.y}`).join(" L")}"/>`;
   });
   const lb = e.labels?.[0];
   if (lb) out.push(`<text class="elabel${on}" x="${lb.x + lb.width / 2}" y="${lb.y + lb.height - 3}"><title>${esc(title)}</title>${esc(lb.text)}</text>`);
@@ -364,15 +445,6 @@ function fit(cv, anim, r = cv.focus || cv.bounds(), minK = cv.minK || 0.1) {
   v.x = Math.max(24 - r.x * v.k, (W - r.width * v.k) / 2 - r.x * v.k);
   v.y = (H - 36 - r.height * v.k) / 2 - r.y * v.k;
   applyView(cv, anim);
-}
-
-function center(id) {
-  const { map, pos, view: v } = current;
-  // A package inside a service has no box of its own: center the service.
-  const r = pos.get(id) || pos.get(shown(current.idx, current.open, id).id);
-  v.x = map.clientWidth / 2 - (r.x + r.width / 2) * v.k;
-  v.y = map.clientHeight / 2 - (r.y + r.height / 2) * v.k;
-  applyView(current, true);
 }
 
 // Each draw is a fresh ELK layout; a later click cancels an earlier one still in flight.
@@ -477,15 +549,15 @@ function zoom(cv, f) {
 
 let current;
 // Select a node: the panel follows it. A click on a node with children also folds or unfolds it.
-// A fold moves every box, so the map fits again and the reader sees the whole new layout.
+// The view never moves on a pick: only the flow stepper and the Fit buttons move it.
 async function pick(id, toggle) {
-  const c = current, node = c.idx.byId.get(id), was = c.open.size;
+  const c = current, node = c.idx.byId.get(id);
   if (c.flowMap) {
     // The flow is the map: a pick only moves the panel and the mark on the shapes.
     writeHash(c.note.slug, id);
     c.over?.remove(); c.over = null;
     setPanel(panel(c.note, c.idx, node), id);
-    return true;
+    return;
   }
   if (toggle && c.idx.foldable(node)) c.open.has(id) ? c.open.delete(id) : c.open.add(id);
   for (const n of c.idx.lineage(id).slice(0, -1)) if (c.idx.foldable(n)) c.open.add(n.id);
@@ -496,10 +568,6 @@ async function pick(id, toggle) {
   c.panel.replaceWith(p);
   c.panel = p;
   await draw();
-  // Folds only add or only remove within one pick, so the size tells whether the layout moved.
-  const moved = c.open.size !== was;
-  if (moved) fit(current, true);
-  return moved;
 }
 // The shape of the deepest node on the path to the selection gets the mark, so a package marks its service.
 function markShape(c) {
@@ -507,6 +575,7 @@ function markShape(c) {
   const hit = c.sel?.startsWith("shape:") ? els.find((e) => e.dataset.shape === c.sel.slice(6))
     : c.sel && c.idx.lineage(c.sel).reverse().map((n) => els.find((e) => e.dataset.node === n.id)).find(Boolean);
   els.forEach((e) => e.toggleAttribute("aria-current", e === hit));
+  if (hit && c.map.lightShape) c.map.lightShape(hit.dataset.shape);
 }
 // A part's flow takes the map's place on the stage: the panel is too narrow to read a graph.
 // A service's lifecycle brings the same step list as the life of the data.
@@ -515,18 +584,17 @@ function showFlow(node) {
   c.over?.remove();
   c.over = h("div", { class: "over" },
     h("div", { class: "over-head" }, h("strong", {}, `How the data moves in ${node.name}`),
-      node.lifecycle?.length > 0 && h("span", { class: "hint" }, "Click a step, or press ← and →, to light it on the graph."),
       h("button", { class: "see", onclick: () => { c.over.remove(); c.over = null; } }, "Back to the map")),
     flowFigure(node.flow, node.lifecycle, true));
   c.map.after(c.over);
 }
-// From the panel: reveal the node. With no fold, bring it to the middle instead.
+// From the panel: reveal the node.
 function go(id) {
   current.map.scrollIntoView({ block: "nearest" });
-  pick(id, false).then((moved) => moved || center(id));
+  pick(id, false);
 }
 
-function canvas(get, cls, label, ...extra) {
+function canvas(get, cls, label, legend, ...extra) {
   const world = h("div", { class: "world" });
   const tools = h("div", { class: "tools" },
     h("button", { "aria-label": "Zoom out", onclick: () => zoom(get(), 1 / 1.25) }, "−"),
@@ -534,7 +602,7 @@ function canvas(get, cls, label, ...extra) {
     h("button", { onclick: () => fit(get(), true, get().bounds(), 0.1) }, "Fit"), ...extra,
     h("button", { onclick: (e) => full(get(), e.currentTarget) }, "Full screen"));
   const map = h("section", { class: `map ${cls}`, "aria-label": label }, world, tools,
-    cls === "tree" && h("div", { class: "legend", "aria-hidden": "true" },
+    legend && h("div", { class: "legend", "aria-hidden": "true" },
       h("span", { class: "in" }, "input"), h("span", { class: "out" }, "output")));
   pan(map, get);
   // The canvas resizes more than once on its way in or out of full screen, so each resize
@@ -556,7 +624,7 @@ function full(cv, btn) {
   el.requestFullscreen();
 }
 
-const mapView = () => canvas(() => current, "tree", "Map. Drag to pan, pinch or Ctrl+scroll to zoom.",
+const mapView = () => canvas(() => current, "tree", "Map. Drag to pan, pinch or Ctrl+scroll to zoom.", true,
   h("button", { onclick: () => {
     current.idx.byId.forEach((n) => current.idx.foldable(n) && current.open.add(n.id));
     draw().then(() => fit(current, true));

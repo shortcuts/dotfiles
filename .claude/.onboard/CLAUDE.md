@@ -50,17 +50,30 @@ public.
   outline; the panel's Inside list is how the reader walks the tree. The map opens on step
   one, because the whole graph is too small to read at the width of the stage. A note with
   no root flow keeps the box map.
-- **The map's steps sit in a header.** A bar above the map shows **←**, the current step
+- **A flow's steps sit in a header.** A bar above the map, or above a part's flow, shows **←**, the current step
   number (`2 / 6`), **→**, and that step's text. A step change also moves the panel. A full list under the map took a third of
   the stage height. The list stays in the page, visually hidden, for screen readers.
-- **A dense flow gets room.** A flow with more than 10 shapes doubles the space between
-  shapes, so its edges and their labels stay apart. A layered layout reads left to right,
-  so the width stays; short edge labels keep it down.
+- **A flow reads top-down.** Left to right, each edge label took a column of its own, so
+  the root flow was three screens wide and **Fit** shrank it past reading. Top-down, a
+  label sits across a layer, and the stage's spare height holds the layers. A flow with
+  more than 10 shapes gets more space between shapes, so its edges and labels stay apart.
+- **A group is a frame.** Shapes with one `group` (the model providers, the services of
+  another cloud project) sit in one tinted frame with the group name in its corner. The
+  frame is solid, because dashed means outside this repo. Only the note can say who
+  owns what, so the viewer never infers a group.
 - **A part's flow takes the stage.** The panel is too narrow to read a graph, so a part
   with a flow gets **Show its data flow**. The flow covers the map at full size, and
   **Back to the map** removes it. A pick from the panel removes it too. A service's flow
-  brings its `lifecycle` as a step list under its graph. A shape whose
+  brings its `lifecycle` as steps in that header. A list under its graph scrolled on its own
+  and took a third of the height. A shape whose
   `node` names a tree node is a button: a click goes back to the map and selects that node.
+- **Stores hide by default.** A flow with a `store` shape opens in a simple view: each store
+  drops out, and each shape that fed it links to each shape that read it, with the feeding
+  edge's label. A store with only readers or only writers drops with its edges. The
+  **Stores** button in the canvas corner brings them back in every flow, and the hash keeps
+  the choice (`stores=1`). A step that names only hidden stores lights their neighbours. A
+  flow with no store shows no button. The reader meets the services first; the databases and
+  queues are the second pass.
 - **Dashed means outside this repo.** A shape with `node: null` or `external`, and each
   edge that touches one, is dashed: another repo's service or a vendor. A frame on the map
   has a solid border, so dashed keeps one meaning. Async shows in the label only.
@@ -84,9 +97,9 @@ public.
   reader always sees where a node lives. A column view that moved the reader between
   levels hid both the position and the links, and it was dropped. A disk-usage sunburst
   was rejected: area encodes size, and size is not what the reader needs.
-- **A fold re-fits the map.** A fold moves every box, so the view zooms to show the whole
-  new layout, and boxes slide to their new place. A click that only selects keeps the
-  view. A panel link to a visible node centers it instead.
+- **A click never moves the view.** A fold, a select, a panel link, and a shape click leave
+  the pan and zoom alone, so the layout does not shift under the pointer. Only the flow
+  stepper (**←**, **→**, a step click) and **Fit**, **Expand all**, **Collapse** move it.
 - **Links land on the deepest visible box.** Each link lifts to the first folded node on
   the path to each end, so one link written on a leaf shows at every fold. The links that
   cross the selected node's border light up: purple for a link into the selection, orange
@@ -104,7 +117,7 @@ public.
   wheel scrolls the page: a canvas that took it trapped the reader at every figure. A
   drag of 4 px or more is a pan, not a click.
   **Fit**, **Expand all**, **Collapse**, and **Full screen** sit in the canvas corner. A
-  flow with steps goes full screen with its step list, so the step text stays in view.
+  flow with steps goes full screen with its step header, so the step text stays in view.
 - **One title in the bar.** With more than one note, the switcher shows the title. With
   none, as in a one-file copy, the bar shows it, so the title stays in view on the map.
   The `h1` opens the page.
@@ -127,6 +140,11 @@ public.
   `*` whose tooltip holds the definition. A reader who knows the term reads on. A words
   section, first above the map and then at the foot of the page, was too loud.
 - **The text reads top-down.** Nothing folds: every word and every entry point shows.
+- **A shape click lights the shape's own flow.** The shape gets the outline, its
+  incoming edges turn purple and its outgoing edges orange, and the shapes at their far
+  ends light up. The step's shapes go dark, the header shows `– / 6`, and **→** steps
+  on. The in and out legend shows only then. Keeping the step lit hid what the click
+  asked for.
 - **A step lights its part of the flow.** A
   click on a step, or **←** and **→** on the keyboard, lights its shapes and the edges
   between them, and the rest dims. The arrows drive the flow the pointer last entered.
@@ -136,6 +154,9 @@ public.
   IntersectionObserver 800 px ahead of the scroll. A wide flow opens at 70 % zoom from its
   left end, because below that its labels stop reading; the map's floor is 50 %. A flow on
   the stage is on screen already, so it lays out at once.
+- **A decision is a rhombus.** A flow shape with `decision: true` branches the flow, such as
+  a cache hit or miss. A stretched SVG polygon draws it, so the border keeps one width.
+  An edge with `both: true` has an arrow at each end: a call that answers.
 - **Three box types.** A package keeps the plain box. A service has a heavy rounded frame.
   A store (a database, a queue, a bucket) is a cylinder. Flow shapes carry it as `store`. On
   the map, a `service` node gets the service frame, and every other node keeps the package

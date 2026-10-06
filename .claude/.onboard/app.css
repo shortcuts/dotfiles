@@ -69,10 +69,11 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .stage > .flow-fig { grid-area: 1 / 1; height: 100%; min-height: 0; margin: 0; display: flex; flex-direction: column; border-right: 1px solid var(--rule); }
 .stage > .flow-fig .flow-slot { flex: 1; height: auto; min-height: 0; }
 .stage > .flow-fig .map { border: 0; border-radius: 0; }
-.stage > .flow-fig ol.steps { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.flow-fig ol.steps { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .step-head { flex: none; display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--rule); font: var(--t-ui) var(--mono); }
 .step-head button { height: 28px; min-width: 28px; border: 1px solid var(--rule); border-radius: 4px; background: var(--paper); cursor: pointer; }
 @media (hover: hover) { .step-head button:hover { border-color: var(--accent); color: var(--accent); } }
+.step-head .count { flex: none; white-space: nowrap; }
 .step-head .text { font: 1rem/1.4 Charter, serif; }
 .box.shape[aria-current] { outline: 2px solid var(--accent); outline-offset: 2px; }
 .over { grid-area: 1 / 1; z-index: 4; display: flex; flex-direction: column; background: var(--sheet); border-right: 1px solid var(--rule); }
@@ -80,7 +81,6 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .over .flow-slot { flex: 1; height: auto; }
 .over .map { border: 0; border-radius: 0; }
 .over .flow-fig { flex: 1; min-height: 0; margin: 0; display: flex; flex-direction: column; }
-.over ol.steps { flex: none; max-height: 30vh; overflow-y: auto; margin: 0; padding-block: 12px; border-top: 1px solid var(--rule); }
 .see {
   border: 1px solid var(--accent); background: var(--sheet); color: var(--accent); border-radius: 4px;
   padding: 6px 12px; cursor: pointer; font: var(--t-ui) var(--mono); margin: 4px 0 8px;
@@ -110,7 +110,6 @@ ul.facts .how::before { content: ": "; }
 .meta { color: var(--muted); font-size: var(--t-ui); margin: 0 0 28px; }
 .paper .lead { font-size: var(--t-lead); line-height: 1.55; }
 
-.hint { color: var(--muted); font-style: italic; }
 
 /* A word mark is a footnote: small, dim, and skippable by a reader who knows the term. */
 .wref {
@@ -197,6 +196,7 @@ figure { margin: 0; }
   border: 1px solid var(--rule); border-radius: 4px; background: var(--paper);
 }
 @media (hover: hover) { .tools button:hover { border-color: var(--muted); } }
+.tools button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
 
 /* A flow keeps a fixed height, so its late layout never moves the text below it. */
 .flow-fig { margin: 28px 0 8px; }
@@ -214,17 +214,33 @@ figure { margin: 0; }
   content: ""; position: absolute; inset: -1.5px -1.5px auto; height: var(--lid);
   border: 1.5px solid var(--ink); border-radius: 50%; background: color-mix(in srgb, var(--code) 55%, #fff);
 }
+.box.decision { border: 0; background: none; }
+.box.decision svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.box.decision polygon { fill: #fffdf3; stroke: var(--ink); stroke-width: 2px; vector-effect: non-scaling-stroke; }
+.box.decision .name { position: relative; }
 .box.svc.rel { border-color: var(--accent); }
 /* Dashed means outside this repo: another repo's service or a vendor. */
 .box.shape.outside, .box.store.outside::before { border-style: dashed; }
+.box.decision.outside polygon { stroke-dasharray: 5 4; }
 .edge.outside { stroke-dasharray: 5 4; }
 /* A shape with a tree node is a button that selects the node on the map. */
 .box.shape.to { cursor: pointer; }
 @media (hover: hover) { .box.shape.to:hover { border-color: var(--accent); color: var(--accent); } }
 .map.stepping .box.shape, .map.stepping .box.store::before { transition: opacity .2s, border-color .2s, background .2s; }
-.map.stepping .box.shape:not(.step) { opacity: .4; }
+.map.stepping .box.shape:not(.step):not([aria-current]) { opacity: .4; }
 .map.stepping .box.shape.step, .map.stepping .box.store.step::before { border-color: var(--accent); background: var(--accent-soft); }
+.map.stepping .box.decision.step polygon { stroke: var(--accent); fill: var(--accent-soft); }
 .map.stepping .box.store.step { background: color-mix(in srgb, var(--accent-soft) 70%, var(--accent) 12%); }
+/* A group frame (a vendor set, a cloud project) sits behind its shapes: a tinted sheet with
+   its name in the corner, solid, because dashed means outside this repo. */
+.box.grp {
+  border: 1px solid var(--rule); border-radius: 8px; background: color-mix(in srgb, var(--code) 35%, transparent);
+  padding: 8px 12px; font-size: var(--t-small); color: var(--muted); pointer-events: none; animation: none;
+}
+.box.grp .name { display: block; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The in and out colors show only once a shape click uses them. */
+.flow .legend { display: none; }
+.flow.picked .legend { display: flex; }
 /* Every step shows in full; a click lights it on the graph above. */
 ol.steps { margin: 20px 0 0; padding-left: 2em; max-width: var(--measure); }
 ol.steps li { margin: 0 0 4px; padding-left: 4px; }
