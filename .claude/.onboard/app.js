@@ -68,6 +68,9 @@ function link(note, path, lines) {
   return `${r.web}/tree/${r.sha}/${path}`;
 }
 
+// A doc is a file: GitHub renders its anchors only under blob/.
+const docLink = (note, path) => note.repo.web ? `${note.repo.web}/blob/${note.repo.sha}/${path}` : link(note, path);
+
 // The vendor/ copy comes first, so the viewer works offline once bundle.py has fetched it.
 // A one-file copy inlines the library, so the global exists before any load.
 const libs = {};
@@ -130,7 +133,8 @@ function renderFlow(f) {
     .then((E) => E.layout({
       id: "flow",
       children: flowChildren(f),
-      edges: f.edges.map((e, i) => ({ id: `f${i}`, sources: [e.from], targets: [e.to],
+      // A `back` edge lays out reversed, so a loop back up the map never re-layers the shapes above it.
+      edges: f.edges.map((e, i) => ({ id: `f${i}`, sources: [e.back ? e.to : e.from], targets: [e.back ? e.from : e.to],
         labels: [{ text: e.label, width: e.label.length * CH + 8, height: 14 }] })),
       // A loop (a sink the source also reads) would put the sink mid-graph; the node order breaks it.
       // A dense flow gets more vertical room between shapes, so its edges and labels stay apart.
@@ -202,16 +206,16 @@ function drawFlow(f, steps, slot, items, fig, all) {
   cv.world.append(...frames.map((g) => h("div", { class: "box grp", style: `left:${g.x}px;top:${g.y}px;width:${g.width}px;height:${g.height}px` },
     h("span", { class: "name" }, g.id.slice(GROUP.length)))));
   const boxes = new Map(placed.map((n) => {
-    const s = shape.get(n.id), to = s.node != null && current.idx.byId.has(s.node);
-    // A shape with a tree node jumps to it: back on the map, with the panel on that node.
-    // On the stage, a shape with no node shows its own `about` in the panel.
-    const own = !to && stage && !!s.about;
+    const s = shape.get(n.id), known = s.node != null && current.idx.byId.has(s.node), to = known && stage;
+    // On the stage, a shape with a tree node selects that node in the panel.
+    // Over the map, a click only fills the panel; its button leaves the flow, so no click redirects.
+    const own = !to && (!!s.about || known);
     return [n.id, h(to || own ? "button" : "div", {
-      class: `box shape ${s.store ? "store" : s.decision ? "decision" : "svc"}${outside(s) ? " outside" : ""}${to || own ? " to" : ""}`,
+      class: `box shape ${s.store ? "store" : s.decision ? "decision" : "svc"}${outside(s) ? " outside" : ""}${to || own ? " to" : ""}${to && current.idx.byId.get(s.node).flow ? " flow" : ""}`,
       "data-node": to ? s.node : null, "data-shape": n.id,
       style: `left:${n.x}px;top:${n.y}px;width:${n.width}px;height:${n.height}px`,
-      ...(to && { title: `Read about ${current.idx.byId.get(s.node).name} in the panel`, onclick: () => cv.dragged || go(s.node) }),
-      ...(own && { title: `Read about ${s.name} in the panel`, onclick: () => cv.dragged || showShape(s) }),
+      ...(to && { title: `Read about ${current.idx.byId.get(s.node).name} in the panel${current.idx.byId.get(s.node).flow ? ", where its data flow opens" : ""}`, onclick: () => cv.dragged || go(s.node) }),
+      ...(own && { title: `Read about ${s.name} in the panel`, onclick: () => cv.dragged || (stage ? showShape(s) : (showShape(s, null), fig.lightShape?.(n.id))) }),
     }, h("span", { class: "name" }, s.name))];
   }));
   // A decision is a rhombus: a stretched polygon behind the name, so the border stays one width.
@@ -220,7 +224,7 @@ function drawFlow(f, steps, slot, items, fig, all) {
   cv.world.append(...boxes.values());
   const svg = h("svg", { width: res.width, height: res.height, "aria-hidden": "true" });
   svg.innerHTML = TIP + res.edges.map((e, i) =>
-    `<g data-i="${i}">${marks(e, outside(shape.get(f.edges[i].from)) || outside(shape.get(f.edges[i].to)) ? " outside" : "", e.labels?.[0]?.text || "", f.edges[i].both)}</g>`).join("");
+    `<g data-i="${i}">${marks(e, outside(shape.get(f.edges[i].from)) || outside(shape.get(f.edges[i].to)) ? " outside" : "", e.labels?.[0]?.text || "", f.edges[i].both, f.edges[i].back)}</g>`).join("");
   cv.world.append(svg);
   slot.replaceChildren(cv.map);
   fit(cv, false);
@@ -262,6 +266,7 @@ function drawFlow(f, steps, slot, items, fig, all) {
     }
     cv.map.classList.remove("picked");
     if (stage) showStep(at);
+    else if (steps[at].detail) showStep(at, steps);
     const seen = steps[at].at.filter((id) => shape.has(id));
     const on = new Set(seen.length ? seen : steps[at].at.flatMap((id) => f.via?.[id] ?? []));
     light(on, (e) => on.has(e.from) && on.has(e.to) ? "hot" : "", undefined, true);
@@ -340,17 +345,22 @@ function setPanel(p, sel) {
   c.sel = sel;
   if (c.flowMap) markShape(c);
 }
-function showStep(i) {
-  const c = current, steps = c.note.root.lifecycle;
+function showStep(i, steps = current.note.root.lifecycle) {
+  const c = current;
   setPanel(panelBox(h("p", { class: "meta" }, `step ${i + 1} of ${steps.length}`),
     h("h2", { class: "step-title" }, steps[i].text),
     steps[i].detail && h("p", {}, gloss(c.note, steps[i].detail))), null);
 }
-function showShape(s) {
+// A part's flow passes sel null: its shape ids are not the map's, so the map keeps no mark.
+function showShape(s, sel = "shape:" + s.id) {
+  const node = s.node != null && current.idx.byId.get(s.node);
+  const [doc, anchor] = (s.doc || "").split("#");
   setPanel(panelBox(h("p", { class: "meta" }, s.store ? "store" : s.decision ? "decision" : outside(s) ? "outside this repo" : "service"),
     h("h2", {}, s.name),
-    h("p", {}, gloss(current.note, s.about)),
-    s.external?.url?.startsWith("https://") && h("p", {}, src(s.external.url, "docs"))), "shape:" + s.id);
+    h("p", {}, gloss(current.note, s.about ?? node?.summary)),
+    node && h("button", { class: "see", onclick: () => go(node.id) }, "Show on the map ↗"),
+    s.external?.url?.startsWith("https://") && h("p", {}, src(s.external.url, "docs")),
+    doc && h("p", {}, src(docLink(current.note, doc) + (anchor ? `#${anchor}` : ""), "Read more"))), sel);
 }
 
 // The page opens on the title and the overview, then the map with its panel: nothing else.
@@ -379,11 +389,12 @@ const LEAF = { w: 232, h: 58 }, HEAD = 58, CH = 6.6;
 const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 const TIP = `<defs><marker id="tip" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0L8,4L0,8z" style="fill:context-stroke"/></marker></defs>`;
 // One ELK edge as SVG: its path, then its label with the full text as a tooltip.
-// `both` puts a second arrow at the start, for a call that answers.
-function marks(e, on, title, both) {
+// `both` puts a second arrow at the start, for a call that answers. A `back` edge was laid out
+// reversed, so its only arrow sits at the start.
+function marks(e, on, title, both, back) {
   const out = (e.sections || []).map((s) => {
     const pts = [s.startPoint, ...(s.bendPoints || []), s.endPoint];
-    return `<path class="edge${on}"${both ? ' marker-start="url(#tip)"' : ""} marker-end="url(#tip)" d="M${pts.map((p) => `${p.x},${p.y}`).join(" L")}"/>`;
+    return `<path class="edge${on}"${both || back ? ' marker-start="url(#tip)"' : ""}${back ? "" : ' marker-end="url(#tip)"'} d="M${pts.map((p) => `${p.x},${p.y}`).join(" L")}"/>`;
   });
   const lb = e.labels?.[0];
   if (lb) out.push(`<text class="elabel${on}" x="${lb.x + lb.width / 2}" y="${lb.y + lb.height - 3}"><title>${esc(title)}</title>${esc(lb.text)}</text>`);
@@ -491,7 +502,9 @@ async function draw() {
           onclick: () => c.dragged || pick(id, true) },
           h("span", { class: "name" }, n.name),
           h("span", { class: "more" }, count ? `${n.kind}, ${count} inside` : n.kind),
-          fold && h("span", { class: "tog", "aria-hidden": "true" }, chevron())));
+          fold && h("span", { class: "tog", "aria-hidden": "true" }, chevron()),
+          // The panel's button opens the flow; the tag tells the reader before the click.
+          n.flow && n !== c.note.root && h("span", { class: "flowtag" }, "⇄ flow")));
       c.boxes.set(id, el);
       c.world.append(el);
     }

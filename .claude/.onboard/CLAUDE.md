@@ -31,6 +31,8 @@ public.
   step: its number, its text, and its `detail`, a concrete explanation of that stage. A
   click on a shape shows that shape instead: a tree node's summary and role, or a shape's
   own `about`. A tree node's panel adds **Show its data flow** and its **Inside** list.
+  **Show its data flow** fills the same panel: a step with a `detail` shows it, and a shape
+  with an `about` shows it with its `doc` as **Read more**. The flow stays open over the map.
   The principles, the problem, the entry points, the links, the stack, and the words were
   dropped from the panel: next to the map they read as noise. They stay in the note and in
   the Obsidian page, and each word still marks its terms with a `*` whose tooltip holds the
@@ -69,7 +71,13 @@ public.
   **Back to the map** removes it. A pick from the panel removes it too. A service's flow
   brings its `lifecycle` as steps in that header. A list under its graph scrolled on its own
   and took a third of the height. A shape whose
-  `node` names a tree node is a button: a click goes back to the map and selects that node.
+  `node` names a tree node is a button: a click fills the panel, and the panel's **Show on
+  the map** button goes back to the map and selects that node.
+- **Redirects show before the click.** A map box with a flow carries a **⇄ flow** pill, so
+  the reader sees which boxes open one. On a root flow map, a shape whose node has a flow
+  carries a **⇄** badge in its corner. In a part's flow, a click on a shape
+  never redirects: the panel shows the shape, and its **Show on the map ↗** button leaves
+  the flow.
 - **Stores hide by default.** A flow with a `store` shape opens in a simple view: each store
   drops out, and each shape that fed it links to each shape that read it, with the feeding
   edge's label. A store with only readers or only writers drops with its edges. The
@@ -160,6 +168,8 @@ public.
 - **A decision is a rhombus.** A flow shape with `decision: true` branches the flow, such as
   a cache hit or miss. A stretched SVG polygon draws it, so the border keeps one width.
   An edge with `both: true` has an arrow at each end: a call that answers.
+  An edge with `back: true` lays out reversed, with its one arrow on `to`: a loop back up
+  the map (a webhook) would otherwise re-layer every shape above it.
 - **Three box types.** A package keeps the plain box. A service has a heavy rounded frame.
   A store (a database, a queue, a bucket) is a cylinder. Flow shapes carry it as `store`. On
   the map, a `service` node gets the service frame, and every other node keeps the package

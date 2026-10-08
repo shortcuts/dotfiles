@@ -75,9 +75,9 @@ child_flow = copy.deepcopy(VALID["root"]["flow"])
 child_flow["nodes"] += [{"id": f"x{i}", "name": "x"} for i in range(8)]
 assert check(copy.deepcopy(VALID) | {"root": VALID["root"] | {"children": [
     VALID["root"]["children"][0] | {"flow": child_flow}, VALID["root"]["children"][1]]}}) == []
-child_flow["nodes"] += [{"id": f"y{i}", "name": "y"} for i in range(3)]
+child_flow["nodes"] += [{"id": f"y{i}", "name": "y"} for i in range(5)]
 has(check(copy.deepcopy(VALID) | {"root": VALID["root"] | {"children": [
-    VALID["root"]["children"][0] | {"flow": child_flow}, VALID["root"]["children"][1]]}}), "at most 12")
+    VALID["root"]["children"][0] | {"flow": child_flow}, VALID["root"]["children"][1]]}}), "at most 14")
 has(broken(lambda n: n["root"].update(role=["One.", "Two."])), "one paragraph")
 has(broken(lambda n: n["root"]["children"][0].update(role=["x" * 161])), "role over")
 has(broken(lambda n: n["root"].update(problem="x" * 241)), "problem over")
@@ -120,13 +120,15 @@ assert broken(lambda n: n["root"]["flow"]["edges"].append(
     {"from": "b", "to": "a", "label": "call: read", "both": True})) == [], "both edge on an end"
 has(broken(lambda n: n["root"]["flow"]["edges"].append(
     {"from": "a", "to": "b", "label": "call: x", "both": "yes"})), "both")
+has(broken(lambda n: n["root"]["flow"]["edges"].append(
+    {"from": "a", "to": "b", "label": "call: x", "back": "yes"})), "back is true or false")
 has(broken(lambda n: n["root"]["flow"]["nodes"][0].update(decision="yes")), "decision")
 steps = [{"text": "fish stages a file.", "at": ["a", "b"], "detail": "Git records it."}]
 assert check(VALID | {"scope": {"kind": "feature", "query": "x"}}
              | {"root": VALID["root"] | {"kind": "feature", "path": None, "stack": None,
                                          "lifecycle": steps}}) == []
 has(broken(lambda n: n["root"].update(lifecycle=["A bare string."])), "text and at")
-has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["a"]}] * 7)), "at most 6 steps")
+has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["a"]}] * 8)), "at most 7 steps")
 has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["zz"]}])), "unknown shape")
 has(broken(lambda n: n["root"].update(lifecycle=[{"text": "x", "at": ["a"]}])), "needs a detail")
 has(broken(lambda n: n["root"].pop("overview")), "no overview")
@@ -179,10 +181,10 @@ assert with_service(lambda n: svc(n).update(
     lifecycle=[{"text": "The note renders.", "at": ["i", "o"]}])) == []
 has(with_service(lambda n: svc(n).update(lifecycle=[{"text": "x", "at": ["a"]}])),
     "unknown shape")
-has(with_service(lambda n: svc(n).update(lifecycle=[{"text": "x", "at": ["i"]}] * 7)),
-    "at most 6 steps")
+has(with_service(lambda n: svc(n).update(lifecycle=[{"text": "x", "at": ["i"]}] * 8)),
+    "at most 7 steps")
 has(broken(lambda n: n["root"]["children"][0].update(
-    lifecycle=[{"text": "x", "at": ["a"]}])), "root or a service")
+    lifecycle=[{"text": "x", "at": ["a"]}])), "a node with a flow")
 has(with_service(lambda n: n["root"]["flow"].update(
     nodes=n["root"]["flow"]["nodes"][:2], edges=n["root"]["flow"]["edges"][:1])),
     "one root flow shape")
@@ -219,4 +221,20 @@ svc_note = copy.deepcopy(VALID)
 svc_note["root"]["children"].append(SERVICE | {"lifecycle": [{"text": "The note renders.",
                                                               "at": ["i"]}]})
 assert "The note renders." in prose(svc_note)
+print("ok")
+
+# A part's flow fills the panel like the map: a dir with a flow takes steps, a shape links its doc.
+PART_FLOW = {"nodes": [{"id": "i", "name": "fish", "end": "in", "about": "The shell.", "doc": ".gitignore#top"},
+                       {"id": "o", "name": "nvim", "end": "out"}],
+             "edges": [{"from": "i", "to": "o", "label": "call: open"}]}
+assert broken(lambda n: n["root"]["children"][0].update(flow=copy.deepcopy(PART_FLOW),
+    lifecycle=[{"text": "Fish opens nvim.", "at": ["i", "o"], "detail": "The shell starts the editor."}])) == []
+has(broken(lambda n: n["root"]["children"][0].update(flow=copy.deepcopy(PART_FLOW) | {"nodes": [
+    PART_FLOW["nodes"][0] | {"doc": "nope.md#x"}, PART_FLOW["nodes"][1]]})), "doc")
+has(broken(lambda n: n["root"]["children"][0].update(flow=copy.deepcopy(PART_FLOW),
+    lifecycle=[{"text": "x", "at": ["i"], "detail": "x" * 481}])), "detail over")
+has(broken(lambda n: n["root"]["children"][0].update(flow=copy.deepcopy(PART_FLOW) | {"nodes": [
+    PART_FLOW["nodes"][0] | {"about": "x" * 301}, PART_FLOW["nodes"][1]]})), "about over")
+assert "Fish opens nvim." in prose(VALID | {"root": VALID["root"] | {"children": [VALID["root"]["children"][0] | {
+    "flow": PART_FLOW, "lifecycle": [{"text": "x", "at": ["i"], "detail": "Fish opens nvim."}]}]}})
 print("ok")

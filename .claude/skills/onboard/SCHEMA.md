@@ -37,7 +37,7 @@ ignores the hints, and `--install` strips them.
 | `summary` | string | One sentence, at most 140 characters. The tree prints it beside the name |
 | `role` | string[] | One paragraph, at most 160 characters (two lines of the panel): why the node exists |
 | `flow` | Flow | No cap on the root, 12 shapes at most below it. Required on the root, on every service, and on a node that touches a database, a queue, or an external service |
-| `lifecycle` | Step[] | Optional. On the root and on a `service` only: see [Lifecycle](#lifecycle) |
+| `lifecycle` | Step[] | Optional. On the root, a `service`, or any node with a `flow`: see [Lifecycle](#lifecycle) |
 | `links` | Link[] | Optional. How this node talks to other nodes of the tree |
 | `entry` | Entry[] | Optional. Ordered by importance |
 | `external` | Service[] | Optional. Services outside the repo this node calls |
@@ -99,7 +99,10 @@ one of each; several `out` shapes are allowed. An `in` shape has no incoming edg
 `decision` is optional, `true` on a shape that branches, such as a cache hit or miss. The
 viewer draws it as a rhombus. Label each outgoing edge with its branch, and say both
 outcomes in `about`. `both` is optional, `true` on an edge for a call that answers: the
-viewer draws an arrow at each end. A `both` edge makes neither end a source or a destination.
+viewer draws an arrow at each end. A `both` edge makes neither end a source or a destination. `back` is optional,
+`true` on an edge that loops back up the map, such as a vendor that answers on a webhook of
+a service drawn above it. The viewer lays it out reversed and keeps its arrow on `to`, so
+the loop never re-layers the shapes above it.
 
 `node` is optional. It is the `id` of the tree node the shape stands for, never the root.
 `null` marks an outside system. The root flow draws one shape per service, store, and
@@ -112,6 +115,12 @@ outside system, never a package, and each service takes exactly one root shape:
 `about` is required on each root shape with no tree `node`, at most 300 characters: one
 or two sentences on what the system is and what it does in the loop. The panel shows it
 when the reader clicks the shape. A shape with a `node` shows that node's summary and role.
+Below the root, `about` is optional with the same cap: a shape with one is clickable in
+**Show its data flow** too.
+
+`doc` is optional: a tracked file with an optional anchor
+(`docs/velou/how-it-works.md#the-funnel`). The panel links it as **Read more**, so a shape
+stays short and the doc holds the depth.
 
 `external` is optional, on a shape that stands for another repo. `repo` names it, and
 `url` is its docs (`https://...`) or its own onboard note (`#note=<slug>`). A shape with
@@ -146,7 +155,8 @@ names the repo that owns the queue or table, and skips that grep:
 ```
 
 `detail` is required on each root step, at most 480 characters: the panel beside the map
-shows it while the step is lit. A service step takes no `detail`.
+shows it while the step is lit. Below the root, `detail` is optional with the same cap: the
+panel shows it while the reader steps through **Show its data flow**.
 
 At most 6 steps, one per stage of the data, in order. `at` names the shapes of the same
 node's `flow` that the step touches. The viewer steps through the graph and lights those

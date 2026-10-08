@@ -172,6 +172,16 @@ figure { margin: 0; }
 .head > span { display: block; flex: none; overflow: hidden; }
 .head .name { font-weight: 700; line-height: 1.5; white-space: nowrap; text-overflow: ellipsis; }
 .head .more { color: var(--muted); font-size: var(--t-small); line-height: 1.5; }
+/* A shape whose node has a data flow: the click lands on a panel with a button for it. */
+.box.shape.flow::after {
+  content: "⇄"; position: absolute; inset: -9px -9px auto auto; width: 18px; height: 18px; display: grid; place-items: center;
+  border: 1px solid var(--accent); border-radius: 50%; background: var(--sheet); color: var(--accent); font-size: var(--t-small); line-height: 1;
+}
+/* A box with a data flow carries a pill, so the reader sees which boxes open one. */
+.head > .flowtag {
+  position: absolute; inset: auto 8px 6px auto; padding: 0 6px; border: 1px solid var(--accent); border-radius: 9px;
+  color: var(--accent); background: var(--sheet); font-size: var(--t-small); line-height: 1.4;
+}
 .edge { fill: none; stroke: var(--muted); stroke-opacity: .55; stroke-width: 1.3; stroke-linejoin: round; }
 .edge.hot, .edge.in, .edge.out { stroke: var(--accent); stroke-opacity: 1; stroke-width: 1.8; }
 .edge.in { stroke: var(--in); }

@@ -29,8 +29,8 @@ MAX_ABOUT = 300
 # A group name heads a frame on the graph, so it stays one short line.
 MAX_GROUP = 32
 SENTENCE = re.compile(r"[.!?](\s|$)")
-MAX_SHAPES = 12
-MAX_STEPS = 6
+MAX_SHAPES = 14
+MAX_STEPS = 7
 # The principles explain behavior; a column, a variable, or a code span is implementation.
 IDENTIFIER = re.compile(r"`|\b\w+_\w+\b|\b[a-z]\w*\.[a-z_]\w+\b")
 MAX_CHILDREN = 12
@@ -75,14 +75,17 @@ def check_flow(where, flow, limit=MAX_SHAPES, ends=False):
             if n.get("node") is not None:
                 errors.append(f"{where}: flow shape {n.get('id')!r}: external and node both "
                               "set; a shape is in the tree or outside it")
+        if len(n.get("about") or "") > MAX_ABOUT:
+            errors.append(f"{where}: flow shape {n.get('id')!r}: about over {MAX_ABOUT} characters")
         if not isinstance(n.get("decision", False), bool):
             errors.append(f"{where}: flow shape {n.get('id')!r}: decision is true or false")
         if "group" in n and not (isinstance(n["group"], str) and 0 < len(n["group"]) <= MAX_GROUP):
             errors.append(f"{where}: flow shape {n.get('id')!r}: group is a name of 1 to "
                           f"{MAX_GROUP} characters")
     for e in flow["edges"]:
-        if not isinstance(e.get("both", False), bool):
-            errors.append(f"{where}: flow edge {e.get('from')!r} to {e.get('to')!r}: both is true or false")
+        for flag in ("both", "back"):
+            if not isinstance(e.get(flag, False), bool):
+                errors.append(f"{where}: flow edge {e.get('from')!r} to {e.get('to')!r}: {flag} is true or false")
         for end in ("from", "to"):
             if e.get(end) not in ids:
                 errors.append(f"{where}: flow edge {end} unknown shape {e.get(end)!r}")
@@ -126,6 +129,8 @@ def check_lifecycle(where, steps, flow, detail=False):
                 errors.append(f"{where}: lifecycle step {i} needs a detail for the panel")
             elif len(step["detail"]) > MAX_DETAIL:
                 errors.append(f"{where}: lifecycle step {i}: detail over {MAX_DETAIL} characters")
+        elif isinstance(step, dict) and len(step.get("detail") or "") > MAX_DETAIL:
+            errors.append(f"{where}: lifecycle step {i}: detail over {MAX_DETAIL} characters")
     return errors
 
 
@@ -270,15 +275,19 @@ def check(note):
                           f"{MAX_CHILDREN}")
         if node.get("flow"):
             flows.append((where, depth, node["flow"]))
+            for n in node["flow"].get("nodes", []) if isinstance(node["flow"], dict) else []:
+                if n.get("doc") and n["doc"].split("#")[0] not in files:
+                    errors.append(f"{where}: flow shape {n.get('id')!r}: doc {n['doc']!r} is not a tracked file")
             errors.extend(check_flow(where, node["flow"], MAX_SHAPES if depth else None,
                                      ends=not depth or kind == "service"))
         elif kind == "service":
             errors.append(f"{where}: a service needs a flow")
         if depth and node.get("lifecycle"):
-            if kind == "service":
+            # A part's flow steps through its own graph, so any node with a flow takes steps.
+            if kind == "service" or node.get("flow"):
                 errors.extend(check_lifecycle(where, node["lifecycle"], node.get("flow")))
             else:
-                errors.append(f"{where}: lifecycle sits on the root or a service")
+                errors.append(f"{where}: lifecycle sits on the root, a service, or a node with a flow")
         for e in node.get("entry", []):
             if e.get("path") not in files:
                 errors.append(f"{where}: entry {e.get('name')}: {e.get('path')!r} is "
@@ -373,8 +382,10 @@ def prose(note):
         out.extend([f"## {n['id'] or '/'} ({n['name']})", n["summary"], *n["role"],
                     *(f"- {e['name']}: {e['note']}" for e in n.get("entry", [])),
                     *(f"- {s['name']}: {s.get('how', 'TODO')}" for s in n.get("external", [])),
-                    *(f"- step {i}: {s['text']}" for i, s in enumerate(n.get("lifecycle") or [], 1)
-                      if n["id"]), ""])
+                    *(f"- step {i}: {s['text']}" + (f" {s['detail']}" if s.get("detail") else "")
+                      for i, s in enumerate(n.get("lifecycle") or [], 1) if n["id"]),
+                    *(f"- shape {s['name']}: {s['about']}" for s in (n.get("flow") or {}).get("nodes", [])
+                      if n["id"] and s.get("about")), ""])
         for c in n.get("children") or []:
             walk(c)
 

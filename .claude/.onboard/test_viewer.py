@@ -93,6 +93,7 @@ DRIVER = """<script>
   const w = $('.box[data-id="worker"]');
   log.worker = { svc: w.classList.contains("svc"), open: w.classList.contains("open"), can: w.classList.contains("can") };
   log.hashOpen = (new URLSearchParams(location.hash.slice(1)).get("open") || "").split(",");
+  log.flowTags = $$(".stage .flowtag").map((e) => e.closest(".box").dataset.id);
   $(".panel .see").click();
   await wait(1500);
   log.simple = texts(".over .box.shape");
@@ -108,6 +109,10 @@ DRIVER = """<script>
   await wait(500);
   log.lit = texts(".over .box.shape.step");
   $$(".over button.box.shape").find((b) => b.textContent === "push")?.click();
+  await wait(800);
+  log.stays = !!$(".over");
+  log.shapePanel = $(".panel h2")?.textContent;
+  $(".panel button.see")?.click();
   await wait(800);
   log.over = !!$(".over");
   log.panel = $(".panel h2")?.textContent;
@@ -129,11 +134,13 @@ def test_service_graph():
     assert log["outside"] == ["Algolia", "OpenAI", "metis", "queue: records"], f"node null and external shapes are dashed: {log['outside']}"
     assert log["outEdges"] == 5, f"each edge that touches an outside shape is dashed: {log['outEdges']}"
     assert log["jumps"] == ["enrich", "push"], f"a shape with a tree node is a button: {log['jumps']}"
+    assert log["flowTags"] == ["worker"], f"a box with a data flow carries a tag, the root and the packages do not: {log['flowTags']}"
     assert log["steps"] == 2, "the service lifecycle shows as the step list"
     assert log["headFirst"] == "←– / 2→Press → to step through the flow.", f"the steps sit in a header above the flow: {log['headFirst']}"
     assert log["head"] == "1 / 2", f"the header's → shows the first step: {log['head']}"
     assert log["lit"] == ["enrich", "queue: records"], f"a step lights its shapes: {log['lit']}"
-    assert not log["over"], "a node jump goes back to the map"
+    assert log["stays"] and log["shapePanel"] == "push", f"a click on a shape with a node fills the panel and stays in the flow: {log}"
+    assert not log["over"], "the panel's button goes back to the map"
     assert log["panel"] == "push", f"a node jump selects that node in the panel: {log['panel']}"
     assert log["current"] == "worker", f"a package inside a service marks the service box: {log['current']}"
 
@@ -155,6 +162,7 @@ FLOWDRIVER = """<script>
     life: $$("h2").some((h) => h.textContent.includes("Life of the data")) };
   log.step = $(".panel h2")?.textContent + "|" + $(".panel p:not(.meta)")?.textContent;
   log.overview = $(".intro .lead")?.textContent;
+  log.flowShapes = $$(".stage .box.shape.flow").map((b) => b.textContent);
   $$(".stage button.box.shape").find((b) => b.textContent === "Source").click();
   await wait(300);
   log.shape = $(".panel h2")?.textContent + "|" + $(".panel p:not(.meta)")?.textContent;
@@ -185,6 +193,7 @@ def test_flow_is_the_map():
     assert log["overview"] == "Records flow from a source. The worker indexes them.", f"the overview sits above the map: {log}"
     assert log["step"] == "A record arrives.|The source sends one record.", f"the panel opens on the step's detail: {log}"
     assert log["shape"] == "Source|Where records start.", f"a shape with no node shows its about: {log}"
+    assert log["flowShapes"] == ["worker"], f"a shape whose node has a data flow carries a tag: {log}"
     assert log["panel"] == "worker" and log["mark"] == "worker", f"a shape click moves the panel and marks the shape: {log}"
     assert log["lit"] == ["worker"], f"a shape click lights its neighbours, not the step's shapes: {log}"
     assert log["outEdge"] == ["grpc: record"], f"a shape click colors its outgoing edges: {log}"
@@ -265,7 +274,8 @@ DECIDED = {**FLOWMAP, "slug": "d", "root": {**FLOWMAP["root"], "flow": {
               {"id": "idx", "name": "Index", "node": None, "end": "out", "about": "Where records land."}],
     "edges": [{"from": "src", "to": "hit", "label": "grpc: record"},
               {"from": "hit", "to": "idx", "label": "call: hit"},
-              {"from": "src", "to": "idx", "label": "http: browse", "both": True}]},
+              {"from": "src", "to": "idx", "label": "http: browse", "both": True},
+              {"from": "idx", "to": "hit", "label": "http: webhook", "back": True}]},
     "lifecycle": [{"text": "A record arrives.", "at": ["src", "hit"], "detail": "The source sends one record."}]}}
 
 DECIDEDRIVER = """<script>
@@ -274,7 +284,8 @@ DECIDEDRIVER = """<script>
   const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
   await wait(1500);
   const log = { diamond: $$(".stage .box.decision polygon").length, name: $(".stage .box.decision")?.textContent,
-    both: $$(".stage path.edge[marker-start]").length, one: $$(".stage path.edge:not([marker-start])").length };
+    both: $$(".stage path.edge[marker-start][marker-end]").length, one: $$(".stage path.edge:not([marker-start])").length,
+    back: $$(".stage path.edge[marker-start]:not([marker-end])").length };
   document.body.append(Object.assign(document.createElement("pre"), { id: "t", textContent: JSON.stringify(log) }));
 })();
 </script>"""
@@ -287,7 +298,50 @@ def test_decision_and_two_way_edge():
     log = json.loads(html.unescape(m.group(1)))
     assert log["diamond"] == 1 and log["name"] == "Cache hit?", f"a decision shape draws a rhombus: {log}"
     assert log["both"] == 1 and log["one"] >= 2, f"a `both` edge has an arrow at each end, the others at one: {log}"
+    assert log["back"] == 1, f"a `back` edge lays out reversed and keeps its arrow on its target: {log}"
 
+
+
+# A part's flow fills the panel like the map: a shape with an about shows it, a step shows its detail.
+OVERPANEL = {**SERVICE, "slug": "op", "root": {**SERVICE["root"], "children": [{**SERVICE["root"]["children"][0],
+    "flow": {**SERVICE["root"]["children"][0]["flow"], "nodes": [
+        {**n, "about": "The model the worker asks.", "doc": "docs/openai.md#models"} if n["id"] == "oa" else n
+        for n in SERVICE["root"]["children"][0]["flow"]["nodes"]]},
+    "lifecycle": [{"text": "The worker takes a record.", "at": ["q", "enrich"], "detail": "Record o1 leaves the queue."},
+                  {"text": "The worker pushes it.", "at": ["push", "alg"]}]}]}}
+
+OVERDRIVER = """<script>
+(async () => {
+  const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
+  const $ = (s) => document.querySelector(s), $$ = (s) => [...document.querySelectorAll(s)];
+  const log = {};
+  await wait(1500);
+  $('.box[data-id="worker"] .head').click();
+  await wait(800);
+  $(".panel .see").click();
+  await wait(1500);
+  $('.over .step-head button[aria-label="Next step"]').click();
+  await wait(300);
+  log.step = $(".panel h2")?.textContent + "|" + $(".panel p:not(.meta)")?.textContent;
+  $$(".over button.box.shape").find((b) => b.textContent === "OpenAI")?.click();
+  await wait(300);
+  log.shape = $(".panel h2")?.textContent + "|" + $(".panel p:not(.meta)")?.textContent;
+  log.doc = $(".panel a.src")?.getAttribute("href") || "";
+  log.over = !!$(".over");
+  document.body.append(Object.assign(document.createElement("pre"), { id: "t", textContent: JSON.stringify(log) }));
+})();
+</script>"""
+
+
+def test_part_flow_fills_the_panel():
+    page = dom(OVERPANEL, OVERDRIVER)
+    m = re.search(r'<pre id="t">(.*?)</pre>', page, re.S)
+    assert m, "the driver ran to its end"
+    log = json.loads(html.unescape(m.group(1)))
+    assert log["step"] == "The worker takes a record.|Record o1 leaves the queue.", f"a part's step shows its detail in the panel: {log}"
+    assert log["shape"] == "OpenAI|The model the worker asks.", f"a part's shape with an about shows it in the panel: {log}"
+    assert "docs/openai.md#models" in log["doc"], f"a shape's doc links from the panel: {log}"
+    assert log["over"], f"a shape click keeps the part's flow open: {log}"
 
 if __name__ == "__main__":
     if not Path(CHROME).exists():
@@ -298,4 +352,5 @@ if __name__ == "__main__":
     test_flow_lists_left_to_right()
     test_stores_toggle()
     test_decision_and_two_way_edge()
+    test_part_flow_fills_the_panel()
     print("ok")
