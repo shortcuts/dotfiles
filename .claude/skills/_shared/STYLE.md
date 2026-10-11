@@ -1,8 +1,7 @@
 # Writing style for explanation skills
 
-`explain` and `onboard` both write Diátaxis *explanations* for an engineer who knows the
-field, not the subject. This file holds the voice they share. Each skill owns its own
-output format and structure.
+`explain` writes Diátaxis *explanations* for an engineer who knows the field, not the
+subject. This file holds its voice. The skill owns its output format and structure.
 
 ## Writing style
 

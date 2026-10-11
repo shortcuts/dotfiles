@@ -1,90 +1,455 @@
 ---
 name: explain
-description: Explain any topic as one illustrated Obsidian note in the spirit of The Way Things Work - the principle, the machine opened up, and trusted sources to go further.
+description: Explain a repository, directory, feature, function, or any concept with one zoomable HTML map - how the data flows, why it works, sketches, questions to check yourself, and sources to go further.
 disable-model-invocation: true
-argument-hint: "A topic, concept, commit hash, PR/commit URL, file, or directory"
+argument-hint: "Nothing (whole repo), a path, a function name, a feature in words, or a concept"
 ---
 
-Write one Markdown note in the user's Obsidian vault. The note follows David Macaulay's
-*The Way Things Work*:
+Write one **note**: the data for a set of Obsidian pages on the subject. `check.py
+--install` turns it into a folder in the vault ([`OUTPUT.md`](OUTPUT.md)):
 
-1. The **principle**: the one idea that makes the machine possible.
-2. The **machine**: the subject, opened up, with numbered parts.
-3. Other machines that use the same principle.
+- **The main page** opens on the title and the root `overview`, then **the map**: the root
+  `flow` drawn as a static SVG, the full loop of the data, from every system that sends
+  the input to the index or store where the result lands. Each shape carries a number.
+  The key under the map gives each number one line: a link to the shape's page, or its
+  `about`.
+- **How the data moves** lists the root `lifecycle`: each step cites the numbers of the
+  shapes it touches, then its `detail`.
+- **One page per part** below the root: its summary and role, its own flow and steps,
+  what it sends to and receives from, what is inside it, and where to start reading. The
+  reader walks the tree by the links.
 
-**The reader** is the user: a software engineer who knows the field, not this subject.
-They read on a phone. They want the idea, not the implementation.
+**The reader** is an engineer new to the subject: a codebase, or a concept of their field. They want the mental map: what each
+part is for, how the parts talk, and where the data goes. Leave out implementation
+detail: error paths, early returns, retries, logging, function parameters, column names,
+and environment variables never reach the prose. The entry points carry the code names.
+
+**The split.** `skeleton.py` does the deterministic work:
+- it reindexes the graph and pins the commit;
+- it builds the tree from git, services first when the scope has a Go `main`, and finds each node's entry points, with line ranges;
+- it adds graph facts as `_` hint keys.
+
+You write every field it leaves as `TODO`: the prose, the flows, and the judgment calls.
+`check.py` rejects any `TODO` left over.
 
 **The note is done when:**
 
-- The reader can draw the principle from memory and say why it works.
-- The reader can predict the machine's output for an input the note never showed.
-- The reader can name where the machine strains, and which source to open next.
-- `python3 check.py <note>` in this skill's folder prints `ok`.
+- The reader can say what the scope produces, who uses it, and what they get from it.
+- The reader can draw the scope's services, stores, and outside systems, and the arrows
+  between them, from memory.
+- For each service, the reader can say what starts it, what it writes, and which packages
+  it runs.
+- For each package, the reader can say in one sentence why it exists.
+- Each arrow says how the data moves: a plain call, async, HTTP, gRPC, a queue, or the DB.
+- The reader can find each term and each case of the note in the repo.
+- The reader can answer the three **Check yourself** questions, and knows which source to
+  open next.
+- `python3 check.py <note.json> --install` in this skill's folder prints `ok`.
 
-## The order of the note
+## 1. Resolve the scope
 
-The note is a Diátaxis *explanation*: no setup steps, no reference tables. Use these `##`
-sections in this order. `check.py` reads the heading names, so keep them exact.
-
-1. **Title and one line.** `# <Subject>`, then one sentence: what the subject is and
-   what it is for.
-2. **The problem.** What breaks before the subject exists. Show it as a scene from the
-   field (see [Examples stay in the field](../_shared/STYLE.md#examples-stay-in-the-field)). Use no term
-   from the subject yet.
-3. **The principle.** One to three principles, each under a `###` heading. Each gets:
-   - one bold sentence: the cause, the effect, and why the link holds;
-   - its [mammoth](../_shared/STYLE.md#the-mammoth);
-   - a plate that shows the principle before any machine uses it;
-   - one sentence on what the principle costs.
-4. **The machine.** A cutaway plate with numbered callouts and a key. Then **One trip
-   through**: follow one real input part by part, with small real values. Cite the
-   callout numbers.
-5. **Same principle, elsewhere.** Two to four other machines, one line each: the machine,
-   and which part plays which role.
-6. **Where it strains.** Each limit gets a number or a named case: the input that breaks
-   it, the size where it slows, the alternative that wins there.
-7. **Where it came from.** Three to five lines from the papers: who, when, what it
-   replaced, and why.
-8. **Words.** Each term the note introduced, with a one-line definition.
-9. **Check yourself.** Three questions, each under 15 words. Each question asks the reader
-   to predict or explain, never to recall a word. Fold each answer, so the phone shows
-   the question alone:
-
-   ```markdown
-   > [!question]- What happens if two keys hash to one slot?
-   > The second key goes to the next free slot (plate 2, callout 4).
-   ```
-
-10. **Go further.** Three questions the note did not answer. Each points to the section
-    of a **Sources** entry that answers it.
-11. **Sources.** See [Sources](#sources).
-
-## Writing style
-
-Follow [`../_shared/STYLE.md`](../_shared/STYLE.md): the writing rules, the mammoth,
-examples that stay in the field, and the two review passes. The word list is **Words**.
-The medium is a phone. The fixed formats are key entries, captions, source entries, and
-`Breaks down at:`. Skip plates.
-
-A **One trip through** input also stays in the field.
-
-## Plates
-
-Plates carry the idea. Prose supports them. Show only the parts the idea needs.
-
-| Idea to show | Plate |
+| Argument | Scope |
 |---|---|
-| The parts of one thing | Cutaway with numbered callouts |
-| Layers, or a format read from byte 0 | Exploded view, in reading order |
-| One small part that matters | Enlargement circle out of the cutaway |
-| An input moving through the machine | Strip of numbered frames |
-| Before and after, or two options | Side-by-side pair, one difference marked |
+| none | `repo` |
+| a path that exists | `path` |
+| an identifier that `search_graph` finds | `function` |
+| anything else, found in the repo | `feature`, named in the user's words |
+| a concept, tool, protocol, format, or idea; or no repo | `concept`: see [Concept scope](#concept-scope) |
+| a commit hash, or a commit or PR URL | `concept`: the idea the change builds |
 
-Draw plates as inline SVG. Use Mermaid for boxes-and-arrows flow, and a small table for a
-finite set of cases. Read [`PLATES.md`](PLATES.md) before the first plate.
+An argument that fits two rows (a word that is a directory and a function, or a concept the
+repo also implements): ask which.
+A feature whose words match one directory name (`report builder` and
+`report-builder-driver/`): ask if the user means that directory or the feature. A feature
+whose words match only infra or docs directories (`terraform/`, `k8s/`, `docs/`) stays a
+`feature`: find its code in step 2, and do not ask.
 
-## Sources
+## Concept scope
+
+A concept has no repo, no tree, and no skeleton: skip steps 2 to 4. Write the note by hand
+from the concept example in [`SCHEMA.md`](SCHEMA.md#concept), then go to step 5.
+
+- **The map** is the machine: the root `flow` draws its parts, with the input `end: "in"`
+  and the result `end: "out"`. The shapes omit `node`, and each takes an `about`.
+- **The lifecycle** is one trip through the machine: follow one real input part by part,
+  with small real values (`user:42 hashes to 0x3a`).
+- **The sources** carry the evidence, because no repo backs a term. Read
+  [Sources](#sources) before the first claim.
+- **A commit or a PR** is evidence for the idea it builds: the rate limiter behind a retry
+  loop, the write-ahead log behind a crash fix. Read the diff, the PR body, and the review
+  threads with `git` and `gh` read operations only (a write makes you a participant).
+  Reviewers often name the idea or the rejected alternative. Name it in the field's words,
+  then explain that idea. Say in one `detail` line where the code departs from the
+  textbook: that difference is often why the user asked.
+
+## 2. Run the skeleton
+
+Pick a fresh work folder, so a parallel run cannot overwrite your files:
+`work=<scratchpad>/explain-$(date +%s)`. From inside the repository:
+
+```bash
+python3 <skill>/skeleton.py repo                 --out "$work"
+python3 <skill>/skeleton.py path modules/pkg     --out "$work"
+python3 <skill>/skeleton.py function BuildIndex  --out "$work"
+python3 <skill>/skeleton.py feature "report builder" --packages <dir> <dir> ... --out "$work"
+```
+
+It prints the note's path and every warning. Tell the user each warning, for example
+`links pin to 614bdc2, 4 commits behind HEAD`.
+
+For `repo` and `path` scope, each directory with a Go `main` becomes a `service` node, and
+the root gets a `_services` hint (step 3).
+
+**Feature scope needs the packages first.** Find the feature's code with
+`search_graph` (`query`, and `semantic_query` with two to four phrasings), `search_code`
+for its literal names, and `Route` nodes for its endpoints. Semantic search misses on
+some repos. Then grep the SQL, protobuf, and config files for the feature's names. Pass
+the directories to `--packages` in the order the data visits them.
+
+The skeleton writes every feature directory as a flat `package` or `dir`, even a
+`cmd/<binary>` that a Dockerfile or a chart deploys. Shape the tree in step 3 as for a
+repo scope:
+
+- each deployable directory becomes a `service`, with a `flow` and a `lifecycle`;
+- a package that only one service imports moves under that service;
+- a package that several services import moves into the `shared` group (id
+  `shared-packages`, `kind: "group"`, `path: null`);
+- a `dir` whose children are only mocks, SQL files, or embedded assets becomes one
+  `package`: drop its children.
+
+## 3. Confirm the services, then shape the tree
+
+The skeleton holds every tracked directory down to the package leaf. With a service, the
+root's children are three parts: the `service` nodes, the `shared` group (id
+`shared-packages`), and the leftover directories.
+
+**Confirm each service.** Each `_services` entry is `{path, evidence}`. The evidence is
+`main`, `Dockerfile`, `helm chart`, `k8s <Kind>`, or `crontab`. Read each one with
+`git show <sha>:<path>`, then settle it:
+
+- `main`, a node that is already a `service`: keep it when a Dockerfile, chart, manifest,
+  or cron entry runs it, or when its code serves requests or consumes a queue. A `main`
+  that is only a dev tool, a code generator, or a one-off migration becomes `kind: "dir"`:
+  keep its children and remove its `flow` placeholder.
+- `Dockerfile`, `helm chart`, `k8s <Kind>`, or `crontab` that runs a binary already in the
+  tree as a `service`: make no tree change. Use it in step 4 as the service's entry (a
+  cron schedule, a `CronJob`).
+- The same evidence for code in a directory that is not a service yet (a Python worker
+  with its own Dockerfile): set that node's `kind` to `"service"` and add a `flow` with
+  `end` markers. Its subtree holds `package` nodes only. Each `dir` child becomes a
+  `package` (remove its children, keep its `path` and `id`) or gives way to its own
+  `package` children. Group them past 12.
+- A Dockerfile, chart, or manifest that builds several binaries: make no tree change. It
+  maps to no single directory.
+
+The `shared` group keeps the skeleton's shape. Collect its children into `group` nodes past
+12. It gets no root flow shape, and no root shape points at a package inside it: a shared
+package runs inside each service that imports it, so the service flows draw it. Shape the
+leftover directories with the table below.
+
+`path` scope on one service directory (`path services/report-builder`): the root is that
+`service` node, and its flow is the root flow. Draw its packages as shapes with no `node`,
+because a root shape never points at a package.
+
+| Hint | What to do |
+|---|---|
+| `_services` | Root only. Each deployable candidate with its evidence. Settle each one as in *Confirm each service* |
+| `_group` | More than 12 children: collect them into `group` nodes by what they do, "Search services", "Ingestion" |
+| `_files` | The directory's own files. Add a `file` leaf only for a file that carries a decision (`install.sh`, a whitelist `.gitignore`) |
+| `_leaf_reason` | Why the branch stops. Turn a `package` into a `dir` with children only when its parts serve different readers |
+| `_blind` | The graph holds no file here (a language without a parser, or an excluded path). Read the source with `git show <sha>:<path>` |
+| `_side` | Function scope: caller, callee, or own package. Keep the order: callers, own package, callees |
+
+Remove the nodes a newcomer does not need, such as vendored code and generated code.
+Keep `path` and `id` as the skeleton wrote them. Keep the `kind` the skeleton wrote,
+except the changes in *Confirm each service*.
+
+## 4. Confirm the links
+
+Each part's page lists its links under **Sends to** and **Receives from**. The links are the part that shows how the
+system talks, so a missing link is a wrong map. Three hints lead you
+there:
+
+- `_links`: node-to-node edges from the graph, with the edge count `n`;
+- `_edges`: every edge that crosses the node's border, by type and folder;
+- `_external`: the services that the node's imports name.
+
+All three are leads, not facts:
+- The graph links two symbols that share a name, so a `calls` edge can be false.
+- A queue, a table, or an HTTP call made through a wrapper often has no edge at all.
+
+Before a flow shows an arrow, confirm it in the code:
+- `get_code_snippet` on the entry point;
+- `trace_path(mode="data_flow")` for what the data carries;
+- `search_code` for the table, topic, or endpoint name.
+
+Label an arrow `async` only when the code returns before the work ends: a goroutine, a
+queue, a callback, or a ticker. A name like `AsyncFoo` is not proof.
+
+Write each confirmed link into `links` on the deepest node that makes the call. Then add
+the links the graph cannot see:
+
+- two services that share a table: a link from each one to the node that owns the table
+  (`writes DB: jobs`, `reads DB: jobs`);
+- a producer and a consumer of one queue or topic;
+- a process that starts another one, or reads a file the other one writes.
+
+**Trace the boundary.** The root flow is a high-level system view: one shape per service,
+store, and outside system, never a package. Find where the data enters and where it
+leaves, including systems outside the repo:
+
+- **Entry:** who or what starts the work: a user, a scheduler, an upstream service, or a
+  source store the scope reads from (`Route` nodes, topic subscribers, cron entries, the
+  clients in `_external`);
+- **Exit:** who consumes the result: a database, an index, a queue, or a downstream
+  service.
+
+Read each service's calls from its config and clients: the gRPC and HTTP client
+constructors, the queue and topic names, the table names. Those name the neighbours the
+graph misses.
+
+**Frame the deployments first, then the shapes inside.** List each deployment the loop
+crosses before you place a shape, and give each one a `group`. A reader sees who runs
+what from the frames, before they read one box:
+
+- the scope's own cloud project: its services, databases, and queues
+  (`AI enrichment GCP project`);
+- each other project the data passes through, with the topics and stores it owns
+  (`Connectors GCP project`, or `AZ/AWS project` for Metis and the Algolia index it
+  builds);
+- the vendors the services call (`External providers`).
+
+Read the deploy config (Terraform, Helm, the GCP project ID in the env files) for each
+project. Then put each shape in its frame. A shape stays out of every frame only when no
+deployment owns it, such as the customer who sends the writes.
+
+**Trace the full loop, past the scope.** The root flow is the map, so it draws every path
+the data takes, not only the scope's own services:
+
+- **Every input path.** Each system that sends the input gets its own path. A live write
+  that another repo forwards (Metis and its indexing extension) is one path. A reindex
+  that an admin API or a scheduler queues for an extractor is another. Find the callers by
+  the client package of the scope's API (`grep` its import path across the repo), and read
+  the docs of the other repos the scope serves.
+- **Every setting that starts a flow.** A config write can start work in another system:
+  admin-api sets `aiEnrichment` on an index, and Metis runs an initial import through the
+  same extension. That is its own path, with its own shape for the flow it starts. Find
+  each client that writes settings (`SetSettings`, a config `PUT`), and read what the
+  other system does on that write.
+- **The system that writes the result.** When another system writes the destination (the
+  scope sends a partial update that Metis indexes), draw that system between the scope
+  and the destination.
+- **Every outside call.** Draw each vendor and each download the services make: model
+  providers, image URLs, other APIs. One shape each, `node: null`.
+- A service of this repo that sits outside the scope's tree (an extractor, a scheduler)
+  is a shape with no `node`.
+
+Trace each service the same way. Its entry (a route, a topic subscriber, a cron entry from
+`_services`) is its flow's `end: "in"`, and its last write is its `end: "out"`.
+
+**Done when:** each node the data passes through has at least one link in or out, and a
+reader can follow the data from its entry to its last write without leaving the tree.
+
+## 5. Write the content
+
+Read [`SCHEMA.md`](SCHEMA.md) for each field. Follow
+[`../_shared/STYLE.md`](../_shared/STYLE.md), except its mammoth: the `example` of each
+principle replaces it. The word list is `words`.
+
+**Keep the subject's words.** The team already named its parts. The reader searches the
+code, the docs, and the chat for those names, so a renamed part is a part they cannot
+find.
+
+- Take each term, node name, and flow shape name as the code, the docs, or the user's
+  diagram spell it. The code says `judgement`: the note says "judgement", not
+  "tie-break".
+- A term that needs explaining keeps its name. Its `words` definition explains it.
+- A code name in prose reads as its words: `last_scanned_job_id` is "last scanned job
+  ID", in every field of the note, principles included.
+- `check.py` greps each term of `words` in the repo. A term from a doc outside the repo
+  names that doc in `from`.
+- `check.py` also greps the name of each queue or table store in a flow. A store that
+  another repo owns names that repo in `from`.
+
+**Truth first.** The reader takes every number as a fact, so a wrong one teaches them a
+wrong system. Collect the real numbers before you write: sizes, counts, rates,
+thresholds, from the code or a fetched source.
+
+- One case feeds one step: take the step's text, its `detail`, and every value in them
+  from the same fixture, payload, or source example. Two cases mixed in one step give a
+  value that never occurred.
+- A count in the `overview` or the root `summary` ("three services", "six steps") is a
+  count of the map. `check.py` compares each one with the services in the tree, the
+  stores in the root flow, and the root lifecycle steps.
+- A concept principle names the `sources` entry that backs it in `source`. A code
+  principle adds `source` when a paper or a doc owns the idea.
+
+**Take the examples from the repo.** A reader pictures a case they can find again.
+
+- Take each case from the repository: a test fixture, a sample payload, a seed file, a
+  prompt, or a doc. Keep its real values: the ID, the field value, the count.
+- No repo case fits: invent one with the repo's data shape, and say so in the row.
+- Each case is an object of the subject itself: a job, a request, a row. A comparison
+  from daily life makes the reader map it back, and the map is where they get lost.
+
+**The root** tells the outcome, not the mechanism. The reader first needs what the scope
+produces and who uses it. The children carry how it works.
+
+- `overview`: two to five sentences above the map, the whole idea in plain words. Say
+  what the scope produces, for whom, the paths the input takes, and where the result
+  lands. The reader reads it before the map, so it names the parts the map draws;
+- `summary` and `role`: one line and two lines; the summary is the page's description. Name the
+  output, its consumer, and what the consumer gets: "builds the files that searches
+  read", not "streams jobs to the engine";
+- `words`: the subject's terms that the rest of the note needs, the five most important
+  first. The first term is the scope's own output or unit of work, as the code names it
+  ("build", "index"). The definition explains it to a newcomer to the domain;
+- `title` and `problem`: why the subject exists, in two or three sentences. Say what its
+  users need, why the obvious way fails, and what a user sees when it fails. Take the
+  case from the repo;
+- one to three `principles`. The reader who knows why a rule holds can guess how the
+  code follows it, so each principle gives the why before the case:
+  - `claim`: how the parts behave and talk: "every hand-off is a table", not "the driver
+    writes `last_job_id`";
+  - `why`: the constraint that forces the claim, in one or two sentences;
+  - `example`: two or three rows, each one real case and what the system does with it.
+    A row is an event the reader could find in a log line or a database row:
+    `["Job 8812 asks for the March sales report", "The scheduler writes a jobs row. The
+    builder picks it up on its next poll."]`;
+  - `except`: optional, the case where the claim does not hold;
+  - `cost`: what the claim costs;
+- for repo or path scope, the `stack`, each item linked to its official docs;
+- the `lifecycle` of the data: at most six steps through the root `flow`, in the order the
+  data moves, from the input to the consumer of the result. It is required for feature
+  scope, and the map's step header needs it for every scope. Each step's `text` is one
+  sentence: what moves, and what that motion means ("The extension streams each record to
+  the API, so no write reaches the index unenriched"). Each step's `at` names the
+  flow shapes it touches, and the page cites their key numbers. Each root step
+  also takes a `detail`, two to four sentences under the step: who
+  starts the stage, what happens to the record, and what the reader would see, with a
+  real case. "A customer adds a product. Before Metis writes it, the extension sends it
+  to the API", not "the middleware invokes the stream handler". A step says what happens to the data, never which goroutine, batch
+  size, or table does it;
+- for function scope, the `io`: the inputs, the outputs, and where the result goes;
+- the scope's `flow`, with one shape per service, its `node` set to the service's id.
+  Every root shape with no tree `node` takes an `about`: one or two sentences on what that
+  system is and what it does in the loop. It is the shape's key line;
+- `words` become footnotes: each term gets one at its first use on a page, so a reader
+  who knows the term reads on.
+
+**Every node below the root** gets:
+
+- a `summary` of one sentence: what the node is for, never what it contains;
+- a `role` of one paragraph, at most two lines: why it exists, and what the reader loses
+  without it;
+- its `links`, from step 4;
+- a `flow` when it touches a database, a queue, or an external service, which the tree
+  cannot draw;
+- a `note` for each entry point. Cut the entry points a newcomer needs no link to;
+- `external`, promoted from `_external` once the code confirms the call.
+
+**Every service** also gets:
+
+- a `flow` that draws how its packages work together. Each package the data passes through
+  is a shape with `node` set to the package's id, owned or shared. The stores it reads and
+  writes are `store` shapes. The services and outside systems it talks to take `node` set
+  to the service's id, `node: null`, or `external`. Mark its entry `end: "in"` and its last
+  write `end: "out"`. Twelve shapes at most;
+- a `lifecycle`: at most six steps through its own flow, written like the feature-scope
+  root `lifecycle`. The service's page lists it under its flow;
+- for each package that a shape points at, `entry` with the function where that stage
+  starts first.
+
+**The flow** shows what the tree cannot: the databases, queues, and outside services as
+their own shapes. `render.mjs` lays it out with ELK, like the map. Mark each database, queue, or
+bucket `store`. Each edge label starts with a word from
+[Flow labels](SCHEMA.md#flow-labels). This is the root flow of the harbor example:
+
+```json
+{ "nodes": [{ "id": "scheduler", "name": "job-scheduler", "node": "services/job-scheduler", "end": "in" },
+            { "id": "pg", "name": "PostgreSQL", "store": true },
+            { "id": "builder", "name": "report-builder", "node": "services/report-builder" },
+            { "id": "s3", "name": "S3: reports", "store": true, "end": "out" }],
+  "edges": [{ "from": "scheduler", "to": "pg", "label": "writes DB: jobs" },
+            { "from": "pg", "to": "builder", "label": "reads DB: plans" },
+            { "from": "builder", "to": "s3", "label": "async: upload" }] }
+```
+
+The root has no shape cap: one shape per service, store, and outside system, never a
+package. Twelve shapes at most below it. The root flow draws the outcome: the
+input, the subject, what it produces, and who consumes it.
+
+**The root flow reads in to out.** Mark the shape where the data starts `"end": "in"`, and
+the shape where the result lands `"end": "out"`. The layout pins them to the top row and
+the bottom row. `check.py` requires both, and rejects an `in` shape with an incoming edge
+or an `out` shape with an outgoing edge. A system that is both (Algolia is the source
+index and the destination index) takes two shapes: `Algolia: source index` with `end: in`,
+`Algolia: enriched index` with `end: out`. One shape for both puts it mid-graph and hides
+the direction. The same holds for a system that the data crosses twice, once on the way in
+and once on the way out: name each shape by its role, `Metis: live writes` and
+`Metis: write-back`. One shape draws an edge back from the bottom to the top, and
+that edge tangles the layout. Draw each service once, with its `node`. A system outside the repo gets `node: null`, or
+`external` when it is another repo, and the map draws it dashed. Draw the databases and queues
+as `store`. Merge the stores of one database into one shape. When more parts touch a
+node, draw the ones the data passes through. The service flows show the packages.
+
+**List the shapes in the order you want them placed.** With groups, the layout reads the
+`nodes` list as its placement hint: ELK honors no placement hint on a frame. A shape listed
+earlier sits further left in its layer, and edges set the layers, so the groups stack
+top-down in the direction of the data:
+
+- Order the groups by band, top to bottom: the callers' project, then the middle projects,
+  then the scope's own project, then `External providers` last.
+- Within a band, list first what goes on the left. To put the Connectors frame at the right
+  of the Metis frame, list the Metis shapes before the Connectors shapes.
+- Put each outside sender just above the frame it feeds, as a shape with no group:
+  `Customer writes` above Metis, `Internal writes` above the admin API. Give a sender
+  `end: "in"` only when it must sit in the first row, like `Internal writes` at the top.
+  A sender with no `end` sits one layer above the shape it feeds, so `Customer writes`
+  stays next to Metis. At least one shape keeps `end: "in"`.
+
+**Keep the map readable.** The layout runs top to bottom, so the shape order and the
+label lengths set its width. A note page is about 700 px wide, and the map scales down to
+fit it:
+
+- Keep each edge label to its leading word and a payload of one to three words, about 24
+  characters: `grpc: EnrichStream`, `queue: run`, `http: partial update`. A long label
+  widens the map, and a wide map prints small. The lifecycle steps carry the detail.
+- List the shapes in the order the data moves: the inputs, then each path, then the
+  scope's services, then the outside calls and the writers, then the destination.
+- Draw a response edge (`grpc: merged record`) only between two neighbouring shapes. A
+  short loop stays readable; a long one crosses the map.
+- Write the root `lifecycle` for every scope, because the map steps through it. With
+  several input paths, give each path its own step and name it first: "Live path: ...",
+  "Reindex path: ...".
+
+**Fan-out.** More than 25 nodes to write: write the root and `words` first. Then spawn
+one subagent per top-level child. Pass each one:
+
+- the path to the skeleton, and its subtree's id. The top-level children are the services,
+  the `shared` group, and the leftover directories;
+- the root `flow`, so each service flow reuses its shape names and ids;
+- `words`, the root's `principles`, and `STYLE.md`;
+- the two rules above: keep the subject's words, and take the examples from the repo.
+
+Merge the subtrees back into the one note.
+
+**The ramp-up** follows the map, for every scope. The reader who got the overview checks
+it, then picks what to read next:
+
+- `check`: three questions, each under 15 words. Each asks the reader to predict or
+  explain, never to recall a word: "What happens when two jobs claim one row?" Each answer
+  sits in a folded callout. An answer cites the step or the sketch that shows it;
+- `further`: up to three questions the note does not answer. Each names the `sources`
+  entry and the section that does;
+- `sources`: see [Sources](#sources). A concept needs three, a code scope at least one:
+  the paper, RFC, or doc that owns the name of a principle;
+- `plates`: optional sketches, drawn like *The Way Things Work*: a cutaway with numbered
+  callouts, an exploded view, a strip of frames, or a before-and-after pair. Draw one when
+  a picture shows a part the flow cannot: the inside of one shape, a layout in memory, a
+  format byte by byte. Read [`PLATES.md`](PLATES.md) before the first one.
+
+### Sources
 
 Every claim traces to a source. A note from memory can be wrong, and the reader cannot
 tell. Accept only:
@@ -92,44 +457,39 @@ tell. Accept only:
 - the primary source: the paper, RFC, or specification;
 - peer-reviewed papers and arXiv preprints;
 - Wikipedia, for general concepts and history, then its references;
-- articles by the inventors, maintainers, or recognized practitioners.
+- articles by the inventors, maintainers, or recognized practitioners;
+- for code scope, the repo's own docs and the vendor docs of its stack.
 
-How to read them:
+Search with `WebSearch`. Open every link with `WebFetch` before you cite it. For a PDF,
+`curl -L` it into the scratchpad and `Read` it. A publisher blocks the fetch: cite the
+authors' copy or a university mirror. A general idea with no single owner: read two
+independent sources.
 
-- Search with `WebSearch`. Open every link with `WebFetch` before you cite it.
-- For a PDF, `curl -L` it into the scratchpad and `Read` it. `WebFetch` returns raw bytes.
-- A publisher blocks the fetch: cite the authors' copy or a university mirror.
-- A general idea with no single owner: read two independent sources.
+Put the one best read first. Its `why` says why it is first and which part to read:
+"The paper that names the idea. Read sections 1 and 2 for the ring; skip the proofs."
 
-Format each entry as a link, then one line: what it covers and when to open it. Put the
-one best read first and say why. Put that link in the `source:` frontmatter too.
+## 6. Review, check, install
 
-```markdown
-- [Karger et al., 1997 — Consistent Hashing and Random Trees](https://…) The paper that
-  names the idea. Read sections 1–2 for the ring; skip the proofs.
-```
+1. `python3 check.py "$work/<slug>.json" --prose > "$work/prose.md"`.
+2. **Fact pass**, before any style edit. For each number and each claim in `prose.md`,
+   name its evidence: a file and line read at the pinned commit, a test fixture, or a
+   `sources` entry you fetched. Fix each claim whose evidence says otherwise. Cut each
+   claim with no evidence, or mark a number as your own arithmetic. A claim stays as
+   strong as its evidence: "the cache answers most repeat writes" stays "most" until a
+   number backs it.
+3. Run the review
+   passes of `STYLE.md` on `prose.md`. The medium is Obsidian, on a laptop and a phone. Each `##` heading names
+   the node that a paragraph belongs to. Tell both passes to keep each term of `words`
+   as written. Copy each edit back into the note.
+4. `python3 check.py "$work/<slug>.json" --install`. Fix each line it prints, and run it
+   again until it prints `ok`.
+5. Open the main page with the `open obsidian://…` command that install prints, and read
+   it like a critic. For each step, the shape numbers it cites must be the shapes its text
+   names. Each sketch must draw the count its caption and key state. Fix the note, then
+   install again.
 
-## Resolving the input
+Each install also rewrites `Explain.md` in the vault: one link per note, newest first.
+Then stop. The page layout and its decisions live in [`OUTPUT.md`](OUTPUT.md).
 
-| Input | Meaning |
-|---|---|
-| Bare commit hash | A commit of the repo in the current directory |
-| GitHub commit or PR URL | That change, in that repo |
-| A path | That code as it stands |
-| Anything else | A concept, tool, protocol, format, practice, or idea |
-
-A bare word can be a concept or a directory: ask which, nothing else.
-
-For code, read [`SOURCE-CODE.md`](SOURCE-CODE.md). The code is evidence. The subject is
-the idea it embodies.
-
-## Writing the file
-
-1. Read [`VAULT.md`](VAULT.md) for the vault path, frontmatter, tags, and note location.
-2. Write the note.
-3. Run `python3 check.py <note>` from this skill's folder. Fix each line until it prints
-   `ok`.
-4. Open the note and stop.
-
-A follow-up question about one part gets its answer in the conversation, with a plate or
-a Mermaid diagram. Regenerate the note only when the user asks.
+A follow-up question about one part gets its answer in the conversation. Regenerate the
+note only when the user asks.

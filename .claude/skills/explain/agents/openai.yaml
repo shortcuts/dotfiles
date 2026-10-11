@@ -1,5 +1,0 @@
-interface:
-  display_name: "Explain"
-  short_description: "Illustrated Obsidian note: the principle, the machine opened up, trusted sources"
-policy:
-  allow_implicit_invocation: false

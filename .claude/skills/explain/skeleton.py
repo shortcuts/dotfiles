@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write the deterministic half of an onboard note; the model fills every TODO.
+"""Write the deterministic half of an explain note; the model fills every TODO.
 
     python3 skeleton.py repo                         --out DIR
     python3 skeleton.py path <dir>                   --out DIR
@@ -480,7 +480,7 @@ def main():
         tree = feature_tree(files, a.packages, a.depth)
         tree["name"] = a.arg
     tree["id"] = tree["id"] or ""
-    # The map steps through the root lifecycle in every scope; the panel shows each detail.
+    # The map steps through the root lifecycle in every scope; the note lists each detail under the map.
     tree["lifecycle"] = [{"text": TODO, "at": [TODO], "detail": TODO}]
     tree["overview"] = TODO
     tree["problem"] = TODO

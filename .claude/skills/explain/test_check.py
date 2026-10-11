@@ -25,6 +25,11 @@ VALID = {
         "principles": [{"claim": "One repo is the source.", "why": "Two Macs drift apart.",
                         "cost": "A symlink step.", "example": [["a", "b"], ["c", "d"]]}],
         "stack": [{"name": "fish", "url": "https://fishshell.com", "role": "Shell."}],
+        "sources": [{"title": "fish docs", "url": "https://fishshell.com/docs/current/",
+                     "why": "The shell's own manual. Read the tutorial first."}],
+        "check": [{"q": "Where does a new Mac get its config?", "a": "From one clone."},
+                  {"q": "What breaks if the symlink is missing?", "a": "Claude Code finds no skills."},
+                  {"q": "Why a whitelist?", "a": "A new file stays private until named."}],
         "flow": {"nodes": [{"id": "a", "name": "fish", "end": "in", "about": "The shell."},
                            {"id": "b", "name": "Git: index", "store": True, "end": "out",
                             "about": "The staged files."}],
@@ -143,13 +148,13 @@ half["root"]["children"][0]["external"] = [{"name": "OpenAI API"}]
 assert "- OpenAI API: TODO" in prose(half)
 
 SERVICE = {
-    "id": "viewer", "name": "viewer", "kind": "service", "path": ".claude/.onboard",
-    "summary": "The onboard viewer.", "role": ["Draws the notes."],
+    "id": "viewer", "name": "viewer", "kind": "service", "path": "fish",
+    "summary": "The fish config.", "role": ["Draws the notes."],
     "flow": {"nodes": [{"id": "i", "name": "note", "end": "in"},
                        {"id": "o", "name": "page", "end": "out"}],
              "edges": [{"from": "i", "to": "o", "label": "call: render"}]},
-    "children": [{"id": ".claude/skills/onboard", "name": "onboard", "kind": "package",
-                  "path": ".claude/skills/onboard", "summary": "The skill.",
+    "children": [{"id": "fish/functions", "name": "functions", "kind": "package",
+                  "path": "fish/functions", "summary": "Git helpers.",
                   "role": ["Writes notes."]}],
 }
 
@@ -223,7 +228,7 @@ svc_note["root"]["children"].append(SERVICE | {"lifecycle": [{"text": "The note 
 assert "The note renders." in prose(svc_note)
 print("ok")
 
-# A part's flow fills the panel like the map: a dir with a flow takes steps, a shape links its doc.
+# A part's flow reads like the map: a dir with a flow takes steps, a shape links its doc.
 PART_FLOW = {"nodes": [{"id": "i", "name": "fish", "end": "in", "about": "The shell.", "doc": ".gitignore#top"},
                        {"id": "o", "name": "nvim", "end": "out"}],
              "edges": [{"from": "i", "to": "o", "label": "call: open"}]}
@@ -237,4 +242,78 @@ has(broken(lambda n: n["root"]["children"][0].update(flow=copy.deepcopy(PART_FLO
     PART_FLOW["nodes"][0] | {"about": "x" * 301}, PART_FLOW["nodes"][1]]})), "about over")
 assert "Fish opens nvim." in prose(VALID | {"root": VALID["root"] | {"children": [VALID["root"]["children"][0] | {
     "flow": PART_FLOW, "lifecycle": [{"text": "x", "at": ["i"], "detail": "Fish opens nvim."}]}]}})
+print("ok")
+
+# Ramp-up: every note ends with questions to check yourself and the sources to go further.
+has(broken(lambda n: n["root"].pop("sources")), "sources")
+has(broken(lambda n: n["root"]["sources"][0].update(url="ftp://x")), "sources")
+has(broken(lambda n: n["root"]["sources"][0].pop("why")), "sources")
+has(broken(lambda n: n["root"].pop("check")), "check")
+has(broken(lambda n: n["root"]["check"].pop()), "check")
+has(broken(lambda n: n["root"]["check"][0].update(q="x " * 16)), "15 words")
+has(broken(lambda n: n["root"]["check"][0].pop("a")), "check")
+assert broken(lambda n: n["root"].update(further=[{"q": "How do two Macs share secrets?", "source": 1, "at": "tutorial"}])) == []
+has(broken(lambda n: n["root"].update(further=[{"q": "x?", "source": 2, "at": "x"}])), "further")
+# A sketch is an SVG the note inlines, so it must parse and carry nothing that runs.
+SKETCH = ('<svg viewBox="0 0 360 120" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="10" width="80" height="40"/>'
+          '<text x="20" y="30">ring</text></svg>')
+plate = lambda svg, **kw: lambda n: n["root"].update(plates=[{"title": "The ring", "svg": svg, "key": ["Ring: the hash space."],
+    "caption": "Each key walks clockwise to the next of 3 servers."} | kw])
+assert broken(plate(SKETCH)) == []
+has(broken(plate("<svg viewBox='0 0 1 1'><rect></svg>")), "invalid XML")
+has(broken(plate(SKETCH.replace(' viewBox="0 0 360 120"', ""))), "viewBox")
+has(broken(plate(SKETCH.replace("<rect", '<rect onclick="x()"'))), "onclick")
+has(broken(plate(SKETCH.replace("<text", "<script>x()</script><text"))), "script")
+has(broken(plate(SKETCH.replace("<text", '<image href="https://x/y.png"/><text'))), "image")
+has(broken(plate(SKETCH, key=[])), "key")
+# A key line per drawn callout, no more, no less: count what you draw.
+CALLOUTS = SKETCH.replace("</svg>", '<text x="5" y="5">1</text><text x="5" y="20">2</text></svg>')
+has(broken(plate(CALLOUTS)), "callout")
+assert broken(plate(CALLOUTS, key=["Ring: holds the hash space.", "Server: owns one arc."])) == []
+has(broken(plate(SKETCH, caption="")), "caption")
+# A style url() loads from the network as surely as an href does.
+has(broken(plate(SKETCH.replace("<rect", '<rect style="fill:url(https://x/y)"'))), "url(")
+assert broken(plate(SKETCH.replace("<rect", '<rect style="fill:url(#hatch)"'))) == []
+
+# A concept has no repo: the sources carry the evidence, and the flow is the machine.
+CONCEPT = {
+    "schema": 2, "slug": "consistent-hashing", "title": "Consistent hashing", "generated": "2026-10-11",
+    "repo": None, "scope": {"kind": "concept", "query": "consistent hashing"},
+    "words": [{"term": "ring", "def": "The hash space bent into a circle."}],
+    "root": {
+        "id": "", "name": "Consistent hashing", "kind": "concept", "path": None,
+        "summary": "Spreads keys over servers so a new server moves few keys.",
+        "role": ["A cache cluster grows without a cold start."],
+        "problem": "With hash mod N, one new cache server remaps almost every key.",
+        "overview": "Each key and each server hashes onto one ring. A key goes to the next server clockwise.",
+        "principles": [{"claim": "A key moves only when its own arc changes owner.", "why": "Each server owns one arc.",
+                        "cost": "Arcs differ in size.", "source": 1, "example": [["Add server D", "Only keys on D's arc move."],
+                                                                    ["Remove server B", "B's keys go to C."]]}],
+        "flow": {"nodes": [{"id": "k", "name": "key", "end": "in", "about": "A cache key."},
+                           {"id": "r", "name": "ring", "about": "The hash space as a circle."},
+                           {"id": "s", "name": "server", "end": "out", "about": "The next server clockwise."}],
+                 "edges": [{"from": "k", "to": "r", "label": "call: hash"}, {"from": "r", "to": "s", "label": "call: walk"}]},
+        "lifecycle": [{"text": "A key lands on the ring.", "at": ["k", "r"], "detail": "user:42 hashes to 0x3a."}],
+        "sources": [{"title": f"Source {i}", "url": f"https://example.org/{i}", "why": "Covers the ring."} for i in range(3)],
+        "check": VALID["root"]["check"],
+    },
+}
+assert check(CONCEPT) == [], check(CONCEPT)
+has(check(CONCEPT | {"root": CONCEPT["root"] | {"sources": CONCEPT["root"]["sources"][:2]}}), "3 sources")
+has(check(CONCEPT | {"root": CONCEPT["root"] | {"path": "x"}}), "path null")
+has(check(CONCEPT | {"root": CONCEPT["root"] | {"lifecycle": []}}), "lifecycle")
+# A concept has no tree: a shape with node, even null, would draw dashed as outside a repo.
+has(check(CONCEPT | {"root": CONCEPT["root"] | {"flow": CONCEPT["root"]["flow"] | {"nodes": [
+    CONCEPT["root"]["flow"]["nodes"][0] | {"node": None}, *CONCEPT["root"]["flow"]["nodes"][1:]]}}}), "omit node")
+# A concept has no code to grep, so each principle names the source that backs it.
+has(check(CONCEPT | {"root": CONCEPT["root"] | {"principles": [CONCEPT["root"]["principles"][0] | {"source": 0}]}}), "source")
+assert check(CONCEPT | {"root": CONCEPT["root"] | {"principles": [{k: v for k, v in CONCEPT["root"]["principles"][0].items() if k != "source"}]}}) != []
+# A step says in one sentence what moves and what it means; the detail carries the rest.
+has(check(CONCEPT | {"root": CONCEPT["root"] | {"lifecycle": [CONCEPT["root"]["lifecycle"][0] | {"text": "A key lands. It moves."}]}}), "one sentence")
+# A count in the overview must match the map, or the reader learns a wrong number.
+has(check(CONCEPT | {"root": CONCEPT["root"] | {"overview": "Keys and servers share one ring. A key reaches its server in 2 steps."}}), "2 steps")
+assert check(CONCEPT | {"root": CONCEPT["root"] | {"overview": "Keys and servers share one ring. A key reaches its server in 1 step."}}) == []
+has(with_service(lambda n: n["root"].update(overview="Fish sets up both Macs. It runs 3 services.")), "3 services")
+assert with_service(lambda n: n["root"].update(overview="Fish sets up both Macs. It runs one service.")) == []
+assert "## root.check[0]" in prose(CONCEPT) and "Covers the ring." in prose(CONCEPT)
 print("ok")

@@ -99,17 +99,10 @@ STL/.DS_Store
 !.claude/skills/documentation/**
 !.claude/skills/explain/
 !.claude/skills/explain/**
-!.claude/skills/onboard/
-!.claude/skills/onboard/**
+# ELK is 1.5 MB of minified code, fetched and hash-checked by obsidian.py.
+.claude/skills/explain/vendor/
 !.claude/skills/_shared/
 !.claude/skills/_shared/**
-!.claude/.onboard/
-!.claude/.onboard/index.html
-!.claude/.onboard/CLAUDE.md
-!.claude/.onboard/app.css
-!.claude/.onboard/app.js
-!.claude/.onboard/bundle.py
-!.claude/.onboard/test_viewer.py
 !.claude/skills/no-ai-slop/
 !.claude/skills/no-ai-slop/**
 !.claude/skills/release-candidate/
