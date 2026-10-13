@@ -21,7 +21,8 @@ function obsd --description "Copy a file into the Obsidian vault under the curre
 
     set -l repo (basename $repo_root)
     set -l abs (realpath $src)
-    set -l rel (string replace "$repo_root/" "" $abs)
+    # Obsidian skips dot-folders, so ".claude/x.md" becomes "claude/x.md" in the vault.
+    set -l rel (string replace "$repo_root/" "" $abs | string replace -ar '(^|/)\.' '$1')
 
     set -l dest "$vault_path/$repo/$rel"
     mkdir -p (dirname "$dest")
@@ -29,7 +30,9 @@ function obsd --description "Copy a file into the Obsidian vault under the curre
 
     # Obsidian indexes new files with a small delay; retry until it sees the file.
     for i in (seq 6)
-        if obsidian open vault=$vault path="$repo/$rel" 2>/dev/null
+        # `obsidian open` exits 0 on "not found", so match its output instead.
+        set -l out (obsidian open vault=$vault path="$repo/$rel" 2>&1)
+        if string match -q "Opened:*" -- $out
             return 0
         end
         sleep 0.5
