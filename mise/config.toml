@@ -82,4 +82,3 @@ zoxide = "0.10.0"
 
 "npm:ccstatusline" = "2.2.29"
 "aqua:rtk-ai/rtk" = "latest"
-"pipx:headroom-ai" = "latest"

@@ -51,6 +51,9 @@
 [alias]
     # single pager pass, else delta's less alt-screen hides the shortstat line
     d = "!f() { { git --no-pager diff --shortstat \"$@\"; git --no-pager diff --color=always \"$@\"; } | delta; }; f"
+    branch-name = rev-parse --abbrev-ref HEAD
+    # --boundary draws main as the stack base; remote refs are hidden to keep one name per line
+    stack = log --graph --boundary --simplify-by-decoration --decorate-refs-exclude=refs/remotes --date=relative --format='%C(auto)%h%d%C(reset) %s %C(dim)%an, %cd%C(reset)' main..HEAD
 [protocol "file"]
     allow = always
 
