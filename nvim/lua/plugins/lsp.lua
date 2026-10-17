@@ -61,6 +61,7 @@ return {
                     jsonls = {},
                     rust_analyzer = {},
                     sqlls = {},
+                    taplo = {},
                     terraformls = {},
                     vimls = {},
                     yamlls = {},
@@ -241,6 +242,8 @@ return {
             ensure_installed = {
                 "stylua",
                 "shfmt",
+                "taplo",
+                "marksman",
             },
         },
         ---@param opts MasonSettings | {ensure_installed: string[]}
