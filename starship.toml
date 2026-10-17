@@ -1,9 +1,24 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# diff stats live in the tmux status-right (scripts/tmux-git-status); the session name already shows the directory, so only the branch shows here
-format = """$git_branch[❯](dimmed white) """
+# the session name already shows the directory, so only branch and git state show here
+format = """$git_branch$git_status$git_metrics[❯](dimmed white) """
 
 # empty outside a repo
 [git_branch]
 format = "[$branch]($style) "
 style = "dimmed white"
+
+# commits ahead/behind upstream; empty when level
+[git_status]
+format = "([$ahead_behind]($style) )"
+style = "dimmed white"
+ahead = "↑$count"
+behind = "↓$count"
+diverged = "↑$ahead_count↓$behind_count"
+
+# lines vs HEAD, same colors as scripts/tmux-git-status; empty when clean
+[git_metrics]
+disabled = false
+format = "([+$added]($added_style))([-$deleted]($deleted_style)) "
+added_style = "#57ab5a"
+deleted_style = "#f47067"
