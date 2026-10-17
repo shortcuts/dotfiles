@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Runs as the only program of a floating layer; exiting closes the layer.
+# Mirrors tmux-session-finder: one session per directory, created once, then reused.
+# Esc in fzf exits without touching any session.
+
+selected=$(
+  {
+    for d in ~/Documents/*/; do printf '%s\n' "${d%/}"; done
+    printf '%s\n' \
+      "$HOME/.config" \
+      "$HOME/Downloads" \
+      "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
+  } | fzf --layout=reverse --height=100% --select-1 --exit-0 \
+      --delimiter=/ --with-nth=-1 --nth=-1 \
+      --preview='ls -1A {}' --preview-window=right:40%
+)
+
+[[ -n $selected ]] || exit 0
+
+# same naming rule as tmux: dots break tmux targets, kept here so labels match across both tools
+name=${selected##*/}
+name=${name//./_}
+
+# match on label: `rex ls` reports no cwd, so a renamed session counts as new
+id=$(rex ls --json | jq -r --arg n "$name" 'first(.sessions[] | select(.label == $n) | .session_id) // empty')
+
+if [[ -z $id ]]; then
+  id=$(rex new "$name" --cwd "$selected" --json | jq -r '.session_id')
+fi

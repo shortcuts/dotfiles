@@ -79,8 +79,8 @@ if status is-interactive
         echo -n (set_color -d white)"in "(set_color -o -d yellow)$dur(set_color normal)
     end
 
-    # Auto-attach tmux, skip if already in tmux
-    if not set -q TMUX; and type -q tmux
+    # Rex replaces tmux and sets REX_SESSION in every terminal it opens
+    if not set -q TMUX; and not set -q REX_SESSION; and type -q tmux
         tmux attach; or tmux new
     end
 end

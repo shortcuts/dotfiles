@@ -73,6 +73,10 @@ fish/fish_variables*
 !tmux/
 !tmux/**
 
+# rex
+!rex/
+!rex/**
+
 !scripts/
 !scripts/**
 scripts/.seen_shinies

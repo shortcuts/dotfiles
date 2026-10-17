@@ -1,10 +1,9 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
-# branch and diff stats live in the tmux status-right (scripts/tmux-git-status)
-format = """$directory[❯](dimmed white) """
+# diff stats live in the tmux status-right (scripts/tmux-git-status); the session name already shows the directory, so only the branch shows here
+format = """$git_branch[❯](dimmed white) """
 
-# repo root name only; empty outside a repo, like the tmux status-right
-[directory]
-format = ""
-repo_root_format = "[$repo_root]($repo_root_style) "
-repo_root_style = "dimmed white"
+# empty outside a repo
+[git_branch]
+format = "[$branch]($style) "
+style = "dimmed white"
