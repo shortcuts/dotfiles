@@ -5,6 +5,20 @@ fish_add_path -a $HOME/.docker/bin
 
 source ~/.config/fish/alias.fish
 
+# Each `tool init | source` costs 10-260ms, and a new pane starts without our env.
+# Replay the output from ~/.cache/fish and rerun the command only when the stamp moves.
+# The cache is per machine: its content embeds /opt/homebrew or /usr/local paths.
+function __cache_source -a name stamp
+    set -l f ~/.cache/fish/$name.fish
+    set -l head
+    test -f $f; and read head <$f
+    if test "$head" != "# $stamp"
+        mkdir -p (path dirname $f)
+        set -l out ($argv[3..-1]); and printf '%s\n' "# $stamp" $out >$f
+    end
+    source $f
+end
+
 # Paths — fish_add_path is idempotent, no-op when already present
 fish_add_path /usr/local/bin /opt/homebrew/bin \
     $HOME/.local/bin \
@@ -25,7 +39,10 @@ set -gx MANPAGER "nvim +Man!"
 set -gx EDITOR nvim
 
 # Subshells inherit the env from the first shell; skip the brew spawn then
-set -q HOMEBREW_PREFIX; or brew shellenv | source
+if not set -q HOMEBREW_PREFIX
+    set -l b (command -s brew)
+    __cache_source brew "$b "(path mtime $b) brew shellenv
+end
 
 # Real tool paths, not shims: a shim execs the 150MB mise binary, and Falcon
 # rescans it every time (~280ms per command). This pays that once per config change.
@@ -48,8 +65,27 @@ function __mise_sync --on-variable PWD
     # mise env appends the current PATH, so strip the old tool paths first or a
     # repo's versions outlive leaving the repo.
     set -gx PATH (string match -v -- "$HOME/.local/share/mise/installs/*" $PATH)
-    mise env -s fish | source
+    __cache_source mise $stamp __mise_env
     set -gx __MISE_STAMP $stamp
+end
+
+# mise prints the whole current PATH. Keep only the entries it adds, so a cached
+# copy cannot freeze the PATH of the shell that wrote it.
+# eval lets fish undo mise's quoting: entries can contain spaces.
+function __mise_env
+    mise env -s fish | while read -l line
+        set -l m (string match -r '^set -gx PATH (.*)' -- $line)
+        if set -q m[2]
+            eval set -l entries $m[2]
+            set -l new
+            for e in $entries
+                contains -- $e $PATH; or set -a new (string escape -- $e)
+            end
+            echo "set -gx PATH $new \$PATH"
+        else
+            echo $line
+        end
+    end
 end
 __mise_sync
 
@@ -66,8 +102,11 @@ if status is-interactive
     set -gx FZF_DEFAULT_COMMAND 'fd --type f --hidden --exclude .git'
     set -gx FZF_CTRL_T_COMMAND $FZF_DEFAULT_COMMAND
     set -gx FZF_ALT_C_COMMAND 'fd --type d --hidden --exclude .git'
-    fzf --fish | source
-    starship init fish | source
+    set -l fzf (command -s fzf)
+    __cache_source fzf "$fzf "(path mtime $fzf) fzf --fish
+    # --print-full-init skips the stub that pipes the real init through psub (~15ms)
+    set -l ss (command -s starship)
+    __cache_source starship "$ss "(path mtime $ss) starship init fish --print-full-init
 
     # Right prompt in pure fish: a second starship exec costs ~32ms per prompt
     # under Falcon's scanner, and $CMD_DURATION already holds what it printed.
