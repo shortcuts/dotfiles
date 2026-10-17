@@ -6,6 +6,9 @@ Ghostty and tmux stay as a fallback until Rex leaves beta. Do not delete their c
 ## Files
 
 - `init.lua` — the only config file. Lua 5.1. It binds keys and defines actions.
+- `agent-notify.lua` — a long-running script, not a config file. It sends a macOS notification
+  when a Claude pane blocks, finishes, or fails. `init.lua` starts it detached on each load
+  (no duplicate). Config files receive no events, so `init.lua` cannot run the handlers itself.
 - `../scripts/rex-finder` — the program that the `finder` action runs in a floating layer.
 - `../aerospace/aerospace.toml` — opens `Rex Beta.app` at login and pins it to workspace 3.
 - `../fish/config.fish` — skips `tmux attach` when `REX_SESSION` is set.
