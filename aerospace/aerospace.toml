@@ -1,3 +1,8 @@
+config-version = 2
+
+# v1 inferred these from the workspace keybindings; v2 needs them explicit.
+persistent-workspaces = ['1', '2', '3', '4', '5', '9', '0']
+
 # Place a copy of this config to ~/.aerospace.toml
 # After that, you can edit ~/.aerospace.toml to your liking
 
@@ -212,4 +217,5 @@ automatically-unhide-macos-hidden-apps = false
     run = 'layout floating'
 
 [[on-window-detected]]
+    if = 'true'
     run = ["layout floating", "move-node-to-workspace 4"]
