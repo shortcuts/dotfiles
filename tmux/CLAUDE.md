@@ -1,3 +1,5 @@
+> Fallback. Rex is the default driver, see `../rex/CLAUDE.md`.
+
 # tmux
 
 Prefix is `C-y`, not the default `C-b`. Every other binding lives in `tmux.conf`.

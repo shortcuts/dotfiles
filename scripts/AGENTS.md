@@ -5,6 +5,7 @@ Personal scripts. One directory per scope, loose files for one-offs.
 ```
 scripts/
 ├── algolia/               # Algolia index maintenance, see algolia/README.md
+├── rex-finder             # Rex floating fzf picker, the Rex twin of tmux-session-finder
 ├── inv.sh                 # poke-idle.fr raffle bot
 └── tmux-session-finder    # fzf project picker that attaches a tmux session
 ```

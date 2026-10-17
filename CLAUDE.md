@@ -26,10 +26,17 @@ config file by adding explicit `!path/` and `!path/**` rules. Machine-local igno
 | What | Where |
 |------|-------|
 | Claude Code settings and skills | `.claude/` → symlinked from `~/.claude` |
+| Terminal multiplexer (default driver), see `rex/CLAUDE.md` | `rex/init.lua` |
 | Custom git workflow functions (`gco`, `gl`, `gpl`, `gps`, `gpsf`, `gsq`) | `fish/functions/g*.fish` |
 | Abbreviations, git shortcuts | `fish/alias.fish` |
 
 `mise` manages Go/Rust/Python/Java/Zig/Node. Add or update one with `mise use -g <lang>`.
+
+## Terminal stack
+
+Rex is the default terminal and multiplexer. Ghostty and tmux remain as a fallback until
+Rex leaves beta. Make terminal changes in `rex/` first. Mirror them in `ghostty/` and
+`tmux/` only when the user asks. Read `rex/CLAUDE.md` before you edit `rex/init.lua`.
 
 ## 3D printing
 
