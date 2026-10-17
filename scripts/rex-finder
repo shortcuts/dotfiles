@@ -12,8 +12,8 @@ selected=$(
       "$HOME/Downloads" \
       "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
   } | fzf --layout=reverse --height=100% --select-1 --exit-0 \
-      --delimiter=/ --with-nth=-1 --nth=-1 \
-      --preview='ls -1A {}' --preview-window=right:40%
+      --border=rounded --color='bg:#0d1117,bg+:#161b22,border:#30363d' \
+      --delimiter=/ --with-nth=-1 --nth=-1
 )
 
 [[ -n $selected ]] || exit 0
