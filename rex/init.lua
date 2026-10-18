@@ -17,6 +17,14 @@ rex.action{
 
 rex.bind("cmd+shift+f", "finder")
 
+rex.bind("cmd+n", "session.new")
+rex.bind("cmd+shift+n", "client.window.new")
+
+rex.bind("cmd+shift+h", "pane.focus.left")
+rex.bind("cmd+shift+j", "pane.focus.down")
+rex.bind("cmd+shift+k", "pane.focus.up")
+rex.bind("cmd+shift+l", "pane.focus.right")
+
 -- Open Diff: review the source pane's repository against main in hunk.
 -- The diff starts at the merge base with main, so it shows the branch's own
 -- commits plus uncommitted work, as a pull request would.
