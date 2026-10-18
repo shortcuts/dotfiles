@@ -103,7 +103,7 @@ local function hunk_block(dir)
   } }
 end
 
-rex.action{name = "open_diff_pane", title = "Open Diff in Pane",
+rex.action{name = "open_diff", title = "Open Diff",
   run = function(ctx)
     local dir, err = pane_directory(ctx)
     if not dir then error("Open Diff: " .. tostring(err)) end
@@ -116,25 +116,3 @@ rex.action{name = "open_diff_pane", title = "Open Diff in Pane",
       layout = hunk_block(dir),
     })
   end}
-
-rex.action{name = "open_diff_tab", title = "Open Diff in Tab",
-  run = function(ctx)
-    local dir, err = pane_directory(ctx)
-    if not dir then error("Open Diff: " .. tostring(err)) end
-    return rex.call("session.new_window", {
-      session_id = ctx.session_id,
-      window_label = diff_title(dir),
-      focus = true,
-      layout = hunk_block(dir),
-    })
-  end}
-
--- Config files get no events, so the notifier runs as a detached script; pgrep stops a duplicate on every reload.
--- The server's PATH lacks rex and the binary sits in a versioned dir, so pick the newest one.
-if rex.exec({ "pgrep", "-f", "MacOS/rex do .*agent-notify.lua" }).code ~= 0 then
-  rex.exec.start({
-    "sh", "-c",
-    [[bin=$(ls -d "$HOME"/Library/Application\ Support/com.superlogical.rex/RexServer/Versions/*/Rex\ Server.app/Contents/MacOS/rex | sort -V | tail -1)
-      exec "$bin" do "$HOME/.config/rex/agent-notify.lua" --all]],
-  }, { detach = true })
-end
