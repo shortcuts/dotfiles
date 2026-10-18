@@ -79,6 +79,7 @@ fish/fish_variables*
 
 !scripts/
 !scripts/**
+scripts/obsidian-restructure.sh
 scripts/.seen_shinies
 scripts/**/.env
 
