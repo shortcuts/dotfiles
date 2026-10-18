@@ -118,12 +118,6 @@ if status is-interactive
         echo -n (set_color -d white)"in "(set_color -o -d yellow)$dur(set_color normal)
     end
 
-    # Rex puts its CLI on PATH only in shells it spawns, and the dir name holds the version.
-    if not type -q rex
-        set -l rex (ls -d ~/Library/'Application Support'/com.superlogical.rex/RexServer/Versions/*/'Rex Server.app'/Contents/MacOS 2>/dev/null | sort -V | tail -n 1)
-        test -n "$rex"; and fish_add_path -a $rex
-    end
-
     # Rex replaces tmux and sets REX_SESSION in every terminal it opens.
     # SSH logins (phone) stay in plain fish so `rp` can drive Rex blocks.
     if not set -q TMUX; and not set -q REX_SESSION; and not set -q SSH_CONNECTION; and type -q tmux
