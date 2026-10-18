@@ -118,13 +118,9 @@ if status is-interactive
         echo -n (set_color -d white)"in "(set_color -o -d yellow)$dur(set_color normal)
     end
 
-    # Rex replaces tmux and sets REX_SESSION in every terminal it opens.
-    # SSH logins (phone) stay in plain fish so `rp` can drive Rex blocks.
-    if not set -q TMUX; and not set -q REX_SESSION; and not set -q SSH_CONNECTION; and type -q tmux
+    # Rex replaces tmux and sets REX_SESSION in every terminal it opens
+    if not set -q TMUX; and not set -q REX_SESSION; and type -q tmux
         tmux attach; or tmux new
-    end
-    if set -q SSH_CONNECTION; and not set -q REX_SESSION; and not set -q TMUX; and type -q rex
-        rpick
     end
 end
 
