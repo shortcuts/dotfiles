@@ -3,6 +3,7 @@
 # Runs as the only program of a floating layer; exiting closes the layer.
 # Mirrors tmux-session-finder: one session per directory, created once, then reused.
 # Esc in fzf exits without touching any session.
+# The layer's PTY is 95x22 but the app shows ~76x14; the margin keeps the right and bottom border visible.
 
 selected=$(
   {
@@ -12,7 +13,9 @@ selected=$(
       "$HOME/Downloads" \
       "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
   } | fzf --layout=reverse --height=100% --select-1 --exit-0 \
-      --border=rounded --color='bg:#0d1117,bg+:#161b22,border:#30363d' \
+      --border=rounded --border-label=' Sessions ' --margin=0,19,8,0 \
+      --prompt='❯ ' --pointer='▶' --info=inline-right \
+      --color='bg:#0d1117,bg+:#161b22,border:#30363d,label:#8b949e,fg:#c9d1d9,fg+:#f0f6fc,hl:#58a6ff,hl+:#79c0ff,prompt:#58a6ff,pointer:#58a6ff,info:#6e7681' \
       --delimiter=/ --with-nth=-1 --nth=-1
 )
 
