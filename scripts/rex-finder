@@ -32,5 +32,12 @@ if [[ -z $id ]]; then
   id=$(rex new "$name" --cwd "$selected" --json | jq -r '.session_id')
 fi
 
+# Rex appends new sessions last; re-sorting here keeps the order stable. Moving a session to its own place is a no-op.
+i=1
+while IFS= read -r sid; do
+  rex session move "$sid" --index "$i"
+  i=$((i + 1))
+done < <(rex ls --json | jq -r '.sessions | sort_by(.label | ascii_downcase) | .[].session_id')
+
 # client actions from the CLI need Remote Control on (Rex Settings > Rex Server)
 rex do session.select session_id="$id"
