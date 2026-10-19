@@ -66,113 +66,113 @@
   "model": "sonnet",
   "hooks": {
     "PreToolUse": [
-      {
+    {
         "matcher": "Bash",
         "hooks": [
-          {
-            "type": "command",
-            "command": "rtk hook claude"
-          }
+            {
+                "type": "command",
+                "command": "rtk hook claude"
+            }
         ]
-      },
-      {
+    },
+    {
         "matcher": "Grep|Glob|Bash",
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-            "args": [
-              "hook-augment"
-            ],
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
         ]
-      }
-    ],
+    }
+],
     "SessionStart": [
-      {
+    {
         "matcher": "startup",
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-            "args": [
-              "hook-augment"
-            ],
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
         ]
-      },
-      {
+    },
+    {
         "matcher": "resume",
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-            "args": [
-              "hook-augment"
-            ],
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
         ]
-      },
-      {
+    },
+    {
         "matcher": "clear",
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-            "args": [
-              "hook-augment"
-            ],
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
         ]
-      },
-      {
+    },
+    {
         "matcher": "compact",
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-            "args": [
-              "hook-augment"
-            ],
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
         ]
-      }
-    ],
+    }
+],
     "PostToolUse": [
-      {
+    {
         "matcher": "Read",
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-            "args": [
-              "hook-augment"
-            ],
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
         ]
-      }
-    ],
+    }
+],
     "SubagentStart": [
-      {
+    {
         "matcher": "*",
         "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
-            "args": [
-              "hook-augment"
-            ],
-            "timeout": 5
-          }
+            {
+                "type": "command",
+                "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
+                "args": [
+                    "hook-augment"
+                ],
+                "timeout": 5
+            }
         ]
-      }
-    ]
+    }
+]
   },
   "statusLine": {
     "type": "command",

@@ -31,3 +31,6 @@ id=$(rex ls --json | jq -r --arg n "$name" 'first(.sessions[] | select(.label ==
 if [[ -z $id ]]; then
   id=$(rex new "$name" --cwd "$selected" --json | jq -r '.session_id')
 fi
+
+# client actions from the CLI need Remote Control on (Rex Settings > Rex Server)
+rex do session.select session_id="$id"
