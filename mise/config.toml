@@ -61,6 +61,8 @@ mkcert = "1.4.4"
 pipx = "1.17.3"
 pnpm = "10"
 poetry = "2.4.3"
+# Absent from mise's registry. Releases ship aarch64 and x86_64 darwin binaries.
+"github:achristmascarl/rainfrog" = "0.4.6"
 ripgrep = "15.2.0"
 ruff = "0.16.8"
 shellcheck = "0.11.0"
