@@ -89,3 +89,34 @@ installed, unlike whole-tap trust:
         tinygo-org/tools/tinygo tufin/tufin/oasdiff
     brew trust --cask daveshanley/vacuum/vacuum lihaoyun6/tap/quickrecorder \
         nikitabobko/tap/aerospace@0.19.2
+
+### eMudhra CA key leak (October 2026)
+
+Eight eMudhra intermediate CAs leaked their private keys. Details:
+<https://emudhra.we-have-a-problem.com/>. Browsers block the certificates. Command-line
+tools can still trust them, so patch each CA bundle.
+
+Upgrade the tools that ship their own bundle:
+
+    brew upgrade ca-certificates uv    # ca-certificates >= 2026-09-25_1, uv >= 0.13.4
+    mise upgrade node                  # node >= 26.12.1
+    python -m pip install -U pip       # pip >= 26.2.2
+
+Go 1.27.3 already has the fix.
+
+macOS does not patch `/etc/ssl/cert.pem`. The built-in `curl`, `git`, `python3` and
+`openssl` read it, and it does not check revocation. Remove the two affected roots by
+hand. The script keeps a backup in `cert.pem.bak`:
+
+    sudo cp -p /etc/ssl/cert.pem /etc/ssl/cert.pem.bak &&
+    sudo awk '/^(###|===) /{skip=0}
+      /^=== .*\/CN=(AAA Certificate Services|emSign ECC Root CA - G3)$/{skip=1}
+      !skip' /etc/ssl/cert.pem.bak | sudo tee /etc/ssl/cert.pem > /dev/null
+
+Check the result. The `grep` must print `0`. Each `curl` must fail with a certificate error:
+
+    grep -cE 'AAA Certificate Services|emSign ECC Root CA - G3' /etc/ssl/cert.pem
+    /usr/bin/curl https://dv-g3b-emudhra.we-have-a-problem.com/
+    /usr/bin/curl https://dv-g3b-aaa-emudhra.we-have-a-problem.com/
+
+Run the `grep` again after each macOS update. An update can restore the file.
