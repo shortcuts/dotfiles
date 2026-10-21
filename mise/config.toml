@@ -35,7 +35,6 @@ gh = "2.101.0"
 "aqua:dlvhdr/gh-dash" = "4.25.2"
 git-cliff = "2.14.2"
 glow = "3.0.0"
-golangci-lint = "2.13.2"
 gum = "2.0.1"
 # Held at 3.x: helm 4 is a breaking major, and the clusters still run v3 charts.
 helm = "3.22.0"
