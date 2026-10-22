@@ -1,0 +1,19 @@
+#!/bin/sh
+# Prompt segment: commits ahead/behind the local upstream ref, plus the changed-file count.
+# Caches per directory: the prompt redraws on every Enter, and `git status` scans the worktree on big repos.
+
+ttl=3
+cache="${TMPDIR:-/tmp}/starship-git-local.$(printf '%s' "$PWD" | cksum | cut -d' ' -f1)"
+
+# BSD stat: both Macs run macOS
+if [ -f "$cache" ] && [ $(($(date +%s) - $(stat -f %m "$cache"))) -lt "$ttl" ]; then
+	cat "$cache"
+	exit 0
+fi
+
+git status --porcelain=v2 --branch 2>/dev/null | awk '
+	/^# branch.ab/ { a = $3 + 0; b = -$4 }
+	/^[12?u] / { d++ }
+	END { if (a) printf "↑%d ", a; if (b) printf "↓%d ", b; if (d) printf "±%d", d }' >"$cache.$$"
+mv "$cache.$$" "$cache"
+cat "$cache"

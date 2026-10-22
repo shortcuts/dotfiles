@@ -1,24 +1,19 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
+# the Mac runs under heavy load; spawning git alone can exceed the 500 ms default
+command_timeout = 2000
+
 # the session name already shows the directory, so only branch and git state show here
-format = """$git_branch$git_status$git_metrics[❯](dimmed white) """
+format = """$git_branch$custom[❯](dimmed white) """
 
 # empty outside a repo
 [git_branch]
 format = "[$branch]($style) "
 style = "dimmed white"
 
-# commits ahead/behind upstream; empty when level
-[git_status]
-format = "([$ahead_behind]($style) )"
+# the script caches for a few seconds; counts come from the local upstream ref, so run `git fetch` to refresh them
+[custom.git_local]
+when = true
+command = "~/.config/scripts/starship-git-local"
+format = "([$output]($style) )"
 style = "dimmed white"
-ahead = "↑$count"
-behind = "↓$count"
-diverged = "↑$ahead_count↓$behind_count"
-
-# lines vs HEAD, same colors as scripts/tmux-git-status; empty when clean
-[git_metrics]
-disabled = false
-format = "([+$added]($added_style))([-$deleted]($deleted_style)) "
-added_style = "#57ab5a"
-deleted_style = "#f47067"
