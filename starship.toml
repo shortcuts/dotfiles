@@ -4,16 +4,14 @@
 command_timeout = 2000
 
 # the session name already shows the directory, so only branch and git state show here
-format = """$git_branch$custom[❯](dimmed white) """
+format = """$git_branch$git_status[❯](dimmed white) """
 
 # empty outside a repo
 [git_branch]
 format = "[$branch]($style) "
 style = "dimmed white"
 
-# the script caches for a few seconds; counts come from the local upstream ref, so run `git fetch` to refresh them
-[custom.git_local]
-when = true
-command = "~/.config/scripts/starship-git-local"
-format = "([$output]($style) )"
+# built-in module: no process spawns, which the endpoint scanner makes slow
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
 style = "dimmed white"

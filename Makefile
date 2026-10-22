@@ -1,10 +1,17 @@
-.PHONY: install update symlink lint
+.PHONY: install update symlink lint mac linux
+
+# `make install mac`, `make update linux`. Omitted: install.sh detects the host.
+PLATFORM := $(filter mac linux,$(MAKECMDGOALS))
 
 install:
-	./install.sh setup
+	./install.sh setup $(PLATFORM)
 
 update:
-	./install.sh
+	./install.sh update $(PLATFORM)
+
+# Words after install/update are args, not targets.
+mac linux:
+	@:
 
 symlink:
 	rm -rf ~/.claude

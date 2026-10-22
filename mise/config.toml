@@ -17,6 +17,8 @@ bat = "0.26.1"
 bats = "1.14.0"
 biome = "2.5.14"
 bob = "4.1.7"
+# aqua's build is linux-only; macOS keeps the brew formula.
+btop = { version = "latest", os = ["linux"] }
 cargo-binstall = "1.23.0"
 ccache = "4.14"
 cfssl = "1.6.5"
@@ -32,8 +34,11 @@ delta = "0.18.2"
 dotenv-linter = "4.0.0"
 eksctl = "0.230.0"
 fastfetch = "2.68.1"
+# Absent from mise's registry. Releases ship a bare binary per target, including both Macs and linux.
+"github:dmtrKovalenko/fff" = { version = "0.11.0", matching = "fff-mcp", rename_exe = "fff-mcp", os = ["macos", "linux"] }
 fd = "10.3.0"
 fzf = "0.74.4"
+gcloud = "590.0.0"
 gh = "2.101.0"
 # Absent from mise's own registry, so pull it straight from aqua.
 "aqua:dlvhdr/gh-dash" = "4.25.2"
@@ -58,7 +63,7 @@ kustomize = "5.8.1"
 lazydocker = "0.25.2"
 lazygit = "0.65.1"
 # Absent from mise's registry. The macOS CLI asset is a universal binary, so both Macs share it.
-"github:harry0703/MangoDisk" = { version = "1.1.4", matching = "macos-cli", bin = "mangodisk" }
+"github:harry0703/MangoDisk" = { version = "1.1.4", matching = "macos-cli", bin = "mangodisk", os = ["macos"] }
 ko = "0.19.1"
 minikube = "1.39.0"
 mkcert = "1.4.4"
@@ -67,6 +72,7 @@ pnpm = "10"
 poetry = "2.4.3"
 # Absent from mise's registry. Releases ship aarch64 and x86_64 darwin binaries.
 "github:achristmascarl/rainfrog" = "0.4.6"
+redis = "8.10.2"
 ripgrep = "15.2.0"
 ruff = "0.16.8"
 shellcheck = "0.11.0"
@@ -75,6 +81,8 @@ skaffold = "2.25.0"
 starship = "1.26.0"
 stylua = "2.5.2"
 task = "3.53.1"
+# macOS keeps the brew formula: the static build is less tested against macOS terminfo.
+tmux = { version = "latest", os = ["linux"] }
 terraform = "1.16.2"
 tree-sitter = "0.27.0"
 # mise's pypi backend shells out to uvx, so ansible needs uv present.

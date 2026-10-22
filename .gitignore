@@ -65,6 +65,10 @@ fish/fish_variables*
 !gh-dash/
 !gh-dash/**
 
+# git
+!git/
+!git/ignore
+
 # github workflows
 !.git*
 !.github/
