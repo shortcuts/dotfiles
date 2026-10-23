@@ -1,6 +1,5 @@
 # The following lines were added by Docker Desktop to add commands to your PATH.
-# fish_add_path: export appended a copy per nested shell (tmux, popups)
-fish_add_path -a $HOME/.docker/bin
+export PATH="$PATH:/Users/clement.vannicatte/.docker/bin"
 # End of Docker Desktop section.
 
 source ~/.config/fish/alias.fish
