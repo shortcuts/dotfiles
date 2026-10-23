@@ -106,11 +106,18 @@ return {
         ---@param opts PluginLspOpts
         config = function(_, opts)
             require("fidget").setup({})
-            require("mason-lspconfig").setup({ automatic_enable = false })
+            local servers = opts.servers or {}
+            local wanted = {}
+            for name, cfg in pairs(servers) do
+                if name ~= "*" and cfg.enabled ~= false then
+                    wanted[#wanted + 1] = name
+                end
+            end
+            -- names without a Mason package are skipped silently
+            require("mason-lspconfig").setup({ automatic_enable = false, ensure_installed = wanted })
 
             vim.diagnostic.config(opts.diagnostics)
 
-            local servers = opts.servers or {}
             if servers["*"] then
                 vim.lsp.config("*", servers["*"])
             end
@@ -249,18 +256,27 @@ return {
         ---@param opts MasonSettings | {ensure_installed: string[]}
         config = function(_, opts)
             require("mason").setup(opts)
-            -- registry refresh is a network call; only pay it on demand
-            vim.api.nvim_create_user_command("MasonEnsureInstalled", function()
-                local mr = require("mason-registry")
+            local mr = require("mason-registry")
+            local function ensure_installed()
+                -- registry refresh is a network call; skip it when nothing is missing
+                local missing = vim.tbl_filter(function(tool)
+                    return not mr.is_installed(tool)
+                end, opts.ensure_installed)
+                if #missing == 0 then
+                    return
+                end
                 mr.refresh(function()
-                    for _, tool in ipairs(opts.ensure_installed) do
-                        local p = mr.get_package(tool)
-                        if not p:is_installed() then
-                            p:install()
-                        end
+                    for _, tool in ipairs(missing) do
+                        mr.get_package(tool):install()
                     end
                 end)
-            end, { desc = "Install missing Mason tools" })
+            end
+            ensure_installed()
+            vim.api.nvim_create_user_command(
+                "MasonEnsureInstalled",
+                ensure_installed,
+                { desc = "Install missing Mason tools" }
+            )
         end,
     },
 }
