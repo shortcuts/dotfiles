@@ -47,7 +47,7 @@ function obsd --description "Copy a file into the Obsidian vault under the curre
     cp "$abs" "$dest"
 
     # Obsidian indexes new files with a small delay; retry until it sees the file.
-    for i in (seq 6)
+    for i in (seq 20)
         # `obsidian open` exits 0 on "not found", so match its output instead.
         set -l out (obsidian open vault=$vault path="$vault_rel" 2>&1)
         if string match -q "Opened:*" -- $out

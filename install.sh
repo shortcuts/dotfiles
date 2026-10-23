@@ -54,6 +54,9 @@ Host github.com
 EOF
     chmod 600 ~/.ssh/config)
 
+    # The Homebrew installer does not add brew to this shell's PATH.
+    eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv)"
+
     brew update && brew upgrade
 
     brew install fish mise
@@ -147,17 +150,19 @@ bash ~/.tmux/plugins/tmux-agent-sidebar/install-wizard.sh download-binary </dev/
 
 # fish as default shell
 if [[ $MODE == "setup" ]]; then
-    which fish | sudo tee -a /etc/shells
+    grep -qxF "$(which fish)" /etc/shells || which fish | sudo tee -a /etc/shells
     chsh -s "$(which fish)" || true
-    fish || true
-    [[ $PLATFORM == mac ]] && fish_add_path "$(which brew)"
 fi
 
-fish_update_completions
+# fish functions do not exist in bash
+fish -c fish_update_completions
 
 # languages and CLIs: versions live in mise/config.toml
 mise install
 mise prune --yes
+
+# This script runs in bash, which never loads fish/config.fish: put the new tools on PATH.
+eval "$(mise env -s bash)"
 
 # fff MCP server for Claude Code (user scope, stored in ~/.claude.json)
 if ! command -v fff-mcp >/dev/null 2>&1; then
@@ -175,11 +180,5 @@ luarocks install luacheck
 luarocks install argparse
 
 bob use latest
-
-# setup fzf
-if [[ $MODE == "setup" ]]; then
-    # shellcheck disable=SC1090
-    fzf --fish | source
-fi
 
 "${PLATFORM}_post"
