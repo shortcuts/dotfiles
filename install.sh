@@ -109,6 +109,12 @@ mac_post() {
     # killall Dock is disruptive, keep it out of routine updates
     if [[ $MODE == "setup" ]]; then
         defaults write com.apple.dock expose-group-apps -bool true && killall Dock
+
+        # reduce motion and transparency; takes effect after next login
+        defaults write com.apple.Accessibility DifferentiateWithoutColor -int 1
+        defaults write com.apple.Accessibility ReduceMotionEnabled -int 1
+        defaults write com.apple.universalaccess reduceMotion -int 1
+        defaults write com.apple.universalaccess reduceTransparency -int 1
     fi
 }
 
