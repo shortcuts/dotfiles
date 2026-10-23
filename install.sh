@@ -57,6 +57,10 @@ EOF
     # The Homebrew installer does not add brew to this shell's PATH.
     eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv)"
 
+    # xcrun defaults to the newest SDK, which a beta SDK can make newer than the CLT linker supports.
+    local sdk="$(xcode-select -p)/SDKs/MacOSX.sdk"
+    [[ -d $sdk ]] && export SDKROOT=$sdk
+
     brew update && brew upgrade
 
     brew install fish mise
@@ -94,6 +98,9 @@ mac_post() {
             renovaite.shrtcts.fr \
             renovaite-api.shrtcts.fr --ip 192.168.1.19
     fi
+
+    # start-at-login only registers the login item once AeroSpace has run.
+    open -a AeroSpace
 
     # last cleanup
     brew update && brew upgrade && brew doctor && brew cleanup

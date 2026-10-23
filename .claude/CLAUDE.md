@@ -69,8 +69,8 @@ radin keeps a per-repo backlog in `<repo-root>/.claude/.radin/` so tasks
 survive past one conversation. Reach for it instead of ad-hoc task tracking:
 
 - A bug, idea, or follow-up comes up mid-session: record it with `/radin-record`.
-- The user asks what is pending: run `radin backlog show` and print its output. One entry needs a plan first: `/radin-plan`.
+- The user asks what is pending: run `"$HOME/.claude/.radin/bin/radin" backlog show` and print its output. One entry needs a plan first: `/radin-plan`.
 - The user wants the backlog worked through: `/radin-batch` (it asks whether to plan each task first), or `/radin-do <prompt>` for one ad-hoc task. A code review whose findings should become tasks: `/radin-review`.
-- Never hand-edit files under `.claude/.radin/` -- every backlog operation goes through the `radin backlog` CLI.
+- Never hand-edit files under `.claude/.radin/` -- every backlog operation goes through the `"$HOME/.claude/.radin/bin/radin" backlog` CLI.
 - Never guess on a broad or ambiguous ask: invoke `/mattpocock-skills:grilling` and let the user settle it before radin writes anything.
 <!-- radin:end -->
