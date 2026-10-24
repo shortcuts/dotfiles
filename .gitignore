@@ -47,6 +47,8 @@ fish/conf.d/*
 fish/functions/*
 !fish/functions/g*
 !fish/functions/rmdocker*
+!fish/functions/rmgradle*
+!fish/functions/cleandisk*
 !fish/functions/td*
 !fish/functions/vpn*
 !fish/functions/obsd*
