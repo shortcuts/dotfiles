@@ -176,8 +176,10 @@ lite_prune() {
 # without a GUI login; a LaunchAgent would wait for one, and the mini boots headless.
 # usage: install_daemon <label> <extra plist keys> <program> [args...]
 # Reloads only when the plist changed: a reload would kill a running job.
+# Runs as the current user; set DAEMON_USER=root for a job that needs root.
 install_daemon() {
     local label=$1 extra=$2 plist=/Library/LaunchDaemons/$1.plist args="" arg new
+    local user=${DAEMON_USER:-$(id -un)}
     shift 2
     for arg in "$@"; do
         args+="    <string>$arg</string>"$'\n'
@@ -189,7 +191,7 @@ install_daemon() {
 <plist version="1.0">
 <dict>
   <key>Label</key><string>$label</string>
-  <key>UserName</key><string>$(id -un)</string>
+  <key>UserName</key><string>$user</string>
   <key>EnvironmentVariables</key><dict><key>HOME</key><string>$HOME</string></dict>
   <key>StandardOutPath</key><string>$HOME/Library/Logs/$label.log</string>
   <key>StandardErrorPath</key><string>$HOME/Library/Logs/$label.log</string>
@@ -247,6 +249,23 @@ lite_headless() {
   <key>Nice</key><integer>10</integer>
   <key>LowPriorityIO</key><true/>
 ' "$(command -v fish)" -l -c 'cleandisk --auto'
+
+    # The tunnel is how the phone and laptop reach the mini. wg-quick needs root. KeepAlive
+    # retries after a failure, because the LAN can be down when the daemon starts at boot.
+    # The conf comes from rpi/bootstrap-mac-client.sh, which also wrote com.wireguard.wg0: replace it.
+    local wg_prefix
+    wg_prefix=$(brew --prefix)
+    if [[ -x $wg_prefix/bin/wg-quick && -f $wg_prefix/etc/wireguard/wg0.conf ]]; then
+        sudo launchctl bootout system/com.wireguard.wg0 2>/dev/null
+        sudo rm -f /Library/LaunchDaemons/com.wireguard.wg0.plist
+        DAEMON_USER=root install_daemon com.shortcuts.vpn \
+            '  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
+  <key>ThrottleInterval</key><integer>30</integer>
+' /bin/sh -c "PATH=$wg_prefix/bin:\$PATH; wg show interfaces | grep -q . || wg-quick up wg0"
+    else
+        echo "wg0.conf or wg-quick not found, skipping vpn daemon"
+    fi
 }
 
 lite_post() {

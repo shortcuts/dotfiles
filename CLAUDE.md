@@ -18,9 +18,10 @@ the rest, and only the full Mac loads it through the gitignored `mise/miserc.tom
 tool the mini needs to `config.toml`, any other tool to `config.mac.toml`.
 
 `lite_headless` in `install.sh` sets the mini up as a headless box: no sleep, restart after
-power loss, Spotlight off. It also installs two LaunchDaemons that run at boot with no login:
-`com.shortcuts.rex-server` and `com.shortcuts.cleandisk` (daily `cleandisk --auto`, which
-cleans only below 20 GiB free). Logs: `~/Library/Logs/com.shortcuts.*.log`.
+power loss, Spotlight off. It also installs LaunchDaemons that run at boot with no login:
+`com.shortcuts.rex-server`, `com.shortcuts.cleandisk` (daily `cleandisk --auto`, which
+cleans only below 20 GiB free) and `com.shortcuts.vpn` (runs `wg-quick up wg0` as root, only
+when `wg0.conf` exists). Logs: `~/Library/Logs/com.shortcuts.*.log`.
 
 `lite_prune` removes the full-Mac leftovers (GUI casks, mac-only brew packages, mac-only mise
 tools) on every lite run. Add a package to its list when `mac_pre` gains one that lite skips.
