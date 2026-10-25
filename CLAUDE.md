@@ -10,6 +10,13 @@ Every config must run on both Macs. Resolve Homebrew at runtime with `$(which br
 `/opt/homebrew/bin` on `fish_user_paths`. Give any ARM-only or Intel-only binary a
 fallback.
 
+## Lite Mac mini
+
+`./install.sh setup lite` (or `make install lite`) targets the Mac mini that runs agents. It
+installs no GUI apps. `mise/config.toml` holds the lite tool set. `mise/config.mac.toml` holds
+the rest, and only the full Mac loads it through the gitignored `mise/miserc.toml`. Add a
+tool the mini needs to `config.toml`, any other tool to `config.mac.toml`.
+
 ## Setup
 
 Clone this repo to `~/.config`, then run `./install.sh setup`. It symlinks

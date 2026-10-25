@@ -1,104 +1,29 @@
+# Lite set: what the Mac mini needs for locationjoystick, no-neck-pain.nvim, anko,
+# clidraw, pgpemu and radin. Everything else lives in config.mac.toml, which only the full
+# Mac loads (MISE_ENV=mac, set by install.sh through miserc.toml).
 # Language toolchains float: projects pin their own versions, global is a fallback.
 [tools]
-go = "1.27.3"
 java = "latest"
 node = "latest"
 python = "latest"
 rust = "latest"
-# Pinned, not floating: mise's latest is already 0.16.0.
-zig = "0.15.2"
-
-# CLIs are pinned so both Macs run identical binaries. Bump with `mise up --bump`.
-actionlint = "1.7.12"
-ansible = "14.4.0"
-aws-cli = "2.36.47"
-azure-kubelogin = "0.2.19"
-bat = "0.26.1"
-bats = "1.14.0"
-biome = "2.5.14"
+bats = "1.14.0" # radin tests.
 bob = "4.1.7"
-# aqua's build is linux-only; macOS keeps the brew formula.
-btop = { version = "latest", os = ["linux"] }
-cargo-binstall = "1.23.0"
-ccache = "4.14"
-cfssl = "1.6.5"
-cfssljson = "1.6.5" # minimetis needs both cfssl binaries.
 # Floats, unlike the other CLIs: Anthropic ships a release most days and the CLI
 # warns when it trails. Was the `claude-code` brew cask.
 claude-code = "latest"
-cloc = "2.10"
-cmake = "4.4.3"
-crane = "0.22.1"
 # 0.19.0 dropped x86_64-apple-darwin; 0.18.2 is the last release with an Intel Mac binary.
 delta = "0.18.2"
-dotenv-linter = "4.0.0"
-eksctl = "0.230.0"
-fastfetch = "2.68.1"
-# Absent from mise's registry. Releases ship a bare binary per target, including both Macs and linux.
-"github:dmtrKovalenko/fff" = { version = "0.11.0", matching = "fff-mcp", rename_exe = "fff-mcp", os = ["macos", "linux"] }
+# Absent from mise's registry. Releases ship a bare binary per target, including both Macs.
+"github:dmtrKovalenko/fff" = { version = "0.11.0", matching = "fff-mcp", rename_exe = "fff-mcp" }
 fd = "10.3.0"
 fzf = "0.74.4"
 gh = "2.101.0"
-# Absent from mise's own registry, so pull it straight from aqua.
-"aqua:dlvhdr/gh-dash" = "4.25.2"
-git-cliff = "2.14.2"
-glow = "3.0.0"
-golangci-lint = "2.14.0" # Metis CI pins this version in lint-go.yml.
-gum = "2.0.1"
-# Held at 3.x: helm 4 is a breaking major, and the clusters still run v3 charts.
-helm = "3.22.0"
-helmfile = "1.8.0"
-hostctl = "1.1.4"
-hunk = "0.22.0"
 jq = "1.8.2"
-k3d = "5.9.0"
-k9s = "0.51.0"
-kind = "0.33.0"
-ktlint = "1.8.0"
-kubeconform = "0.8.0"
-kubectl = "1.37.0"
-kubectx = "0.11.0"
-kustomize = "5.8.1"
-lazydocker = "0.25.2"
-lazygit = "0.65.1"
-# Absent from mise's registry. The macOS CLI asset is a universal binary, so both Macs share it.
-"github:harry0703/MangoDisk" = { version = "1.1.4", matching = "macos-cli", bin = "mangodisk", os = ["macos"] }
-ko = "0.19.1"
-minikube = "1.39.0"
-mkcert = "1.4.4"
-pipx = "1.17.3"
-pnpm = "10"
-poetry = "2.4.3"
-# Absent from mise's registry. Releases ship aarch64 and x86_64 darwin binaries.
-"github:achristmascarl/rainfrog" = "0.4.6"
-redis = "8.10.2"
 ripgrep = "15.2.0"
-ruff = "0.16.8"
+starship = "1.26.0"
 shellcheck = "0.11.0"
 shfmt = "3.14.1"
-skaffold = "2.25.0"
-starship = "1.26.0"
 stylua = "2.5.2"
-task = "3.53.1"
-# macOS keeps the brew formula: the static build is less tested against macOS terminfo.
-tmux = { version = "latest", os = ["linux"] }
-terraform = "1.16.2"
-tree-sitter = "0.27.0"
-# mise's pypi backend shells out to uvx, so ansible needs uv present.
-uv = "latest"
-vale = "3.22.0"
-vault = "2.1.0"
-yamllint = "1.38.0"
-yarn = "4.9.4"
-yq = "4.53.6"
-zoxide = "0.10.0"
-
 "npm:ccstatusline" = "2.2.29"
 "aqua:rtk-ai/rtk" = "latest"
-
-# Renovate's mise manager does not track the conda and github backends, so bump
-# these by hand.
-#"pypi:azure-cli" = "2.90.0"  # The registry short name pulls semantic options that need uv.
-"conda:bash" = "5.2.37"      # macOS ships bash 3.2; Metis scripts use `declare -A` and `mapfile`.
-"conda:postgresql" = "18.6"  # psql only; the server itself runs in Docker.
-"github:lework/skopeo-binary" = { version = "1.24.1", bin_path = ".", rename_exe = "skopeo" } # skopeo is absent from the mise registry.

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# usage: install.sh [setup|update] [mac|linux]
+# usage: install.sh [setup|update] [mac|lite]
+# lite: the Mac mini agent box. No GUI apps, only what its six projects build with.
 
 MODE=$1
 PLATFORM=$2
@@ -8,24 +9,22 @@ if [[ $MODE != "setup" ]]; then
     MODE="update"
 fi
 
-# Default from the host so a bare `./install.sh setup` keeps working on either OS.
-if [[ -z $PLATFORM ]]; then
-    [[ $(uname -s) == Linux ]] && PLATFORM=linux || PLATFORM=mac
-fi
+PLATFORM=${PLATFORM:-mac}
 
 case $PLATFORM in
-mac | linux) ;;
+mac | lite) ;;
 *)
-    echo "usage: $0 [setup|update] [mac|linux]" >&2
+    echo "usage: $0 [setup|update] [mac|lite]" >&2
     exit 1
     ;;
 esac
 
 echo "mode: $MODE, platform: $PLATFORM"
 
-# ---------------------------------------------------------------- mac
+# ---------------------------------------------------------------- shared mac
 
-mac_pre() {
+# Homebrew, shell bootstrap files and the SDK pin: identical on both platforms.
+mac_base() {
     [[ $MODE == "setup" ]] && /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
     # ssh-agent: load keychain keys for non-fish shells too (bash/zsh subprocesses,
@@ -62,6 +61,16 @@ EOF
     [[ -d $sdk ]] && export SDKROOT=$sdk
 
     brew update && brew upgrade
+}
+
+# ---------------------------------------------------------------- mac
+
+mac_pre() {
+    mac_base
+
+    # Loads config.mac.toml on top of config.toml. Machine-local (gitignored):
+    # the lite mini must not get it, and fish reads it on every shell.
+    printf 'env = ["mac"]\n' > ~/.config/mise/miserc.toml
 
     brew install fish mise
 
@@ -70,7 +79,7 @@ EOF
     brew tap nikitabobko/tap
 
     # GNU coreutils, not the uutils rewrite mise's registry points at.
-    # tmux and btop stay on brew here: mise/config.toml only installs them on linux.
+    # tmux and btop stay on brew: the static mise builds are less tested against macOS terminfo.
     # Everything else here is a cask, a daemon, or absent from mise's registry.
     brew install coreutils tmux wget fswatch btop \
         ghostty openvpn-connect obsidian font-hack-nerd-font \
@@ -118,30 +127,43 @@ mac_post() {
     fi
 }
 
-# ---------------------------------------------------------------- linux
+# ---------------------------------------------------------------- lite
 
-linux_pre() {
-    sudo apt-get update && sudo apt-get -y upgrade
+lite_pre() {
+    mac_base
 
-    # No GUI here: headless agent box, reached over ssh.
-    # Only what mise cannot ship: the login shell, the sshd daemon, and tools absent
-    # from its registry. tmux and btop come from mise/config.toml.
-    sudo apt-get install -y build-essential curl git wget unzip \
-        fish fswatch luarocks lua5.4 openssh-server pciutils
+    # Lite has no config.mac.toml: keep the full Mac's tool set off the small disk.
+    rm -f ~/.config/mise/miserc.toml
 
-    # mise ships no apt package in the default repos.
-    command -v mise >/dev/null 2>&1 || curl -fsSL https://mise.run | sh
-    export PATH="$HOME/.local/bin:$PATH"
+    # No window manager, browser or media apps. tmux and ghostty stay for the agent sessions.
+    # luarocks and lua serve no-neck-pain.nvim; clang-format serves pgpemu's `make format`.
+    brew install fish mise tmux coreutils lua luarocks clang-format ghostty
 
-    # Mac mini 2018 (Intel): the firmware stays off after a power cut unless told otherwise.
-    # Skipped silently on other hardware.
-    if [[ $MODE == "setup" ]] && command -v setpci >/dev/null 2>&1; then
-        sudo setpci -s 00:1f.0 0xa4.b=0 2>/dev/null || true
-    fi
+    brew install --cask font-jetbrains-mono-nerd-font \
+        android-commandlinetools android-platform-tools love
 }
 
-linux_post() {
-    sudo apt-get -y autoremove
+lite_post() {
+    # The path pgpemu's Makefile sources. ESP-IDF's installer fetches its own cmake,
+    # ninja and ccache, so mise does not carry them.
+    local idf=~/esp/v5.4.1/esp-idf
+    [[ -d $idf ]] || git clone -b v5.4.1 --depth 1 --recursive \
+        https://github.com/espressif/esp-idf.git "$idf"
+    [[ -d ~/.espressif ]] || "$idf/install.sh" esp32c3
+
+    # radin is a Claude Code plugin: it needs the claude CLI that mise just installed.
+    # --yes takes the default package manager for its companions; --update skips
+    # companions already present. A failure here must not stop the run.
+    if command -v claude >/dev/null 2>&1; then
+        local radin_args=(--yes)
+        [[ $MODE == update ]] && radin_args+=(--update)
+        curl -fsSL https://raw.githubusercontent.com/shortcuts/radin/main/install.sh |
+            bash -s -- "${radin_args[@]}" || echo "radin install failed, run it again by hand"
+    else
+        echo "claude CLI not found, skipping radin install"
+    fi
+
+    brew cleanup
 }
 
 # ---------------------------------------------------------------- shared
@@ -150,7 +172,7 @@ linux_post() {
 
 # gitconfig + claude symlink
 if [[ $MODE == "setup" ]]; then
-    curl -fsSL https://bun.com/install | bash
+    [[ $PLATFORM == mac ]] && curl -fsSL https://bun.com/install | bash
     cp ~/.config/.gitconfig ~/.gitconfig
     make -C ~/.config symlink
 fi
@@ -186,7 +208,7 @@ else
     echo "claude CLI not found, skipping fff MCP registration"
 fi
 
-poetry completions fish > ~/.config/fish/completions/poetry.fish
+[[ $PLATFORM == mac ]] && poetry completions fish > ~/.config/fish/completions/poetry.fish
 
 # lang
 luarocks install luacheck

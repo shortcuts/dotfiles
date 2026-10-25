@@ -51,7 +51,7 @@ end
 # stamp moves. Stamp covers parent dirs (mise walks up) and installs, so a new
 # "latest" install is picked up without a config edit.
 function __mise_sync --on-variable PWD
-    set -l files ~/.config/mise/config.toml
+    set -l files (path filter -f ~/.config/mise/config.toml ~/.config/mise/config.mac.toml ~/.config/mise/miserc.toml)
     set -l d $PWD
     while true
         set -a files (path filter -f $d/mise.toml $d/mise.local.toml $d/.mise.toml)

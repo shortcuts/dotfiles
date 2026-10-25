@@ -12,14 +12,15 @@ Here you'll find what I use on a daily basis, located in my `~/.config` folder
 
 ## getting started
 
-    make install mac     # or: make install linux
+    make install mac     # or: make install lite
 
-Without the argument, `install.sh` picks the platform from `uname`.
-The Mac mini server steps are in [LINUX.md](LINUX.md).
+Without the argument, `install.sh` installs `mac`.
+`lite` is for the Mac mini that runs agents. It skips the GUI apps and installs only the tools
+that locationjoystick, no-neck-pain.nvim, anko, clidraw, pgpemu and radin need. It also installs radin into Claude Code.
 
 ## update all
 
-    make update mac      # or: make update linux
+    make update mac      # or: make update lite
 
 ## move untracked files to a new Mac
 

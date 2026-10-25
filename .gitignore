@@ -59,6 +59,8 @@ fish/fish_variables*
 # pkg manager
 !mise/
 !mise/**
+# Written by install.sh on the full Mac only: it selects config.mac.toml.
+mise/miserc.toml
 
 # starship config
 !starship.toml
