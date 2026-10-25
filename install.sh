@@ -261,15 +261,23 @@ lite_headless() {
         echo "$HOME/Library/Logs/com.shortcuts.$label.log $(id -un):staff 644 3 1024 * Z"
     done | sudo tee /etc/newsyslog.d/com.shortcuts.conf >/dev/null
 
+    # Only Rex terminals have the app bundle on PATH, so an SSH shell (Termius) finds no rex.
+    # `Current` follows app updates, so the link never goes stale.
+    local rex_app="$HOME/Library/Application Support/com.superlogical.rex/RexServer/Versions/Current/Rex Server.app/Contents/MacOS/rex"
+    if [[ -x $rex_app ]]; then
+        mkdir -p ~/.local/bin
+        ln -sf "$rex_app" ~/.local/bin/rex
+    fi
+
     # `rex server start` is idempotent and detaches, so a server started by hand is left alone.
     # StartInterval makes this job the supervisor: a dead server comes back within a minute.
     # AbandonProcessGroup stops launchd from killing the detached server when this job exits.
-    if command -v rex >/dev/null 2>&1; then
+    if [[ -x ~/.local/bin/rex ]] || command -v rex >/dev/null 2>&1; then
         install_daemon com.shortcuts.rex-server \
             '  <key>RunAtLoad</key><true/>
   <key>StartInterval</key><integer>60</integer>
   <key>AbandonProcessGroup</key><true/>
-' "$(command -v rex)" server start
+' "$(command -v rex || echo ~/.local/bin/rex)" server start
     else
         echo "rex not found, skipping rex server daemon"
     fi
