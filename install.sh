@@ -135,12 +135,91 @@ lite_pre() {
     # Lite has no config.mac.toml: keep the full Mac's tool set off the small disk.
     rm -f ~/.config/mise/miserc.toml
 
-    # No window manager, browser or media apps. tmux and ghostty stay for the agent sessions.
+    # No window manager, browser or media apps. Rex runs the agent sessions; tmux stays as
+    # its fallback and because the tpm step below needs it.
     # luarocks and lua serve no-neck-pain.nvim; clang-format serves pgpemu's `make format`.
-    brew install fish mise tmux coreutils lua luarocks clang-format ghostty
+    # wireguard-tools serves the `vpn` fish function.
+    brew install fish mise tmux coreutils lua luarocks clang-format wireguard-tools
 
     brew install --cask font-jetbrains-mono-nerd-font \
         android-commandlinetools android-platform-tools love
+}
+
+# Writes /Library/LaunchDaemons/<label>.plist and loads it. A daemon with UserName runs at boot
+# without a GUI login; a LaunchAgent would wait for one, and the mini boots headless.
+# usage: install_daemon <label> <extra plist keys> <program> [args...]
+# Reloads only when the plist changed: a reload would kill a running job.
+install_daemon() {
+    local label=$1 extra=$2 plist=/Library/LaunchDaemons/$1.plist args="" arg new
+    shift 2
+    for arg in "$@"; do
+        args+="    <string>$arg</string>"$'\n'
+    done
+    new=$(mktemp)
+    cat >"$new" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>$label</string>
+  <key>UserName</key><string>$(id -un)</string>
+  <key>EnvironmentVariables</key><dict><key>HOME</key><string>$HOME</string></dict>
+  <key>StandardOutPath</key><string>$HOME/Library/Logs/$label.log</string>
+  <key>StandardErrorPath</key><string>$HOME/Library/Logs/$label.log</string>
+  <key>ProgramArguments</key>
+  <array>
+$args  </array>
+$extra</dict>
+</plist>
+EOF
+    plutil -lint "$new" >/dev/null || return 1
+    if ! sudo cmp -s "$new" "$plist"; then
+        sudo install -m 644 -o root -g wheel "$new" "$plist"
+        sudo launchctl bootout "system/$label" 2>/dev/null
+    fi
+    sudo launchctl print "system/$label" >/dev/null 2>&1 || sudo launchctl bootstrap system "$plist"
+    rm -f "$new"
+}
+
+# The mini runs agents 24/7 with no display: stay awake, recover from power loss, keep
+# background work off the 8 GB RAM and 128 GB disk. macOS upgrades can reset pmset: rerun update.
+lite_headless() {
+    # A desktop needs no disablesleep; that flag targets laptops.
+    sudo pmset -a sleep 0 disksleep 0 displaysleep 0 powernap 0 standby 0 \
+        autopoweroff 0 hibernatemode 0 womp 1 autorestart 1
+    sudo systemsetup -setrestartfreeze on
+    # hibernatemode 0 never reads it, and it takes as much disk as RAM.
+    sudo rm -f /var/vm/sleepimage
+
+    # An unattended macOS update reboots the box under running agents: update by hand.
+    sudo mdutil -a -i off >/dev/null
+    sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticDownload -bool false
+    sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticallyInstallMacOSUpdates -bool false
+    sudo defaults write "/Library/Application Support/CrashReporter/DiagnosticMessagesHistory.plist" AutoSubmit -bool false
+
+    # Each rustc job is heavy on 8 GB. Only written when absent: cargo config is user-owned.
+    [[ -f ~/.cargo/config.toml ]] || {
+        mkdir -p ~/.cargo
+        printf '[build]\njobs = 2\n' >~/.cargo/config.toml
+    }
+
+    # `rex server start` is idempotent and detaches, so a server started by hand is left alone.
+    # AbandonProcessGroup stops launchd from killing the detached server when this job exits.
+    if command -v rex >/dev/null 2>&1; then
+        install_daemon com.shortcuts.rex-server \
+            '  <key>RunAtLoad</key><true/>
+  <key>AbandonProcessGroup</key><true/>
+' "$(command -v rex)" server start
+    else
+        echo "rex not found, skipping rex server daemon"
+    fi
+
+    # Daily check; cleandisk --auto does nothing above 20 GiB free. A login shell gives it mise's PATH.
+    install_daemon com.shortcuts.cleandisk \
+        '  <key>StartCalendarInterval</key><dict><key>Hour</key><integer>4</integer><key>Minute</key><integer>0</integer></dict>
+  <key>Nice</key><integer>10</integer>
+  <key>LowPriorityIO</key><true/>
+' "$(command -v fish)" -l -c 'cleandisk --auto'
 }
 
 lite_post() {
@@ -162,6 +241,8 @@ lite_post() {
     else
         echo "claude CLI not found, skipping radin install"
     fi
+
+    lite_headless
 
     brew cleanup
 }

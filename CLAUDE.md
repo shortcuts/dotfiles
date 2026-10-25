@@ -17,6 +17,11 @@ installs no GUI apps. `mise/config.toml` holds the lite tool set. `mise/config.m
 the rest, and only the full Mac loads it through the gitignored `mise/miserc.toml`. Add a
 tool the mini needs to `config.toml`, any other tool to `config.mac.toml`.
 
+`lite_headless` in `install.sh` sets the mini up as a headless box: no sleep, restart after
+power loss, Spotlight off. It also installs two LaunchDaemons that run at boot with no login:
+`com.shortcuts.rex-server` and `com.shortcuts.cleandisk` (daily `cleandisk --auto`, which
+cleans only below 20 GiB free). Logs: `~/Library/Logs/com.shortcuts.*.log`.
+
 ## Setup
 
 Clone this repo to `~/.config`, then run `./install.sh setup`. It symlinks
