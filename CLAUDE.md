@@ -22,6 +22,9 @@ power loss, Spotlight off. It also installs two LaunchDaemons that run at boot w
 `com.shortcuts.rex-server` and `com.shortcuts.cleandisk` (daily `cleandisk --auto`, which
 cleans only below 20 GiB free). Logs: `~/Library/Logs/com.shortcuts.*.log`.
 
+`lite_prune` removes the full-Mac leftovers (GUI casks, mac-only brew packages, mac-only mise
+tools) on every lite run. Add a package to its list when `mac_pre` gains one that lite skips.
+
 ## Setup
 
 Clone this repo to `~/.config`, then run `./install.sh setup`. It symlinks
