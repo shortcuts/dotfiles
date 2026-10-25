@@ -232,11 +232,42 @@ lite_headless() {
         printf '[build]\njobs = 2\n' >~/.cargo/config.toml
     }
 
+    # Remote Login is how the phone and laptop reach the mini over the tunnel. Needs Full Disk
+    # Access for the terminal on recent macOS, so a failure prints the manual step.
+    sudo systemsetup -setremotelogin on ||
+        echo "enable Remote Login by hand: System Settings > General > Sharing"
+    # Keys only: the mini has no screen to show a brute-force attempt. Skipped without a key,
+    # so the hardening cannot lock out the only way in. sshd keeps the first value it reads:
+    # 050 sorts before Apple's 100-macos.conf.
+    if [[ -s ~/.ssh/authorized_keys ]]; then
+        printf 'PasswordAuthentication no\nKbdInteractiveAuthentication no\n' |
+            sudo tee /etc/ssh/sshd_config.d/050-headless.conf >/dev/null
+    else
+        echo "no ~/.ssh/authorized_keys, SSH password login stays on"
+    fi
+
+    # After a power loss the mini boots to the login screen: the login keychain stays locked,
+    # so claude's token and the ssh keys are unavailable. Auto-login needs FileVault off.
+    if [[ $(fdesetup status) == *"is Off"* ]]; then
+        [[ $(sudo defaults read /Library/Preferences/com.apple.loginwindow autoLoginUser 2>/dev/null) == $(id -un) ]] ||
+            sudo sysadminctl -autologin set -userName "$(id -un)" -password -
+    else
+        echo "FileVault is on: after a power loss the mini waits for a login. Turn it off for unattended boots."
+    fi
+
+    # The launchd jobs reopen their log on every start, so rotation by newsyslog is safe.
+    local label
+    for label in rex-server cleandisk vpn; do
+        echo "$HOME/Library/Logs/com.shortcuts.$label.log $(id -un):staff 644 3 1024 * Z"
+    done | sudo tee /etc/newsyslog.d/com.shortcuts.conf >/dev/null
+
     # `rex server start` is idempotent and detaches, so a server started by hand is left alone.
+    # StartInterval makes this job the supervisor: a dead server comes back within a minute.
     # AbandonProcessGroup stops launchd from killing the detached server when this job exits.
     if command -v rex >/dev/null 2>&1; then
         install_daemon com.shortcuts.rex-server \
             '  <key>RunAtLoad</key><true/>
+  <key>StartInterval</key><integer>60</integer>
   <key>AbandonProcessGroup</key><true/>
 ' "$(command -v rex)" server start
     else
