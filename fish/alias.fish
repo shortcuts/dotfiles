@@ -11,7 +11,8 @@ abbr -a gsh  git show --shortstat -p
 
 # misc
 alias reload='exec fish'
-alias cat='bat'
+# bat is mac-only (mise/config.mac.toml); lite installs lack it.
+command -q bat; and alias cat='bat'
 alias v='nvim .'
 alias k=kubectl
 alias kctx=kubectx
