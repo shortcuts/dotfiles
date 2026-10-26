@@ -173,7 +173,7 @@ lite_pre() {
     # luarocks and lua serve no-neck-pain.nvim; clang-format serves pgpemu's `make format`.
     # wireguard-tools serves the `vpn` fish function.
     # btop is the mini's resource monitor.
-    brew install fish tmux coreutils lua luarocks clang-format wireguard-tools btop
+    brew install fish tmux coreutils lua luarocks clang-format wireguard-tools btop defaultbrowser
 
     brew install --cask font-jetbrains-mono-nerd-font \
         android-commandlinetools android-platform-tools
@@ -371,6 +371,24 @@ lite_headless() {
     if [[ ${UI_CHANGED:-} == 1 ]]; then killall Dock; fi
 }
 
+# Brew's chromium cask is disabled (fails Gatekeeper) and mise cannot unpack a dmg, so
+# fetch ungoogled-chromium's dmg by hand. Installs once; delete ~/Applications/Chromium.app to upgrade.
+lite_browser() {
+    local app=~/Applications/Chromium.app dmg url mnt
+    if [[ ! -d $app ]]; then
+        url=$(gh api repos/ungoogled-software/ungoogled-chromium-macos/releases/latest \
+            --jq ".assets[] | select(.name | endswith(\"_$(uname -m)-macos.dmg\")) | .browser_download_url") || return 0
+        dmg=$(mktemp -t chromium).dmg
+        curl -fsSL -o "$dmg" "$url" && mnt=$(hdiutil attach -nobrowse -readonly "$dmg" | awk -F'\t' 'END{print $NF}') || return 0
+        mkdir -p ~/Applications
+        cp -R "$mnt/Chromium.app" "$app"
+        hdiutil detach -quiet "$mnt"
+        rm -f "$dmg"
+    fi
+    # macOS shows a confirmation dialog when this changes the default; approve it once on screen.
+    [[ $(defaultbrowser | grep '^\*') == *chromium* ]] || defaultbrowser chromium
+}
+
 lite_post() {
     # The path pgpemu's Makefile sources. ESP-IDF's installer fetches its own cmake,
     # ninja and ccache, so mise does not carry them.
@@ -392,6 +410,7 @@ lite_post() {
         echo "claude CLI not found, skipping radin install"
     fi
 
+    lite_browser
     lite_headless
 
     # Drops old formula versions, such as the Cellar copy `brew upgrade` leaves behind.
