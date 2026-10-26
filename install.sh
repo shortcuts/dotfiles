@@ -118,9 +118,9 @@ mac_pre() {
     brew tap nikitabobko/tap
 
     # GNU coreutils, not the uutils rewrite mise's registry points at.
-    # tmux and btop stay on brew: the static mise builds are less tested against macOS terminfo.
+    # btop stays on brew: the static mise build is less tested against macOS terminfo.
     # Everything else here is a cask, a daemon, or absent from mise's registry.
-    brew install coreutils tmux wget fswatch btop \
+    brew install coreutils wget fswatch btop \
         ghostty openvpn-connect obsidian font-hack-nerd-font \
         stats felixkratz/formulae/borders nikitabobko/tap/aerospace \
         luarocks mac-cleanup-py mole
@@ -168,12 +168,11 @@ lite_pre() {
     # Lite has no config.mac.toml: keep the full Mac's tool set off the small disk.
     rm -f ~/.config/mise/miserc.toml
 
-    # No window manager, browser or media apps. Rex runs the agent sessions; tmux stays as
-    # its fallback and because the tpm step below needs it.
+    # No window manager, browser or media apps. Rex runs the agent sessions.
     # luarocks and lua serve no-neck-pain.nvim; clang-format serves pgpemu's `make format`.
-    # wireguard-tools serves the `vpn` fish function.
+    # wireguard-tools serves the `vpn` fish function, which no daemon starts anymore.
     # btop is the mini's resource monitor.
-    brew install fish tmux coreutils lua luarocks clang-format wireguard-tools btop defaultbrowser
+    brew install fish coreutils lua luarocks clang-format wireguard-tools btop defaultbrowser
 
     brew install --cask font-jetbrains-mono-nerd-font \
         android-commandlinetools android-platform-tools
@@ -193,7 +192,7 @@ lite_prune() {
     # --force removes every installed version, not only the newest one.
     # gradle and markdownlint-cli moved to mise; their brew copies pull in openjdk and node.
     # rust and shellcheck shadow mise's copies: /usr/local/bin precedes ~/.cargo/bin on PATH.
-    for pkg in borders go go@1.26 gradle kubernetes-cli mac-cleanup-py markdownlint-cli mole mosh rust shellcheck; do
+    for pkg in borders go go@1.26 gradle kubernetes-cli mac-cleanup-py markdownlint-cli mole mosh rust shellcheck tmux; do
         [[ $formulae == *" $pkg "* ]] && brew uninstall --formula --force "$pkg"
     done
     # --zap also deletes app data: Docker images, browser profiles.
@@ -316,7 +315,7 @@ lite_headless() {
 
     # The launchd jobs reopen their log on every start, so rotation by newsyslog is safe.
     local label
-    for label in rex-server cleandisk vpn; do
+    for label in rex-server cleandisk; do
         echo "$HOME/Library/Logs/com.shortcuts.$label.log $(id -un):staff 644 3 1024 * Z"
     done | sudo tee /etc/newsyslog.d/com.shortcuts.conf >/dev/null
 
@@ -348,22 +347,9 @@ lite_headless() {
   <key>LowPriorityIO</key><true/>
 ' "$(command -v fish)" -l -c 'cleandisk --auto'
 
-    # The tunnel is how the phone and laptop reach the mini. wg-quick needs root. KeepAlive
-    # retries after a failure, because the LAN can be down when the daemon starts at boot.
-    # The conf comes from rpi/bootstrap-mac-client.sh, which also wrote com.wireguard.wg0: replace it.
-    local wg_prefix
-    wg_prefix=$(brew --prefix)
-    if [[ -x $wg_prefix/bin/wg-quick && -f $wg_prefix/etc/wireguard/wg0.conf ]]; then
-        sudo launchctl bootout system/com.wireguard.wg0 2>/dev/null
-        sudo rm -f /Library/LaunchDaemons/com.wireguard.wg0.plist
-        DAEMON_USER=root install_daemon com.shortcuts.vpn \
-            '  <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
-  <key>ThrottleInterval</key><integer>30</integer>
-' /bin/sh -c "PATH=$wg_prefix/bin:\$PATH; wg show interfaces | grep -q . || wg-quick up wg0"
-    else
-        echo "wg0.conf or wg-quick not found, skipping vpn daemon"
-    fi
+    # Tailscale replaced the WireGuard tunnel: drop the daemon an earlier run installed.
+    sudo launchctl bootout system/com.shortcuts.vpn 2>/dev/null
+    sudo rm -f /Library/LaunchDaemons/com.shortcuts.vpn.plist
     # One Space with no automatic reordering: a headless box needs no Mission Control.
     # Extra Spaces already created stay until removed by hand in Mission Control.
     set_default com.apple.spaces spans-displays bool 1
@@ -431,12 +417,6 @@ if [[ $MODE == "setup" ]]; then
     cp ~/.config/.gitconfig ~/.gitconfig
     make -C ~/.config symlink
 fi
-
-# tmux plugins: after the package manager, tpm needs tmux installed
-[[ -d ~/.tmux/plugins/tpm ]] || git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-~/.tmux/plugins/tpm/bin/install_plugins
-# direct action skips the wizard menu; its reload of ~/.tmux.conf fails harmlessly
-bash ~/.tmux/plugins/tmux-agent-sidebar/install-wizard.sh download-binary </dev/null || true
 
 # fish as default shell
 if [[ $MODE == "setup" ]]; then

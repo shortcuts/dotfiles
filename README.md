@@ -5,8 +5,7 @@ Here you'll find what I use on a daily basis, located in my `~/.config` folder
 - [nvim](https://github.com/shortcuts/dotfiles/tree/main/nvim)
 - [fish](https://github.com/shortcuts/dotfiles/tree/main/fish)
 - [rex](https://github.com/shortcuts/dotfiles/tree/main/rex) (default terminal and multiplexer)
-- [tmux](https://github.com/shortcuts/dotfiles/tree/main/tmux)
-- [ghostty](https://github.com/shortcuts/dotfiles/tree/main/ghostty) (fallback with tmux)
+- [ghostty](https://github.com/shortcuts/dotfiles/tree/main/ghostty) (fallback)
 - [starship](https://github.com/shortcuts/dotfiles/blob/main/starship.toml)
 - [AeroSpace](https://github.com/shortcuts/dotfiles/blob/main/aerospace/aerospace.toml)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Runs as the only program of a floating layer; exiting closes the layer.
-# Mirrors tmux-session-finder: one session per directory, created once, then reused.
+# One session per directory, created once, then reused.
 # Esc in fzf exits without touching any session.
 # The layer's PTY is 95x22 but the app shows ~76x14; the margin keeps the right and bottom border visible.
 
@@ -21,7 +21,6 @@ selected=$(
 
 [[ -n $selected ]] || exit 0
 
-# same naming rule as tmux: dots break tmux targets, kept here so labels match across both tools
 name=${selected##*/}
 name=${name//./_}
 

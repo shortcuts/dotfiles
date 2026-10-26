@@ -79,9 +79,6 @@ mise/miserc.toml
 !.github/
 !.github/**
 
-# tmux
-!tmux/
-!tmux/**
 
 # rex
 !rex/

@@ -5,9 +5,8 @@ Personal scripts. One directory per scope, loose files for one-offs.
 ```
 scripts/
 ├── algolia/               # Algolia index maintenance, see algolia/README.md
-├── rex-finder             # Rex floating fzf picker, the Rex twin of tmux-session-finder
-├── inv.sh                 # poke-idle.fr raffle bot
-└── tmux-session-finder    # fzf project picker that attaches a tmux session
+├── rex-finder             # Rex floating fzf picker
+└── inv.sh                 # poke-idle.fr raffle bot
 ```
 
 ## algolia/
@@ -90,11 +89,3 @@ response carries no new-or-duplicate flag.
   failing.
 - The `/api/invocations` call has no version fields in its body, only the
   cookie affects it.
-
-## tmux-session-finder
-
-`fzf` over `~/Documents/*`, `~/.config`, `~/Downloads`, and the Obsidian vault.
-It then attaches or creates a tmux session named after the chosen directory. It
-matches an existing session on `session_path`, not on name, because the name
-swaps `.` for `_` and can be renamed by hand. Add new roots to the `printf` list
-inside the script.

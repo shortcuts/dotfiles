@@ -116,11 +116,6 @@ if status is-interactive
         test $d -ge 1000; and set dur (math -s2 $d / 1000)s
         echo -n (set_color -d white)"in "(set_color -o -d yellow)$dur(set_color normal)
     end
-
-    # Rex replaces tmux and sets REX_SESSION in every terminal it opens
-    if not set -q TMUX; and not set -q REX_SESSION; and type -q tmux
-        tmux attach; or tmux new
-    end
 end
 
 # Added by codebase-memory-mcp install

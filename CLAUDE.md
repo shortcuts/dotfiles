@@ -19,9 +19,9 @@ tool the mini needs to `config.toml`, any other tool to `config.mac.toml`.
 
 `lite_headless` in `install.sh` sets the mini up as a headless box: no sleep, restart after
 power loss, Spotlight off. It also installs LaunchDaemons that run at boot with no login:
-`com.shortcuts.rex-server`, `com.shortcuts.cleandisk` (daily `cleandisk --auto`, which
-cleans only below 20 GiB free) and `com.shortcuts.vpn` (runs `wg-quick up wg0` as root, only
-when `wg0.conf` exists). Logs: `~/Library/Logs/com.shortcuts.*.log`.
+`com.shortcuts.rex-server` and `com.shortcuts.cleandisk` (daily `cleandisk --auto`, which
+cleans only below 20 GiB free). Tailscale replaces the old WireGuard tunnel: each lite run
+removes `com.shortcuts.vpn`, and the `vpn` fish function stays for manual use. Logs: `~/Library/Logs/com.shortcuts.*.log`.
 
 `lite_prune` removes the full-Mac leftovers (GUI casks, mac-only brew packages, mac-only mise
 tools) on every lite run, plus brew `rust` and `shellcheck`, which shadow mise's copies. Add a
@@ -60,9 +60,9 @@ config file by adding explicit `!path/` and `!path/**` rules. Machine-local igno
 
 ## Terminal stack
 
-Rex is the default terminal and multiplexer. Ghostty and tmux remain as a fallback until
-Rex leaves beta. Make terminal changes in `rex/` first. Mirror them in `ghostty/` and
-`tmux/` only when the user asks. Read `rex/CLAUDE.md` before you edit `rex/init.lua`.
+Rex is the default terminal and multiplexer. Ghostty remains as a fallback until
+Rex leaves beta. Make terminal changes in `rex/` first. Mirror them in `ghostty/`
+only when the user asks. Read `rex/CLAUDE.md` before you edit `rex/init.lua`.
 
 ## 3D printing
 
