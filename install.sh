@@ -463,6 +463,17 @@ else
     echo "claude CLI not found, skipping fff MCP registration"
 fi
 
+# The mise-installed claude still records installMethod "native" in ~/.claude.json,
+# and /doctor warns when ~/.local/bin/claude is missing.
+if command -v claude >/dev/null 2>&1; then
+    mkdir -p ~/.local/bin
+    ln -sfn "$(mise which claude)" ~/.local/bin/claude
+fi
+
+# Per-account Claude config dirs (~/.claude-a, ~/.claude-b). Runs after the fff MCP
+# registration and the jq install so the accounts inherit both. Login stays manual: cc a, cc b.
+fish -c 'cc setup'
+
 [[ $PLATFORM == mac ]] && poetry completions fish > ~/.config/fish/completions/poetry.fish
 
 # lang

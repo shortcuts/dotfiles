@@ -33,6 +33,14 @@ done: `brew cleanup` runs above 512 MB of cache, `luarocks install` only for mis
 Clone this repo to `~/.config`, then run `./install.sh setup`. It symlinks
 `~/.claude → ~/.config/.claude`, so Claude Code skills and settings are managed here.
 
+## Two Claude accounts
+
+`install.sh` runs `cc setup`, which builds `~/.claude-a` and `~/.claude-b`. Each dir symlinks
+everything in `~/.claude` except `.claude.json`, `.credentials.json` and runtime locks, so
+config, skills and history are shared. `.claude.json` is merged from `~/.claude.json`
+without the login keys. Log in once per account: `cc a`, `cc b`, then `/login`.
+`cc a|b [args]` starts `claude` on that account. Rerun `cc setup` to link new `~/.claude` entries.
+
 ## Gitignore strategy
 
 `.gitignore` is a whitelist: it ignores `*`, then un-ignores specific paths. Track a new
