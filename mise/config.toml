@@ -29,3 +29,5 @@ stylua = "2.5.2"
 "npm:ccstatusline" = "2.2.29"
 "npm:markdownlint-cli" = "0.50.0" # radin `make lint`; provides the `markdownlint` binary, unlike cli2.
 "aqua:rtk-ai/rtk" = "latest"
+# Absent from mise's registry; the brew cask was disabled (fails Gatekeeper). The macOS zip holds only love.app.
+"github:love2d/love" = { version = "11.5", bin_path = "love.app/Contents/MacOS" }
