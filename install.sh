@@ -397,7 +397,8 @@ lite_post() {
     brew cleanup
     # The default cleanup keeps downloads for 120 days: too long for a 128 GB disk.
     # Skipped under 512 MB, so a routine update does not wipe a cache it will refill.
-    [[ $(du -sk "$(brew --cache)" | cut -f1) -gt 524288 ]] && brew cleanup --prune=all -s
+    # An `if`, not `&&`: a small cache would make this the script's exit status, as the last command.
+    if [[ $(du -sk "$(brew --cache)" | cut -f1) -gt 524288 ]]; then brew cleanup --prune=all -s; fi
 }
 
 # ---------------------------------------------------------------- shared
