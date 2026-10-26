@@ -49,8 +49,14 @@
 //   The pads touch the board with no gap, because play already lets the hooks slide.
 //
 // PRINTING
-//   Print as modeled: hook feet on the bed, pocket up. The hooks need no supports.
-//   The pads start mid-air, so they need supports. Use more perimeters on the stems.
+//   Print flipped: the disc face on the bed, the hooks and pads pointing up. The
+//   `.3mf` is already rotated that way. Printed upright, the 61 mm disc floats 23 mm above
+//   the bed and needs a support tower (about 5x the support volume of the flipped print).
+//   Flipped, the supports are three small areas:
+//   - the 1.5 mm ring pocket, which bridges 56 mm over air;
+//   - the two hook feet, which overhang their stems by 9 mm;
+//   - the tray's back wall, which bridges 14 mm and needs no support.
+//   Use more perimeters on the stems: they are loaded across the layer lines.
 //
 // NOT VERIFIED (no test print yet)
 //   - ring_od and ring_depth are guesses: measure the ring.
