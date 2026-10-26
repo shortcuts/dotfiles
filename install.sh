@@ -177,6 +177,9 @@ lite_pre() {
     brew install --cask font-jetbrains-mono-nerd-font \
         android-commandlinetools android-platform-tools
 
+    # mise has no openscad: its registry lacks it and the GitHub tags stop at 2021.01.
+    brew install --cask openscad@snapshot
+
     # The mini has no browser: a no-op BROWSER keeps `claude` login (and gh) from opening one,
     # so they print the URL for the phone. Universal variable: machine-local, not in git.
     fish -c 'test "$BROWSER" = true; or set -Ux BROWSER true'
@@ -197,7 +200,7 @@ lite_prune() {
     done
     # --zap also deletes app data: Docker images, browser profiles.
     for pkg in aerospace ghostty openvpn-connect obsidian stats docker-desktop google-chrome \
-        spotify bambu-studio openmtp openscad@snapshot font-hack-nerd-font font-lilex-nerd-font font-fira-mono-nerd-font; do
+        spotify bambu-studio openmtp font-hack-nerd-font font-lilex-nerd-font font-fira-mono-nerd-font; do
         [[ $casks == *" $pkg "* ]] && brew uninstall --cask --zap "$pkg"
     done
     brew tap | grep -qixE 'felixkratz/formulae|nikitabobko/tap' &&
