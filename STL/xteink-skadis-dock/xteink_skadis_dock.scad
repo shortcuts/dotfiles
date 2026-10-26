@@ -13,6 +13,7 @@ slot_w = 5;            // Skadis slot width (mm)
 slot_h = 15;           // Skadis slot height (mm)
 slot_pitch = 40;       // Slots in one row repeat every 40 mm
 board_t = 5;           // Skadis board thickness (mm)
+standoff = 15;         // [0:1:30] Gap between disc back and board front, for a charger or cable (mm)
 play = 0.4;            // Clearance so the hook slides in (mm)
 stem_h = 5;            // Stem height, rests on the slot's lower edge (mm)
 foot_t = 2.4;          // Foot thickness behind the board (mm)
@@ -21,7 +22,7 @@ foot_drop = 9;         // Foot length below the stem; lift this far to unhook (m
 disc_d = ring_od + 2 * rim;
 hook_w = slot_w - 0.4;
 stem_len = board_t + play;
-plate_z = foot_t + stem_len; // disc back face, flat against the board front
+plate_z = foot_t + stem_len + standoff; // disc back face, standoff mm in front of the board
 // Foot + stem must stay shorter than the slot, or the dock cannot come off.
 assert(stem_h + foot_drop < slot_h, "hook taller than slot");
 
@@ -30,7 +31,7 @@ module hook() {
     translate([-hook_w / 2, 0, 0]) {
         // foot on the bed, hangs below the stem, behind the board
         translate([0, y0 - foot_drop, 0]) cube([hook_w, stem_h + foot_drop, foot_t]);
-        // stem through the slot, up into the disc
+        // stem through the slot, then across the standoff into the disc
         translate([0, y0, 0]) cube([hook_w, stem_h, plate_z + 0.05]);
     }
 }
