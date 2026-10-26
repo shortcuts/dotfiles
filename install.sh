@@ -176,7 +176,7 @@ lite_pre() {
     brew install fish tmux coreutils lua luarocks clang-format wireguard-tools btop
 
     brew install --cask font-jetbrains-mono-nerd-font \
-        android-commandlinetools android-platform-tools love
+        android-commandlinetools android-platform-tools
 
     # The mini has no browser: a no-op BROWSER keeps `claude` login (and gh) from opening one,
     # so they print the URL for the phone. Universal variable: machine-local, not in git.
@@ -385,7 +385,8 @@ lite_post() {
     if command -v claude >/dev/null 2>&1; then
         local radin_args=(--yes)
         [[ $MODE == update ]] && radin_args+=(--update)
-        curl -fsSL https://raw.githubusercontent.com/shortcuts/radin/main/install.sh |
+        # The timestamp query skips the raw.githubusercontent.com cache, which serves a stale script for ~5 min after a push.
+        curl -fsSL -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/shortcuts/radin/main/install.sh?$(date +%s)" |
             bash -s -- "${radin_args[@]}" || echo "radin install failed, run it again by hand"
     else
         echo "claude CLI not found, skipping radin install"
