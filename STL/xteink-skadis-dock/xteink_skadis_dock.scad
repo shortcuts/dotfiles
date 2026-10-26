@@ -31,12 +31,15 @@
 //   without tilting it. The two hooks sit 40 mm apart in one slot row.
 //
 // CHARGER TRAY
-//   A leg runs down from the disc to a tray at the height of the reader's USB-C port.
-//   The tray has a back wall, a floor and two snap fingers at the front. Each finger
-//   ends in a hook over the charger's front top edge. Push the charger in to snap it;
-//   pull the fingers forward to release it. Both ends stay open for the side cable.
-//   The charger box (34 x 14 x 15 mm) comes from the user. `port_drop` = 43 mm is the
-//   user's measurement: the stand files do not contain it.
+//   The dongle (34 x 14 x 15 mm) docks on the reader's back, not its edge. The tray sits
+//   below the disc, in the disc plane, with the dongle behind the reader. A short leg
+//   joins disc and tray. The tray front is flush with the disc face, so the reader's
+//   back lies flat on it. Two thin lips hold the dongle's top and bottom edges. A crush
+//   rib presses it against them. Both ends stay open: slide the dongle in from either
+//   side, and the cable leaves on that side. A small catch at each end, top and bottom,
+//   stops the dongle sliding out when the cable comes off. The thin tray walls flex
+//   past it. The cable plug in the middle of the end face passes between the catches. `port_drop` = 43 mm is the user's
+//   measurement. `lip_t` leaves a 0.8 mm gap between the dongle face and the reader.
 //
 // PADS
 //   The hooks form a 15 mm cantilever. The reader's weight would tip the disc
@@ -72,17 +75,17 @@ stem_h = 5;            // Stem height, rests on the slot's lower edge (mm)
 foot_t = 2.4;          // Foot thickness behind the board (mm)
 foot_drop = 9;         // Foot length below the stem; lift this far to unhook (mm)
 
-// Charger: a 34 x 14 x 15 mm box that touches the reader's USB-C port from below.
-chg_w = 34;            // Charger width, along the reader's width (mm)
-chg_h = 14;            // Charger height, vertical (mm)
-chg_d = 15;            // Charger depth, front to back (mm)
-fit = 0.2;             // Clearance around the charger so it slides in and out (mm)
-port_drop = 43;        // Ring center to the reader's bottom edge (mm)
-port_gap = 1;          // Charger top face sits this far below the reader's bottom edge (mm)
-port_z = 3;            // Port center in front of the disc face, half the reader thickness (mm)
+// Charger dongle: a 34 x 14 x 15 mm box behind the reader's back, under the disc.
+chg_w = 34;            // Dongle width, along the reader's width (mm)
+chg_h = 14;            // Dongle height, vertical (mm)
+chg_d = 15;            // Dongle depth, front to back (mm)
+fit = 0.2;             // Clearance around the dongle so it slides in (mm)
+port_drop = 43;        // Ring center to the dongle center, measured on the reader (mm)
 wall = 2.4;            // Tray wall (mm)
-front_t = 1.6;         // Snap finger thickness, thin so it flexes (mm)
-hook = 0.8;            // Snap hook depth over the charger's front top edge (mm)
+lip_t = 0.8;           // Lip thickness: the dongle face sits this far behind the disc face (mm)
+lip_o = 0.8;           // Lip overlap on the dongle face, top and bottom (mm)
+bump_h = 0.6;         // End catch height: the tray walls flex this far when the dongle slides past (mm)
+bump_len = 2.5;        // End catch length, mostly ramp (mm)
 tongue_w = 20;         // Leg width between disc and tray (mm)
 
 disc_d = ring_od + 2 * rim;
@@ -103,38 +106,37 @@ module hook() {
 }
 
 // Tray geometry, local frame of the disc: z = 0 is the disc back, z = plate_t is the disc face.
-tray_z0 = plate_t + port_z - chg_d / 2 - fit;   // pocket back wall
-tray_z1 = plate_t + port_z + chg_d / 2 + fit;   // pocket front wall
-tray_top = -port_drop - port_gap;               // charger top face
-tray_floor = tray_top - chg_h;                  // charger bottom face
+dz1 = plate_t - lip_t;                // dongle front face
+dz0 = dz1 - chg_d - fit;              // pocket back
+py0 = -port_drop - chg_h / 2 - fit;   // pocket bottom
+py1 = -port_drop + chg_h / 2 + fit;   // pocket top
 
 module tray() {
-    top = tray_top + 2;   // fingers rise above the charger so the hooks clear its top face
-    slit = 2;
-    // back wall + floor, closed to the pocket at the front by the fingers only
     difference() {
-        translate([-chg_w / 2, tray_floor - wall, tray_z0 - wall])
-            cube([chg_w, chg_h + wall + 0.5, tray_z1 - tray_z0 + wall + front_t]);
-        translate([-chg_w, tray_floor, tray_z0]) cube([2 * chg_w, chg_h + 1, tray_z1 - tray_z0 + front_t + 1]);
+        translate([-chg_w / 2 - bump_len, py0 - wall, dz0 - wall])
+            cube([chg_w + 2 * bump_len, py1 - py0 + 2 * wall, plate_t - dz0 + wall]);
+        // pocket: open at both ends, so the dongle slides in from either side
+        translate([-chg_w, py0, dz0]) cube([2 * chg_w, py1 - py0, dz1 - dz0]);
+        // window in front: the reader's back sees the dongle face, the lips hold its edges
+        translate([-chg_w, py0 + lip_o, dz1 - 0.01]) cube([2 * chg_w, py1 - py0 - 2 * lip_o, lip_t + 1]);
     }
-    // two snap fingers: thin and full height, so a 0.8 mm hook flexes at about 1 % strain
-    for (sx = [-1, 1]) {
-        x0 = sx > 0 ? slit / 2 : -chg_w / 2;
-        translate([x0, tray_floor - wall, tray_z1]) cube([chg_w / 2 - slit / 2, top - tray_floor + wall, front_t]);
-        // hook: flat underside keeps the charger down, ramped top lets it push in
-        translate([x0, 0, 0]) rotate([90, 0, 90]) linear_extrude(chg_w / 2 - slit / 2)
-            polygon([[tray_top + 0.2, tray_z1], [tray_top + 0.2, tray_z1 - hook],
-                     [tray_top + 0.6, tray_z1 - hook], [top, tray_z1]]);
-    }
+    // end catches: a hook just past each end of the dongle, top and bottom. They sit
+    // beside the end face, so the cable plug in the middle passes between them.
+    for (sx = [-1, 1], sy = [[py0, 1], [py1, -1]])
+        translate([0, 0, dz0]) linear_extrude(dz1 - dz0)
+            polygon([[sx * chg_w / 2, sy[0]], [sx * (chg_w / 2 + 0.3), sy[0] + sy[1] * bump_h],
+                     [sx * (chg_w / 2 + bump_len), sy[0]]]);
+    // crush rib pushes the dongle against the lips
+    translate([-0.75, py0, dz0]) cube([1.5, py1 - py0, 0.3]);
 }
 
 translate([0, 0, plate_z]) {
     difference() {
         union() {
             cylinder(d = disc_d, h = plate_t, $fn = 120);
-            // leg: runs down in the disc plane to the tray, stops 0.3 mm above the charger
-            translate([-tongue_w / 2, tray_top + 0.3, tray_z0 - wall])
-                cube([tongue_w, -26 - tray_top - 0.3, plate_t - tray_z0 + wall]);
+            // leg: runs down in the disc plane to the top of the tray
+            translate([-tongue_w / 2, py1 + wall - 0.5, 0])
+                cube([tongue_w, -26 - py1 - wall + 0.5, plate_t]);
         }
         translate([0, 0, plate_t - ring_depth]) cylinder(d = ring_od, h = ring_depth + 0.01, $fn = 120);
         if (cable_d > 0) translate([0, 0, -0.01]) cylinder(d = cable_d, h = plate_t + 0.02, $fn = 80);
