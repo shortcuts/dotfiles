@@ -68,6 +68,7 @@ yq = "4.53.6"
 # Renovate's mise manager does not track the conda and github backends, so bump
 # these by hand.
 #"pypi:azure-cli" = "2.90.0"  # The registry short name pulls semantic options that need uv.
+"npm:markdownlint-cli2" = "0.24.0" # nvim diagnostics (nvim/lua/plugins/md.lua).
 "conda:bash" = "5.2.37"      # macOS ships bash 3.2; Metis scripts use `declare -A` and `mapfile`.
 "conda:postgresql" = "18.6"  # psql only; the server itself runs in Docker.
 "github:lework/skopeo-binary" = { version = "1.24.1", bin_path = ".", rename_exe = "skopeo" } # skopeo is absent from the mise registry.
