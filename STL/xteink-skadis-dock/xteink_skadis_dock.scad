@@ -32,8 +32,9 @@
 //
 // CHARGER TRAY
 //   A leg runs down from the disc to a tray at the height of the reader's USB-C port.
-//   The tray has a back wall, a floor and a low front lip. Both ends and the top are
-//   open: the cable leaves from either side, and the charger lifts out or slides out.
+//   The tray has a back wall, a floor and two snap fingers at the front. Each finger
+//   ends in a hook over the charger's front top edge. Push the charger in to snap it;
+//   pull the fingers forward to release it. Both ends stay open for the side cable.
 //   The charger box (34 x 14 x 15 mm) comes from the user. `port_drop` = 43 mm is the
 //   user's measurement: the stand files do not contain it.
 //
@@ -80,7 +81,8 @@ port_drop = 43;        // Ring center to the reader's bottom edge (mm)
 port_gap = 1;          // Charger top face sits this far below the reader's bottom edge (mm)
 port_z = 3;            // Port center in front of the disc face, half the reader thickness (mm)
 wall = 2.4;            // Tray wall (mm)
-lip_h = 6;             // Front lip height above the tray floor (mm)
+front_t = 1.6;         // Snap finger thickness, thin so it flexes (mm)
+hook = 0.8;            // Snap hook depth over the charger's front top edge (mm)
 tongue_w = 20;         // Leg width between disc and tray (mm)
 
 disc_d = ring_od + 2 * rim;
@@ -107,13 +109,22 @@ tray_top = -port_drop - port_gap;               // charger top face
 tray_floor = tray_top - chg_h;                  // charger bottom face
 
 module tray() {
+    top = tray_top + 2;   // fingers rise above the charger so the hooks clear its top face
+    slit = 2;
+    // back wall + floor, closed to the pocket at the front by the fingers only
     difference() {
         translate([-chg_w / 2, tray_floor - wall, tray_z0 - wall])
-            cube([chg_w, chg_h + wall + 0.5, tray_z1 - tray_z0 + 2 * wall]);
-        // pocket: open at both ends (cable side) and at the top (contact face)
-        translate([-chg_w, tray_floor, tray_z0]) cube([2 * chg_w, chg_h + 1, tray_z1 - tray_z0]);
-        // front wall stays only as a low lip, so the charger lifts out
-        translate([-chg_w, tray_floor + lip_h, tray_z1 - 0.01]) cube([2 * chg_w, chg_h + 1, wall + 0.02]);
+            cube([chg_w, chg_h + wall + 0.5, tray_z1 - tray_z0 + wall + front_t]);
+        translate([-chg_w, tray_floor, tray_z0]) cube([2 * chg_w, chg_h + 1, tray_z1 - tray_z0 + front_t + 1]);
+    }
+    // two snap fingers: thin and full height, so a 0.8 mm hook flexes at about 1 % strain
+    for (sx = [-1, 1]) {
+        x0 = sx > 0 ? slit / 2 : -chg_w / 2;
+        translate([x0, tray_floor - wall, tray_z1]) cube([chg_w / 2 - slit / 2, top - tray_floor + wall, front_t]);
+        // hook: flat underside keeps the charger down, ramped top lets it push in
+        translate([x0, 0, 0]) rotate([90, 0, 90]) linear_extrude(chg_w / 2 - slit / 2)
+            polygon([[tray_top + 0.2, tray_z1], [tray_top + 0.2, tray_z1 - hook],
+                     [tray_top + 0.6, tray_z1 - hook], [top, tray_z1]]);
     }
 }
 
