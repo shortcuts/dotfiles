@@ -24,7 +24,9 @@ cleans only below 20 GiB free) and `com.shortcuts.vpn` (runs `wg-quick up wg0` a
 when `wg0.conf` exists). Logs: `~/Library/Logs/com.shortcuts.*.log`.
 
 `lite_prune` removes the full-Mac leftovers (GUI casks, mac-only brew packages, mac-only mise
-tools) on every lite run. Add a package to its list when `mac_pre` gains one that lite skips.
+tools) on every lite run, plus brew `rust` and `shellcheck`, which shadow mise's copies. Add a
+package to its list when `mac_pre` gains one that lite skips. Update steps skip work already
+done: `brew cleanup` runs above 512 MB of cache, `luarocks install` only for missing rocks.
 
 ## Setup
 

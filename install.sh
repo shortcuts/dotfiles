@@ -23,6 +23,25 @@ echo "mode: $MODE, platform: $PLATFORM"
 
 # ---------------------------------------------------------------- shared mac
 
+# Writes a user default only when it differs, and sets UI_CHANGED so callers restart the Dock once.
+# usage: set_default <domain> <key> <type> <value>   (bool values: 1 or 0)
+set_default() {
+    [[ $(defaults read "$1" "$2" 2>/dev/null) == "$4" ]] && return 0
+    local value=$4
+    # defaults rejects 1 and 0 for -bool: it only takes true and false.
+    if [[ $3 == bool ]]; then value=$([[ $4 == 1 ]] && echo true || echo false); fi
+    defaults write "$1" "$2" "-$3" "$value" && UI_CHANGED=1
+}
+
+# Less animation and compositing for every Mac. Accessibility keys apply after the next login.
+reduce_ui() {
+    set_default com.apple.Accessibility DifferentiateWithoutColor int 1
+    set_default com.apple.Accessibility ReduceMotionEnabled int 1
+    set_default com.apple.universalaccess reduceMotion bool 1
+    set_default com.apple.universalaccess reduceTransparency bool 1
+    set_default com.apple.dock launchanim bool 0
+}
+
 # Homebrew, shell bootstrap files and the SDK pin: identical on both platforms.
 mac_base() {
     [[ $MODE == "setup" ]] && /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -60,7 +79,27 @@ EOF
     local sdk="$(xcode-select -p)/SDKs/MacOSX.sdk"
     [[ -d $sdk ]] && export SDKROOT=$sdk
 
+    install_mise
+
+    # Lite drops what it does not install first, so `brew upgrade` skips those packages.
+    [[ $PLATFORM == lite ]] && lite_prune
+
     brew update && brew upgrade
+
+    reduce_ui
+}
+
+# mise comes from its own release binary, not brew: Intel has no mise or llvm bottle, so
+# `brew upgrade` compiled llvm from source for hours (mise builds with rust, which needs llvm).
+install_mise() {
+    export PATH="$HOME/.local/bin:$PATH"
+    # Removed first so brew never upgrades it, and so its copy does not shadow ~/.local/bin.
+    brew list --formula -1 | grep -qx mise && brew uninstall --formula --ignore-dependencies mise && brew autoremove
+    if command -v mise >/dev/null 2>&1; then
+        mise self-update --yes
+    else
+        curl -fsSL https://mise.run | sh
+    fi
 }
 
 # ---------------------------------------------------------------- mac
@@ -72,7 +111,7 @@ mac_pre() {
     # the lite mini must not get it, and fish reads it on every shell.
     printf 'env = ["mac"]\n' > ~/.config/mise/miserc.toml
 
-    brew install fish mise
+    brew install fish
 
     # brew taps
     brew tap FelixKratz/formulae
@@ -118,12 +157,6 @@ mac_post() {
     # killall Dock is disruptive, keep it out of routine updates
     if [[ $MODE == "setup" ]]; then
         defaults write com.apple.dock expose-group-apps -bool true && killall Dock
-
-        # reduce motion and transparency; takes effect after next login
-        defaults write com.apple.Accessibility DifferentiateWithoutColor -int 1
-        defaults write com.apple.Accessibility ReduceMotionEnabled -int 1
-        defaults write com.apple.universalaccess reduceMotion -int 1
-        defaults write com.apple.universalaccess reduceTransparency -int 1
     fi
 }
 
@@ -140,32 +173,58 @@ lite_pre() {
     # luarocks and lua serve no-neck-pain.nvim; clang-format serves pgpemu's `make format`.
     # wireguard-tools serves the `vpn` fish function.
     # btop is the mini's resource monitor.
-    brew install fish mise tmux coreutils lua luarocks clang-format wireguard-tools btop
+    brew install fish tmux coreutils lua luarocks clang-format wireguard-tools btop
 
     brew install --cask font-jetbrains-mono-nerd-font \
         android-commandlinetools android-platform-tools love
 
-    lite_prune
+    # The mini has no browser: a no-op BROWSER keeps `claude` login (and gh) from opening one,
+    # so they print the URL for the phone. Universal variable: machine-local, not in git.
+    fish -c 'test "$BROWSER" = true; or set -Ux BROWSER true'
 }
 
 # Removes what an earlier full-Mac install left behind. Each step is a no-op once it is clean.
 # The lists mirror the mac_pre packages that lite does not install.
 lite_prune() {
-    local pkg link
-    for pkg in borders mac-cleanup-py mole; do
-        brew list --formula "$pkg" >/dev/null 2>&1 && brew uninstall --formula "$pkg"
+    local pkg link formulae casks
+    # One brew call per kind: a `brew list` per package costs seconds on every update.
+    formulae=" $(brew list --formula -1 | tr '\n' ' ') "
+    casks=" $(brew list --cask -1 | tr '\n' ' ') "
+    # --force removes every installed version, not only the newest one.
+    # gradle and markdownlint-cli moved to mise; their brew copies pull in openjdk and node.
+    # rust and shellcheck shadow mise's copies: /usr/local/bin precedes ~/.cargo/bin on PATH.
+    for pkg in borders go go@1.26 gradle kubernetes-cli mac-cleanup-py markdownlint-cli mole mosh rust shellcheck; do
+        [[ $formulae == *" $pkg "* ]] && brew uninstall --formula --force "$pkg"
     done
     # --zap also deletes app data: Docker images, browser profiles.
     for pkg in aerospace ghostty openvpn-connect obsidian stats docker-desktop google-chrome \
-        spotify bambu-studio font-hack-nerd-font font-lilex-nerd-font font-fira-mono-nerd-font; do
-        brew list --cask "$pkg" >/dev/null 2>&1 && brew uninstall --cask --zap "$pkg"
+        spotify bambu-studio openmtp openscad@snapshot font-hack-nerd-font font-lilex-nerd-font font-fira-mono-nerd-font; do
+        [[ $casks == *" $pkg "* ]] && brew uninstall --cask --zap "$pkg"
     done
-    brew untap felixkratz/formulae nikitabobko/tap 2>/dev/null
+    brew tap | grep -qixE 'felixkratz/formulae|nikitabobko/tap' &&
+        brew untap felixkratz/formulae nikitabobko/tap 2>/dev/null
+    # Drops what the removals above left as orphaned dependencies (llvm@22 came with rust).
+    brew autoremove
 
     # mise prune keeps every version a tracked config still names, and config.mac.toml is
     # still on disk. Untrack it so the prune in the shared section drops the mac-only tools.
     for link in ~/.local/state/mise/tracked-configs/*; do
         [[ $(readlink "$link") == */mise/config.mac.toml ]] && rm "$link"
+    done
+
+    # The casks above leave their launchd jobs and login item behind (--zap misses them),
+    # and a dead job keeps respawning or failing in the background.
+    pkill -x AeroSpace 2>/dev/null
+    osascript -e 'tell application "System Events" to if (exists login item "AeroSpace") then delete login item "AeroSpace"' >/dev/null 2>&1
+    for link in ~/Library/LaunchAgents/com.google.* ; do
+        [[ -e $link ]] || continue
+        launchctl bootout "gui/$(id -u)/$(basename "$link" .plist)" 2>/dev/null
+        rm -f "$link"
+    done
+    for link in com.docker.socket com.docker.vmnetd; do
+        [[ -e /Library/LaunchDaemons/$link.plist ]] || continue
+        sudo launchctl bootout "system/$link" 2>/dev/null
+        sudo rm -f "/Library/LaunchDaemons/$link.plist" "/Library/PrivilegedHelperTools/$link"
     done
 
     # Generated by the mac setup only.
@@ -305,6 +364,11 @@ lite_headless() {
     else
         echo "wg0.conf or wg-quick not found, skipping vpn daemon"
     fi
+    # One Space with no automatic reordering: a headless box needs no Mission Control.
+    # Extra Spaces already created stay until removed by hand in Mission Control.
+    set_default com.apple.spaces spans-displays bool 1
+    set_default com.apple.dock mru-spaces bool 0
+    if [[ ${UI_CHANGED:-} == 1 ]]; then killall Dock; fi
 }
 
 lite_post() {
@@ -329,8 +393,11 @@ lite_post() {
 
     lite_headless
 
+    # Drops old formula versions, such as the Cellar copy `brew upgrade` leaves behind.
+    brew cleanup
     # The default cleanup keeps downloads for 120 days: too long for a 128 GB disk.
-    brew cleanup --prune=all -s
+    # Skipped under 512 MB, so a routine update does not wipe a cache it will refill.
+    [[ $(du -sk "$(brew --cache)" | cut -f1) -gt 524288 ]] && brew cleanup --prune=all -s
 }
 
 # ---------------------------------------------------------------- shared
@@ -378,8 +445,9 @@ fi
 [[ $PLATFORM == mac ]] && poetry completions fish > ~/.config/fish/completions/poetry.fish
 
 # lang
-luarocks install luacheck
-luarocks install argparse
+for rock in luacheck argparse; do
+    luarocks show "$rock" >/dev/null 2>&1 || luarocks install "$rock"
+done
 
 bob use latest
 
