@@ -30,6 +30,13 @@
 //   To unhook, lift 9 mm (`foot_drop`) and pull. A taller hook could not be removed
 //   without tilting it. The two hooks sit 40 mm apart in one slot row.
 //
+// CHARGER TRAY
+//   A leg runs down from the disc to a tray at the height of the reader's USB-C port.
+//   The tray has a back wall, a floor and a low front lip. Both ends and the top are
+//   open: the cable leaves from either side, and the charger lifts out or slides out.
+//   The charger box (34 x 14 x 15 mm) comes from the user. `port_drop` = 43 mm is the
+//   user's measurement: the stand files do not contain it.
+//
 // PADS
 //   The hooks form a 15 mm cantilever. The reader's weight would tip the disc
 //   forward. Four pads press on the board front and hold the disc parallel. They
@@ -64,6 +71,18 @@ stem_h = 5;            // Stem height, rests on the slot's lower edge (mm)
 foot_t = 2.4;          // Foot thickness behind the board (mm)
 foot_drop = 9;         // Foot length below the stem; lift this far to unhook (mm)
 
+// Charger: a 34 x 14 x 15 mm box that touches the reader's USB-C port from below.
+chg_w = 34;            // Charger width, along the reader's width (mm)
+chg_h = 14;            // Charger height, vertical (mm)
+chg_d = 15;            // Charger depth, front to back (mm)
+fit = 0.2;             // Clearance around the charger so it slides in and out (mm)
+port_drop = 43;        // Ring center to the reader's bottom edge (mm)
+port_gap = 1;          // Charger top face sits this far below the reader's bottom edge (mm)
+port_z = 3;            // Port center in front of the disc face, half the reader thickness (mm)
+wall = 2.4;            // Tray wall (mm)
+lip_h = 6;             // Front lip height above the tray floor (mm)
+tongue_w = 20;         // Leg width between disc and tray (mm)
+
 disc_d = ring_od + 2 * rim;
 hook_w = slot_w - 0.4;
 stem_len = board_t + play;
@@ -81,10 +100,35 @@ module hook() {
     }
 }
 
-translate([0, 0, plate_z]) difference() {
-    cylinder(d = disc_d, h = plate_t, $fn = 120);
-    translate([0, 0, plate_t - ring_depth]) cylinder(d = ring_od, h = ring_depth + 0.01, $fn = 120);
-    if (cable_d > 0) translate([0, 0, -0.01]) cylinder(d = cable_d, h = plate_t + 0.02, $fn = 80);
+// Tray geometry, local frame of the disc: z = 0 is the disc back, z = plate_t is the disc face.
+tray_z0 = plate_t + port_z - chg_d / 2 - fit;   // pocket back wall
+tray_z1 = plate_t + port_z + chg_d / 2 + fit;   // pocket front wall
+tray_top = -port_drop - port_gap;               // charger top face
+tray_floor = tray_top - chg_h;                  // charger bottom face
+
+module tray() {
+    difference() {
+        translate([-chg_w / 2, tray_floor - wall, tray_z0 - wall])
+            cube([chg_w, chg_h + wall + 0.5, tray_z1 - tray_z0 + 2 * wall]);
+        // pocket: open at both ends (cable side) and at the top (contact face)
+        translate([-chg_w, tray_floor, tray_z0]) cube([2 * chg_w, chg_h + 1, tray_z1 - tray_z0]);
+        // front wall stays only as a low lip, so the charger lifts out
+        translate([-chg_w, tray_floor + lip_h, tray_z1 - 0.01]) cube([2 * chg_w, chg_h + 1, wall + 0.02]);
+    }
+}
+
+translate([0, 0, plate_z]) {
+    difference() {
+        union() {
+            cylinder(d = disc_d, h = plate_t, $fn = 120);
+            // leg: runs down in the disc plane to the tray, stops 0.3 mm above the charger
+            translate([-tongue_w / 2, tray_top + 0.3, tray_z0 - wall])
+                cube([tongue_w, -26 - tray_top - 0.3, plate_t - tray_z0 + wall]);
+        }
+        translate([0, 0, plate_t - ring_depth]) cylinder(d = ring_od, h = ring_depth + 0.01, $fn = 120);
+        if (cable_d > 0) translate([0, 0, -0.01]) cylinder(d = cable_d, h = plate_t + 0.02, $fn = 80);
+    }
+    tray();
 }
 for (s = [-1, 1]) translate([s * slot_pitch / 2, 0, 0]) hook();
 
