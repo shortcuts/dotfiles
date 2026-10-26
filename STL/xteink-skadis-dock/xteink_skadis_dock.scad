@@ -1,13 +1,13 @@
 // MagSafe dock for Xteink readers on an IKEA Skadis board.
-// A MagSafe ring or puck sits in the pocket and the reader's magnet clings to it.
+// A MagSafe ring sits flush in the pocket, so the reader's back touches the ring.
 // The disc is narrower than the reader, so the USB-C port stays free.
 // Print as modeled: hook feet on the bed, pocket up. No supports needed.
-// Disc, pocket and hook pitch match the "Magsafe IKEA Skadis" model (MAGSAFE.step).
-ring_od = 56;          // [40:0.5:70] MagSafe ring or puck outer diameter (mm)
-ring_depth = 5.4;      // [0:0.1:8] Pocket depth, set to the puck or sticker thickness (mm)
+// Outer disc and hook pitch match the "Magsafe IKEA Skadis" model (MAGSAFE.step).
+ring_od = 56;          // [40:0.5:70] MagSafe ring outer diameter (mm)
+ring_depth = 1.5;      // [0:0.1:8] Pocket depth: set equal to the ring thickness so the ring sits flush (mm)
 rim = 2.5;             // [1:0.5:6] Wall around the pocket (mm)
-plate_t = 11;          // [4:0.5:14] Disc thickness (mm)
-cable_d = 22.4;        // [0:0.2:30] Center hole for a puck cable, 0 for none (mm)
+plate_t = 4;           // [2:0.5:14] Disc thickness (mm)
+cable_d = 0;           // [0:0.2:30] Center hole, 0 for none (mm)
 
 slot_w = 5;            // Skadis slot width (mm)
 slot_h = 15;           // Skadis slot height (mm)
