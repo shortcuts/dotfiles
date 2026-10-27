@@ -19,8 +19,13 @@ dirs=$(
 
 # Fetch the session list while the user browses, so the pick costs no lookup.
 sessions=$(mktemp)
-trap 'rm -f "$sessions"' EXIT
+trap 'rm -f "$sessions" "$layer"' EXIT
 rex ls --json >"$sessions" 2>/dev/null &
+
+# Look up this script's layer now, so the pick can close it without a lookup.
+layer=$(mktemp)
+rex api call session.view "{\"session_id\":\"$REX_SESSION\"}" 2>/dev/null |
+  jq -r --arg b "$REX_BLOCK" 'first(.windows[].layers[] | select(any(.blocks[]; .block_id == $b)) | .layer_id) // empty' >"$layer" &
 
 selected=$(
   fzf --layout=reverse --height=100% --select-1 --exit-0 <<<"$dirs" \
@@ -36,6 +41,13 @@ name=${selected##*/}
 name=${name//./_}
 
 wait
+# Close the popup first: the layer only closes when this script exits, which would leave
+# a bare terminal on screen during the switch. Ignoring SIGHUP keeps the script alive.
+trap '' HUP
+if [[ -s $layer ]]; then
+  rex api call session.close_layer "{\"session_id\":\"$REX_SESSION\",\"layer_id\":\"$(<"$layer")\"}" >/dev/null 2>&1
+  exec >/dev/null 2>&1 </dev/null
+fi
 # match on label: `rex ls` reports no cwd, so a renamed session counts as new
 id=$(jq -r --arg n "$name" 'first(.sessions[] | select(.label == $n) | .session_id) // empty' "$sessions")
 created=
