@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-# Runs as the only program of a floating layer; exiting closes the layer.
+# Runs as the only program of a floating layer. Rex keeps an exited layer on
+# screen as "exited", so the script closes its own layer on every path.
 # One session per directory, created once, then reused.
 # Esc in fzf exits without touching any session.
 
@@ -19,11 +20,18 @@ dirs=$(
 
 # Fetch the session list while the user browses, so the pick costs no lookup.
 sessions=$(mktemp)
-trap 'rm -f "$sessions" "$layer"' EXIT
+layer=$(mktemp)
+# Empties the file once closed, so the EXIT trap does not close it twice.
+close_layer() {
+  wait
+  [[ -s $layer ]] || return 0
+  rex api call session.close_layer "{\"session_id\":\"$REX_SESSION\",\"layer_id\":\"$(<"$layer")\"}" >/dev/null 2>&1
+  : >"$layer"
+}
+trap 'close_layer; rm -f "$sessions" "$layer"' EXIT
 rex ls --json >"$sessions" 2>/dev/null &
 
 # Look up this script's layer now, so the pick can close it without a lookup.
-layer=$(mktemp)
 rex api call session.view "{\"session_id\":\"$REX_SESSION\"}" 2>/dev/null |
   jq -r --arg b "$REX_BLOCK" 'first(.windows[].layers[] | select(any(.blocks[]; .block_id == $b)) | .layer_id) // empty' >"$layer" &
 
@@ -35,19 +43,16 @@ selected=$(
       --delimiter=/ --with-nth=-1 --nth=-1
 )
 
-[[ -n $selected ]] || exit 0
+[[ -n $selected ]] || exit 0 # the EXIT trap closes the layer
 
 name=${selected##*/}
 name=${name//./_}
 
-wait
-# Close the popup first: the layer only closes when this script exits, which would leave
-# a bare terminal on screen during the switch. Ignoring SIGHUP keeps the script alive.
+# Close the popup first, so no bare terminal shows during the switch. Closing
+# the layer hangs up this script, so it ignores SIGHUP and drops its output.
 trap '' HUP
-if [[ -s $layer ]]; then
-  rex api call session.close_layer "{\"session_id\":\"$REX_SESSION\",\"layer_id\":\"$(<"$layer")\"}" >/dev/null 2>&1
-  exec >/dev/null 2>&1 </dev/null
-fi
+close_layer
+exec >/dev/null 2>&1 </dev/null
 # match on label: `rex ls` reports no cwd, so a renamed session counts as new
 id=$(jq -r --arg n "$name" 'first(.sessions[] | select(.label == $n) | .session_id) // empty' "$sessions")
 created=
