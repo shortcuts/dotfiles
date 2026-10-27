@@ -4,8 +4,10 @@
 # One session per directory, created once, then reused.
 # Esc in fzf exits without touching any session.
 
-# The layer starts this script without a login shell, so fzf and jq need a PATH.
-export PATH="$HOME/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:$PATH"
+# The layer starts this script without fish, so fzf and jq need a PATH. The
+# install dirs skip the mise shims, which add ~300 ms per call.
+mise=$HOME/.local/share/mise/installs
+export PATH="$mise/fzf/latest:$mise/jq/latest:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 dirs=$(
   for d in ~/Documents/*/; do printf '%s\n' "${d%/}"; done
