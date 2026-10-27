@@ -8,7 +8,7 @@ rex.action{
       focus  = true,
       layout = rex.layout.block{
         flavor  = "com.superlogical.terminal.shell",
-        options = { command = { "bash", os.getenv("HOME") .. "/.config/scripts/rex-finder" } },
+        options = { shell = "none", command = { "bash", os.getenv("HOME") .. "/.config/scripts/rex-finder" } },
       },
     }
     if err ~= nil then error(err, 0) end
