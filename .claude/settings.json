@@ -3,7 +3,7 @@
   "cleanupPeriodDays": 7,
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "CBM_HOOK_DEADLINE_MS": "4000"
+    "CBM_HOOK_DEADLINE_MS": "8000"
   },
   "attribution": {
     "commit": "",
@@ -229,7 +229,7 @@
   },
   "outputStyle": "STE",
   "effortLevel": "medium",
-  "theme": "auto",
+  "theme": "dark",
   "remoteControlAtStartup": false,
   "agentPushNotifEnabled": true
 }

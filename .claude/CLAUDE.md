@@ -9,6 +9,8 @@ Project instructions add to these guidelines.
   changes created.
 - Turn the task into a loop you can watch go **red**, then green. "Fix the bug" becomes
   "write the test that reproduces it, then make it pass." Loop until it is green.
+- Never add `Co-Authored-By` or "Generated with Claude Code" lines to commit messages or PR
+  bodies. Subagents follow this rule too.
 
 ## MCP Tools: fff
 
