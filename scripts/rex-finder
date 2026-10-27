@@ -17,6 +17,11 @@ dirs=$(
     "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
 )
 
+# Fetch the session list while the user browses, so the pick costs no lookup.
+sessions=$(mktemp)
+trap 'rm -f "$sessions"' EXIT
+rex ls --json >"$sessions" 2>/dev/null &
+
 selected=$(
   fzf --layout=reverse --height=100% --select-1 --exit-0 <<<"$dirs" \
       --border=rounded --border-label=' Sessions ' \
@@ -30,15 +35,21 @@ selected=$(
 name=${selected##*/}
 name=${name//./_}
 
+wait
 # match on label: `rex ls` reports no cwd, so a renamed session counts as new
-id=$(rex ls --json | jq -r --arg n "$name" 'first(.sessions[] | select(.label == $n) | .session_id) // empty')
-
+id=$(jq -r --arg n "$name" 'first(.sessions[] | select(.label == $n) | .session_id) // empty' "$sessions")
+created=
 if [[ -z $id ]]; then
   id=$(rex new "$name" --cwd "$selected" --json | jq -r '.session_id')
-  # Rex appends new sessions last; only the new one is out of order, so one move keeps the list sorted.
-  pos=$(rex ls --json | jq -r --arg id "$id" '[.sessions | sort_by(.label | ascii_downcase) | .[].session_id] | index($id) + 1')
-  rex session move "$id" --index "$pos"
+  created=1
 fi
 
 # client actions from the CLI need Remote Control on (Rex Settings > Rex Server)
 rex do session.select session_id="$id"
+
+# Rex appends new sessions last; only the new one is out of order, so one move keeps the list sorted.
+# It runs after the select so the switch does not wait for it.
+if [[ -n $created ]]; then
+  pos=$(jq -r --arg n "$name" '[.sessions[].label | ascii_downcase | select(. < ($n | ascii_downcase))] | length + 1' "$sessions")
+  rex session move "$id" --index "$pos"
+fi
