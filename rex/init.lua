@@ -4,7 +4,7 @@ rex.action{
   title = "Open Session for Directory",
   run   = function()
     local _, err = rex.session.new_layer{
-      bounds = { 0.15, 0.1, 0.7, 0.8 },
+      bounds = { 0.15, 0.3, 0.7, 0.4 },
       focus  = true,
       layout = rex.layout.block{
         flavor  = "com.superlogical.terminal.shell",
