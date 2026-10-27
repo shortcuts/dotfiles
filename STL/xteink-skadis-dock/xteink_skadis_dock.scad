@@ -95,10 +95,15 @@ fit = 0.1;             // Clearance around the dongle so it slides in (mm)
 port_drop = 43;        // Ring center to the dongle center, measured on the reader (mm)
 wall = 2.4;            // Tray wall (mm)
 lip_t = 0.8;           // Lip thickness: the dongle face sits this far behind the disc face (mm)
-lip_o = 0.8;           // Lip overlap on the dongle face, top and bottom (mm)
+lip_o = 1.4;          // Lip overlap on the dongle face, top and bottom (mm)
+dongle_r = 2;          // [0:0.5:5] Dongle edge radius: the pocket corners match it so the lips hug the curve (mm)
+pin_w = 20;            // Width reserved for the pins, from the dongle's left end seen from the disc face (mm)
 bump_h = 0.6;         // End catch height: the tray walls flex this far when the dongle slides past (mm)
 bump_len = 2.5;        // End catch length, mostly ramp (mm)
 tongue_w = 20;         // Leg width between disc and tray (mm)
+
+// Shift the tray so the pin area's center sits under the disc center, in line with the charging coil.
+tray_dx = chg_w / 2 - pin_w / 2;
 
 disc_d = ring_od + 2 * rim;
 hook_w = slot_w - 0.4;
@@ -133,22 +138,24 @@ py0 = -port_drop - chg_h / 2 - fit;   // pocket bottom
 py1 = -port_drop + chg_h / 2 + fit;   // pocket top
 
 module tray() {
-    difference() {
+    translate([tray_dx, 0, 0]) difference() {
         translate([-chg_w / 2 - bump_len, py0 - wall, dz0 - wall])
             cube([chg_w + 2 * bump_len, py1 - py0 + 2 * wall, plate_t - dz0 + wall]);
         // pocket: open at both ends, so the dongle slides in from either side
-        translate([-chg_w, py0, dz0]) cube([2 * chg_w, py1 - py0, dz1 - dz0]);
+        // rounded corners follow the dongle's edges (2D x = world y, 2D y = world z, extrusion = world x)
+        translate([-chg_w, 0, 0]) rotate([90, 0, 90]) linear_extrude(2 * chg_w)
+            translate([py0, dz0]) offset(r = dongle_r) offset(delta = -dongle_r) square([py1 - py0, dz1 - dz0]);
         // window in front: the reader's back sees the dongle face, the lips hold its edges
         translate([-chg_w, py0 + lip_o, dz1 - 0.01]) cube([2 * chg_w, py1 - py0 - 2 * lip_o, lip_t + 1]);
     }
     // end catches: a hook just past each end of the dongle, top and bottom. They sit
     // beside the end face, so the cable plug in the middle passes between them.
     for (sx = [-1, 1], sy = [[py0, 1], [py1, -1]])
-        translate([0, 0, dz0]) linear_extrude(dz1 - dz0)
+        translate([tray_dx, 0, dz0]) linear_extrude(dz1 - dz0)
             polygon([[sx * chg_w / 2, sy[0]], [sx * (chg_w / 2 + 0.3), sy[0] + sy[1] * bump_h],
                      [sx * (chg_w / 2 + bump_len), sy[0]]]);
     // crush rib pushes the dongle against the lips
-    translate([-0.75, py0, dz0]) cube([1.5, py1 - py0, 0.3]);
+    translate([tray_dx - 0.75, py0, dz0]) cube([1.5, py1 - py0, 0.3]);
 }
 
 translate([0, 0, plate_z]) {
