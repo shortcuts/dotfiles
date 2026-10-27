@@ -92,7 +92,7 @@ chg_d = 12;            // Dongle depth, front to back (mm)
 // Unplugging USB-C pulls the dongle with 8-20 N, so the catches need `fit` small: the dongle must
 // overlap most of `bump_h`, or the cable slides it out.
 fit = 0.1;             // Clearance around the dongle so it slides in (mm)
-port_drop = 43;        // Ring center to the dongle center, measured on the reader (mm)
+port_drop = 78;       // Ring center to the dongle center, measured on the reader (mm)
 wall = 2.4;            // Tray wall (mm)
 lip_t = 0.8;           // Lip thickness: the dongle face sits this far behind the disc face (mm)
 lip_o = 1.4;          // Lip overlap on the dongle face, top and bottom (mm)
