@@ -28,10 +28,12 @@
 //   edge. The foot lies behind the board and hangs below the stem. Stem + foot is
 //   14 mm tall and the slot is 15 mm, so mounting is a straight push, then a drop.
 //   To unhook, lift 9 mm (`foot_drop`) and pull. A taller hook could not be removed
-//   without tilting it. The two hooks sit 40 mm apart in one slot row.
+//   without tilting it. The two hooks sit 40 mm apart in one slot row. A quarter-round
+//   flare (`fillet_r`) joins each stem to the disc. It lies in front of the board, so the
+//   slot never sees it.
 //
 // CHARGER TRAY
-//   The dongle (34 x 14 x 15 mm) docks on the reader's back, not its edge. The tray sits
+//   The dongle (32 x 12 x 12 mm) docks on the reader's back, not its edge. The tray sits
 //   below the disc, in the disc plane, with the dongle behind the reader. A short leg
 //   joins disc and tray. The tray front is flush with the disc face, so the reader's
 //   back lies flat on it. Two thin lips hold the dongle's top and bottom edges. A crush
@@ -80,12 +82,16 @@ play = 0.4;            // Clearance so the hook slides in (mm)
 stem_h = 5;            // Stem height, rests on the slot's lower edge (mm)
 foot_t = 2.4;          // Foot thickness behind the board (mm)
 foot_drop = 9;         // Foot length below the stem; lift this far to unhook (mm)
+// Flare at the disc end of the stem. Printed flipped, bending pulls the stem root apart across layers.
+fillet_r = 5;          // [0:0.5:8] Fillet radius where the stem meets the disc; 0 for none (mm)
 
-// Charger dongle: a 34 x 14 x 15 mm box behind the reader's back, under the disc.
-chg_w = 34;            // Dongle width, along the reader's width (mm)
-chg_h = 14;            // Dongle height, vertical (mm)
-chg_d = 15;            // Dongle depth, front to back (mm)
-fit = 0.2;             // Clearance around the dongle so it slides in (mm)
+// Charger dongle: a 32 x 12 x 12 mm box behind the reader's back, under the disc.
+chg_w = 32;            // Dongle width, along the reader's width (mm)
+chg_h = 12;            // Dongle height, vertical (mm)
+chg_d = 12;            // Dongle depth, front to back (mm)
+// Unplugging USB-C pulls the dongle with 8-20 N, so the catches need `fit` small: the dongle must
+// overlap most of `bump_h`, or the cable slides it out.
+fit = 0.1;             // Clearance around the dongle so it slides in (mm)
 port_drop = 43;        // Ring center to the dongle center, measured on the reader (mm)
 wall = 2.4;            // Tray wall (mm)
 lip_t = 0.8;           // Lip thickness: the dongle face sits this far behind the disc face (mm)
@@ -100,6 +106,8 @@ stem_len = board_t + play;
 plate_z = foot_t + stem_len + standoff; // disc back face, standoff mm in front of the board
 // Foot + stem must stay shorter than the slot, or the dock cannot come off.
 assert(stem_h + foot_drop < slot_h, "hook taller than slot");
+// The flare must stay in front of the board, or the stem cannot pass the slot.
+assert(plate_z - fillet_r > foot_t + stem_len, "fillet reaches the board");
 
 module hook() {
     y0 = -slot_h / 2;
@@ -108,6 +116,13 @@ module hook() {
         translate([0, y0 - foot_drop, 0]) cube([hook_w, stem_h + foot_drop, foot_t]);
         // stem through the slot, then across the standoff into the disc
         translate([0, y0, 0]) cube([hook_w, stem_h, plate_z + 0.05]);
+        // concave quarter-round flare: widens toward the disc and prints without support
+        if (fillet_r > 0) for (k = [0 : 7]) hull() for (j = [k, k + 1]) {
+            t = fillet_r * j / 8;
+            translate([0, y0, plate_z - t])
+                linear_extrude(0.05) offset(r = fillet_r - sqrt(fillet_r ^ 2 - (fillet_r - t) ^ 2))
+                    square([hook_w, stem_h]);
+        }
     }
 }
 
