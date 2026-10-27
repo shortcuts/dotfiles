@@ -12,20 +12,6 @@ dirs=$(
     "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents"
 )
 
-# Shrink the layer to the list: bounds are window fractions, so the window's
-# row count comes from this block's rows divided by the layer's height fraction.
-fit_layer() {
-  local layer bounds rows h
-  layer=$(rex api call session.view "{\"session_id\":\"$REX_SESSION\"}" |
-    jq -c --arg b "$REX_BLOCK" 'first(.windows[].layers[] | select(any(.blocks[]; .block_id == $b))) | {id: .layer_id, bounds}') || return 0
-  rows=$(rex api call com.superlogical.terminal.size "{\"session_id\":\"$REX_SESSION\",\"block_id\":\"$REX_BLOCK\"}" | jq '.rows') || return 0
-  h=$(jq -r --argjson n "$(grep -c . <<<"$dirs")" --argjson r "$rows" '(.bounds[3]) as $old | [[($n + 4) / ($r / $old), 0.2] | max, 0.8] | min' <<<"$layer") || return 0
-  bounds=$(jq -c --argjson h "$h" '[.bounds[0], (1 - $h) / 2, .bounds[2], $h]' <<<"$layer")
-  rex api call session.resize_layer "{\"session_id\":\"$REX_SESSION\",\"layer_id\":$(jq '.id' <<<"$layer"),\"bounds\":$bounds}" >/dev/null
-}
-# Background: the popup shows at once and fzf redraws when the resize lands (~200 ms).
-[[ -n ${REX_BLOCK:-} ]] && fit_layer 2>/dev/null &
-
 selected=$(
   fzf --layout=reverse --height=100% --select-1 --exit-0 <<<"$dirs" \
       --border=rounded --border-label=' Sessions ' \
