@@ -19,12 +19,10 @@
       "Bash(terraform apply)",
       "Bash(terraform apply *)",
       "Bash(terraform destroy)",
-      "Bash(terraform destroy *)"
+      "Bash(terraform destroy *)",
+      "Bash(git push *)"
     ],
     "ask": [
-      "Bash(chmod *)",
-      "Bash(chmod 777:*)",
-      "Bash(chown *)",
       "Bash(docker *)",
       "Bash(eval:*)",
       "Bash(fdisk *)",
