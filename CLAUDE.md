@@ -41,6 +41,10 @@ config, skills and history are shared. `.claude.json` is merged from `~/.claude.
 without the login keys. Log in once per account: `cc a`, `cc b`, then `/login`.
 `cc a|b [args]` starts `claude` on that account. Rerun `cc setup` to link new `~/.claude` entries.
 
+## clidraw MCP
+
+`install.sh` registers the `clidraw` MCP server at user scope. Its tools draw, edit, import and export canvases (diagrams, flowcharts, shapes). Use them when a diagram helps. The `clidraw` binary builds from `/Users/k/Documents/clidraw` until a released binary replaces it.
+
 ## Gitignore strategy
 
 `.gitignore` is a whitelist: it ignores `*`, then un-ignores specific paths. Track a new

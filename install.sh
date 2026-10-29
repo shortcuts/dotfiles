@@ -446,6 +446,17 @@ else
     echo "claude CLI not found, skipping fff MCP registration"
 fi
 
+# clidraw MCP server for Claude Code (user scope, stored in ~/.claude.json)
+# Temporary: builds clidraw from this checkout until a released binary replaces this line.
+cargo install --path /Users/k/Documents/clidraw --locked
+if ! command -v clidraw >/dev/null 2>&1; then
+    echo "clidraw not found, skipping clidraw MCP registration"
+elif command -v claude >/dev/null 2>&1; then
+    claude mcp get clidraw >/dev/null 2>&1 || claude mcp add --scope user clidraw -- clidraw mcp
+else
+    echo "claude CLI not found, skipping clidraw MCP registration"
+fi
+
 # The mise-installed claude still records installMethod "native" in ~/.claude.json,
 # and /doctor warns when ~/.local/bin/claude is missing.
 if command -v claude >/dev/null 2>&1; then
