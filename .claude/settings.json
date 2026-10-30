@@ -62,7 +62,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "sonnet",
+  "model": "opus",
   "hooks": {
     "PreToolUse": [
       {
@@ -79,7 +79,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/k/.local/bin/codebase-memory-mcp",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
             "args": [
               "hook-augment"
             ],
@@ -103,7 +103,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/k/.local/bin/codebase-memory-mcp",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
             "args": [
               "hook-augment"
             ],
@@ -116,7 +116,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/k/.local/bin/codebase-memory-mcp",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
             "args": [
               "hook-augment"
             ],
@@ -129,7 +129,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/k/.local/bin/codebase-memory-mcp",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
             "args": [
               "hook-augment"
             ],
@@ -142,7 +142,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/k/.local/bin/codebase-memory-mcp",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
             "args": [
               "hook-augment"
             ],
@@ -157,7 +157,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/k/.local/bin/codebase-memory-mcp",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
             "args": [
               "hook-augment"
             ],
@@ -172,7 +172,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/k/.local/bin/codebase-memory-mcp",
+            "command": "/Users/clement.vannicatte/.local/bin/codebase-memory-mcp",
             "args": [
               "hook-augment"
             ],

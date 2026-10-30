@@ -117,6 +117,3 @@ if status is-interactive
         echo -n (set_color -d white)"in "(set_color -o -d yellow)$dur(set_color normal)
     end
 end
-
-# Added by codebase-memory-mcp install
-fish_add_path /Users/k/.local/bin

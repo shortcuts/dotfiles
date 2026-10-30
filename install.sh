@@ -431,8 +431,12 @@ fi
 fish -c fish_update_completions
 
 # languages and CLIs: versions live in mise/config.toml
+# upgrade first: `mise install` skips tools that are already installed.
+mise upgrade --yes
 mise install
 mise prune --yes
+# Drops dependencies the upgrades above left orphaned.
+brew autoremove
 
 # This script runs in bash, which never loads fish/config.fish: put the new tools on PATH.
 eval "$(mise env -s bash)"
@@ -448,7 +452,8 @@ fi
 
 # clidraw MCP server for Claude Code (user scope, stored in ~/.claude.json)
 # Temporary: builds clidraw from this checkout until a released binary replaces this line.
-cargo install --path /Users/k/Documents/clidraw --locked
+[[ -d ~/Documents/clidraw ]] || git clone https://github.com/shortcuts/clidraw ~/Documents/clidraw
+cargo install --path ~/Documents/clidraw --locked
 if ! command -v clidraw >/dev/null 2>&1; then
     echo "clidraw not found, skipping clidraw MCP registration"
 elif command -v claude >/dev/null 2>&1; then
