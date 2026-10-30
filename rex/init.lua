@@ -25,7 +25,7 @@ rex.bind("cmd+shift+j", "pane.focus.down")
 rex.bind("cmd+shift+k", "pane.focus.up")
 rex.bind("cmd+shift+l", "pane.focus.right")
 
--- Open Diff: review the source pane's repository against main in hunk.
+-- Origin Diff: review the source pane's repository against main in hunk.
 -- The diff starts at the merge base with main, so it shows the branch's own
 -- commits plus uncommitted work, as a pull request would.
 
@@ -86,35 +86,46 @@ local function diff_title(dir)
   return branch .. "->main"
 end
 
--- The hunk command for dir. It compares against origin/main, which a local
--- main often lags, and uses main when there is no origin/main. It falls back
--- to the ref itself when the merge base cannot be found.
-local function hunk_block(dir)
+local function hunk_block(dir, script)
   return { block = {
     flavor = "com.superlogical.terminal.shell",
     options = {
       cwd = dir,
-      command = { "sh", "-c", [[
-        ref=main
-        git rev-parse --verify -q origin/main >/dev/null && ref=origin/main
-        base=$(git merge-base "$ref" HEAD 2>/dev/null) || base=$ref
-        exec hunk diff "$base"]] },
+      command = { "sh", "-c", script },
     },
   } }
 end
 
-rex.action{name = "open_diff", title = "Open Diff",
-  run = function(ctx)
+-- The hunk command for the branch diff. It compares against origin/main, which a local
+-- main often lags, and uses main when there is no origin/main. It falls back
+-- to the ref itself when the merge base cannot be found.
+local branch_script = [[
+  ref=main
+  git rev-parse --verify -q origin/main >/dev/null && ref=origin/main
+  base=$(git merge-base "$ref" HEAD 2>/dev/null) || base=$ref
+  exec hunk diff "$base"]]
+
+-- Opens hunk in a split after the source pane.
+local function open_hunk(title, script)
+  return function(ctx)
     local dir, err = pane_directory(ctx)
-    if not dir then error("Open Diff: " .. tostring(err)) end
+    if not dir then error(title .. ": " .. tostring(err)) end
     return rex.call("session.new_split", {
       session_id = ctx.session_id,
       anchor_block_id = ctx.block_id,
       direction = "horizontal",
       side = "after",
       focus = true,
-      layout = hunk_block(dir),
+      layout = hunk_block(dir, script),
     })
-  end}
+  end
+end
 
-rex.bind("cmd+shift+enter", "open_diff")
+rex.action{name = "origin_diff", title = "Origin Diff",
+  run = open_hunk("Origin Diff", branch_script)}
+
+-- Uncommitted Diff: uncommitted changes only.
+rex.action{name = "uncommitted_diff", title = "Uncommitted Diff",
+  run = open_hunk("Uncommitted Diff", "exec hunk diff")}
+
+rex.bind("cmd+shift+enter", "origin_diff")
