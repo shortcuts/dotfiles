@@ -23,7 +23,6 @@
       "Bash(git push *)"
     ],
     "ask": [
-      "Bash(docker *)",
       "Bash(eval:*)",
       "Bash(fdisk *)",
       "Bash(gcloud *)",

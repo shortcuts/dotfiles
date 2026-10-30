@@ -116,3 +116,5 @@ rex.action{name = "open_diff", title = "Open Diff",
       layout = hunk_block(dir),
     })
   end}
+
+rex.bind("cmd+shift+enter", "open_diff")
