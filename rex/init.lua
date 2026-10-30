@@ -105,6 +105,23 @@ local branch_script = [[
   base=$(git merge-base "$ref" HEAD 2>/dev/null) || base=$ref
   exec hunk diff "$base"]]
 
+-- The hunk command for the stacked diff. It compares against the nearest
+-- local branch that HEAD contains, which is the parent in a stack. It falls
+-- back to the branch diff when there is none.
+local head_script = [[
+  cur=$(git branch --show-current)
+  best=
+  for r in $(git for-each-ref --format='%(refname:short)' refs/heads); do
+    [ "$r" = "$cur" ] && continue
+    n=$(git rev-list --count "$r..HEAD" 2>/dev/null) || continue
+    [ "$n" -gt 0 ] && git merge-base --is-ancestor "$r" HEAD || continue
+    if [ -z "$best" ] || [ "$n" -lt "$bestn" ]; then best=$r; bestn=$n; fi
+  done
+  if [ -n "$best" ]; then
+    exec hunk diff "$(git merge-base "$best" HEAD)"
+  fi
+  ]] .. branch_script
+
 -- Opens hunk in a split after the source pane.
 local function open_hunk(title, script)
   return function(ctx)
@@ -123,6 +140,10 @@ end
 
 rex.action{name = "origin_diff", title = "Origin Diff",
   run = open_hunk("Origin Diff", branch_script)}
+
+-- Head Diff: review the repository against the PR's base branch.
+rex.action{name = "head_diff", title = "Head Diff",
+  run = open_hunk("Head Diff", head_script)}
 
 -- Uncommitted Diff: uncommitted changes only.
 rex.action{name = "uncommitted_diff", title = "Uncommitted Diff",
