@@ -102,19 +102,19 @@ STL/.DS_Store
 
 # ai takeover
 !.claude/
-!.claude/settings.json
 !.claude/CLAUDE.md
+!.claude/hooks/
+!.claude/hooks/tmux-claude-code-status.sh
 !.claude/output-styles/
 !.claude/output-styles/**
+!.claude/settings.json
 !.claude/skills/
+!.claude/skills/_shared/
+!.claude/skills/_shared/**
 !.claude/skills/documentation/
 !.claude/skills/documentation/**
 !.claude/skills/explain/
 !.claude/skills/explain/**
-# ELK is 1.5 MB of minified code, fetched and hash-checked by obsidian.py.
-.claude/skills/explain/vendor/
-!.claude/skills/_shared/
-!.claude/skills/_shared/**
 !.claude/skills/no-ai-slop/
 !.claude/skills/no-ai-slop/**
 !.claude/skills/release-candidate/
@@ -123,18 +123,10 @@ STL/.DS_Store
 !.claude/skills/release-notes/**
 !.claude/skills/self-review/
 !.claude/skills/self-review/**
-<<<<<<< HEAD
 !.claude/skills/test-audit/
 !.claude/skills/test-audit/**
-||||||| parent of 17aa6fa (feat: test-audit skill from openclaw)
-!.claude/hooks/
-!.claude/hooks/tmux-claude-code-status.sh
-=======
-!.claude/skills/test-audit/
-!.claude/skills/test-audit/**
-!.claude/hooks/
-!.claude/hooks/tmux-claude-code-status.sh
->>>>>>> 17aa6fa (feat: test-audit skill from openclaw)
+!.claude/skills/maintain-design/
+!.claude/skills/maintain-design/**
 
 # ccstatusline
 !ccstatusline/
