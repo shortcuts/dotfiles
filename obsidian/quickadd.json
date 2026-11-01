@@ -18,7 +18,7 @@
       },
       "format": {
         "enabled": true,
-        "format": "- [ ] {{DATE:YYYY-MM-DD}} {{VALUE}}"
+        "format": "- [ ] {{DATE:YYYY-MM-DD}} {{VALUE:text}}"
       },
       "insertAfter": {
         "enabled": false,
@@ -73,7 +73,7 @@
       },
       "format": {
         "enabled": true,
-        "format": "- {{VALUE}}"
+        "format": "- {{VALUE:text}}"
       },
       "insertAfter": {
         "enabled": false,

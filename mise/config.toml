@@ -12,7 +12,7 @@ bob = "4.1.7"
 # Floats, unlike the other CLIs: Anthropic ships a release most days and the CLI
 # warns when it trails. Was the `claude-code` brew cask.
 claude-code = "latest"
-hunk = "0.22.0"
+lazygit = "0.65.1"
 # 0.19.0 dropped x86_64-apple-darwin; 0.18.2 is the last release with an Intel Mac binary.
 delta = "0.18.2"
 # Absent from mise's registry. Releases ship a bare binary per target, including both Macs.
