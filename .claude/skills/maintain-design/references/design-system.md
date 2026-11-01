@@ -10,15 +10,15 @@
 
 ## Existing system: the three jobs
 
-Read the system first. Then ask one `AskUserQuestion` with these options (put the job you recommend first):
+`SKILL.md` Step 0 asks this question as soon as it finds a system, for both verticals. Read the system first. Then ask one `AskUserQuestion` with these options (put the job you recommend first):
 
 | Option | What the skill does |
 |---|---|
 | Maintenance | Audit drift against the system's own rules. Log fixes. Change no direction. |
-| Suggestions | Audit, then list improvement ideas as options. Log only the ones the user picks. |
-| Not happy with it | Run Operations 1 and 2 as if no system existed, then diff the result against the old one. |
+| Suggestions | Audit, then list improvement ideas as options, each with a stageshow preview when it changes a layout or look (`illustrations.md`). Log only the ones the user picks. |
+| Change something in particular | Run Operations 1 and 2 for the named aspects only, then diff the result against the old system. Name the aspects in the question: colors, density, font, feel, layout. |
 
-The user's unhappiness is a signal, not a spec. Ask what bothers them (colors, density, font, feel) in the same question as a multi-select follow-up, so Operation 1 searches for the right thing.
+"Maintenance" and "Suggestions" together mean "improve the existing one". The user's wish to change something is a signal, not a spec. Ask what they want changed in the same question as a multi-select follow-up, so Operation 1 searches for the right thing. Leave untouched what they did not name.
 
 ## Operation 1: find the reference
 
@@ -79,7 +79,7 @@ No user present: take the recommended candidate and log an `**Open decision:**` 
 
 Write with `/technical-writing`: short sentences, the real symbol names, no filler.
 
-**Do not write product code.** The design document and the one instruction-file line are the only files you write. Token files, theme changes and component migrations become radin entries.
+**Do not write product code.** The design document, the one instruction-file line and any stageshow previews (`illustrations.md`) are the only files you write. Token files, theme changes and component migrations become radin entries.
 
 **The end goal is the backlog.** The document is the reference. The deliverable is the full list of findings logged to radin: every gap between the repo and the document, complete, not a sample. No findings is a valid result; say so.
 
@@ -96,5 +96,6 @@ Scan the code with the graph or grep, and cite `path:line` in each entry.
 - Fonts set inline
 - Wiki or TUI palette drifting from the app palette
 - Rules in the document that code no longer follows (the code wins: fix the document, and log it)
+- Mocked-UI illustrations (hero demos, feature cards) that drift from the design document: run the audit table in `illustrations.md`
 
 Group findings by cause, not by file. One cause with 30 call sites is one entry sized as one slice or batched per module.

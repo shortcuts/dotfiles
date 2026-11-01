@@ -44,7 +44,7 @@ radin backlog set-priority "$id" 8
 | Field | Rule for design work |
 |---|---|
 | category | `feat` new capability or screen; `fix` broken contrast, target or flow; `refactor` token or component migration with no visible change; `chore` doc updates |
-| `--skill` | The skill that should run the entry: `frontend-design:frontend-design`, `interfaces:better-ui`, `interfaces:better-colors`, `interfaces:better-accessibility`, `interfaces:better-layout`, `interfaces:better-typography`, `documentation`, `technical-writing`. The CLI writes the instruction sentence; do not hand-write it |
+| `--skill` | Every skill that should run the entry, one flag each. Set it on every entry where a skill applies, and omit it only when none does. A cold start never picks a skill by itself, so a missing flag means the skill goes unused. Choices: `frontend-design:frontend-design`, `interfaces:better-ui`, `interfaces:better-colors`, `interfaces:better-accessibility`, `interfaces:better-layout`, `interfaces:better-typography`, `interfaces:better-writing`, `interfaces:build-design`, `stageshow` (mocked-UI illustrations only), `documentation`, `technical-writing`. The CLI writes the instruction sentence; do not hand-write it |
 | `--acceptance` | Observable and measurable: "body text on surface measures at least 4.5:1 in both themes". Never invent a criterion the audit did not produce |
 | `--planning needed` | Use for a navigation restructure or a change that crosses several screens |
 | `--complexity` | `low` for a single-file token or copy change; `high` otherwise |
@@ -61,4 +61,4 @@ No user present, or the user said "later": add one body line per question.
 
 ## Check your work
 
-After logging, run `radin backlog show` and confirm each entry sits in the right epic with the right dependencies. Report the count and titles.
+After logging, run `radin backlog show` and confirm each entry sits in the right epic with the right dependencies, and carries its `--skill` line wherever a skill applies. Report the count and titles.

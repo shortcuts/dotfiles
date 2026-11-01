@@ -30,6 +30,10 @@ Run each lens over every screen or page in scope. Skip a lens that cannot apply 
 5. **Docs and onboarding** (`/documentation`): does each doc page fit one Diátaxis mode (tutorial, how-to, reference, explanation)? Does a first-time user reach their first success without leaving the flow? Does the wiki use the words the app uses?
 6. **Accessibility cross-check** (`/interfaces:better-accessibility`): focus order, names, targets, contrast, motion. Log structural problems here; leave token-level contrast to Vertical 1.
 
+7. **Illustrations** (`/stageshow`): the mocked UI in heroes, feature cards and docs. Use the audit table in `illustrations.md`. Skip when the repo ships none.
+
+When a finding changes a layout, build a stageshow preview of the fix (`illustrations.md`, "Recommend") if a user is present to choose.
+
 ## Severity and priority
 
 Map severity to radin priority (higher runs first):
@@ -50,7 +54,7 @@ Each finding becomes one radin entry (see `radin-logging.md`). The body contains
 - **Evidence**: the screenshot path, `path:line`, or the string.
 - **Why it hurts**: the user's cost, in one sentence.
 - **Direction**: the smallest change that would fix it, stated as intent. Not a diff.
-- **Skill to apply**: passed with `--skill` (for example `interfaces:better-layout`).
+- **Skill to apply**: every skill that fits, one `--skill` each (for example `interfaces:better-layout`, or `stageshow` for an illustration). Omit the flag only when none applies.
 - **Acceptance**: one observable criterion per `--acceptance`.
 
 Do not write "would you like me to fix these". The report ends after the list.
