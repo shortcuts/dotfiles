@@ -45,7 +45,8 @@ function cleandisk -d "Free disk on the agent mini: caches, tmp, stale worktree 
     command -q go; and go clean -cache -testcache
 
     # Playwright browsers and other tool caches download again on demand.
-    find ~/Library/Caches ~/.cache -type f -atime +7 -delete 2>/dev/null
+    # github-theme keeps a hash file that survives while its compiled files go, so nvim then fails to start.
+    find ~/Library/Caches ~/.cache -path ~/.cache/nvim/github-theme -prune -o -type f -atime +7 -delete 2>/dev/null
 
     for gitdir in (find ~/Documents ~/.config -maxdepth 3 -name .git -type d -prune 2>/dev/null)
         set -l repo (dirname $gitdir)

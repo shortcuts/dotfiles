@@ -94,6 +94,10 @@ end
 
 # Interactive-only: scripts and nvim :! skip all of this
 if status is-interactive
+    # Some shells (Rex, ssh) start without the launchd agent socket; read it from launchd.
+    set -q SSH_AUTH_SOCK
+    or set -gx SSH_AUTH_SOCK (launchctl print gui/(id -u) 2>/dev/null | string match -rg 'SSH_AUTH_SOCK => (\S+)')
+
     # Load keychain only when the agent is empty
     ssh-add -l >/dev/null 2>&1
     or /usr/bin/ssh-add --apple-load-keychain >/dev/null 2>&1

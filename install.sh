@@ -49,11 +49,15 @@ mac_base() {
     # ssh-agent: load keychain keys for non-fish shells too (bash/zsh subprocesses,
     # e.g. Claude Code tool calls, don't source config.fish)
     [[ -f ~/.zshenv ]] || cat > ~/.zshenv <<'EOF'
+# Some shells (Rex, ssh) start without the launchd agent socket; read it from launchd.
+[ -n "$SSH_AUTH_SOCK" ] || export SSH_AUTH_SOCK=$(launchctl print gui/$(id -u) 2>/dev/null | sed -n 's/.*SSH_AUTH_SOCK => //p' | head -1)
 # Load all saved ssh keys
 /usr/bin/ssh-add --apple-load-keychain >/dev/null 2>&1
 EOF
 
     [[ -f ~/.bashrc ]] || cat > ~/.bashrc <<'EOF'
+# Some shells (Rex, ssh) start without the launchd agent socket; read it from launchd.
+[ -n "$SSH_AUTH_SOCK" ] || export SSH_AUTH_SOCK=$(launchctl print gui/$(id -u) 2>/dev/null | sed -n 's/.*SSH_AUTH_SOCK => //p' | head -1)
 # Load all saved ssh keys
 /usr/bin/ssh-add --apple-load-keychain >/dev/null 2>&1
 EOF
@@ -95,6 +99,8 @@ install_mise() {
     export PATH="$HOME/.local/bin:$PATH"
     # Removed first so brew never upgrades it, and so its copy does not shadow ~/.local/bin.
     brew list --formula -1 | grep -qx mise && brew uninstall --formula --ignore-dependencies mise && brew autoremove
+    # Intel has no usage bottle: brew builds it with rust, which pulls in llvm. mise needs it only for completions.
+    brew list --formula -1 | grep -qx usage && brew uninstall --formula usage && brew autoremove
     if command -v mise >/dev/null 2>&1; then
         mise self-update --yes
     else
@@ -468,6 +474,11 @@ if command -v claude >/dev/null 2>&1; then
     mkdir -p ~/.local/bin
     ln -sfn "$(mise which claude)" ~/.local/bin/claude
 fi
+
+# Third-party skill: .gitignore tracks only skills written here, so install it on each machine.
+# The installer links with a relative path that dangles because ~/.claude is itself a symlink.
+[[ -d ~/.agents/skills/stageshow ]] || npx --yes skills add benjitaylor/skills --skill stageshow -g -y
+ln -sfn ~/.agents/skills/stageshow ~/.claude/skills/stageshow
 
 # Per-account Claude config dirs (~/.claude-a, ~/.claude-b). Runs after the fff MCP
 # registration and the jq install so the accounts inherit both. Login stays manual: cc a, cc b.
