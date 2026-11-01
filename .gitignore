@@ -139,3 +139,5 @@ __pycache__/
 # obsidian
 !obsidian/
 !obsidian/**
+!quickadd-menubar/
+!quickadd-menubar/**
