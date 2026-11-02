@@ -1,0 +1,26 @@
+gui:
+  nerdFontsVersion: "3"
+  border: rounded
+  showRandomTip: false
+  showCommandLog: false
+  expandFocusedSidePanel: true
+  filterMode: fuzzy
+  # Dim the default branch's line colors so feature branches stand out
+  branchColorPatterns:
+    "^(main|master)$": "#808080"
+    "^feat/": "green"
+    "^fix/": "red"
+  theme:
+    activeBorderColor: ["cyan", "bold"]
+    inactiveBorderColor: ["default"]
+    selectedLineBgColor: ["reverse"]
+git:
+  # --no-gitconfig skips side-by-side from .gitconfig: too wide for a lazygit pane. Press | to cycle.
+  diffRenderers:
+    - command: delta --no-gitconfig --dark --paging=never --line-numbers
+      name: delta
+    - type: rawGit
+      args: [--color-words]
+      name: color-words
+os:
+  editPreset: nvim

@@ -141,3 +141,7 @@ __pycache__/
 !obsidian/**
 !quickadd-menubar/
 !quickadd-menubar/**
+
+# lazygit
+!lazygit/
+!lazygit/config.yml

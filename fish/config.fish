@@ -36,6 +36,7 @@ set -gx KO_DOCKER_REPO ko.local
 set -gx BUN_INSTALL $HOME/.bun
 set -gx MANPAGER "nvim +Man!"
 set -gx EDITOR nvim
+set -gx LG_CONFIG_FILE $HOME/.config/lazygit/config.yml
 
 # Subshells inherit the env from the first shell; skip the brew spawn then
 if not set -q HOMEBREW_PREFIX
