@@ -84,58 +84,47 @@ local function diff_title(dir)
   return branch .. "->main"
 end
 
--- The layer has no minimize, and lower_layer never hides it behind the tiled
--- panes. A shrunk strip in the corner stands in for a minimized window.
 local LAZYGIT_OPEN = { 0.05, 0.05, 0.9, 0.9 }
-local LAZYGIT_MINI = { 0.78, 0.94, 0.2, 0.05 }
 
--- Returns the lazygit layer, its block id and the first tiled block of its
--- window, plus whether that window holds block_id and the id of the window
--- that does. It returns nil when the session has no lazygit layer. A layer's
--- block label finds it.
+-- Returns the lazygit layer, plus whether its window holds block_id and the
+-- id of the window that does. It returns nil when the session has no lazygit
+-- layer. A layer's block label finds it.
 local function find_lazygit(session_id, block_id)
   local view = rex.call("session.view", { session_id = session_id })
-  local found, found_block, found_tiled
+  local found
   local here, window_id
   for _, window in ipairs(view and view.windows or {}) do
-    local tiled, lazygit, holds
+    local lazygit, holds
     for _, layer in ipairs(window.layers or {}) do
-      if layer.kind == "tiled" then
-        tiled = layer.blocks and layer.blocks[1] and layer.blocks[1].block_id
-      end
       for _, block in ipairs(layer.blocks or {}) do
         if block.block_id == block_id then holds = true end
         if layer.kind == "floating" and block.label == "lazygit" then
-          lazygit = { layer, block.block_id }
+          lazygit = layer
         end
       end
     end
     if holds then window_id = window.window_id end
     if lazygit then
-      found, found_block, found_tiled = lazygit[1], lazygit[2], tiled
+      found = lazygit
       here = holds
     end
   end
-  return found, found_block, found_tiled, here, window_id
+  return found, here, window_id
 end
 
 -- Toggles the session's one lazygit: opens it in a floating layer over the
--- source pane's repository, then shrinks and restores it on each press. The
--- program keeps running while shrunk. A layer cannot move between windows, so a
--- press from another window closes it and opens a fresh one there.
+-- source pane's repository, then minimizes and restores it on each press. The
+-- program keeps running while minimized. A layer cannot move between windows,
+-- so a press from another window closes it and opens a fresh one there.
 rex.action{name = "lazygit", title = "Lazygit",
   run = function(ctx)
-    local layer, block_id, tiled, here, window_id = find_lazygit(ctx.session_id, ctx.block_id)
+    local layer, here, window_id = find_lazygit(ctx.session_id, ctx.block_id)
     if layer and here then
-      local shrunk = layer.bounds[4] < 0.2
-      rex.call("session.resize_layer", {
+      rex.call("session.set_layer_state", {
         session_id = ctx.session_id,
         layer_id = layer.layer_id,
-        bounds = shrunk and LAZYGIT_OPEN or LAZYGIT_MINI,
-      })
-      rex.call("session.focus_block", {
-        session_id = ctx.session_id,
-        block_id = shrunk and block_id or tiled,
+        state = layer.state == "minimized" and "normal" or "minimized",
+        focus = layer.state == "minimized",
       })
       return
     end
