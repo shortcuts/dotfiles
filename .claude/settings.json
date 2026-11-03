@@ -12,7 +12,9 @@
   "includeCoAuthoredBy": false,
   "permissions": {
     "allow": [
-      "Bash(./gradlew *)"
+      "Bash(./gradlew *)",
+      "Read(//Users/clement.vannicatte/.claude/.radin/**)",
+      "Read(//Users/clement.vannicatte/.config/.claude/.radin/**)"
     ],
     "deny": [
       "Bash(make deploy)",
