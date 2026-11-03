@@ -2,33 +2,39 @@
 # clidraw, pgpemu and radin. Everything else lives in config.mac.toml, which only the full
 # Mac loads (MISE_ENV=mac, set by install.sh through miserc.toml).
 # Language toolchains float: projects pin their own versions, global is a fallback.
+[settings]
+# First-party tools: the user ships these, so a fresh release needs no cooling-off period.
+minimum_release_age_excludes = ["claude-code", "github:shortcuts/obsidian-quickadd-macos-menubar", "cargo:https://github.com/shortcuts/clidraw"]
+
 [tools]
 java = "latest"
 node = "latest"
 python = "latest"
 rust = "latest"
 bats = "1.14.0" # radin tests.
-bob = "4.1.7"
+bob = "4.3.0"
 # Floats, unlike the other CLIs: Anthropic ships a release most days and the CLI
 # warns when it trails. Was the `claude-code` brew cask.
 claude-code = "latest"
-lazygit = "0.65.1"
+lazygit = "0.66.2"
 # 0.19.0 dropped x86_64-apple-darwin; 0.18.2 is the last release with an Intel Mac binary.
-delta = "0.18.2"
+delta = "0.20.1"
 # Absent from mise's registry. Releases ship a bare binary per target, including both Macs.
 "github:dmtrKovalenko/fff" = { version = "0.11.0", matching = "fff-mcp", rename_exe = "fff-mcp" }
-fd = "10.3.0"
-fzf = "0.74.4"
+fd = "10.5.0"
+fzf = "0.74.5"
 gradle = "9.8.2"
-gh = "2.101.0"
+gh = "2.103.3"
 jq = "1.8.2"
 ripgrep = "15.2.0"
-starship = "1.26.0"
+starship = "1.27.0"
 shellcheck = "0.11.0"
 shfmt = "3.14.1"
-stylua = "2.5.2"
-"npm:ccstatusline" = "2.2.29"
+stylua = "2.6.0"
+"npm:ccstatusline" = "2.2.33"
 "npm:markdownlint-cli" = "0.50.0" # radin `make lint`; provides the `markdownlint` binary, unlike cli2.
 "aqua:rtk-ai/rtk" = "latest"
+# No GitHub release yet, so build from the repo head.
+"cargo:https://github.com/shortcuts/clidraw" = "branch:main"
 # Absent from mise's registry; the brew cask was disabled (fails Gatekeeper). The macOS zip holds only love.app.
 "github:love2d/love" = { version = "11.5", bin_path = "love.app/Contents/MacOS" }
