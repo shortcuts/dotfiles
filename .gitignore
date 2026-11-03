@@ -111,6 +111,8 @@ STL/.DS_Store
 !.claude/skills/
 !.claude/skills/_shared/
 !.claude/skills/_shared/**
+!.claude/skills/catchup/
+!.claude/skills/catchup/**
 !.claude/skills/documentation/
 !.claude/skills/documentation/**
 !.claude/skills/explain/
