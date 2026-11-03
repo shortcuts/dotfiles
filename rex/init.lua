@@ -25,7 +25,7 @@ rex.bind("cmd+shift+j", "pane.focus.down")
 rex.bind("cmd+shift+k", "pane.focus.up")
 rex.bind("cmd+shift+l", "pane.focus.right")
 
--- Lazygit: review and stage the source pane's repository in a floating layer.
+-- Floating programs (lazygit, radin) that open over the source pane's repository.
 
 -- Returns the source pane's working directory as a plain path, or nil and a
 -- reason. It prefers the directory the shell reports as an OSC 7 file:// URL.
@@ -84,68 +84,75 @@ local function diff_title(dir)
   return branch .. "->main"
 end
 
-local LAZYGIT_OPEN = { 0.025, 0.025, 0.95, 0.95 }
+local FLOAT_OPEN = { 0.025, 0.025, 0.95, 0.95 }
 
--- Returns the lazygit layer, plus whether its window holds block_id and the
--- id of the window that does. It returns nil when the session has no lazygit
--- layer. A layer's block label finds it.
-local function find_lazygit(session_id, block_id)
+-- Returns the floating layer that holds a block with this label, plus whether
+-- its window holds block_id and the id of the window that does. It returns nil
+-- when the session has no such layer. A layer's block label finds it.
+local function find_float(session_id, block_id, label)
   local view = rex.call("session.view", { session_id = session_id })
   local found
   local here, window_id
   for _, window in ipairs(view and view.windows or {}) do
-    local lazygit, holds
+    local layer_found, holds
     for _, layer in ipairs(window.layers or {}) do
       for _, block in ipairs(layer.blocks or {}) do
         if block.block_id == block_id then holds = true end
-        if layer.kind == "floating" and block.label == "lazygit" then
-          lazygit = layer
+        if layer.kind == "floating" and block.label == label then
+          layer_found = layer
         end
       end
     end
     if holds then window_id = window.window_id end
-    if lazygit then
-      found = lazygit
+    if layer_found then
+      found = layer_found
       here = holds
     end
   end
   return found, here, window_id
 end
 
--- Toggles the session's one lazygit: opens it in a floating layer over the
--- source pane's repository, then minimizes and restores it on each press. The
--- program keeps running while minimized. A layer cannot move between windows,
--- so a press from another window closes it and opens a fresh one there.
-rex.action{name = "lazygit", title = "Lazygit",
-  run = function(ctx)
-    local layer, here, window_id = find_lazygit(ctx.session_id, ctx.block_id)
-    if layer and here then
-      rex.call("session.set_layer_state", {
-        session_id = ctx.session_id,
-        layer_id = layer.layer_id,
-        state = layer.state == "minimized" and "normal" or "minimized",
-        focus = layer.state == "minimized",
-      })
-      return
-    end
-    if layer then
-      rex.call("session.close_layer", { session_id = ctx.session_id, layer_id = layer.layer_id })
-    end
+-- Defines an action that toggles the session's one floating program: it opens
+-- the program in a floating layer over the source pane's directory, then
+-- minimizes and restores it on each press. The program keeps running while
+-- minimized. A layer cannot move between windows, so a press from another
+-- window closes it and opens a fresh one there.
+local function float_toggle(label, title, script)
+  rex.action{name = label, title = title,
+    run = function(ctx)
+      local layer, here, window_id = find_float(ctx.session_id, ctx.block_id, label)
+      if layer and here then
+        rex.call("session.set_layer_state", {
+          session_id = ctx.session_id,
+          layer_id = layer.layer_id,
+          state = layer.state == "minimized" and "normal" or "minimized",
+          focus = layer.state == "minimized",
+        })
+        return
+      end
+      if layer then
+        rex.call("session.close_layer", { session_id = ctx.session_id, layer_id = layer.layer_id })
+      end
 
-    local dir, err = pane_directory(ctx)
-    if not dir then error("Lazygit: " .. tostring(err)) end
-    rex.call("session.new_layer", {
-      session_id = ctx.session_id,
-      window_id = window_id,
-      bounds = LAZYGIT_OPEN,
-      focus = true,
-      layout = { block = {
-        flavor = "com.superlogical.terminal.shell",
-        label = "lazygit",
-        options = { cwd = dir, shell = "none", command = { "sh", "-c", 'export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml" PATH="$HOME/.local/share/mise/installs/lazygit/latest:$HOME/.local/share/mise/shims:$PATH"; exec lazygit' } },
-      } },
-    })
-  end,
-}
+      local dir, err = pane_directory(ctx)
+      if not dir then error(title .. ": " .. tostring(err)) end
+      rex.call("session.new_layer", {
+        session_id = ctx.session_id,
+        window_id = window_id,
+        bounds = FLOAT_OPEN,
+        focus = true,
+        layout = { block = {
+          flavor = "com.superlogical.terminal.shell",
+          label = label,
+          options = { cwd = dir, shell = "none", command = { "sh", "-c", script } },
+        } },
+      })
+    end,
+  }
+end
+
+float_toggle("lazygit", "Lazygit", 'export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml" PATH="$HOME/.local/share/mise/installs/lazygit/latest:$HOME/.local/share/mise/shims:$PATH"; exec lazygit')
+float_toggle("radin", "Radin", 'export PATH="$HOME/.local/bin:$PATH"; exec radin')
 
 rex.bind("cmd+shift+enter", "lazygit")
+rex.bind("cmd+shift+r", "radin")
