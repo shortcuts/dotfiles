@@ -84,7 +84,7 @@ local function diff_title(dir)
   return branch .. "->main"
 end
 
-local LAZYGIT_OPEN = { 0.05, 0.05, 0.9, 0.9 }
+local LAZYGIT_OPEN = { 0.025, 0.025, 0.95, 0.95 }
 
 -- Returns the lazygit layer, plus whether its window holds block_id and the
 -- id of the window that does. It returns nil when the session has no lazygit
@@ -142,7 +142,7 @@ rex.action{name = "lazygit", title = "Lazygit",
       layout = { block = {
         flavor = "com.superlogical.terminal.shell",
         label = "lazygit",
-        options = { cwd = dir, shell = "none", command = { "sh", "-c", 'PATH="$HOME/.local/share/mise/installs/lazygit/latest:$PATH" exec lazygit' } },
+        options = { cwd = dir, shell = "none", command = { "sh", "-c", 'export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml" PATH="$HOME/.local/share/mise/installs/lazygit/latest:$HOME/.local/share/mise/shims:$PATH"; exec lazygit' } },
       } },
     })
   end,

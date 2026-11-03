@@ -4,21 +4,30 @@ gui:
   showRandomTip: false
   showCommandLog: false
   expandFocusedSidePanel: true
+  # Narrow the left lists so side-by-side gets ~75% of the width
+  sidePanelWidth: 0.25
+  # Lazygit requires commits; the other panels stay hidden
+  sidePanels:
+    - [files]
+    - [branches]
+    - [commits]
   filterMode: fuzzy
-  # Dim the default branch's line colors so feature branches stand out
-  branchColorPatterns:
-    "^(main|master)$": "#808080"
-    "^feat/": "green"
-    "^fix/": "red"
   theme:
     activeBorderColor: ["cyan", "bold"]
     inactiveBorderColor: ["default"]
     selectedLineBgColor: ["reverse"]
+    # Dim the default branch's line colors so feature branches stand out
+    branchColorPatterns:
+      "^(main|master)$": "#808080"
+      "^feat/": "green"
+      "^fix/": "red"
 git:
-  # --no-gitconfig skips side-by-side from .gitconfig: too wide for a lazygit pane. Press | to cycle.
+  # Same delta settings as `git d` (from .gitconfig). {{columnWidth}} is half the diff pane minus 6, so double it back. Press | to cycle.
   diffRenderers:
-    - command: delta --no-gitconfig --dark --paging=never --line-numbers
+    - command: sh -c 'delta --paging=never --width=$((2 * {{columnWidth}} + 12))'
       name: delta
+    - command: delta --no-gitconfig --dark --paging=never --line-numbers
+      name: delta-unified
     - type: rawGit
       args: [--color-words]
       name: color-words
