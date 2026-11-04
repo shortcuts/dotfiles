@@ -33,3 +33,20 @@ git:
       name: color-words
 os:
   editPreset: nvim
+keybinding:
+  files:
+    refreshFiles: "<disabled>"
+customCommands:
+  # Lazygit custom commands cannot change focus or screen mode, so replay the keys through Rex
+  - key: "r"
+    context: "files"
+    description: "Full-width diff"
+    command: 'rex send-key -s "$REX_SESSION" -b "$REX_BLOCK" 0 && rex send-key -s "$REX_SESSION" -b "$REX_BLOCK" shift+='
+  - key: "r"
+    context: "commits"
+    description: "Full-width diff"
+    command: 'rex send-key -s "$REX_SESSION" -b "$REX_BLOCK" 0 && rex send-key -s "$REX_SESSION" -b "$REX_BLOCK" shift+='
+  - key: "r"
+    context: "commitFiles"
+    description: "Full-width diff"
+    command: 'rex send-key -s "$REX_SESSION" -b "$REX_BLOCK" 0 && rex send-key -s "$REX_SESSION" -b "$REX_BLOCK" shift+='
