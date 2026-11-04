@@ -13,8 +13,7 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew *)",
-      "Read(//Users/k/.claude/.radin/**)",
-      "Read(//Users/k/.config/.claude/.radin/**)"
+      "Read(//Users/k/.radin/**)"
     ],
     "deny": [
       "Bash(make deploy)",
@@ -63,7 +62,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "opus",
+  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {

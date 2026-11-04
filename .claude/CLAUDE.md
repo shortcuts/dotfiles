@@ -40,6 +40,9 @@ something does not exist from an empty result. Fall back to file scanning when
 the graph does not cover what you need. The MCP tools document their own
 parameters and use.
 
+
+@RTK.md
+
 <!-- radin:begin -->
 ## radin
 
