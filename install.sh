@@ -391,14 +391,14 @@ lite_post() {
     [[ -d ~/.espressif ]] || "$idf/install.sh" esp32c3
 
     # radin is a Claude Code plugin: it needs the claude CLI that mise just installed.
-    # --yes takes the default package manager for its companions; --update skips
-    # companions already present. A failure here must not stop the run.
-    if command -v claude >/dev/null 2>&1; then
-        local radin_args=(--yes)
-        [[ $MODE == update ]] && radin_args+=(--update)
+    # --yes takes the default package manager for its companions. Setup only: radin updates itself.
+    # A failure here must not stop the run.
+    if [[ $MODE != "setup" ]]; then
+        :
+    elif command -v claude >/dev/null 2>&1; then
         # The timestamp query skips the raw.githubusercontent.com cache, which serves a stale script for ~5 min after a push.
         curl -fsSL -H 'Cache-Control: no-cache' "https://raw.githubusercontent.com/shortcuts/radin/main/install.sh?$(date +%s)" |
-            bash -s -- "${radin_args[@]}" || echo "radin install failed, run it again by hand"
+            bash -s -- --yes || echo "radin install failed, run it again by hand"
     else
         echo "claude CLI not found, skipping radin install"
     fi
