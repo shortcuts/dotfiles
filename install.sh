@@ -108,6 +108,19 @@ install_mise() {
     fi
 }
 
+# `replace`, unlike `add`, drops a domain removed from this list, so every run converges.
+# hostctl edits a copy: it needs no root there, and an unchanged file skips the sudo prompt.
+sync_hosts() {
+    local new domain
+    new=$(mktemp)
+    cp /etc/hosts "$new"
+    for domain in dashboard wgeasy proxy pihole homeassistant qbittorrent jellyfin kuma dozzle openbao; do
+        echo "192.168.1.19 $domain.shrtcts.fr"
+    done | hostctl replace rpi --host-file "$new" --quiet &&
+        { cmp -s "$new" /etc/hosts || sudo cp "$new" /etc/hosts; }
+    rm -f "$new"
+}
+
 # ---------------------------------------------------------------- mac
 
 mac_pre() {
@@ -138,21 +151,6 @@ mac_pre() {
 }
 
 mac_post() {
-    # rpi (needs sudo, one-time)
-    if [[ $MODE == "setup" ]]; then
-        sudo hostctl add domains rpi \
-            dashboard.shrtcts.fr \
-            wgeasy.shrtcts.fr \
-            proxy.shrtcts.fr \
-            pihole.shrtcts.fr \
-            homeassistant.shrtcts.fr \
-            qbittorrent.shrtcts.fr \
-            jellyfin.shrtcts.fr \
-            kuma.shrtcts.fr \
-            dozzle.shrtcts.fr \
-            openbao.shrtcts.fr --ip 192.168.1.19
-    fi
-
     # start-at-login only registers the login item once AeroSpace has run.
     open -a AeroSpace
 
@@ -504,5 +502,7 @@ for rock in luacheck argparse; do
 done
 
 bob use latest
+
+sync_hosts
 
 "${PLATFORM}_post"
