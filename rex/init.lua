@@ -25,7 +25,7 @@ rex.bind("cmd+shift+j", "pane.focus.down")
 rex.bind("cmd+shift+k", "pane.focus.up")
 rex.bind("cmd+shift+l", "pane.focus.right")
 
--- Floating programs (lazygit, radin, nvim) that open over the source pane's repository.
+-- Floating programs (lazygit, radin, nvim, shell) that open over the source pane's repository.
 
 -- Returns the source pane's working directory as a plain path, or nil and a
 -- reason. It prefers the directory the shell reports as an OSC 7 file:// URL.
@@ -154,7 +154,9 @@ end
 float_toggle("lazygit", "Lazygit", 'export LG_CONFIG_FILE="$HOME/.config/lazygit/config.yml" PATH="$HOME/.local/share/mise/installs/lazygit/latest:$HOME/.local/share/mise/shims:$PATH"; exec lazygit')
 float_toggle("radin", "Radin", 'export PATH="$HOME/.local/bin:$PATH"; exec radin')
 float_toggle("nvim", "Neovim", 'export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:$PATH"; exec nvim .')
+float_toggle("shell", "Shell", 'export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"; exec fish')
 
 rex.bind("cmd+shift+enter", "lazygit")
 rex.bind("cmd+shift+r", "radin")
 rex.bind("cmd+shift+v", "nvim")
+rex.bind("cmd+enter", "shell")
