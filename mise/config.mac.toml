@@ -30,7 +30,6 @@ gum = "2.0.2"
 # Held at 3.x: helm 4 is a breaking major, and the clusters still run v3 charts.
 helm = "4.3.1"
 helmfile = "1.8.2"
-hostctl = "1.1.4"
 k3d = "5.9.0"
 k9s = "0.51.0"
 kind = "0.33.0"

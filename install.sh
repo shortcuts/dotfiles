@@ -144,13 +144,13 @@ mac_post() {
             dashboard.shrtcts.fr \
             wgeasy.shrtcts.fr \
             proxy.shrtcts.fr \
+            pihole.shrtcts.fr \
+            homeassistant.shrtcts.fr \
             qbittorrent.shrtcts.fr \
             jellyfin.shrtcts.fr \
             kuma.shrtcts.fr \
-            openbao.shrtcts.fr \
-            observability.shrtcts.fr \
-            renovaite.shrtcts.fr \
-            renovaite-api.shrtcts.fr --ip 192.168.1.19
+            dozzle.shrtcts.fr \
+            openbao.shrtcts.fr --ip 192.168.1.19
     fi
 
     # start-at-login only registers the login item once AeroSpace has run.
