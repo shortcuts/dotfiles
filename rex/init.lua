@@ -1,22 +1,3 @@
--- Floating fzf over the whitelisted directories; the pick creates its session if missing.
-rex.action{
-  name  = "finder",
-  title = "Open Session for Directory",
-  run   = function()
-    local _, err = rex.session.new_layer{
-      bounds = { 0.15, 0.3, 0.7, 0.4 },
-      focus  = true,
-      layout = rex.layout.block{
-        flavor  = "com.superlogical.terminal.shell",
-        options = { shell = "none", command = { "bash", os.getenv("HOME") .. "/.config/scripts/rex-finder" } },
-      },
-    }
-    if err ~= nil then error(err, 0) end
-  end,
-}
-
-rex.bind("cmd+shift+f", "finder")
-
 rex.bind("cmd+n", "session.new")
 rex.bind("cmd+shift+n", "client.window.new")
 
@@ -112,16 +93,37 @@ local function find_float(session_id, block_id, label)
   return found, here, window_id
 end
 
+-- Minimizes every open floating layer in the window except keep_id, so one
+-- floating program shows at a time.
+local function minimize_floats(session_id, window_id, keep_id)
+  if not window_id then return end
+  local view = rex.call("session.view", { session_id = session_id })
+  for _, window in ipairs(view and view.windows or {}) do
+    if window.window_id == window_id then
+      for _, layer in ipairs(window.layers or {}) do
+        if layer.kind == "floating" and layer.layer_id ~= keep_id and layer.state ~= "minimized" then
+          rex.call("session.set_layer_state", {
+            session_id = session_id, layer_id = layer.layer_id, state = "minimized",
+          })
+        end
+      end
+    end
+  end
+end
+
 -- Defines an action that toggles the session's one floating program: it opens
 -- the program in a floating layer over the source pane's directory, then
 -- minimizes and restores it on each press. The program keeps running while
 -- minimized. A layer cannot move between windows, so a press from another
 -- window closes it and opens a fresh one there.
-local function float_toggle(label, title, script)
+-- opts.bounds overrides the layer size. opts.no_cwd skips the pane directory lookup.
+local function float_toggle(label, title, script, opts)
+  opts = opts or {}
   rex.action{name = label, title = title,
     run = function(ctx)
       local layer, here, window_id = find_float(ctx.session_id, ctx.block_id, label)
       if layer and here then
+        if layer.state == "minimized" then minimize_floats(ctx.session_id, window_id, layer.layer_id) end
         rex.call("session.set_layer_state", {
           session_id = ctx.session_id,
           layer_id = layer.layer_id,
@@ -134,12 +136,16 @@ local function float_toggle(label, title, script)
         rex.call("session.close_layer", { session_id = ctx.session_id, layer_id = layer.layer_id })
       end
 
-      local dir, err = pane_directory(ctx)
-      if not dir then error(title .. ": " .. tostring(err)) end
+      local dir, err
+      if not opts.no_cwd then
+        dir, err = pane_directory(ctx)
+        if not dir then error(title .. ": " .. tostring(err)) end
+      end
+      minimize_floats(ctx.session_id, window_id)
       rex.call("session.new_layer", {
         session_id = ctx.session_id,
         window_id = window_id,
-        bounds = FLOAT_OPEN,
+        bounds = opts.bounds or FLOAT_OPEN,
         focus = true,
         layout = { block = {
           flavor = "com.superlogical.terminal.shell",
@@ -156,6 +162,11 @@ float_toggle("radin", "Radin", 'export PATH="$HOME/.local/bin:$PATH"; exec radin
 float_toggle("nvim", "Neovim", 'export PATH="$HOME/.local/share/bob/nvim-bin:$HOME/.local/share/mise/shims:/opt/homebrew/bin:/usr/local/bin:$PATH"; exec nvim .')
 float_toggle("shell", "Shell", 'export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"; exec fish')
 
+-- Floating fzf over the whitelisted directories; the pick creates its session if missing.
+float_toggle("finder", "Open Session for Directory", 'exec bash "$HOME/.config/scripts/rex-finder"',
+  { bounds = { 0.15, 0.3, 0.7, 0.4 }, no_cwd = true })
+
+rex.bind("cmd+shift+f", "finder")
 rex.bind("cmd+shift+enter", "lazygit")
 rex.bind("cmd+shift+r", "radin")
 rex.bind("cmd+shift+v", "nvim")
