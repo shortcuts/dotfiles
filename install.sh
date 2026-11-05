@@ -478,18 +478,6 @@ fi
 [[ -d ~/.agents/skills/stageshow ]] || npx --yes skills add benjitaylor/skills --skill stageshow -g -y
 ln -sfn ~/.agents/skills/stageshow ~/.claude/skills/stageshow
 
-# QuickAdd settings: the plugin is installed by hand in Obsidian; only its config is tracked here.
-# Skipped where the iCloud vault is absent (lite) or QuickAdd is not installed yet.
-quickadd=~/Library/Mobile\ Documents/iCloud~md~obsidian/Documents/notes/.obsidian/plugins/quickadd
-if [[ -d $quickadd ]]; then
-    mkdir -p ~/.config/obsidian
-    # First run adopts the vault's file; later runs on other Macs replace theirs with the tracked one.
-    if [[ -f $quickadd/data.json && ! -L $quickadd/data.json && ! -f ~/.config/obsidian/quickadd.json ]]; then
-        mv "$quickadd/data.json" ~/.config/obsidian/quickadd.json
-    fi
-    [[ -f ~/.config/obsidian/quickadd.json ]] && ln -sfn ~/.config/obsidian/quickadd.json "$quickadd/data.json"
-fi
-
 # Per-account Claude config dirs (~/.claude-a, ~/.claude-b). Runs after the fff MCP
 # registration and the jq install so the accounts inherit both. Login stays manual: cc a, cc b.
 fish -c 'cc setup'

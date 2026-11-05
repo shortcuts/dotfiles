@@ -138,9 +138,6 @@ STL/.DS_Store
 # Un-ignored skill folders would track Python bytecode.
 __pycache__/
 
-# obsidian
-!obsidian/
-!obsidian/**
 !quickadd-menubar/
 !quickadd-menubar/**
 
