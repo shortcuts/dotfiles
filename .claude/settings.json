@@ -187,7 +187,7 @@
     "type": "command",
     "command": "ccstatusline",
     "padding": 0,
-    "refreshInterval": 10
+    "refreshInterval": 30
   },
   "enabledPlugins": {
     "caveman@caveman": true,
