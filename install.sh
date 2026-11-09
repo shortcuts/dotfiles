@@ -222,6 +222,10 @@ lite_prune() {
     # and a dead job keeps respawning or failing in the background.
     pkill -x AeroSpace 2>/dev/null
     osascript -e 'tell application "System Events" to if (exists login item "AeroSpace") then delete login item "AeroSpace"' >/dev/null 2>&1
+    # mise prune drops QuickAddMenubar, but its ~/Applications bundle and login item stay.
+    pkill -x QuickAddMenubar 2>/dev/null
+    osascript -e 'tell application "System Events" to if (exists login item "QuickAddMenubar") then delete login item "QuickAddMenubar"' >/dev/null 2>&1
+    rm -rf ~/Applications/QuickAddMenubar.app
     for link in ~/Library/LaunchAgents/com.google.* ; do
         [[ -e $link ]] || continue
         launchctl bootout "gui/$(id -u)/$(basename "$link" .plist)" 2>/dev/null
@@ -454,17 +458,9 @@ else
     echo "claude CLI not found, skipping fff MCP registration"
 fi
 
-# clidraw MCP server for Claude Code (user scope, stored in ~/.claude.json)
 # Temporary: builds clidraw from this checkout until a released binary replaces this line.
 [[ -d ~/Documents/clidraw ]] || git clone https://github.com/shortcuts/clidraw ~/Documents/clidraw
 cargo install --path ~/Documents/clidraw --locked
-if ! command -v clidraw >/dev/null 2>&1; then
-    echo "clidraw not found, skipping clidraw MCP registration"
-elif command -v claude >/dev/null 2>&1; then
-    claude mcp get clidraw >/dev/null 2>&1 || claude mcp add --scope user clidraw -- clidraw mcp
-else
-    echo "claude CLI not found, skipping clidraw MCP registration"
-fi
 
 # The mise-installed claude still records installMethod "native" in ~/.claude.json,
 # and /doctor warns when ~/.local/bin/claude is missing.
