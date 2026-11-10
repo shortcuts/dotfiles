@@ -146,7 +146,7 @@ mac_pre() {
 
     brew install --cask font-lilex-nerd-font font-jetbrains-mono-nerd-font font-fira-mono-nerd-font \
         docker-desktop android-commandlinetools android-platform-tools \
-        google-chrome spotify bambu-studio
+        google-chrome spotify bambu-studio tailscale-app
     brew install lua
 }
 
@@ -176,7 +176,8 @@ lite_pre() {
     # luarocks and lua serve no-neck-pain.nvim; clang-format serves pgpemu's `make format`.
     # wireguard-tools serves the `vpn` fish function, which no daemon starts anymore.
     # btop is the mini's resource monitor.
-    brew install fish coreutils lua luarocks clang-format wireguard-tools btop defaultbrowser
+    # tailscale is a brew formula: mise's darwin build is the GUI app binary, with no tailscaled.
+    brew install fish coreutils lua luarocks clang-format wireguard-tools btop defaultbrowser tailscale
 
     brew install --cask font-jetbrains-mono-nerd-font \
         android-commandlinetools android-platform-tools
@@ -204,7 +205,7 @@ lite_prune() {
     done
     # --zap also deletes app data: Docker images, browser profiles.
     for pkg in aerospace ghostty openvpn-connect obsidian stats docker-desktop google-chrome \
-        spotify bambu-studio openmtp font-hack-nerd-font font-lilex-nerd-font font-fira-mono-nerd-font; do
+        spotify bambu-studio tailscale-app openmtp font-hack-nerd-font font-lilex-nerd-font font-fira-mono-nerd-font; do
         [[ $casks == *" $pkg "* ]] && brew uninstall --cask --zap "$pkg"
     done
     brew tap | grep -qixE 'felixkratz/formulae|nikitabobko/tap' &&
@@ -361,6 +362,8 @@ lite_headless() {
     # Tailscale replaced the WireGuard tunnel: drop the daemon an earlier run installed.
     sudo launchctl bootout system/com.shortcuts.vpn 2>/dev/null
     sudo rm -f /Library/LaunchDaemons/com.shortcuts.vpn.plist
+    # As root, brew services installs a LaunchDaemon: tailscaled runs at boot with no login.
+    sudo "$(command -v brew)" services start tailscale >/dev/null
     # One Space with no automatic reordering: a headless box needs no Mission Control.
     # Extra Spaces already created stay until removed by hand in Mission Control.
     set_default com.apple.spaces spans-displays bool 1

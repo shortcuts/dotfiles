@@ -24,6 +24,7 @@ fish_add_path /usr/local/bin /opt/homebrew/bin \
     $HOME/.cargo/bin \
     $HOME/go/bin \
     $HOME/.local/share/bob/nvim-bin \
+    "$HOME/Library/Application Support/bob/nvim-bin" \
     $HOME/Documents/no-neck-pain.nvim/.ci/lua-ls \
     /Library/Frameworks/Python.framework/Versions/3.11/bin \
     $HOME/.bun/bin
