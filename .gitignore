@@ -108,6 +108,7 @@ STL/.DS_Store
 !.claude/output-styles/
 !.claude/output-styles/**
 !.claude/settings.json
+!.claude/statusline.sh
 !.claude/skills/
 !.claude/skills/_shared/
 !.claude/skills/_shared/**
@@ -130,9 +131,6 @@ STL/.DS_Store
 !.claude/skills/maintain-design/
 !.claude/skills/maintain-design/**
 
-# ccstatusline
-!ccstatusline/
-!ccstatusline/settings.json
 
 
 # Un-ignored skill folders would track Python bytecode.

@@ -185,7 +185,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "ccstatusline",
+    "command": "~/.claude/statusline.sh",
     "padding": 0,
     "refreshInterval": 30
   },
