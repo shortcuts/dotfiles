@@ -2,6 +2,7 @@
 .omc
 
 **/.claude/settings.local.json
+**/.radin
 
 **/.claude/worktrees/
 
