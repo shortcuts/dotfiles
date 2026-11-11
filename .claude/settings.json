@@ -28,9 +28,6 @@
       "Bash(eval:*)",
       "Bash(fdisk *)",
       "Bash(gcloud *)",
-      "Bash(git clean -fd:*)",
-      "Bash(git reset *)",
-      "Bash(git rebase *)",
       "Bash(kubectl *)",
       "Bash(mkfs *)",
       "Bash(npm publish*)",
@@ -63,7 +60,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "haiku",
+  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
