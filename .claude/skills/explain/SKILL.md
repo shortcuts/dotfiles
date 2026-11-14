@@ -488,6 +488,10 @@ Put the one best read first. Its `why` says why it is first and which part to re
    names. Each sketch must draw the count its caption and key state. Fix the note, then
    install again.
 
+Load the `obsidian:obsidian-markdown` skill when you edit `obsidian.py` or the page
+layout: it owns the callout, footnote, embed, and property syntax. To check a page in
+the live vault, use the `obsidian:obsidian-cli` skill.
+
 Each install also rewrites `Explain.md` in the vault: one link per note, newest first.
 Then stop. The page layout and its decisions live in [`OUTPUT.md`](OUTPUT.md).
 

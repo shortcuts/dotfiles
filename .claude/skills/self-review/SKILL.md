@@ -150,6 +150,10 @@ for i in 1 2 3 4 5 6; do obsidian open vault=notes path="$rel" && break; sleep 0
 
 The retry is there because Obsidian indexes a new file with a delay.
 
+Load the `obsidian:obsidian-markdown` skill before you write the file. It owns the
+property types, callout syntax, and wikilink rules the note must follow. Search the vault
+for existing tags and keys with the `obsidian:obsidian-cli` skill, not with `find`.
+
 ## The slop pass
 
 Write the file, then run the whole note through the `no-ai-slop` skill in Edit
