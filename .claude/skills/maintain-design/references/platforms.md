@@ -5,7 +5,7 @@ Detect every surface the repo ships and inspect each in its own way.
 | Surface | Find it | Inspect it | Tokens usually live in |
 |---|---|---|---|
 | Android Compose | `build.gradle.kts` with compose; a `designsystem` module | Screenshots over adb (read the repo's testing doc first); composables; `strings.xml` | Kotlin theme files (colors, type, shapes, spacing) |
-| Static wiki / web | `docs/wiki`, `*.html`, `style.css` | Serve locally (`make wiki-serve` or `python3 -m http.server`); view at 390 px and 1280 px | `:root` custom properties in the stylesheet |
+| Static wiki / web | `docs/wiki`, `*.html`, `style.css`; the shared docs kit (`wiki-docs.md`) when `wiki-init.js` exists | Serve locally (`make wiki-serve` or `python3 -m http.server`); view at 390 px, 1280 px, and either side of each `@media` width in the stylesheet | `:root` custom properties in the stylesheet |
 | Rust TUI | `ratatui`, `crossterm`, `tui` in `Cargo.toml` | Run it in a pane at 80x24 and wide; read the screen text; check color support fallback | A `theme` module or style constants |
 | CLI output | `clap`, `println!` heavy `main` | Run commands; read the output with colors on and off (`NO_COLOR`) | Style helpers |
 | Mocked-UI illustrations | stageshow `kit/` imports, `Stage`/`Window` components, hero or feature-card images, `REHEARSAL.md` | Film them (`illustrations.md`); read the source for tokens and copy | The same tokens as the product (`stageshow/references/looks.md`) |

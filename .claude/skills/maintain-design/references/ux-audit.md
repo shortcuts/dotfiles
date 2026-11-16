@@ -27,7 +27,7 @@ Run each lens over every screen or page in scope. Skip a lens that cannot apply 
 2. **Typography** (`/interfaces:better-typography`): number of sizes in play, hierarchy, line length, truncation and wrapping, numeric alignment.
 3. **Navigation**: how many taps to the main tasks, whether back always goes where the user expects, whether state survives a return, whether a feature is discoverable without a manual, whether the same thing has the same name everywhere.
 4. **Copy**: button verbs, error messages that say what happened and what to do, one term per concept, sentence case. Judge with `/technical-writing`.
-5. **Docs and onboarding** (`/documentation`): does each doc page fit one Diátaxis mode (tutorial, how-to, reference, explanation)? Does a first-time user reach their first success without leaving the flow? Does the wiki use the words the app uses?
+5. **Docs and onboarding** (`/documentation`): does each doc page fit one Diátaxis mode (tutorial, how-to, reference, explanation)? Does a first-time user reach their first success without leaving the flow? Does the wiki use the words the app uses? For a wiki, run the audit checklist in `wiki-docs.md` (nav groups, hub, anchors, case, stubs).
 6. **Accessibility cross-check** (`/interfaces:better-accessibility`): focus order, names, targets, contrast, motion. Log structural problems here; leave token-level contrast to Vertical 1.
 
 7. **Illustrations** (`/stageshow`): the mocked UI in heroes, feature cards and docs. Use the audit table in `illustrations.md`. Skip when the repo ships none.

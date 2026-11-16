@@ -196,7 +196,8 @@
     "mattpocock-skills@claude-plugins-official": true,
     "pyright-lsp@claude-plugins-official": true,
     "interfaces@interfaces": true,
-    "obsidian@obsidian-skills": true
+    "obsidian@obsidian-skills": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "caveman": {

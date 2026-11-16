@@ -3,6 +3,7 @@
 ## Contents
 
 - Existing system: the three jobs
+- Design upstream
 - Operation 1: find the reference
 - Operation 2: align colors and font
 - Output: what to write and where
@@ -19,6 +20,24 @@
 | Change something in particular | Run Operations 1 and 2 for the named aspects only, then diff the result against the old system. Name the aspects in the question: colors, density, font, feel, layout. |
 
 "Maintenance" and "Suggestions" together mean "improve the existing one". The user's wish to change something is a signal, not a spec. Ask what they want changed in the same question as a multi-select follow-up, so Operation 1 searches for the right thing. Leave untouched what they did not name.
+
+## Design upstream
+
+Some repos copy their look from a sibling repo and keep only a few parts local (often the colors). The sibling is the design upstream. Record it in one line, in the design document's Provenance section, or in the wiki `CONTRIBUTING.md` when the repo has no design document:
+
+```
+Design upstream: ~/Documents/locationjoystick docs/wiki (style.css, wiki-init.js, CONTRIBUTING.md), synced at 024dd6e4. Local: :root colors, nav items, pages.
+```
+
+The shared set also covers the docs kit: wiki structure, page types and writing rules (`wiki-docs.md`).
+
+On every run with an upstream:
+
+1. List upstream changes since the sync commit: `git -C <upstream> log --oneline <sync>..HEAD -- <shared files>`. Each commit is a candidate finding.
+2. Diff the shared files without the local parts, for example `diff <(sed 's/#[0-9A-Fa-f]\{6\}//g' <upstream>/style.css) <(sed 's/#[0-9A-Fa-f]\{6\}//g' style.css)`. Sort each hunk into one of three kinds: not yet ported, local by design (a page or component the repo does not have), or local drift.
+3. Log each unported change and each drift as an entry. When a user present asks to "copy" the upstream, port it, then move the sync commit to the upstream `HEAD`.
+
+The sync commit is the audit's memory. Without it, every run re-reads the whole upstream history.
 
 ## Operation 1: find the reference
 
@@ -69,12 +88,12 @@ No user present: take the recommended candidate and log an `**Open decision:**` 
 **Sections**, in this order:
 
 1. Direction and why (one name for the direction, the usage context, the borrowed principles with their reasons)
-2. Provenance (reference brand, what was borrowed, date, who picked what)
+2. Provenance (reference brand, what was borrowed, date, who picked what, and the `Design upstream` line when one exists)
 3. Color roles and font (values or pointer, per the policy above; contrast results)
 4. Rules (numbered, each testable: "no raw hex outside the theme")
 5. Component choice (use-when judgements)
 6. Accessibility floor
-7. Platform notes (one short block per surface)
+7. Platform notes (one short block per surface; for a wiki, its layout: columns, breakpoints, where the outline and screenshots go, how a screenshot enlarges)
 8. Maintenance (when to update this file, which skill to run: `maintain-design`)
 
 Write with `/technical-writing`: short sentences, the real symbol names, no filler.
@@ -96,6 +115,8 @@ Scan the code with the graph or grep, and cite `path:line` in each entry.
 - Fonts set inline
 - Wiki or TUI palette drifting from the app palette
 - Rules in the document that code no longer follows (the code wins: fix the document, and log it)
+- Layout parts the code has but the document does not describe: a new column or rail, a breakpoint, a lightbox or dialog, a changed nav pattern. Read `git log` for the stylesheet and layout script since the document last changed.
+- Design upstream drift: run "Design upstream" above when the repo records one
 - Mocked-UI illustrations (hero demos, feature cards) that drift from the design document: run the audit table in `illustrations.md`
 
 Group findings by cause, not by file. One cause with 30 call sites is one entry sized as one slice or batched per module.

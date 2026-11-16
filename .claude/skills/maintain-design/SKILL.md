@@ -5,7 +5,7 @@ description: Create, audit and maintain a repository's design system (UI vertica
 
 # Maintain design
 
-Keep a repository's look and usability coherent across sessions. The repo, not the chat, holds the design memory. Two verticals share one rule: this skill writes design documents, stageshow previews (`references/illustrations.md`) and radin entries, never product code.
+Keep a repository's look and usability coherent across sessions. The repo, not the chat, holds the design memory. Two verticals share one rule: this skill writes design documents, stageshow previews (`references/illustrations.md`) and radin entries, never product code. A third area, the docs kit (`references/wiki-docs.md`), holds the wiki structure that several repos share. A user who asks directly to restructure or port a wiki gets the docs files edited, not logged.
 
 **Why no product code:** design work spreads across many files and screens. Logging it as radin entries lets the user pick what to run and when (`/radin-batch`). The skill never proposes or starts that run.
 
@@ -13,6 +13,8 @@ Keep a repository's look and usability coherent across sessions. The repo, not t
 
 1. **Platform.** Detect every surface the repo ships: Android Compose, static HTML wiki, terminal UI, CLI output, embedded display. Read `references/platforms.md` for how to inspect each.
 2. **Existing design system.** Look for `DESIGN.md`, `docs/design-system.md`, a tokens module (for example `core/designsystem`), a `:root` block in a stylesheet. Read what you find, and read the repo's `AGENTS.md` for its doc policy.
+   - **Design upstream.** Check whether the look is copied from another repo: a `Design upstream` line in the design document or wiki `CONTRIBUTING.md`, or the user names one. With an upstream, read its git log for the shared files since the recorded sync commit before any audit (`references/design-system.md`, "Design upstream"). No line, but the user says the design comes from elsewhere: record it. **Why:** an audit against the repo's own rules never sees a change made upstream.
+   - **Docs kit.** A `docs/wiki/` with `wiki-init.js` means the repo ships the shared wiki kit. Read `references/wiki-docs.md`. Check it against the reference repo (`~/Documents/locationjoystick`), and keep every consumer's `Design upstream` line current.
 3. **radin.** Run `radin backlog env`. No output or an error means radin is missing: say so and stop before Step 1. Run `radin backlog show` so you do not log what exists.
 4. **Existing system: ask now.** A design system found in step 2 means the user must settle the job before any audit. Ask once with `AskUserQuestion`, in full sentences: improve the existing system, or change something in particular (colors, density, font, feel, layout, other). Options and what each does: `references/design-system.md`, "Existing system: the three jobs". Skip it when the request already names the job. **Why:** an audit of the wrong job wastes the run and logs entries the user does not want.
 5. **Pick the vertical** from the request:
@@ -41,7 +43,7 @@ Read `references/design-system.md` before starting. It holds the full procedure.
 Read `references/ux-audit.md` before starting. Outline:
 
 1. Capture evidence first: screenshots or the rendered page or the running TUI. Read the design system so you judge against the repo's own rules.
-2. Audit with these lenses: `/interfaces:better-layout` (grouping, alignment, reading order, progressive disclosure), `/interfaces:better-typography` (hierarchy and wrapping), navigation (depth, back paths, discoverability, state after return), copy and docs (`/documentation` for structure, `/technical-writing` for sentences), `/interfaces:better-accessibility` as a cross-check, and the repo's mocked-UI illustrations against `/stageshow` (`references/illustrations.md`, "Audit").
+2. Audit with these lenses: `/interfaces:better-layout` (grouping, alignment, reading order, progressive disclosure), `/interfaces:better-typography` (hierarchy and wrapping), navigation (depth, back paths, discoverability, state after return), copy and docs (`/documentation` for structure, `/technical-writing` for sentences, the audit checklist in `references/wiki-docs.md` for a wiki), `/interfaces:better-accessibility` as a cross-check, and the repo's mocked-UI illustrations against `/stageshow` (`references/illustrations.md`, "Audit").
 3. **Change nothing.** Log each finding as a radin entry. Do not offer to execute them. The user decides.
 
 ## Logging to radin
