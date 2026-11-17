@@ -1,10 +1,10 @@
 # Lite set: what the Mac mini needs for locationjoystick, no-neck-pain.nvim, anko,
-# clidraw, pgpemu and radin. Everything else lives in config.mac.toml, which only the full
+# pgpemu and radin. Everything else lives in config.mac.toml, which only the full
 # Mac loads (MISE_ENV=mac, set by install.sh through miserc.toml).
 # Language toolchains float: projects pin their own versions, global is a fallback.
 [settings]
 # First-party tools: the user ships these, so a fresh release needs no cooling-off period.
-minimum_release_age_excludes = ["claude-code", "github:shortcuts/obsidian-quickadd-macos-menubar", "cargo:https://github.com/shortcuts/clidraw"]
+minimum_release_age_excludes = ["claude-code", "github:shortcuts/obsidian-quickadd-macos-menubar"]
 
 [tools]
 java = "latest"
@@ -36,7 +36,5 @@ stylua = "2.6.0"
 luajit = "latest" # anko: the game, tests and wiki exporters run on it; luarocks (brew) builds rocks against its headers.
 "npm:markdownlint-cli" = "0.50.0" # radin `make lint`; provides the `markdownlint` binary, unlike cli2.
 "aqua:rtk-ai/rtk" = "latest"
-# No GitHub release yet, so build from the repo head.
-"cargo:https://github.com/shortcuts/clidraw" = "branch:main"
 # Absent from mise's registry; the brew cask was disabled (fails Gatekeeper). The macOS zip holds only love.app.
 "github:love2d/love" = { version = "11.5", bin_path = "love.app/Contents/MacOS" }

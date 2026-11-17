@@ -472,10 +472,6 @@ else
     echo "claude CLI not found, skipping fff MCP registration"
 fi
 
-# Temporary: builds clidraw from this checkout until a released binary replaces this line.
-[[ -d ~/Documents/clidraw ]] || git clone https://github.com/shortcuts/clidraw ~/Documents/clidraw
-cargo install --path ~/Documents/clidraw --locked
-
 # The mise-installed claude still records installMethod "native" in ~/.claude.json,
 # and /doctor warns when ~/.local/bin/claude is missing.
 if command -v claude >/dev/null 2>&1; then

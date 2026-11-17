@@ -15,7 +15,7 @@ Here you'll find what I use on a daily basis, located in my `~/.config` folder
 
 Without the argument, `install.sh` installs `mac`.
 `lite` is for the Mac mini that runs agents. It skips the GUI apps and installs only the tools
-that locationjoystick, no-neck-pain.nvim, anko, clidraw, pgpemu and radin need. It also installs radin into Claude Code.
+that locationjoystick, no-neck-pain.nvim, anko, pgpemu and radin need. It also installs radin into Claude Code.
 
 ## update all
 

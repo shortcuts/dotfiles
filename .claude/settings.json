@@ -13,7 +13,6 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew *)",
-      "Read(//Users/clement.vannicatte/.radin/**)",
       "Read(//Users/clement.vannicatte/.radin/**)"
     ],
     "deny": [
