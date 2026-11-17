@@ -130,6 +130,8 @@ STL/.DS_Store
 !.claude/skills/test-audit/**
 !.claude/skills/maintain-design/
 !.claude/skills/maintain-design/**
+!.claude/skills/atlas/
+!.claude/skills/atlas/**
 
 
 

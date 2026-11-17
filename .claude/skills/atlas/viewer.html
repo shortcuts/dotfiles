@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://esm.sh/tldraw@5.5.4/tldraw.css">
+<style>
+  :root {
+    --ink: #3446b4; --ink-soft: #eef0fb;
+    --rose: #b23a5b; --rose-soft: #fbeef2;
+    --amber: #9a5f0c; --amber-soft: #fdf3e1;
+    --green: #2f7d4f; --green-soft: #e9f5ee;
+    --text: #1f2430; --muted: #5b6275; --line: #dde1ea; --surface: #ffffff; --bg: #f6f7f9;
+    --sans: "IBM Plex Sans", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.45 var(--sans); }
+  #root { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  /* Header: which canvas, what it is, and what needs attention. */
+  .bar { display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--line); min-width: 0; }
+  .bar select { font: 600 15px var(--sans); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 28px 6px 10px; background: var(--surface); max-width: 40vw; }
+  .summary { flex: 1; min-width: 0; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill { flex: none; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 500; border: 1px solid currentColor; }
+  .pill.proposed { color: var(--rose); } .pill.accepted { color: var(--green); } .pill.superseded { color: var(--muted); }
+  .flag { flex: none; border: 0; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 500; }
+  .flag.marks { background: var(--rose-soft); color: var(--rose); }
+  .flag.changed { background: var(--amber-soft); color: var(--amber); }
+  .flag.errors { background: #fdecec; color: #a32020; }
+  .flag.quiet { background: transparent; color: var(--muted); cursor: default; }
+  .canvas { position: relative; min-height: 0; }
+
+  /* Cards: ink is the agent's voice; rose is the human's. */
+  .card { width: 300px; height: 100%; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; font: 13px/1.45 var(--sans); color: var(--text); }
+  .card img { display: block; width: 100%; object-fit: cover; object-position: top; border-radius: 6px; margin-bottom: 10px; background: var(--bg); }
+  .c-title { font-weight: 600; font-size: 14px; line-height: 1.35; }
+  .c-body { margin-top: 6px; color: #3a4152; }
+  .c-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; color: var(--muted); }
+  .tag { border-radius: 4px; padding: 0 6px; font-weight: 500; }
+  .card.k-state { border: 1.5px solid var(--ink); border-radius: 999px; text-align: center; padding: 14px 22px; }
+  .card.k-state .c-meta { justify-content: center; }
+  .card.k-context { background: var(--ink-soft); border-color: transparent; }
+  .card.k-consequence { border-style: dashed; border-color: #b9bfcc; }
+  .card.k-decision { background: var(--ink-soft); border: 1.5px solid var(--ink); }
+  .card.is-changed { box-shadow: inset 4px 0 0 var(--amber); }
+  .tag.changed { background: var(--amber-soft); color: var(--amber); }
+  .card.v-chosen { border: 2px solid var(--green); }
+  .tag.chosen { background: var(--green-soft); color: var(--green); }
+  .card.v-rejected { background: var(--bg); }
+  .card.v-rejected .c-title { text-decoration: line-through; color: var(--muted); }
+  .card.v-rejected .c-body, .card.v-rejected img { opacity: .6; }
+  .tag.rejected { background: #eceef2; color: var(--muted); }
+  .tag.open { background: var(--ink-soft); color: var(--ink); }
+  .tag.yours { background: var(--rose-soft); color: var(--rose); }
+
+  /* Side panel: details for the selection, or the list the header points at. */
+  .panel { position: absolute; top: 12px; right: 12px; bottom: 76px; width: 360px; max-width: calc(100% - 24px); overflow: auto; pointer-events: all;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: 0 6px 24px rgba(31, 36, 48, .08); }
+  .panel h2 { margin: 0 0 4px; font-size: 16px; line-height: 1.3; }
+  .panel h3 { margin: 18px 0 6px; font-size: 13px; color: var(--muted); font-weight: 500; }
+  .panel p { margin: 6px 0; }
+  .panel .kind { color: var(--muted); font-size: 12px; }
+  .panel pre { margin: 6px 0; padding: 10px; background: var(--bg); border-radius: 8px; font: 11.5px/1.45 var(--mono); overflow: auto; max-height: 320px; }
+  .panel ul { margin: 4px 0; padding-left: 18px; }
+  .panel li { margin: 3px 0; }
+  .panel a { color: var(--ink); }
+  .ref { font: 12px var(--mono); background: none; border: 0; padding: 0; color: var(--text); text-align: left; word-break: break-all; }
+  .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .act { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 12px; font-size: 13px; }
+  .act.on { border-color: currentColor; font-weight: 600; }
+  .act.choose { color: var(--green); } .act.reject { color: var(--muted); } .act.note { color: var(--rose); }
+  .mark { border-left: 3px solid var(--rose); padding: 4px 0 4px 10px; margin: 8px 0; }
+  .mark.closed { border-color: var(--line); color: var(--muted); }
+  .mark .reply { color: var(--ink); margin-top: 4px; }
+  .mark button { all: unset; cursor: pointer; display: block; }
+  .close { float: right; border: 0; background: none; color: var(--muted); font-size: 18px; line-height: 1; }
+  .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); padding: 24px; text-align: center; }
+  #measure { position: absolute; left: -9999px; top: 0; visibility: hidden; }
+  @media (max-width: 720px) { .summary { display: none; } .panel { top: auto; height: 45%; } }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="measure"></div>
+<script type="module">
+// Served by `atlas.py serve`. The canvas is rebuilt from docs/atlas/<topic>.json on every change;
+// only the human's own shapes (notes, strokes, arrows) and verdicts are saved, as marks.
+import React from 'https://esm.sh/react@19.3.1'
+import { createRoot } from 'https://esm.sh/react-dom@19.3.1/client'
+import htm from 'https://esm.sh/htm@3.1.1'
+import {
+  Tldraw, BaseBoxShapeUtil, HTMLContainer, T, createShapeId, toRichText, useEditor, useValue,
+  DefaultColorStyle, DefaultFontStyle, renderPlaintextFromRichText,
+} from 'https://esm.sh/tldraw@5.5.4?deps=react@19.3.1,react-dom@19.3.1'
+
+const html = htm.bind(React.createElement)
+const W = 300, GAP = 64, PAD = 32, BAND_GAP = 96, IMG_MAX = 200, POLL_MS = 1500
+
+// ---- data ---------------------------------------------------------------------------------
+let state = { loaded: false, topics: [], name: null, data: null, list: null }
+const listeners = new Set()
+const setState = (patch) => { state = { ...state, ...patch }; listeners.forEach((l) => l()) }
+const useStore = (pick) => React.useSyncExternalStore((l) => (listeners.add(l), () => listeners.delete(l)), () => pick(state))
+let editor = null, knownVersion = null, saving = false
+
+const api = (path, opts) => fetch(path, opts).then((r) => r.json())
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+const cardShape = (id) => createShapeId(`card-${id}`)
+const marks = () => state.data?.marks ?? []
+const openMarks = () => marks().filter((m) => m.status !== 'closed')
+const verdictMark = (cardId) => marks().find((m) => m.kind === 'verdict' && m.card === cardId)
+
+async function loadTopics() {
+  const topics = await api('/api/topics')
+  const asked = new URLSearchParams(location.search).get('topic')
+  setState({ topics, loaded: true })
+  await openTopic(topics.some((t) => t.name === asked) ? asked : topics[0]?.name)
+}
+
+async function openTopic(name) {
+  if (!name) return setState({ name: null, data: null })
+  history.replaceState(null, '', `?topic=${name}`)
+  const data = await api(`/api/topic/${name}`)
+  knownVersion = data.version
+  setState({ name, data, list: null })
+}
+
+// ---- layout -------------------------------------------------------------------------------
+function cardHtml(card, since, imgH) {
+  const kind = card.kind || 'concept', changed = card.changes?.length > 0
+  const pending = verdictMark(card.id)
+  const tags = []
+  if (changed) tags.push(`<span class="tag changed">Code moved since ${esc(since)}</span>`)
+  if (pending) tags.push(`<span class="tag yours">You ${pending.verdict === 'chosen' ? 'chose' : 'rejected'} this</span>`)
+  else if (card.verdict === 'chosen') tags.push('<span class="tag chosen">Chosen</span>')
+  else if (card.verdict === 'rejected') tags.push('<span class="tag rejected">Rejected</span>')
+  else if (kind === 'option') tags.push('<span class="tag open">Open option</span>')
+  return `<div class="card k-${kind} v-${card.verdict || 'none'}${changed ? ' is-changed' : ''}">
+    ${card.image ? `<img src="/repo/${esc(card.image)}" alt="" style="height:${imgH}px">` : ''}
+    <div class="c-title">${esc(card.title)}</div>
+    ${card.body ? `<div class="c-body">${esc(card.body)}</div>` : ''}
+    ${tags.length ? `<div class="c-meta">${tags.join('')}</div>` : ''}
+  </div>`
+}
+
+const imageHeights = new Map()
+async function measureImages(cards) {
+  await Promise.all(cards.filter((c) => c.image && !imageHeights.has(c.image)).map((c) => new Promise((done) => {
+    const img = new Image()
+    img.onload = () => { imageHeights.set(c.image, Math.min(IMG_MAX, Math.round((W - 30) * img.naturalHeight / img.naturalWidth))); done() }
+    img.onerror = () => { imageHeights.set(c.image, 0); done() }
+    img.src = `/repo/${c.image}`
+  })))
+}
+
+function measure(card, since) {
+  const box = document.getElementById('measure')
+  box.innerHTML = cardHtml(card, since, imageHeights.get(card.image) ?? 0)
+  box.firstElementChild.style.height = 'auto'
+  return Math.ceil(box.firstElementChild.offsetHeight)
+}
+
+function layout(data) {
+  const { model, since } = data
+  const frames = [], cards = []
+  let y = 0
+  for (const band of model.bands) {
+    const members = model.cards.filter((c) => c.band === band.id)
+    if (!members.length) continue
+    const cols = Math.min(band.columns || 4, members.length)
+    const heights = members.map((c) => measure(c, since))
+    const rowH = []
+    heights.forEach((h, i) => { const r = Math.floor(i / cols); rowH[r] = Math.max(rowH[r] || 0, h) })
+    const frameId = createShapeId(`band-${band.id}`)
+    const w = 2 * PAD + cols * W + (cols - 1) * GAP
+    const h = 2 * PAD + rowH.reduce((a, b) => a + b, 0) + (rowH.length - 1) * GAP
+    frames.push({ id: frameId, type: 'frame', x: 0, y, meta: { atlas: true }, props: { w, h, name: band.title } })
+    members.forEach((c, i) => {
+      const r = Math.floor(i / cols), col = i % cols
+      const top = PAD + rowH.slice(0, r).reduce((a, b) => a + b, 0) + r * GAP
+      cards.push({ id: cardShape(c.id), type: 'atlas-card', parentId: frameId, x: PAD + col * (W + GAP), y: top,
+        meta: { atlas: true, card: c.id }, props: { w: W, h: heights[i], html: cardHtml(c, since, imageHeights.get(c.image) ?? 0) } })
+    })
+    y += h + BAND_GAP
+  }
+  return { frames, cards }
+}
+
+// ---- drawing ------------------------------------------------------------------------------
+async function draw(first) {
+  const data = state.data
+  if (!editor || !data) return
+  await document.fonts.ready
+  await measureImages(data.model.cards)
+  const { frames, cards } = layout(data)
+  const known = new Set(data.model.cards.map((c) => c.id))
+  const arrows = [], bindings = []
+  data.model.edges.forEach((e, i) => {
+    if (!known.has(e.from) || !known.has(e.to)) return
+    const id = createShapeId(`edge-${i}`), rejected = e.kind === 'rejected'
+    // Two opposite edges would share one line, so each bends to its own side.
+    const paired = data.model.edges.some((o) => o.from === e.to && o.to === e.from)
+    arrows.push({ id, type: 'arrow', meta: { atlas: true }, props: { size: 's', scale: 0.7, font: 'sans', color: rejected ? 'red' : 'grey',
+      dash: rejected ? 'dashed' : 'solid', bend: rejected ? 70 : paired ? 36 : 0, richText: toRichText(e.label || '') } })
+    for (const [terminal, end] of [['start', e.from], ['end', e.to]]) {
+      bindings.push({ type: 'arrow', fromId: id, toId: cardShape(end), props: { terminal, normalizedAnchor: { x: 0.5, y: 0.5 }, isExact: false, isPrecise: false, snap: 'none' } })
+    }
+  })
+  const human = data.marks.filter((m) => m.record).map((m) => ({ ...m.record, opacity: m.status === 'closed' ? 0.35 : 1, meta: { mark: m.id } }))
+  const camera = editor.getCamera(), selected = editor.getSelectedShapeIds()
+  editor.store.mergeRemoteChanges(() => {
+    editor.deleteShapes([...editor.getCurrentPageShapeIds()])
+    editor.createShapes([...frames, ...cards])
+    editor.createShapes(arrows)
+    editor.createBindings(bindings)
+    if (human.length) editor.createShapes(human)
+  })
+  // Open on the first band at a readable zoom; the minimap and zoom-out show the rest.
+  if (first && frames.length) editor.zoomToBounds(editor.getShapePageBounds(frames[0].id), { inset: 48, targetZoom: 1, animation: { duration: 0 } })
+  else { editor.setCamera(camera); editor.select(...selected.filter((id) => editor.getShape(id))) }
+}
+
+// The human's shapes become marks, each anchored to the card it sits on or nearest to.
+function collectMarks() {
+  const cardBoxes = editor.getCurrentPageShapes().filter((s) => s.type === 'atlas-card').map((s) => [s.meta.card, editor.getShapePageBounds(s)])
+  const shapes = editor.getCurrentPageShapes().filter((s) => !s.meta.atlas)
+  const out = shapes.map((s) => {
+    const b = editor.getShapePageBounds(s), c = b.center
+    let card = null, best = Infinity
+    for (const [id, box] of cardBoxes) {
+      const dx = Math.max(box.minX - c.x, 0, c.x - box.maxX), dy = Math.max(box.minY - c.y, 0, c.y - box.maxY)
+      const d = Math.hypot(dx, dy)
+      if (d < best) { best = d; card = id }
+    }
+    const at = editor.getShapePageTransform(s).point()
+    const { index, opacity, ...rest } = s
+    return { id: s.id, kind: s.type, card, text: s.props.richText ? renderPlaintextFromRichText(editor, s.props.richText) : '',
+      record: { ...rest, x: at.x, y: at.y, parentId: editor.getCurrentPageId() } }
+  })
+  return [...out, ...marks().filter((m) => m.kind === 'verdict').map(({ status, reply, ...m }) => m)]
+}
+
+let saveTimer = null
+function scheduleSave() {
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(save, 700)
+}
+async function save(extra) {
+  if (!editor || !state.name) return
+  saving = true
+  const list = extra ?? collectMarks()
+  const { version } = await api(`/api/marks/${state.name}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ marks: list }) })
+  knownVersion = version
+  const data = await api(`/api/topic/${state.name}`)
+  knownVersion = data.version
+  saving = false
+  setState({ data, topics: state.topics.map((t) => t.name === state.name ? { ...t, open: data.marks.filter((m) => m.status !== 'closed').length } : t) })
+}
+
+function setVerdict(cardId, verdict) {
+  const others = collectMarks().filter((m) => !(m.kind === 'verdict' && m.card === cardId))
+  const current = verdictMark(cardId)
+  const card = state.data.model.cards.find((c) => c.id === cardId)
+  const next = current?.verdict === verdict ? others
+    : [...others, { id: `verdict-${cardId}`, kind: 'verdict', card: cardId, verdict, text: `${verdict === 'chosen' ? 'Choose' : 'Reject'}: ${card.title}` }]
+  save(next).then(() => draw(false))
+}
+
+function addNote(cardId) {
+  const shape = editor.getShape(cardShape(cardId))
+  const b = editor.getShapePageBounds(shape)
+  const id = createShapeId()
+  editor.createShape({ id, type: 'note', x: b.maxX + 24, y: b.minY, props: { color: 'light-red', font: 'draw', size: 's', richText: toRichText('') } })
+  editor.select(id)
+  editor.setEditingShape(id)
+}
+
+function focusMark(m) {
+  const target = editor.getShape(m.id) ?? (m.card && editor.getShape(cardShape(m.card)))
+  if (!target) return
+  editor.select(target.id)
+  editor.zoomToSelection({ animation: { duration: 300 } })
+}
+
+setInterval(async () => {
+  if (!state.name || saving || !editor || editor.getEditingShapeId()) return
+  const { version } = await api(`/api/version/${state.name}`).catch(() => ({}))
+  if (!version || version === knownVersion) return
+  const data = await api(`/api/topic/${state.name}`)
+  knownVersion = data.version
+  setState({ data })
+  draw(false)
+}, POLL_MS)
+
+// ---- shapes and UI ------------------------------------------------------------------------
+class CardUtil extends BaseBoxShapeUtil {
+  static type = 'atlas-card'
+  static props = { w: T.number, h: T.number, html: T.string }
+  getDefaultProps() { return { w: W, h: 120, html: '' } }
+  canResize() { return false }
+  canEdit() { return false }
+  component(shape) {
+    return html`<${HTMLContainer} style=${{ pointerEvents: 'none' }}><div style=${{ height: '100%' }} dangerouslySetInnerHTML=${{ __html: shape.props.html }} /></${HTMLContainer}>`
+  }
+  getIndicatorPath(shape) { const p = new Path2D(); p.roundRect(0, 0, shape.props.w, shape.props.h, 10); return p }
+}
+
+function Header() {
+  const { loaded, topics, name, data } = useStore((s) => s)
+  if (!loaded) return html`<header class="bar"><strong>Atlas</strong></header>`
+  if (!topics.length) return html`<header class="bar"><strong>Atlas</strong><span class="summary">${'No canvas yet. Ask the agent to map a flow into docs/atlas/<topic>.json.'}</span></header>`
+  const model = data?.model
+  const changed = model?.cards.filter((c) => c.changes?.length).length ?? 0
+  const open = data ? openMarks().length : 0
+  const toggle = (list) => setState({ list: state.list === list ? null : list })
+  return html`<header class="bar">
+    <select aria-label="Canvas" value=${name ?? ''} onChange=${(e) => openTopic(e.target.value)}>
+      ${topics.map((t) => html`<option key=${t.name} value=${t.name}>${t.topic}${t.open ? ` (${t.open} open)` : ''}</option>`)}
+    </select>
+    ${model && html`<span class=${`pill ${model.status || 'accepted'}`}>${{ proposed: 'Proposed', accepted: 'Accepted', superseded: 'Superseded' }[model.status || 'accepted']}</span>`}
+    <span class="summary" title=${model?.summary}>${model?.summary}</span>
+    ${data?.errors.length > 0 && html`<button class="flag errors" onClick=${() => toggle('errors')}>${data.errors.length} broken link${data.errors.length > 1 ? 's' : ''}</button>`}
+    ${changed > 0 ? html`<button class="flag changed" onClick=${() => toggle('changed')}>${changed} to review since ${data.since}</button>`
+      : data?.since && html`<span class="flag quiet">No change since ${data.since}</span>`}
+    ${html`<button class="flag marks" onClick=${() => toggle('marks')}>${open ? `${open} open mark${open > 1 ? 's' : ''}` : 'No open marks'}</button>`}
+  </header>`
+}
+
+function MarkItem({ m }) {
+  const title = m.kind === 'verdict' ? m.text : m.text || `A ${m.kind} on the canvas`
+  return html`<div class=${`mark ${m.status === 'closed' ? 'closed' : ''}`}>
+    <button onClick=${() => focusMark(m)}>${title}</button>
+    ${m.reply && html`<div class="reply">Agent: ${m.reply}</div>`}
+  </div>`
+}
+
+function Panel() {
+  const { data, list } = useStore((s) => s)
+  const ed = useEditor()
+  const sel = useValue('selection', () => ed.getOnlySelectedShape(), [ed])
+  if (!data) return null
+  const byId = Object.fromEntries(data.model.cards.map((c) => [c.id, c]))
+  const close = html`<button class="close" aria-label="Close" onClick=${() => { editor.selectNone(); setState({ list: null }) }}>×</button>`
+
+  if (sel?.type === 'atlas-card') {
+    const c = byId[sel.meta.card]
+    if (!c) return null
+    const [docFile, anchor] = (c.doc || '').split('#')
+    const onCard = marks().filter((m) => m.card === c.id)
+    const v = verdictMark(c.id)?.verdict
+    const kindName = { context: 'Context', concept: 'Concept', state: 'State', option: 'Option', decision: 'Decision', consequence: 'Consequence', image: 'Image' }[c.kind || 'concept']
+    return html`<aside class="panel">${close}
+      <div class="kind">${kindName}</div>
+      <h2>${c.title}</h2>
+      ${c.body && html`<p>${c.body}</p>`}
+      ${c.touches?.length > 0 && html`<h3>Areas of the code</h3><ul>${c.touches.map((a) => html`<li key=${a} class="ref">${a}</li>`)}</ul>`}
+      ${c.doc && html`<h3>Doc</h3><a href=${`/repo/${docFile}`} target="_blank" rel="noreferrer">${docFile}${anchor ? ` #${anchor}` : ''}</a>`}
+      ${c.changes?.length > 0 && html`<h3>Commits since ${data.since}</h3><ul>${c.changes.map((x) => html`<li key=${x}>${x}</li>`)}</ul>`}
+      ${onCard.length > 0 && html`<h3>Marks</h3>${onCard.map((m) => html`<${MarkItem} key=${m.id} m=${m} />`)}`}
+      <div class="actions">
+        ${(c.kind === 'option') && html`
+          <button class=${`act choose ${v === 'chosen' ? 'on' : ''}`} aria-pressed=${v === 'chosen'} onClick=${() => setVerdict(c.id, 'chosen')}>Choose</button>
+          <button class=${`act reject ${v === 'rejected' ? 'on' : ''}`} aria-pressed=${v === 'rejected'} onClick=${() => setVerdict(c.id, 'rejected')}>Reject</button>`}
+        <button class="act note" onClick=${() => addNote(c.id)}>Add a note</button>
+      </div>
+    </aside>`
+  }
+  if (sel?.meta?.mark || (sel && !sel.meta?.atlas)) {
+    const m = marks().find((x) => x.id === sel.id)
+    return html`<aside class="panel">${close}
+      <div class="kind">Your mark${m?.card ? ` on ${byId[m.card]?.title ?? m.card}` : ''}</div>
+      <h2>${m?.status === 'closed' ? 'Closed' : m ? 'Open' : 'Saving…'}</h2>
+      ${m?.text && html`<p>${m.text}</p>`}
+      ${m?.reply ? html`<h3>Agent reply</h3><p>${m.reply}</p>` : html`<p class="kind">The agent reads open marks on its next pass and replies here.</p>`}
+    </aside>`
+  }
+  if (list === 'marks') {
+    const open = openMarks(), closed = marks().filter((m) => m.status === 'closed')
+    return html`<aside class="panel">${close}<h2>Marks</h2>
+      ${!marks().length && html`<p>Add a note anywhere on the canvas, or choose and reject options. The agent reads them on its next pass.</p>`}
+      ${open.length > 0 && html`<h3>Open</h3>${open.map((m) => html`<${MarkItem} key=${m.id} m=${m} />`)}`}
+      ${closed.length > 0 && html`<h3>Closed</h3>${closed.map((m) => html`<${MarkItem} key=${m.id} m=${m} />`)}`}
+    </aside>`
+  }
+  if (list === 'changed') {
+    return html`<aside class="panel">${close}<h2>To review since ${data.since}</h2>
+      <p>Code under these cards moved. Check that each one still holds.</p>
+      ${data.model.cards.filter((c) => c.changes?.length).map((c) => html`<div class="mark" key=${c.id} style=${{ borderColor: 'var(--amber)' }}>
+        <button onClick=${() => focusMark({ card: c.id })}>${c.title}</button><ul>${c.changes.map((x) => html`<li key=${x}>${x}</li>`)}</ul></div>`)}
+    </aside>`
+  }
+  if (list === 'errors') {
+    return html`<aside class="panel">${close}<h2>Broken links</h2>
+      <p>A doc heading or an area this canvas points at is gone. Ask the agent to maintain this canvas.</p><ul>${data.errors.map((e) => html`<li key=${e}>${e}</li>`)}</ul>
+    </aside>`
+  }
+  return null
+}
+
+function Canvas() {
+  const name = useStore((s) => s.name), data = useStore((s) => s.data)
+  const shapeUtils = React.useMemo(() => [CardUtil], [])
+  if (!name) return html`<div class="canvas"><div class="empty">No canvas in docs/atlas/ yet.</div></div>`
+  return html`<div class="canvas"><${Tldraw} key=${name} shapeUtils=${shapeUtils}
+    components=${{ InFrontOfTheCanvas: Panel, StylePanel: null, MainMenu: null, PageMenu: null, HelpMenu: null, DebugMenu: null, DebugPanel: null, SharePanel: null }}
+    onMount=${(ed) => {
+      editor = window.editor = ed
+      ed.setStyleForNextShapes(DefaultColorStyle, 'light-red')
+      ed.setStyleForNextShapes(DefaultFontStyle, 'draw')
+      ed.store.listen(scheduleSave, { source: 'user', scope: 'document' })
+      if (data) draw(true)
+      return () => { editor = null }
+    }} /></div>`
+}
+
+const Root = () => html`<${React.Fragment}><${Header} /><${Canvas} /></${React.Fragment}>`
+
+createRoot(document.getElementById('root')).render(html`<${Root} />`)
+loadTopics()
+</script>
+</body>
+</html>
