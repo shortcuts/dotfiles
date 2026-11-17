@@ -33,6 +33,7 @@ yq = "4.54.1" # rpi `make lint` (lint-compose.sh) sorts compose keys with it.
 shellcheck = "0.11.0"
 shfmt = "3.14.1"
 stylua = "2.6.0"
+luajit = "latest" # anko: the game, tests and wiki exporters run on it; luarocks (brew) builds rocks against its headers.
 "npm:markdownlint-cli" = "0.50.0" # radin `make lint`; provides the `markdownlint` binary, unlike cli2.
 "aqua:rtk-ai/rtk" = "latest"
 # No GitHub release yet, so build from the repo head.

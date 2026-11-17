@@ -1,13 +1,13 @@
 # Two Claude accounts, one config. Keychain keys each login by CLAUDE_CONFIG_DIR, so a
 # separate dir per account keeps both logins; every other file links back to ~/.claude.
-function cc --description 'cc setup | cc a|b [claude args]'
+function cc --description 'cc setup | cc a|b|c [claude args]'
     set -l shared (path resolve ~/.claude)
     # Per-account state: login/MCP file and runtime locks must not be shared.
     set -l skip .claude.json .credentials.json sessions daemon.lock daemon.status.json daemon-auth-cooldown daemon-auth-status.json
 
     switch $argv[1]
         case setup
-            for acct in a b
+            for acct in a b c
                 set -l dir ~/.claude-$acct
                 mkdir -p $dir
                 for name in (command ls -A $shared)
@@ -26,10 +26,10 @@ function cc --description 'cc setup | cc a|b [claude args]'
                 end
             end
             echo "next: cc a, then /login (account 1). cc b, then /login (account 2)."
-        case a b
+        case a b c
             CLAUDE_CONFIG_DIR=$HOME/.claude-$argv[1] command claude $argv[2..-1]
         case '*'
-            echo "usage: cc setup | cc a|b [claude args]" >&2
+            echo "usage: cc setup | cc a|b|c [claude args]" >&2
             return 1
     end
 end

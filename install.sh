@@ -452,6 +452,17 @@ brew autoremove
 # This script runs in bash, which never loads fish/config.fish: put the new tools on PATH.
 eval "$(mise env -s bash)"
 
+# The android-commandlinetools cask ships sdkmanager, not an SDK: Gradle fails on the empty
+# ANDROID_HOME that fish/config.fish sets. Runs after mise env, since sdkmanager needs mise's java.
+# AGP fetches build-tools itself once the licenses are accepted.
+if command -v sdkmanager >/dev/null 2>&1; then
+    sdk=$HOME/Android/Sdk
+    mkdir -p "$sdk"
+    yes | sdkmanager --sdk_root="$sdk" --licenses >/dev/null
+    sdkmanager --sdk_root="$sdk" "platforms;android-37.0"
+    sdkmanager --sdk_root="$sdk" --update
+fi
+
 # fff MCP server for Claude Code (user scope, stored in ~/.claude.json)
 if ! command -v fff-mcp >/dev/null 2>&1; then
     echo "fff-mcp not found, skipping fff MCP registration"

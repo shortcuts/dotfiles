@@ -60,7 +60,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "fable",
+  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {
