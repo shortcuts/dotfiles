@@ -114,7 +114,7 @@ sync_hosts() {
     local new domain
     new=$(mktemp)
     cp /etc/hosts "$new"
-    for domain in dashboard wgeasy proxy pihole homeassistant qbittorrent jellyfin kuma dozzle openbao; do
+    for domain in dashboard wgeasy proxy pihole homeassistant qbittorrent jellyfin kuma dozzle openbao pogo; do
         echo "192.168.1.19 $domain.shrtcts.fr"
     done | hostctl replace rpi --host-file "$new" --quiet &&
         { cmp -s "$new" /etc/hosts || sudo cp "$new" /etc/hosts; }
