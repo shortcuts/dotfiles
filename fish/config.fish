@@ -39,6 +39,8 @@ set -gx MANPAGER "nvim +Man!"
 set -gx EDITOR nvim
 set -gx LG_CONFIG_FILE $HOME/.config/lazygit/config.yml
 set -gx VAULT_ADDR https://vault.algolia.net
+set -gx GOPRIVATE github.com/algolia/*
+
 
 # Subshells inherit the env from the first shell; skip the brew spawn then
 if not set -q HOMEBREW_PREFIX
