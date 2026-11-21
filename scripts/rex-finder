@@ -49,8 +49,9 @@ name=${selected##*/}
 name=${name//./_}
 
 # Close the popup first, so no bare terminal shows during the switch. Closing
-# the layer hangs up this script, so it ignores SIGHUP and drops its output.
-trap '' HUP
+# the layer hangs up this script, so it catches SIGHUP and drops its output.
+# `trap ''` (ignore) no longer survives in the latest Rex: the script dies.
+trap : HUP
 close_layer
 exec >/dev/null 2>&1 </dev/null
 # match on label: `rex ls` reports no cwd, so a renamed session counts as new
