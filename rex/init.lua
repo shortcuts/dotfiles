@@ -17,7 +17,22 @@ local function pane_directory(ctx)
   if not ctx.block_id then
     return nil, "no source pane"
   end
-  local target = { session_id = ctx.session_id, block_id = ctx.block_id }
+  -- A floating program (nvim) reports no directory, so a press from inside one
+  -- uses the window's tiled pane beneath it. shortcut: takes the first tiled
+  -- block, so a split window may pick the wrong pane; upgrade if that bites.
+  local block_id = ctx.block_id
+  local view = rex.call("session.view", { session_id = ctx.session_id })
+  for _, window in ipairs(view and view.windows or {}) do
+    local tiled, in_float
+    for _, layer in ipairs(window.layers or {}) do
+      for _, block in ipairs(layer.blocks or {}) do
+        if layer.kind == "tiled" then tiled = tiled or block.block_id end
+        if layer.kind == "floating" and block.block_id == block_id then in_float = true end
+      end
+    end
+    if in_float and tiled then block_id = tiled end
+  end
+  local target = { session_id = ctx.session_id, block_id = block_id }
 
   local status = rex.block.call("com.superlogical.terminal", "pwd", target)
   local url = status and status.pwd or ""
