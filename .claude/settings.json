@@ -197,7 +197,8 @@
     "interfaces@interfaces": true,
     "obsidian@obsidian-skills": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "dashboard-design@dashboard-design-skill": true
+    "dashboard-design@dashboard-design-skill": true,
+    "typesafe@typesafe-ai": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -234,6 +235,12 @@
       "source": {
         "source": "github",
         "repo": "abdiraimov-otabek/dashboard-design-skill"
+      }
+    },
+    "typesafe-ai": {
+      "source": {
+        "source": "github",
+        "repo": "typesafe-ai/skills"
       }
     }
   },
