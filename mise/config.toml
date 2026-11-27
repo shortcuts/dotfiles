@@ -38,3 +38,4 @@ luajit = "latest" # anko: the game, tests and wiki exporters run on it; luarocks
 "aqua:rtk-ai/rtk" = "latest"
 # Absent from mise's registry; the brew cask was disabled (fails Gatekeeper). The macOS zip holds only love.app.
 "github:love2d/love" = { version = "11.5", bin_path = "love.app/Contents/MacOS" }
+stripe = "latest"

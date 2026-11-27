@@ -21,8 +21,7 @@
       "Bash(terraform apply)",
       "Bash(terraform apply *)",
       "Bash(terraform destroy)",
-      "Bash(terraform destroy *)",
-      "Bash(git push *)"
+      "Bash(terraform destroy *)"
     ],
     "ask": [
       "Bash(eval:*)",
@@ -197,7 +196,8 @@
     "pyright-lsp@claude-plugins-official": true,
     "interfaces@interfaces": true,
     "obsidian@obsidian-skills": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "dashboard-design@dashboard-design-skill": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -228,6 +228,12 @@
       "source": {
         "source": "github",
         "repo": "obsidianmd/obsidian-skills"
+      }
+    },
+    "dashboard-design-skill": {
+      "source": {
+        "source": "github",
+        "repo": "abdiraimov-otabek/dashboard-design-skill"
       }
     }
   },
