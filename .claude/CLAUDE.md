@@ -12,6 +12,26 @@ Project instructions add to these guidelines.
 - Never add `Co-Authored-By` or "Generated with Claude Code" lines to commit messages or PR
   bodies. Subagents follow this rule too.
 
+## Testing strategy
+
+A test earns its place only when it fails on a regression, and only on a regression.
+Before you add or change a test, answer these questions. A missing answer means you do not add the test.
+
+1. Which behavior does it guard?
+2. Which regression makes it fail?
+3. Why does no existing test catch that regression? Add a row to an existing table test instead of a near-copy.
+4. Does it need an export, flag or hook that no production caller uses? Test at the real boundary instead.
+
+Do not add a test that:
+
+- is always skipped. Exceptions: the skip names a ticket or flake to fix.
+- asserts nothing, or only prints.
+- asserts that a constant equals its literal, that a constructor stores its arguments, or that a value which cannot be nil is non-nil.
+- computes its expected value with the logic under test. Write the literal.
+- tests the standard library or a dependency.
+- repeats the inputs and assertions of another test.
+- reads private state when a public method, output or status page shows the same value.
+
 ## MCP Tools: fff
 
 The fff MCP server indexes the current git-indexed directory. Search and grep inside that
